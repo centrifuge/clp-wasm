@@ -19,7 +19,7 @@ along with C++lex.  If not, see <http://www.gnu.org/licenses/>.
 #define SIMPLEX_H
 
 // PILAL
-#include "pilal.h"
+#include "matrix.h"
 
 // Simplex classes
 #include "columnset.h"
@@ -53,7 +53,7 @@ public:
     ~Simplex();
 
     // Settings
-    void load_problem(char const * problem_name);
+    void load_problem(const std::string & problem_name);
     void load_lp_problem(std::istream & stream);
     void add_variable(Variable * variable);
     void add_constraint(Constraint const & constraint);

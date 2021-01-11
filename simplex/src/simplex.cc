@@ -24,8 +24,28 @@ along with C++lex.  If not, see <http://www.gnu.org/licenses/>.
 #include <sstream>
 #include <string>
 
+#include <filesystem>
+namespace fs = std::filesystem;
+
+std::string resolvePath(const std::string & relPath)
+{
+    auto baseDir = fs::current_path();
+    while (baseDir.has_parent_path())
+    {
+        auto combinePath = baseDir / relPath;
+        if (exists(combinePath))
+        {
+            return combinePath.string();
+        }
+        if (baseDir == baseDir.parent_path())
+            break;
+        baseDir = baseDir.parent_path();
+    }
+    return {};
+}
+
 #define TOL ((float_type)(0.00000000000000000001))
-#define VERBOSE 1
+#define VERBOSE 0
 
 using pilal::tol_equal;
 using std::ifstream;
@@ -117,12 +137,14 @@ End
     static const std::vector<string> SECTIONS = { "Maximize", "Minimize", "Subject To", "Bounds", "Generals", "End" };
 }
 
-void Simplex::load_problem(char const * problem_name)
+void Simplex::load_problem(const std::string & problem_name)
 {
 
-    ifstream file(problem_name);
+    auto path = resolvePath(problem_name);
+
+    ifstream file(path.c_str());
     if (!file.good())
-        throw(DataMismatchException("file not found."));
+        throw std::exception("file not found.");
 
     /*
         File parsing
@@ -350,21 +372,21 @@ void Simplex::process_to_standard_form()
 
             // Add a non-negativity constraint
             Matrix eye(1, solution_dimension);
-            eye(i) = 1;
-            this->add_constraint(Constraint(eye, CT_NON_NEGATIVE, 0));
+            eye(i) = 1.0;
+            this->add_constraint(Constraint(eye, CT_NON_NEGATIVE, 0.0));
 
             ++solution_dimension;
 
             // Add a column to all constraints
             vector<Constraint>::iterator mit;
             for (mit = nn_constraints.begin(); mit != nn_constraints.end(); ++mit)
-                mit->add_column(0);
+                mit->add_column(0.0);
 
             // Add another non-negativity constraint
             Matrix n_eye(1, solution_dimension);
-            n_eye(solution_dimension - 1) = 1;
+            n_eye(solution_dimension - 1) = 1.0;
 
-            this->add_constraint(Constraint(n_eye, CT_NON_NEGATIVE, 0));
+            this->add_constraint(Constraint(n_eye, CT_NON_NEGATIVE, 0.0));
 
             // Add a regular constraint
             for (mit = constraints.begin(); mit != constraints.end(); ++mit)
@@ -374,7 +396,9 @@ void Simplex::process_to_standard_form()
 
             // Update variables status
             string aux_name(variables.at(i)->name);
-            Variable * auxiliary = new AuxiliaryVariable(this, (aux_name + "_minus").c_str(), variables.size());
+            Variable * auxiliary = new AuxiliaryVariable(this,
+                                                         (aux_name + "_minus").c_str(),
+                                                         static_cast<int>(variables.size()));
             Variable * splitted = new SplittedVariable(this,
                                                        variables.at(i)->name.c_str(),
                                                        (AuxiliaryVariable *)auxiliary);
@@ -547,15 +571,15 @@ void Simplex::process_to_artificial_problem()
 
                 // Create non-negative constraint for new variable
                 Matrix eye(1, solution_dimension);
-                eye(solution_dimension - 1) = 1;
+                eye(solution_dimension - 1) = 1.0;
 
-                for (unsigned int k = 0; k < nn_constraints.size(); ++k)
-                    nn_constraints.at(k).add_column(0);
+                for (auto k = 0; k < nn_constraints.size(); ++k)
+                    nn_constraints.at(k).add_column(0.0);
 
                 // Objective function costs updated
-                objective_function.add_column(1);
+                objective_function.add_column(1.0);
 
-                this->add_constraint(Constraint(eye, CT_NON_NEGATIVE, 0));
+                this->add_constraint(Constraint(eye, CT_NON_NEGATIVE, 0.0));
             }
         }
     }
@@ -569,10 +593,10 @@ void Simplex::solve_with_base(ColumnSet const & initial_base)
 
     // Preprocess constraints data to lead to matrices
     coefficients_matrix.resize( // A
-        constraints.size(),
+        static_cast<int>(constraints.size()),
         solution_dimension);
 
-    constraints_vector.resize(constraints.size(), 1);
+    constraints_vector.resize(static_cast<int>(constraints.size()), 1);
 
     for (unsigned int i = 0; i < constraints.size(); ++i)
     {
@@ -686,12 +710,12 @@ void Simplex::solve_with_base(ColumnSet const & initial_base)
 
             // Column of reduced cost with min value (one of the policies)
             int p = -1;
-            column_p.resize(constraints.size(), 1);
+            column_p.resize(static_cast<int>(constraints.size()), 1);
             Matrix a_tilde;
 
             // Bland's strategy
             for (unsigned int i = 0; i < current_out_of_base.size() && p == -1; ++i)
-                if (reduced_cost(current_out_of_base.column(i)) < 0)
+                if (reduced_cost(current_out_of_base.column(i)) < 0.0)
                     p = current_out_of_base.column(i);
 
             for (unsigned int i = 0; i < constraints.size(); ++i)
@@ -777,7 +801,8 @@ void Simplex::solve_with_base(ColumnSet const & initial_base)
 void Simplex::print_solution() const
 {
 
-    std::cout << "Optimal solution is:" << std::endl;
+    std::cout << "Optimal solution is:" << std::setprecision(std::numeric_limits<float_type>::max_digits10)
+              << std::endl;
     for (int i = 0; i < solution_dimension; ++i)
         std::cout << variables.at(i)->name << ":\t\t\t" << solution(i) << std::endl;
 

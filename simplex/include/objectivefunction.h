@@ -18,7 +18,7 @@ along with C++lex.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef OBJECTIVE_FUNCTION_H
 #define OBJECTIVE_FUNCTION_H
 
-#include "pilal.h"
+#include "matrix.h"
 using pilal::Matrix;
 
 namespace optimization
@@ -43,7 +43,7 @@ public:
     ObjectiveFunction & operator=(ObjectiveFunction const & objective_function);
 
     // Solution value
-    Matrix const & get_value(Matrix const & x) const;
+    Matrix get_value(Matrix x) const;
 
     // Manipulation
     void add_column(float_type value);

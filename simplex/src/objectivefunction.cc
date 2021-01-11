@@ -64,7 +64,7 @@ void ObjectiveFunction::log() const
     std::cout << ") * x " << std::endl;
 }
 
-Matrix const & ObjectiveFunction::get_value(Matrix const & x) const
+Matrix ObjectiveFunction::get_value(Matrix x) const
 {
     return costs * x;
 }

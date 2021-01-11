@@ -20,8 +20,6 @@ along with C++lex.  If not, see <http://www.gnu.org/licenses/>.
 #include <algorithm>
 #include <vector>
 
-using std::vector;
-
 namespace optimization
 {
 
@@ -52,8 +50,8 @@ void ColumnSet::remove(int column)
 int ColumnSet::index_of(int column)
 {
     int pos = 0;
-    for (vector<int>::iterator it = columns.begin(); it != columns.end(); ++it)
-        if (*it != column)
+    for (auto & it : columns)
+        if (it != column)
             ++pos;
         else
             return pos;
@@ -64,12 +62,10 @@ void ColumnSet::log(char const * prelude) const
 {
 
     std::cout << prelude;
-
-    for (vector<int>::const_iterator it = columns.begin(); it != columns.end(); ++it)
+    for (const auto column : columns)
     {
-        std::cout << *it << " ";
+        std::cout << column << " ";
     }
-
     std::cout << std::endl;
 }
 
@@ -83,8 +79,8 @@ int & ColumnSet::column(int idx)
     return columns.at(idx);
 }
 
-unsigned int ColumnSet::size() const
+unsigned ColumnSet::size() const
 {
-    return columns.size();
+    return static_cast<unsigned>(columns.size());
 }
 } // namespace optimization

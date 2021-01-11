@@ -18,7 +18,7 @@ along with C++lex.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef CONSTRAINT_H
 #define CONSTRAINT_H
 
-#include "pilal.h"
+#include "matrix.h"
 using pilal::Matrix;
 
 namespace optimization
@@ -26,18 +26,15 @@ namespace optimization
 
 enum ConstraintType
 {
-
     CT_LESS_EQUAL,
     CT_MORE_EQUAL,
     CT_EQUAL,
     CT_NON_NEGATIVE,
     CT_BOUNDS
-
 };
 
 class Constraint
 {
-
     friend class Simplex;
 
 public:
