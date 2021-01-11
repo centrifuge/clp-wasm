@@ -19,91 +19,106 @@ along with C++lex.  If not, see <http://www.gnu.org/licenses/>.
 #include "simplex.h"
 
 // Using
-using pilal::Matrix;
 using pilal::AnonymousMatrix;
+using pilal::Matrix;
 
-namespace optimization {
+namespace optimization
+{
 
-    /*
-        Constraint
-        ==========
-        Class that represents a constraint: A_i * x_j = b_i.
-        
-    */
-    
-    Constraint::Constraint( Matrix const & coefficients, ConstraintType type, long double value ) {
-        
-        // Coefficients must be a row vector
-        if ( coefficients.dim().first == 1 ) {
-            this->coefficients = coefficients;
-            this->type = type;
-            this->value = value;
-        } else {
-            throw(DataMismatchException("Invalid coefficients vector."));
-        }
-    }
-    
-    Constraint::Constraint( Matrix const & coefficients, ConstraintType type, long double lower, long double upper ) {
-        
-        if ( type != CT_BOUNDS )
-            throw(DataMismatchException("Invalid constraint type for provided data"));
-            
-        // Coefficients must be a row vector
-        if ( coefficients.dim().first == 1 ) {
-            this->coefficients = coefficients;
-            this->type = type;
-            this->lower = lower;
-            this->upper = upper;
-        } else {
-            throw(DataMismatchException("Invalid coefficients vector."));
-        }
-    }
-    
-    int Constraint::size() const {
-        return coefficients.dim().second;
-    }
-    
-    void Constraint::log() const {
-        for (int i = 0; i < coefficients.dim().second; ++i)
-            std::cout << coefficients(i) << "\t";
-        
-        switch(type) {
+/*
+    Constraint
+    ==========
+    Class that represents a constraint: A_i * x_j = b_i.
 
-            case CT_EQUAL:
+*/
+
+Constraint::Constraint(Matrix const & coefficients, ConstraintType type, float_type value)
+{
+
+    // Coefficients must be a row vector
+    if (coefficients.dim().first == 1)
+    {
+        this->coefficients = coefficients;
+        this->type = type;
+        this->value = value;
+    }
+    else
+    {
+        throw(DataMismatchException("Invalid coefficients vector."));
+    }
+}
+
+Constraint::Constraint(Matrix const & coefficients, ConstraintType type, float_type lower, float_type upper)
+{
+
+    if (type != CT_BOUNDS)
+        throw(DataMismatchException("Invalid constraint type for provided data"));
+
+    // Coefficients must be a row vector
+    if (coefficients.dim().first == 1)
+    {
+        this->coefficients = coefficients;
+        this->type = type;
+        this->lower = lower;
+        this->upper = upper;
+    }
+    else
+    {
+        throw(DataMismatchException("Invalid coefficients vector."));
+    }
+}
+
+int Constraint::size() const
+{
+    return coefficients.dim().second;
+}
+
+void Constraint::log() const
+{
+    for (int i = 0; i < coefficients.dim().second; ++i)
+        std::cout << coefficients(i) << "\t";
+
+    switch (type)
+    {
+
+        case CT_EQUAL:
             std::cout << "=\t";
             break;
-            
-            case CT_LESS_EQUAL:
+
+        case CT_LESS_EQUAL:
             std::cout << "<=\t";
             break;
-            
-            case CT_MORE_EQUAL:
+
+        case CT_MORE_EQUAL:
             std::cout << ">=\t";
             break;
-            
-            case CT_BOUNDS:
+
+        case CT_BOUNDS:
             std::cout << "bounded to ";
             break;
-            
-            case CT_NON_NEGATIVE:
+
+        case CT_NON_NEGATIVE:
             std::cout << "non-negative ";
-        }
-        
-        if (type == CT_NON_NEGATIVE)
-            std::cout << std::endl;
-        else if ( type == CT_BOUNDS )
-            std::cout << lower << " <= " << "value" << " <= " << upper << std::endl;
-        else
-            std::cout << value << std::endl;
-    }
-    
-    void Constraint::add_column(long double value) {
-        AnonymousMatrix row(1, coefficients.dim().second+1);
-        for (int i = 0; i < coefficients.dim().second; ++i)
-            row(i) = coefficients(i);
-        
-        row(coefficients.dim().second) = value;
-        coefficients = row;
     }
 
+    if (type == CT_NON_NEGATIVE)
+        std::cout << std::endl;
+    else if (type == CT_BOUNDS)
+        std::cout << lower << " <= "
+                  << "value"
+                  << " <= " << upper << std::endl;
+    else
+        std::cout << value << std::endl;
 }
+
+void Constraint::add_column(float_type value)
+{
+    AnonymousMatrix row(1, coefficients.dim().second + 1);
+    for (int i = 0; i < coefficients.dim().second; ++i)
+        row(i) = coefficients(i);
+
+    row(coefficients.dim().second) = value;
+    coefficients = row;
+}
+
+} // namespace optimization

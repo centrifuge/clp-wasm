@@ -1,0 +1,19 @@
+{
+    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+    "files.autoSave": "afterDelay",
+    "files.autoSaveDelay": 2000,
+    "testMate.cpp.debug.configTemplate": {
+        "type": "cppdbg",
+        "program": "${exec}",
+        "args": "${args}",
+        "cwd": "${cwd}",
+        "env": "${envObj}",
+        "externalConsole": false
+    },
+    "clangd.arguments": [
+        "--clang-tidy",
+        "--background-index",
+        "--suggest-missing-includes",
+        "--compile-commands-dir=build"
+    ],
+}

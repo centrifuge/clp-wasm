@@ -21,43 +21,42 @@ along with C++lex.  If not, see <http://www.gnu.org/licenses/>.
 #include "pilal.h"
 using pilal::Matrix;
 
-namespace optimization {
+namespace optimization
+{
 
-    enum ConstraintType {
-        
-        CT_LESS_EQUAL,
-        CT_MORE_EQUAL,
-        CT_EQUAL,
-        CT_NON_NEGATIVE,
-        CT_BOUNDS     
-           
-    };
-        
-            
-    class Constraint {
-        
-        friend class Simplex;
-        
-        public:
-                
-            Constraint( Matrix const & coefficients, ConstraintType type, long double value );
-            Constraint( Matrix const & coefficients, ConstraintType type, long double lower, long double upper );
-            
-            // Debug
-            void log() const; 
-            void add_column(long double value);
-            int size() const; 
-            
-        private:
-                
-            ConstraintType type;
-            Matrix coefficients;
-            long double value;
-            long double upper;
-            long double lower;        
-            
-    };
+enum ConstraintType
+{
 
-}
+    CT_LESS_EQUAL,
+    CT_MORE_EQUAL,
+    CT_EQUAL,
+    CT_NON_NEGATIVE,
+    CT_BOUNDS
+
+};
+
+class Constraint
+{
+
+    friend class Simplex;
+
+public:
+    Constraint(Matrix const & coefficients, ConstraintType type, float_type value);
+    Constraint(Matrix const & coefficients, ConstraintType type, float_type lower, float_type upper);
+
+    // Debug
+    void log() const;
+    void add_column(float_type value);
+    int size() const;
+
+private:
+    ConstraintType type;
+    Matrix coefficients;
+    float_type value;
+    float_type upper;
+    float_type lower;
+};
+
+} // namespace optimization
 
 #endif

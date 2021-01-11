@@ -18,66 +18,68 @@ along with C++lex.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef VARIABLE_H
 #define VARIABLE_H
 
-#include "constraint.h"          
+#include "constraint.h"
 #include "simplex.h"
 
-namespace optimization {
+namespace optimization
+{
 
-    class AuxiliaryVariable;
+class AuxiliaryVariable;
 
-    class Variable {
-        
-        friend class Simplex;
-        
-        public:
-            Variable( Simplex * creator, char const * name); 
-            virtual ~Variable();
-            virtual void process(Matrix& calculated_solution, Matrix& solution, int index);
-            
-        protected:
-            std::string name;   
-            Simplex * creator;         
-            
-    };
-    
-    class SplittedVariable : public Variable {
-    
-        friend class Simplex; 
-        
-        public:
-            SplittedVariable( Simplex* creator, char const * name, AuxiliaryVariable* aux);
-            ~SplittedVariable();
-            void process(Matrix& calculated_solution, Matrix& solution, int index); 
-        private:
-            AuxiliaryVariable* aux;
-    
-    };
-    
-    class SlackVariable : public Variable {
-    
-        friend class Simplex;
-    
-        public:
-            SlackVariable(Simplex * creator, char const * name);
-            ~SlackVariable();
-            void process(Matrix& calculated_solution, Matrix& solution, int index); 
+class Variable
+{
 
-        
-    };
-    
-    class AuxiliaryVariable : public Variable {
-        
-        friend class Simplex;
-        friend class SplittedVariable;
-        
-        public:
-            AuxiliaryVariable(Simplex* creator, char const * name, int index);
-            ~AuxiliaryVariable();   
-            void process(Matrix& calculated_solution, Matrix& solution, int index); 
-        private:
-            int index;
-       
-    };    
-}
+    friend class Simplex;
+
+public:
+    Variable(Simplex * creator, char const * name);
+    virtual ~Variable();
+    virtual void process(Matrix & calculated_solution, Matrix & solution, int index);
+
+protected:
+    std::string name;
+    Simplex * creator;
+};
+
+class SplittedVariable : public Variable
+{
+
+    friend class Simplex;
+
+public:
+    SplittedVariable(Simplex * creator, char const * name, AuxiliaryVariable * aux);
+    ~SplittedVariable();
+    void process(Matrix & calculated_solution, Matrix & solution, int index);
+
+private:
+    AuxiliaryVariable * aux;
+};
+
+class SlackVariable : public Variable
+{
+
+    friend class Simplex;
+
+public:
+    SlackVariable(Simplex * creator, char const * name);
+    ~SlackVariable();
+    void process(Matrix & calculated_solution, Matrix & solution, int index);
+};
+
+class AuxiliaryVariable : public Variable
+{
+
+    friend class Simplex;
+    friend class SplittedVariable;
+
+public:
+    AuxiliaryVariable(Simplex * creator, char const * name, int index);
+    ~AuxiliaryVariable();
+    void process(Matrix & calculated_solution, Matrix & solution, int index);
+
+private:
+    int index;
+};
+} // namespace optimization
 
 #endif

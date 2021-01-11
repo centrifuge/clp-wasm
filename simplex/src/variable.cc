@@ -17,82 +17,99 @@ along with C++lex.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "variable.h"
 
-namespace optimization {
+namespace optimization
+{
 
-    /*
-        Variable
-        ========
-        Base variable class.
-        
-    */
+/*
+    Variable
+    ========
+    Base variable class.
 
-    Variable::Variable( Simplex* creator,  char const * name) : 
-        name(name),
-        creator(creator) { 
-    }
-    
-    Variable::~Variable() { }             
-     
-    void Variable::process(Matrix& calculated_solution, Matrix& solution, int index) {
-        solution(index) = calculated_solution(index);
-    }
-    
-    /*
-        SplittedVariable
-        ================
-        Variables that are splitted in two (one) AuxiliaryVariables during
-        the translation in standard form.
-    
-    */
-    
-    SplittedVariable::SplittedVariable( Simplex* creator, char const * name, AuxiliaryVariable* aux ) :
-        Variable(creator, name),
-        aux(aux) {
-    }           
-    
-    SplittedVariable::~SplittedVariable() { }
+*/
 
-    void SplittedVariable::process(Matrix& calculated_solution, Matrix& solution, int index) { 
-        solution(index) = calculated_solution(index) - calculated_solution(aux->index);
-    }
-
-    /*
-        SlackVariable
-        =============
-        Type of variable added when transforming a <= or >= constraint
-        into a = constraint.
-    
-    */
-    
-    SlackVariable::SlackVariable( Simplex* creator, char const * name ) :
-        Variable(creator, name) {
-    }
-   
-    SlackVariable::~SlackVariable() { }
-
-    void SlackVariable::process(Matrix& calculated_solution, Matrix& solution, int index) {}
-   
-    /*
-        AuxiliaryVariable
-        =================
-        Variable created when transforming a variable in a splitted
-        variable. The relation:
-        
-            x = x+ - x-
-            
-        holds between the original variable, the SplittedVariable and
-        the AuxiliaryVariable.
-    
-    */
-    
-    AuxiliaryVariable::AuxiliaryVariable(  Simplex* creator, char const * name, int index ) :
-        Variable(creator, name),
-        index(index) {
-    
-    }
-    
-    AuxiliaryVariable::~AuxiliaryVariable() { }
-    
-    void AuxiliaryVariable::process(Matrix& calculated_solution, Matrix& solution, int index) {}
+Variable::Variable(Simplex * creator, char const * name)
+: name(name)
+, creator(creator)
+{
 }
 
+Variable::~Variable()
+{
+}
+
+void Variable::process(Matrix & calculated_solution, Matrix & solution, int index)
+{
+    solution(index) = calculated_solution(index);
+}
+
+/*
+    SplittedVariable
+    ================
+    Variables that are splitted in two (one) AuxiliaryVariables during
+    the translation in standard form.
+
+*/
+
+SplittedVariable::SplittedVariable(Simplex * creator, char const * name, AuxiliaryVariable * aux)
+: Variable(creator, name)
+, aux(aux)
+{
+}
+
+SplittedVariable::~SplittedVariable()
+{
+}
+
+void SplittedVariable::process(Matrix & calculated_solution, Matrix & solution, int index)
+{
+    solution(index) = calculated_solution(index) - calculated_solution(aux->index);
+}
+
+/*
+    SlackVariable
+    =============
+    Type of variable added when transforming a <= or >= constraint
+    into a = constraint.
+
+*/
+
+SlackVariable::SlackVariable(Simplex * creator, char const * name)
+: Variable(creator, name)
+{
+}
+
+SlackVariable::~SlackVariable()
+{
+}
+
+void SlackVariable::process(Matrix & calculated_solution, Matrix & solution, int index)
+{
+}
+
+/*
+    AuxiliaryVariable
+    =================
+    Variable created when transforming a variable in a splitted
+    variable. The relation:
+
+        x = x+ - x-
+
+    holds between the original variable, the SplittedVariable and
+    the AuxiliaryVariable.
+
+*/
+
+AuxiliaryVariable::AuxiliaryVariable(Simplex * creator, char const * name, int index)
+: Variable(creator, name)
+, index(index)
+{
+}
+
+AuxiliaryVariable::~AuxiliaryVariable()
+{
+}
+
+void AuxiliaryVariable::process(Matrix & calculated_solution, Matrix & solution, int index)
+{
+}
+} // namespace optimization

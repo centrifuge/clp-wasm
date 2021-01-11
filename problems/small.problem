@@ -12,7 +12,8 @@ vars 3
 [CONSTRAINTS]
 
 1 3 4 > 0
-0 0 1 < 1
+0 0 1 < 8
+0 0 1 > -1
 1 2 0 < 2
 
 [OBJECTIVE]

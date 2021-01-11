@@ -19,59 +19,64 @@ along with C++lex.  If not, see <http://www.gnu.org/licenses/>.
 #include "simplex.h"
 
 // Using
-using pilal::Matrix;
 using pilal::AnonymousMatrix;
+using pilal::Matrix;
 
-namespace optimization {
+namespace optimization
+{
 
-    /*
-        ObjectiveFunction
-        =================
-        Class that represents an optimization objective function.
-        
-    */
-    
-    ObjectiveFunction::ObjectiveFunction() {}
-    
-    ObjectiveFunction::ObjectiveFunction ( ObjectiveFunctionType type, Matrix const & costs ) :
-        type(type),
-        costs(costs) {
-        
-    }
-    
-    ObjectiveFunction& ObjectiveFunction::operator=( ObjectiveFunction const & objective_function ) {
-    
-        type = objective_function.type;
-        costs = objective_function.costs;
-    
-        return *this;
-    }
-    
-    void ObjectiveFunction::log() const {
-        
-        if (type == OFT_MINIMIZE)
-            std::cout << "min ( ";
-        else
-            std::cout << "max ( ";
-        
-        for (int i = 0; i < costs.dim().second; ++i)
-            std::cout << costs(i) << "  ";
-        std::cout << ") * x " << std::endl;
-        
-    }
-    
-    Matrix const & ObjectiveFunction::get_value( Matrix const & x) const {
-        return costs * x;
-    }
-    
-    void ObjectiveFunction::add_column(long double value) {
-        AnonymousMatrix row(1, costs.dim().second+1);
-        for (int i = 0; i < costs.dim().second; ++i)
-            row(i) = costs(i);
-        
-        row(costs.dim().second) = value;
-        costs = row;
-    }
+/*
+    ObjectiveFunction
+    =================
+    Class that represents an optimization objective function.
 
+*/
+
+ObjectiveFunction::ObjectiveFunction()
+{
 }
 
+ObjectiveFunction::ObjectiveFunction(ObjectiveFunctionType type, Matrix const & costs)
+: type(type)
+, costs(costs)
+{
+}
+
+ObjectiveFunction & ObjectiveFunction::operator=(ObjectiveFunction const & objective_function)
+{
+
+    type = objective_function.type;
+    costs = objective_function.costs;
+
+    return *this;
+}
+
+void ObjectiveFunction::log() const
+{
+
+    if (type == OFT_MINIMIZE)
+        std::cout << "min ( ";
+    else
+        std::cout << "max ( ";
+
+    for (int i = 0; i < costs.dim().second; ++i)
+        std::cout << costs(i) << "  ";
+    std::cout << ") * x " << std::endl;
+}
+
+Matrix const & ObjectiveFunction::get_value(Matrix const & x) const
+{
+    return costs * x;
+}
+
+void ObjectiveFunction::add_column(float_type value)
+{
+    AnonymousMatrix row(1, costs.dim().second + 1);
+    for (int i = 0; i < costs.dim().second; ++i)
+        row(i) = costs(i);
+
+    row(costs.dim().second) = value;
+    costs = row;
+}
+
+} // namespace optimization

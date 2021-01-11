@@ -49,7 +49,7 @@ namespace pilal {
 	    inverse_up_to_date(false) {
 	           
         int chunks = 0;
-        long double ignore;
+        float_type ignore;
         std::stringstream buffer(values);
         while (!buffer.eof()) {
             buffer >> ignore;
@@ -72,7 +72,7 @@ namespace pilal {
 		columns(n) {
 	}
 	
-	Matrix::Matrix(int n, long double v) :	
+	Matrix::Matrix(int n, float_type v) :	
 	    lu_up_to_date(false),
 	    determinant_up_to_date(false),
 	    inverse_up_to_date(false), 
@@ -90,7 +90,7 @@ namespace pilal {
 		columns(c) {
 	}
 
-	Matrix::Matrix(int r, int c, long double v) :	
+	Matrix::Matrix(int r, int c, float_type v) :	
 	    lu_up_to_date(false),
 	    determinant_up_to_date(false),
 	    inverse_up_to_date(false),
@@ -127,23 +127,23 @@ namespace pilal {
 
     
     // Operators overloading with storage accessor
-	long double& Matrix::operator() (int r, int c) {
+	float_type& Matrix::operator() (int r, int c) {
 	    return values->at(r * columns + c);
 	}	
 															
-	long double const& Matrix::operator() (int r, int c) const {
+	float_type const& Matrix::operator() (int r, int c) const {
 	    return values->at(r * columns + c);
 	}
 	
     // Operators overloading with storage accessor
-	long double& Matrix::operator() (int i) {
+	float_type& Matrix::operator() (int i) {
 	    if ( rows == 1 || columns == 1 )
 	        return values->at(i);
 	    else
 	        throw(NotAVectorException());
 	}	
 															
-	long double const& Matrix::operator() (int i) const {
+	float_type const& Matrix::operator() (int i) const {
 	    if ( rows == 1 || columns == 1 )
 	        return values->at(i);
 	    else
@@ -178,20 +178,20 @@ namespace pilal {
 	}
 	
 	// Matrix::storage_accessor
-	long double& Matrix::at (int r, int c) {
+	float_type& Matrix::at (int r, int c) {
 		if ( r >= rows || c >= columns)
 			throw(IndexOutOfBoundException());
 	    
-        //long double& dest = values->at(r * columns + c);
+        //float_type& dest = values->at(r * columns + c);
         //return Matrix::storage_accessor(dest, *this);
         return values->at(r * columns + c);
     }														
 	
-	long double const& Matrix::at (int r, int c) const {
+	float_type const& Matrix::at (int r, int c) const {
 		if ( r >= rows || c >= columns)
 			throw(IndexOutOfBoundException());
 	    
-	    //long double& dest = values->at(r * columns + c);
+	    //float_type& dest = values->at(r * columns + c);
 	    return values->at(r * columns + c);
     }
     
@@ -281,7 +281,7 @@ namespace pilal {
         
         if (rows == 0 && columns == 0) {
             int chunks = 0;
-            long double ignore;
+            float_type ignore;
             std::stringstream buffer(values);
             while (!buffer.eof()) {
                 buffer >> ignore;
@@ -355,19 +355,19 @@ namespace pilal {
 		return make_pair(rows, columns);
 	}
 	
-	double Matrix::space() const {
-	    return (rows * columns * sizeof(long double) * 0.000000954);
+	float_type Matrix::space() const {
+	    return (rows * columns * sizeof(float_type) * 0.000000954);
 	}
 	
 	// Aux
-	bool Matrix::more_equal_than (long double value, long double tol = 0.0000000000000001) const {
+	bool Matrix::more_equal_than (float_type value, float_type tol = 0.0000000000000001) const {
 	    for (int i = 0; i < rows; ++i)
 	        for (int j = 0; j < columns; ++j)
 	            if ( at(i,j) + tol < value ) return false;
 	    return true;    
 	}
 	
-	bool Matrix::less_equal_than (long double value, long double tol = 0.0000000000000001) const {
+	bool Matrix::less_equal_than (float_type value, float_type tol = 0.0000000000000001) const {
 	    	
 	    for (int i = 0; i < rows; ++i)
 	        for (int j = 0; j < columns; ++j)
@@ -375,7 +375,7 @@ namespace pilal {
 	    return true;    
 	}
 	
-	Matrix::operator long double () {
+	Matrix::operator float_type () {
 	    if (dim() != make_pair(1,1))
 	        throw (SizeMismatchException());
 	    return values->at(0);
@@ -387,7 +387,7 @@ namespace pilal {
         for (int i = 0; i < rows; ++i) {
             printf(" ");
             for (int j = 0; j < columns; ++j) {
-                printf("%10.5f ", (double)at(i,j));
+				std::cout << (float_type)at(i,j) << ' ';
             }
             printf("\n");
         }
@@ -400,8 +400,7 @@ namespace pilal {
         for (int i = 0; i < rows; ++i) {
 
             for (int j = 0; j < columns; ++j) {
-
-                printf("%.16f ", (double)at(i,j));
+				std::cout << (float_type)at(i,j) << ' ';
             }
             
             printf(";\n");
@@ -436,7 +435,7 @@ namespace pilal {
 	}
 
     
-	bool Matrix::is_identity(long double tol) const {
+	bool Matrix::is_identity(float_type tol) const {
 		
 		// Identity check
 		for (int i = 0; i < rows; ++i)
@@ -464,13 +463,13 @@ namespace pilal {
     	determinant_up_to_date = true;
 	}
 
-	void Matrix::set_determinant(long double d) {
+	void Matrix::set_determinant(float_type d) {
 		
 		det = d;
 		determinant_up_to_date = true;
 	}
 	
-	long double Matrix::determinant() const {
+	float_type Matrix::determinant() const {
         
         // Return determinant if cached, else factorize and return it
 		if (!determinant_up_to_date) {
@@ -529,7 +528,7 @@ namespace pilal {
             tem(pivot,0) = 1;
                 
 			int column_max_position = pivot;
-			long double max = r(column_max_position,j);
+			float_type max = r(column_max_position,j);
 			
 			// Partial pivoting process
 			for (int i = j; i < rows; ++i)
@@ -634,7 +633,7 @@ namespace pilal {
             throw(MatrixNotSquareException());
 	    
 	    // Initialize determinant
-	    long double determinant = 1;
+	    float_type determinant = 1;
 	    
         // Initialize passed u
         u = *this;					                                            // u will evolve from the original matrix
@@ -671,7 +670,7 @@ namespace pilal {
 			//   *  swap row i with row j in p and u, swap columns in l
 		    		
 			int column_max_position = j;
-			long double max = u(column_max_position,j);
+			float_type max = u(column_max_position,j);
 			
 			// Partial pivoting process
 			for (int i = j; i < rows; ++i)
@@ -711,7 +710,7 @@ namespace pilal {
 			// Optimization of l * tem that takes into account the shape
 			// of l and tem
 			for (int i = 0; i < rows; ++i) {
-			    register long double inv_product = l(i,j);   // because tem(j,0) == 1
+			    register float_type inv_product = l(i,j);   // because tem(j,0) == 1
 			    
 			    for (int k = j+1; k < columns; ++k)
 			        inv_product += l(i,k) * - tem(k);
@@ -786,7 +785,7 @@ namespace pilal {
         // Calculate inverse of l
         for (int i = 1; i < rows; ++i)
             for (int j = i-1; j >= 0; --j) {
-                register long double dot_product = 0;
+                register float_type dot_product = 0;
                 for (int k = i; k > 0; --k)
                     dot_product += l_inverse(i,k) * l_inverse(j,k);
                 l_inverse(i,j) = - dot_product;                                 // Optimization of dot_product * - l_inverse.at(j,j)
@@ -800,7 +799,7 @@ namespace pilal {
 		// Calculate inverse of u
         for (int i = 1; i < rows; ++i)
             for (int j = i-1; j >= 0; --j) {
-                register long double dot_product = 0;
+                register float_type dot_product = 0;
                 for (int k = i; k > 0; --k) {
                     dot_product += u_inverse(i,k) * u_inverse(j,k);
                 }
@@ -828,7 +827,7 @@ namespace pilal {
         // a column permutation vector
         Matrix p_vector_t(rows,1);
         for (int i = 0; i < rows; ++i)
-            p_vector_t(p_vector(i)) = i;
+            p_vector_t((int) p_vector(i)) = i;
         
         // Optimization of columns permutation
         for (int i = 0; i < rows; ++i)
@@ -880,7 +879,7 @@ namespace pilal {
         // Calculate inverse of l
         for (int i = 1; i < rows; ++i)
             for (int j = i-1; j >= 0; --j) {
-                register long double dot_product = 0;
+                register float_type dot_product = 0;
                 for (int k = i; k > 0; --k)
                     dot_product += l_inverse(i,k) * l_inverse(j,k);
                 l_inverse(i,j) = - dot_product;                                 // Optimization due to ones on diagonal
@@ -894,7 +893,7 @@ namespace pilal {
 		// Calculate inverse of u
         for (int i = 1; i < rows; ++i)
             for (int j = i-1; j >= 0; --j) {
-                register long double dot_product = 0;
+                register float_type dot_product = 0;
                 for (int k = i; k > 0; --k) {
                     dot_product += u_inverse(i,k) * u_inverse(j,k);
                 }
@@ -911,14 +910,14 @@ namespace pilal {
 	    // Optimization of p * b
 	    Matrix pb(rows,1);
 	    for (int i = 0; i < rows; ++i)
-	        pb(i) = b(p_vector(i));
+	        pb(i) = b((int)p_vector(i));
 
         // Set x shape	
 	    x.resize(rows,1);
 
 	    // Optimization of x = l_inverse * pb;
 	    for (int i = 0; i < rows; ++i) {
-	        register long double dot_product = pb(i);
+	        register float_type dot_product = pb(i);
 	        for (int j = 0; j < i; ++j) {
 	            dot_product += l_inverse(i,j) * pb(j);
             }
@@ -927,7 +926,7 @@ namespace pilal {
                 
 	    // Optimization of x = u_inverse * x
 	    for (int i = 0; i < rows; ++i) {
-	        register long double dot_product = 0;
+	        register float_type dot_product = 0;
 	        for (int j = columns-1; j >= i; --j)
 	            dot_product += u_inverse(i,j) * x(j);
 	        x(i) = dot_product;
@@ -937,12 +936,12 @@ namespace pilal {
 	/*
 	    Matrix::storage_accessor
 	*/
-	Matrix::storage_accessor::storage_accessor(long double& dest, Matrix& parent) : 
+	Matrix::storage_accessor::storage_accessor(float_type& dest, Matrix& parent) : 
 	    dest(dest), 
 	    parent(parent) {
 	}
 	
-	Matrix::storage_accessor::operator long double const& () const { 
+	Matrix::storage_accessor::operator float_type const& () const { 
         return dest; 
     }
         
@@ -961,7 +960,7 @@ namespace pilal {
         return *this; 
     }
     
-    Matrix::storage_accessor& Matrix::storage_accessor::operator=(long double const& new_value) { 
+    Matrix::storage_accessor& Matrix::storage_accessor::operator=(float_type const& new_value) { 
     
         if (new_value == dest)
             return *this;
@@ -979,26 +978,26 @@ namespace pilal {
     /*  
         Matrix::storage
         ===============
-        Reference counted vector of long doubles. 
+        Reference counted vector of float_types. 
            
     */
     
     Matrix::storage::storage(int size) : 
-        contents(new std::vector< long double>(size)), 
+        contents(new std::vector< float_type>(size)), 
         counter(1) {
     }
     
     Matrix::storage::storage(Matrix::storage& s) : 
-        contents(new std::vector< long double>(*(s.contents))), 
+        contents(new std::vector< float_type>(*(s.contents))), 
         counter(1) {
     }
     
-    Matrix::storage::storage(int size, long double value) : 
-        contents(new std::vector< long double>(size, value)), 
+    Matrix::storage::storage(int size, float_type value) : 
+        contents(new std::vector< float_type>(size, value)), 
         counter(1) {
     }
 	
-	long double& Matrix::storage::at(int pos) {
+	float_type& Matrix::storage::at(int pos) {
 	    return contents->at(pos);
 	}
 	
@@ -1053,7 +1052,7 @@ namespace pilal {
 
 	// Auxiliary 
 	
-	bool tol_equal(long double n, long double m, long double tol = 0.0000000000000001) {
+	bool tol_equal(float_type n, float_type m, float_type tol = 0.0000000000000001) {
         if ( abs( n - m ) > tol )
             return false; 
         return true;

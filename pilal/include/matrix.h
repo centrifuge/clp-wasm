@@ -23,6 +23,11 @@ along with C++lex.  If not, see <http://www.gnu.org/licenses/>.
 #include <vector>	// std::vector
 #include <iostream> // std::string
 
+#include <boost/multiprecision/cpp_bin_float.hpp>
+
+using float_type = boost::multiprecision::number<boost::multiprecision::cpp_bin_float<256>>;
+//using float_type = double;
+
 namespace pilal {
     
     /** Enum type that describes the two types of data used to perform
@@ -66,13 +71,13 @@ namespace pilal {
 		Matrix(int n);
 		
 		/** Constructor which builds a square matrix of dimension n, and initializes each element to v. */
-		Matrix(int n, long double v);
+		Matrix(int n, float_type v);
 		
 		/** Constructor which builds a r x c matrix. */
 		Matrix(int r, int c);
 		
 		/** Constructor which builds a r x c matrix, and initializes each element to v. */
-		Matrix(int r, int c, long double v);
+		Matrix(int r, int c, float_type v);
 		
 		/** Copy constructor. */
 		Matrix(Matrix const& m);
@@ -87,19 +92,19 @@ namespace pilal {
             public:
             
 				/** Constructor, accepts a reference to a value and a parent matrix. */
-                storage_accessor(long double& dest, Matrix& parent);
+                storage_accessor(float_type& dest, Matrix& parent);
 
 				/** Implicit cast operator, used in reading. */
-                operator long double const& () const;                           // Reading
+                operator float_type const& () const;                           // Reading
 
 				
                 storage_accessor& operator=(storage_accessor& new_value);       // Copying
-                storage_accessor& operator=(long double const& new_value);      // Writing
+                storage_accessor& operator=(float_type const& new_value);      // Writing
                 
             private:
                 
 				/** Reference to real value. */
-                long double& dest;
+                float_type& dest;
 
 				/** Owner. */
                 Matrix& parent;
@@ -122,16 +127,16 @@ namespace pilal {
 		bool is_square() const;
 		
 		/** Is the matrix an identity (with tolerance value)? */
-		bool is_identity(long double tol) const;
+		bool is_identity(float_type tol) const;
 		
 		/** How much storage space does the matrix uses? */
-		double space() const;
+		float_type space() const;
 		
 		/** Compare two values (with tolerance). */
-		bool more_equal_than (long double value, long double tol) const;
+		bool more_equal_than (float_type value, float_type tol) const;
 		
 		/** Compare two values (with tolerance). */
-		bool less_equal_than (long double value, long double tol) const;
+		bool less_equal_than (float_type value, float_type tol) const;
 		
 		/*========================================================= 
 		Mathematical and manipulation operators
@@ -150,7 +155,7 @@ namespace pilal {
 		void swap_rows(int r, int w);
 		
 		/** Writes the value of the determinant. */
-		void set_determinant(long double d);
+		void set_determinant(float_type d);
 		
 		/** Reset the matrix to an identity. */
 		void set_identity();
@@ -174,7 +179,7 @@ namespace pilal {
         void set_values(char const* values);
 				
 		/** Retrieves the determinant of the matrix.  */
-        long double determinant() const;
+        float_type determinant() const;
 		
 		/*========================================================= 
 		Factorizations and inverses
@@ -236,25 +241,25 @@ namespace pilal {
 		=========================================================*/
 		
 		/** Element retrieval with one index. */
-		long double& operator() (int i);
+		float_type& operator() (int i);
 		
 		/** Element retrieval with one index (const). */
-        long double const& operator() (int i) const;
+        float_type const& operator() (int i) const;
 
 		/** Element retrieval with two idices. */
-        long double& operator() (int r, int c);
+        float_type& operator() (int r, int c);
 
 		/** Element retrieval with two indices (const). */
-        long double const& operator() (int r, int c) const;
+        float_type const& operator() (int r, int c) const;
 
 		/** Element retrieval with one index. */
-        long double& at(int r, int c);
+        float_type& at(int r, int c);
 
 		/** Element retrieval with one index (const). */
-        long double const& at(int r, int c) const;
+        float_type const& at(int r, int c) const;
         
-		/** Implicit cast to double. */
-        operator long double();	
+		/** Implicit cast to float_type. */
+        operator float_type();	
 
 	protected:
 
@@ -274,15 +279,15 @@ namespace pilal {
 		        
 		        /** Constructor, destructor. */
 		        storage(int size);
-		        storage(int size, long double value);
+		        storage(int size, float_type value);
 		        storage(storage& origin);
 		        ~storage();
 		        
 		        /** Access operator. */
-		        long double & at(int pos);
+		        float_type & at(int pos);
 
                 /** Pointer to data. */    
-		        std::vector< long double> * contents;
+		        std::vector< float_type> * contents;
 		
 				/** Reference count. */
 		        int counter;
@@ -299,7 +304,7 @@ namespace pilal {
 		int columns;
 		
 		/** Determinant. */
-		mutable long double det;
+		mutable float_type det;
 		
 	};
 
@@ -318,7 +323,7 @@ namespace pilal {
     };
     
     /** Auxiliary function, number comparison with tolerance. */
-    bool tol_equal(long double n, long double m, long double tol);	
+    bool tol_equal(float_type n, float_type m, float_type tol);	
 }
 
 #endif

@@ -20,31 +20,29 @@ along with C++lex.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <vector>
 
-namespace optimization {
-    
-    class ColumnSet {
-        
-        friend class Simplex;
-                
-        public:
-                
-            void insert ( int column );
-            void remove ( int column );
-            void substitute ( int old_column, int new_column );
-            void log(char const * prelude) const;
-            bool contains(int n) const;
-            int& column(int idx);
-            int  index_of(int column);
-            unsigned int size() const;
-            
-                
-        private:
-                    
-            // A int vector stores the indices of the columns in the set.
-            std::vector<int> columns;
-    };
+namespace optimization
+{
 
-}
+class ColumnSet
+{
 
+    friend class Simplex;
+
+public:
+    void insert(int column);
+    void remove(int column);
+    void substitute(int old_column, int new_column);
+    void log(char const * prelude) const;
+    bool contains(int n) const;
+    int & column(int idx);
+    int index_of(int column);
+    unsigned int size() const;
+
+private:
+    // A int vector stores the indices of the columns in the set.
+    std::vector<int> columns;
+};
+
+} // namespace optimization
 
 #endif

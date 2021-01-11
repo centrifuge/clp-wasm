@@ -21,41 +21,41 @@ along with C++lex.  If not, see <http://www.gnu.org/licenses/>.
 #include "pilal.h"
 using pilal::Matrix;
 
-namespace optimization {
+namespace optimization
+{
 
-    enum ObjectiveFunctionType {
-    
-        OFT_MAXIMIZE,
-        OFT_MINIMIZE
-    
-    };
-    
-    class ObjectiveFunction {
-        
-        friend class Simplex;
-        
-        public:
-                
-            ObjectiveFunction();
-            ObjectiveFunction( ObjectiveFunctionType type, Matrix const & costs );
-            ObjectiveFunction& operator=( ObjectiveFunction const & objective_function );
-            
-            // Solution value
-            Matrix const & get_value( Matrix const & x ) const;
-            
-            // Manipulation
-            void add_column(long double value);
-            
-            // Debug
-            void log() const;        
-                                    
-        private:
-                
-            ObjectiveFunctionType type;
-            Matrix costs;
-            
-    };
+enum ObjectiveFunctionType
+{
 
-}
+    OFT_MAXIMIZE,
+    OFT_MINIMIZE
+
+};
+
+class ObjectiveFunction
+{
+
+    friend class Simplex;
+
+public:
+    ObjectiveFunction();
+    ObjectiveFunction(ObjectiveFunctionType type, Matrix const & costs);
+    ObjectiveFunction & operator=(ObjectiveFunction const & objective_function);
+
+    // Solution value
+    Matrix const & get_value(Matrix const & x) const;
+
+    // Manipulation
+    void add_column(float_type value);
+
+    // Debug
+    void log() const;
+
+private:
+    ObjectiveFunctionType type;
+    Matrix costs;
+};
+
+} // namespace optimization
 
 #endif
