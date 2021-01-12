@@ -49,7 +49,7 @@ class Simplex
 
 public:
     // Constructor
-    Simplex(char const * name);
+    Simplex(std::string name);
     ~Simplex();
 
     // Settings
@@ -63,6 +63,7 @@ public:
     void solve();
 
     // Print
+    std::string get_solution() const;
     void print_solution() const;
     void log() const;
 

@@ -1,6 +1,10 @@
 *.o
 *.d
 build
+build_wasm*
 .vs
 build/
 out/
+
+# wasm artifacts
+cpplex.*

@@ -1,0 +1,15 @@
+[METADATA]
+name Tinlake Solver (WIP)
+vars 4
+
+[VARIABLES]
+0       tinInvest       10000000000000000000
+0       dropInvest      8000000000000000000
+0       tinRedeem       000000
+0       dropRedeem      000000
+
+[CONSTRAINTS]
+1 1 -1 -1 < state.maxReserve - state.reserve
+
+[OBJECTIVE]
+maximize 1 1 -1 -1

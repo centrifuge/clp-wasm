@@ -16,14 +16,17 @@ along with C++lex.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "simplex.h"
+#include "matrix.h"
 #include "variable.h"
 #include <algorithm>
 #include <cstdlib>
+#include <exception>
 #include <fstream>
 #include <iostream>
-#include <sstream>
+#include <ostream>
 #include <string>
 
+#ifndef __EMSCRIPTEN__
 #include <filesystem>
 namespace fs = std::filesystem;
 
@@ -43,6 +46,7 @@ std::string resolvePath(const std::string & relPath)
     }
     return {};
 }
+#endif
 
 #define TOL ((float_type)(0.00000000000000000001))
 #define VERBOSE 0
@@ -73,8 +77,8 @@ enum ParsingContext
     simplex behavior.
 */
 
-Simplex::Simplex(char const * name)
-: name(name)
+Simplex::Simplex(std::string name)
+: name(std::move(name))
 , solution_dimension(0)
 , changed_sign(false)
 , inverse_recalculation_rate(10)
@@ -140,11 +144,11 @@ End
 void Simplex::load_problem(const std::string & problem_name)
 {
 
-    auto path = resolvePath(problem_name);
+    // auto path = resolvePath(problem_name);
 
-    ifstream file(path.c_str());
+    ifstream file(problem_name.c_str());
     if (!file.good())
-        throw std::exception("file not found.");
+        throw std::runtime_error("file not found.");
 
     /*
         File parsing
@@ -284,7 +288,7 @@ void Simplex::load_problem(const std::string & problem_name)
     return;
 }
 
-void Simplex::add_constraint(Constraint const & constraint)
+void Simplex::add_constraint(const Constraint & constraint)
 {
 
     if (constraints.size() != 0)
@@ -798,24 +802,37 @@ void Simplex::solve_with_base(ColumnSet const & initial_base)
     }
 }
 
-void Simplex::print_solution() const
+std::string Simplex::get_solution() const
 {
+    stringstream ss;
+    ss << std::setprecision(std::numeric_limits<float_type>::max_digits10);
 
-    std::cout << "Optimal solution is:" << std::setprecision(std::numeric_limits<float_type>::max_digits10)
-              << std::endl;
+    const auto printKeyVal = [&ss](int indentLevel,
+                                   const std::string & name,
+                                   const float_type & value,
+
+                                   const std::string & terminator = ",\n") {
+        std::string indent(indentLevel * 4, ' ');
+        ss << indent << '"' << name << ": \"" << value << '"' << terminator;
+    };
+
+    ss << "{" << std::endl;
     for (int i = 0; i < solution_dimension; ++i)
-        std::cout << variables.at(i)->name << ":\t\t\t" << solution(i) << std::endl;
-
-    std::cout << std::endl;
-    std::cout << "Solution value/cost:\t\t" << solution_value << std::endl;
+        printKeyVal(1, variables.at(i)->name, solution(i));
 
     float_type dual_problem_value = (dual_variables * constraints_vector);
     if (changed_sign)
         dual_problem_value *= -1;
 
-    std::cout << "Dual problem value:\t\t" << dual_problem_value << std::endl;
+    printKeyVal(1, "solutionCostResult", solution_value);
+    printKeyVal(1, "dualProblemValue", dual_problem_value, "\n");
+    ss << "}";
+    return ss.str();
+}
 
-    return;
+void Simplex::print_solution() const
+{
+    std::cout << get_solution() << std::endl;
 }
 
 void Simplex::solve()

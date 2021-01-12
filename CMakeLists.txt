@@ -3,30 +3,36 @@ cmake_minimum_required(VERSION 2.8)
 set (CMAKE_CXX_STANDARD 17)
 project(cpplex)
 
-#set(CMAKE_CXX_FLAGS "-std=c++11 -O3")
+string(TOLOWER ${CMAKE_BUILD_TYPE} BUILD_CONFIG_LOWER)
 
-#add_subdirectory(pilal)
-#add_subdirectory(simplex)
-#include_directories(multiprecision/include)
-
-
-find_package(Boost REQUIRED)
-
-IF (Boost_FOUND)
-    message(STATUS "BOOST FOUND !")
-ELSE()
-    message(STATUS "BOOST NOT Found !")
+if(EMSCRIPTEN)
+    set(EM_FLAGS "--bind -std=c++17 -s ASSERTIONS=2 -s ALLOW_MEMORY_GROWTH=1 -s DISABLE_EXCEPTION_CATCHING=0")
+    if (${BUILD_CONFIG_LOWER} MATCHES "debug")
+        message("Building in debug mode")
+        set(EM_FLAGS "${EM_FLAGS} -g --source-map-base http://127.0.0.1:5500/web/")
+    else()
+        message("Building in release mode")
+        set(EM_FLAGS "${EM_FLAGS} -O3")
+    endif()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${EM_FLAGS}")
+    foreach(FLAG_VAR CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO)
+        if(${FLAG_VAR} MATCHES "-g")
+            string(REGEX REPLACE "-g" "-g4" ${FLAG_VAR} "${${FLAG_VAR}}")
+        endif()
+    endforeach()
+else()
+    message("Not using emscripten!")
 endif()
 
-include_directories(${Boost_INCLUDE_DIRS})
-include_directories(pilal/include)
+include_directories($ENV{BOOST_ROOT})
 include_directories(simplex/include)
 
-message(STATUS Boost_LIBRARIES=${Boost_LIBRARIES})
+message(STATUS CMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS})
  
-add_executable(main
+add_executable(cpplex
 
     solver/solver.cc
+    solver/bindings.cc
 
     simplex/src/columnset.cc 
     simplex/src/constraint.cc 
@@ -36,5 +42,5 @@ add_executable(main
     simplex/src/matrix.cc
 
 )
-target_link_libraries(main ${Boost_LIBRARIES}) 
+target_link_libraries(cpplex ${Boost_LIBRARIES}) 
 

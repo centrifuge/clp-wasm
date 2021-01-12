@@ -22,6 +22,7 @@ along with C++lex.  If not, see <http://www.gnu.org/licenses/>.
 using namespace pilal;
 using namespace optimization;
 
+#ifndef __EMSCRIPTEN__
 int main(int argc, char * argv[])
 {
     const auto problemFile = argc <= 1 ? std::string("../problems/other.problem") : std::string(argv[1]);
@@ -69,3 +70,4 @@ int main(int argc, char * argv[])
 
     std::cout << "Quitting ..." << std::endl;
 }
+#endif

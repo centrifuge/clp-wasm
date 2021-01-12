@@ -10,7 +10,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/build/main",
             "args": [
-                "problems/small.problem"
+                "problems/tinlake-base.problem"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
