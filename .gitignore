@@ -5,6 +5,3 @@ build_wasm*
 .vs
 build/
 out/
-
-# wasm artifacts
-cpplex.*
