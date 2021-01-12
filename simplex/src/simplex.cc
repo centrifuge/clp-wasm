@@ -24,6 +24,7 @@ along with C++lex.  If not, see <http://www.gnu.org/licenses/>.
 #include <fstream>
 #include <iostream>
 #include <ostream>
+#include <streambuf>
 #include <string>
 
 #ifndef __EMSCRIPTEN__
@@ -57,6 +58,24 @@ using std::stod;
 using std::string;
 using std::stringstream;
 using std::vector;
+
+struct Membuf : std::streambuf
+{
+    Membuf(char const * base, const size_t size)
+    {
+        char * p(const_cast<char *>(base));
+        this->setg(p, p, p + size);
+    }
+    ~Membuf() override = default;
+};
+struct Imemstream : virtual Membuf, std::istream
+{
+    Imemstream(char const * base, const size_t size)
+    : Membuf(base, size)
+    , std::istream(static_cast<std::streambuf *>(this))
+    {
+    }
+};
 
 namespace optimization
 {
@@ -141,151 +160,144 @@ End
     static const std::vector<string> SECTIONS = { "Maximize", "Minimize", "Subject To", "Bounds", "Generals", "End" };
 }
 
-void Simplex::load_problem(const std::string & problem_name)
+void Simplex::load_problem(const std::string & problem_input)
 {
-
+    using namespace std;
     // auto path = resolvePath(problem_name);
 
-    ifstream file(problem_name.c_str());
-    if (!file.good())
-        throw std::runtime_error("file not found.");
-
-    /*
-        File parsing
-    */
+    auto problem_content = problem_input;
+    ifstream file(problem_input.c_str());
+    if (file.good())
+    {
+        problem_content = string { istreambuf_iterator<char>(file), istreambuf_iterator<char>() };
+    }
+    Imemstream stream(reinterpret_cast<char *>(&problem_content[0]), problem_content.size());
 
     ParsingContext current_parsing_block;
     int current_var = 0, solution_dimension = 0;
 
-    if (file.is_open())
+    while (stream.good())
     {
+        string buffer_init, token;
+        getline(stream, buffer_init);
+        stringstream buffer(buffer_init);
 
-        while (!file.eof())
+        // Extract token
+        buffer >> token;
+
+        if (token.length())
         {
-            string buffer_init, token;
-            getline(file, buffer_init);
-            stringstream buffer(buffer_init);
-
-            // Extract token
-            buffer >> token;
-
-            if (token.length())
+            if (token == "[METADATA]")
+                current_parsing_block = PB_METADATA;
+            else if (token == "[VARIABLES]")
+                current_parsing_block = PB_VARS;
+            else if (token == "[CONSTRAINTS]")
+                current_parsing_block = PB_CONSTRAINTS;
+            else if (token == "[OBJECTIVE]")
+                current_parsing_block = PB_OBJECTIVE;
+            else
             {
-                if (token == "[METADATA]")
-                    current_parsing_block = PB_METADATA;
-                else if (token == "[VARIABLES]")
-                    current_parsing_block = PB_VARS;
-                else if (token == "[CONSTRAINTS]")
-                    current_parsing_block = PB_CONSTRAINTS;
-                else if (token == "[OBJECTIVE]")
-                    current_parsing_block = PB_OBJECTIVE;
-                else
+                switch (current_parsing_block)
                 {
-                    switch (current_parsing_block)
+
+                    case PB_METADATA:
+                    {
+                        if (token == "name")
+                        {
+
+                            buffer_init.erase(0, 5);
+                            name = buffer_init;
+                        }
+                        else if (token == "vars")
+                        {
+                            buffer >> solution_dimension;
+                        }
+                    }
+                    break;
+
+                    case PB_VARS:
                     {
 
-                        case PB_METADATA:
+                        Matrix eye(1, solution_dimension, 0);
+                        eye(current_var) = 1;
+                        string variable_name, lower_bound, upper_bound;
+
+                        lower_bound = token;
+                        buffer >> variable_name;
+                        buffer >> upper_bound;
+
+                        // Add variable for tracking
+                        add_variable(new Variable(this, variable_name.c_str()));
+
+                        if (lower_bound != "inf")
                         {
-                            if (token == "name")
-                            {
-
-                                buffer_init.erase(0, 5);
-                                name = buffer_init;
-                            }
-                            else if (token == "vars")
-                            {
-                                buffer >> solution_dimension;
-                            }
-                        }
-                        break;
-
-                        case PB_VARS:
-                        {
-
-                            Matrix eye(1, solution_dimension, 0);
-                            eye(current_var) = 1;
-                            string variable_name, lower_bound, upper_bound;
-
-                            lower_bound = token;
-                            buffer >> variable_name;
-                            buffer >> upper_bound;
-
-                            // Add variable for tracking
-                            add_variable(new Variable(this, variable_name.c_str()));
-
-                            if (lower_bound != "inf")
-                            {
-                                if (atof(lower_bound.c_str()) == 0)
-                                    add_constraint(Constraint(eye, CT_NON_NEGATIVE, 0));
-                                else
-                                    add_constraint(Constraint(eye, CT_MORE_EQUAL, stod(lower_bound)));
-                            }
-                            if (upper_bound != "inf")
-                                add_constraint(Constraint(eye, CT_LESS_EQUAL, stod(upper_bound)));
-
-                            current_var++;
-                        }
-                        break;
-
-                        case PB_CONSTRAINTS:
-                        {
-
-                            if (current_var != solution_dimension)
-                                throw(DataMismatchException("Mismatch between declared and defined variables."));
-
-                            Matrix coefficients(1, solution_dimension);
-                            coefficients(0) = atof(token.c_str());
-
-                            for (int i = 1; i < solution_dimension; ++i)
-                                buffer >> coefficients(i);
-
-                            string ct;
-                            float_type bound;
-                            buffer >> ct;
-                            buffer >> bound;
-
-                            if (ct == ">")
-                                add_constraint(Constraint(coefficients, CT_MORE_EQUAL, bound));
-                            else if (ct == "<")
-                                add_constraint(Constraint(coefficients, CT_LESS_EQUAL, bound));
-                            else if (ct == "=")
-                                add_constraint(Constraint(coefficients, CT_EQUAL, bound));
+                            if (atof(lower_bound.c_str()) == 0)
+                                add_constraint(Constraint(eye, CT_NON_NEGATIVE, 0));
                             else
-                            {
-                                stringstream parse_error;
-                                parse_error << " near ";
-                                parse_error << buffer_init.c_str();
-                                throw(DataMismatchException(parse_error.str().c_str()));
-                            }
+                                add_constraint(Constraint(eye, CT_MORE_EQUAL, stod(lower_bound)));
                         }
-                        break;
+                        if (upper_bound != "inf")
+                            add_constraint(Constraint(eye, CT_LESS_EQUAL, stod(upper_bound)));
 
-                        case PB_OBJECTIVE:
-                        {
-                            string oft = token;
-                            Matrix costs(1, solution_dimension);
-                            for (int i = 0; i < solution_dimension; ++i)
-                                buffer >> costs(i);
-
-                            if (oft == "maximize")
-                                set_objective_function(ObjectiveFunction(OFT_MAXIMIZE, costs));
-                            else if (oft == "minimize")
-                                set_objective_function(ObjectiveFunction(OFT_MINIMIZE, costs));
-                            else
-                            {
-                                throw(DataMismatchException("Unknown objective function kind."));
-                            }
-                        }
-
-                        break;
+                        current_var++;
                     }
+                    break;
+
+                    case PB_CONSTRAINTS:
+                    {
+
+                        if (current_var != solution_dimension)
+                            throw(DataMismatchException("Mismatch between declared and defined variables."));
+
+                        Matrix coefficients(1, solution_dimension);
+                        coefficients(0) = atof(token.c_str());
+
+                        for (int i = 1; i < solution_dimension; ++i)
+                            buffer >> coefficients(i);
+
+                        string ct;
+                        float_type bound;
+                        buffer >> ct;
+                        buffer >> bound;
+
+                        if (ct == ">")
+                            add_constraint(Constraint(coefficients, CT_MORE_EQUAL, bound));
+                        else if (ct == "<")
+                            add_constraint(Constraint(coefficients, CT_LESS_EQUAL, bound));
+                        else if (ct == "=")
+                            add_constraint(Constraint(coefficients, CT_EQUAL, bound));
+                        else
+                        {
+                            stringstream parse_error;
+                            parse_error << " near ";
+                            parse_error << buffer_init.c_str();
+                            throw(DataMismatchException(parse_error.str().c_str()));
+                        }
+                    }
+                    break;
+
+                    case PB_OBJECTIVE:
+                    {
+                        string oft = token;
+                        Matrix costs(1, solution_dimension);
+                        for (int i = 0; i < solution_dimension; ++i)
+                            buffer >> costs(i);
+
+                        if (oft == "maximize")
+                            set_objective_function(ObjectiveFunction(OFT_MAXIMIZE, costs));
+                        else if (oft == "minimize")
+                            set_objective_function(ObjectiveFunction(OFT_MINIMIZE, costs));
+                        else
+                        {
+                            throw(DataMismatchException("Unknown objective function kind."));
+                        }
+                    }
+
+                    break;
                 }
             }
         }
     }
-
-    file.close();
-    return;
 }
 
 void Simplex::add_constraint(const Constraint & constraint)

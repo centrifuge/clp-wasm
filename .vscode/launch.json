@@ -8,9 +8,9 @@
             "name": "Debug solver",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/main",
+            "program": "${workspaceFolder}/build/cpplex",
             "args": [
-                "problems/tinlake-real.problem"
+                "problems/tinlake-base.problem"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

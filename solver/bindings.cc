@@ -1,4 +1,4 @@
-#ifndef __EMSCRIPTEN___
+#ifdef __EMSCRIPTEN__
 #include "simplex.h"
 #include <emscripten/bind.h>
 
