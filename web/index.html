@@ -1,18 +1,177 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title></title>
-    <meta content="">
+    <title>CPPLEX Sandbox</title>
+    <meta content="" />
     <style></style>
   </head>
   <body>
+    <script src="bn.js" type="text/javascript"></script>
     <script src="cpplex.js" type="text/javascript"></script>
     <script>
-      Module.onRuntimeInitialized = async _ => {
+      const testCase = {
+        state: {
+          netAssetValue: {
+            base: 18,
+            value: 800,
+          },
+          reserve: {
+            base: 18,
+            value: 200,
+          },
+          seniorAsset: {
+            base: 18,
+            value: 800,
+          },
+          maxSeniorRatio: {
+            base: 27,
+            value: 0.85,
+          },
+          minSeniorRatio: {
+            base: 27,
+            value: 0.8,
+          },
+          maxReserve: {
+            base: 18,
+            value: 10000,
+          },
+        },
+        orders: {
+          supplySenior: {
+            base: 18,
+            value: 400,
+          },
+          redeemSenior: {
+            base: 18,
+            value: 300,
+          },
+          supplyJunior: {
+            base: 18,
+            value: 200,
+          },
+          redeemJunior: {
+            base: 18,
+            value: 100,
+          },
+        },
+        solution: {
+          supplySenior: {
+            base: 18,
+            value: 400,
+          },
+          redeemSenior: {
+            base: 18,
+            value: 300,
+          },
+          supplyJunior: {
+            base: 18,
+            value: 125,
+          },
+          redeemJunior: {
+            base: 18,
+            value: 100,
+          },
+        },
+      };
 
+      function objToNum(jsonNumber) {
+        return new BN(jsonNumber.value * 10000).mul(
+          new BN(10).pow(new BN(jsonNumber.base - 5))
+        );
+      }
+
+      function objToNumStr(jsonNumber) {
+        return objToNum(jsonNumber).toString();
+      }
+
+      function prepareProblem() {
+        const state = testCase.state;
+        const orders = testCase.orders;
+
+        const e27 = objToNum({ value: 1, base: 27 });
+
+        const tinInvestOrders = objToNum(orders.supplyJunior);
+        const tinRedeemOrders = objToNum(orders.redeemJunior);
+        const dropInvestOrders = objToNum(orders.supplySenior);
+        const dropRedeemOrders = objToNum(orders.redeemSenior);
+
+        const minDropRatio = objToNum(state.minSeniorRatio);
+        const maxDropRatio = objToNum(state.maxSeniorRatio);
+        const minTinRatio = e27.sub(minDropRatio);
+        const maxTinRatio = e27.sub(maxDropRatio);
+
+        const netAssetValue = objToNum(state.netAssetValue);
+        const seniorAsset = objToNum(state.seniorAsset);
+        const reserve = objToNum(state.reserve);
+        const maxReserve = objToNum(state.maxReserve);
+
+        //   name: 'minTINRatio',
+        //   vars: [
+        //     { name: 'tinRedeem', coef: -(1 - state.minTinRatio) },
+        //     { name: 'dropRedeem', coef: state.minTinRatio },
+        //     { name: 'tinInvest', coef: 1 - state.minTinRatio },
+        //     { name: 'dropInvest', coef: -state.minTinRatio },
+        //   ],
+        //   bnds: {
+        //     type: glpk.GLP_LO,
+        //     ub: 0.0,
+        //     lb:
+        //       -(1 - state.minTinRatio) * state.netAssetValue -
+        //       (1 - state.minTinRatio) * state.reserve +
+        //       state.seniorAsset,
+        //   },
+
+        const minTINRatioLb = minDropRatio
+          .neg()
+          .mul(netAssetValue)
+          .sub(minDropRatio.mul(reserve))
+          .add(seniorAsset.mul(e27));
+
+        //   name: 'maxTINRatio',
+        //   vars: [
+        //     { name: 'tinInvest', coef: -(1 - state.maxTinRatio) },
+        //     { name: 'dropInvest', coef: state.maxTinRatio },
+        //     { name: 'tinRedeem', coef: 1 - state.maxTinRatio },
+        //     { name: 'dropRedeem', coef: -state.maxTinRatio },
+        //   ],
+        //   bnds: {
+        //     type: glpk.GLP_LO,
+        //     ub: 0.0,
+        //     lb:
+        //       (1 - state.maxTinRatio) * state.netAssetValue +
+        //       (1 - state.maxTinRatio) * state.reserve -
+        //       state.seniorAsset,
+        //   },
+
+        const maxTINRatioLb = maxDropRatio
+          .mul(netAssetValue)
+          .add(maxDropRatio.mul(reserve))
+          .sub(seniorAsset.mul(e27));
+
+        const template = `
+[METADATA]
+name Tinlake Solver (WIP)
+vars 4
+[VARIABLES]
+0       tinInvest       ${tinInvestOrders}
+0       dropInvest      ${dropInvestOrders}
+0       tinRedeem       ${tinRedeemOrders}
+0       dropRedeem      ${dropRedeemOrders}
+[CONSTRAINTS]
+1 1 -1 -1 < ${maxReserve.sub(reserve)}
+${minDropRatio.neg()} ${minTinRatio} ${minDropRatio} ${minTinRatio.neg()} < ${minTINRatioLb}
+${maxDropRatio.neg()} ${maxTinRatio} ${maxDropRatio} ${maxTinRatio.neg()} < ${maxTINRatioLb}
+[OBJECTIVE]
+maximize 1 1 -1 -1
+`;
+        return template;
+      }
+
+      Module.onRuntimeInitialized = async (_) => {
         console.log(Module);
+        console.log(prepareProblem());
       };
     </script>
-    <pre id='out'></pre>
+    <pre id="out"></pre>
   </body>
 </html>
