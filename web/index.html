@@ -283,7 +283,7 @@ maximize 1 1
         const solObj = JSON.parse(solution);
         for (let i in solObj)
           if (typeof solObj[i] == "string") {
-            solObj[i] = solObj[i].split(".")[0];
+            // solObj[i] = solObj[i].split(".")[0];
           }
         solutionElmt.value = JSON.stringify(solObj, null, 4);
       }
