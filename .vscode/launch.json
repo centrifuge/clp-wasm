@@ -10,7 +10,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/build/cpplex",
             "args": [
-                "problems/tinlake-base.problem"
+                "problems/tinlake-real.problem"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

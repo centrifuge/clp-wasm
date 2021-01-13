@@ -19,17 +19,21 @@ along with C++lex.  If not, see <http://www.gnu.org/licenses/>.
 #define MATRIX_H
 
 #include "matrix.h"
-#include <iostream> // std::string
+#include <string> // std::string
 #include <utility> // std::pair
 #include <vector> // std::vector
 
-#include <boost/multiprecision/cpp_bin_float.hpp>
+#include <boost/multiprecision/cpp_dec_float.hpp>
+using float_type = boost::multiprecision::number<boost::multiprecision::cpp_dec_float<100>>;
 
-using float_type = boost::multiprecision::number<boost::multiprecision::cpp_bin_float<256>>;
 // using float_type = double;
 
 namespace pilal
 {
+inline float_type abs_float_type(const float_type x)
+{
+    return x < 0 ? -x : x;
+}
 
 /** Enum type that describes the two types of data used to perform
 permutations: permutation matrices or permutation vectors (explained
@@ -129,9 +133,6 @@ public:
 
     /** Is the matrix an identity (with tolerance value)? */
     bool is_identity(float_type tol) const;
-
-    /** How much storage space does the matrix uses? */
-    float_type space() const;
 
     /** Compare two values (with tolerance). */
     bool more_equal_than(float_type value, float_type tol) const;

@@ -16,9 +16,6 @@ along with C++lex.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "matrix.h"
-#include <cmath>
-#include <cstdio>
-#include <cstdlib>
 #include <iostream>
 #include <sstream>
 #include <utility>
@@ -378,13 +375,8 @@ pair<int, int> Matrix::dim() const
     return make_pair(rows, columns);
 }
 
-float_type Matrix::space() const
-{
-    return (rows * columns * sizeof(float_type) * 0.000000954);
-}
-
 // Aux
-bool Matrix::more_equal_than(float_type value, float_type tol = 0.0000000000000001) const
+bool Matrix::more_equal_than(float_type value, float_type tol) const
 {
     for (int i = 0; i < rows; ++i)
         for (int j = 0; j < columns; ++j)
@@ -393,7 +385,7 @@ bool Matrix::more_equal_than(float_type value, float_type tol = 0.00000000000000
     return true;
 }
 
-bool Matrix::less_equal_than(float_type value, float_type tol = 0.0000000000000001) const
+bool Matrix::less_equal_than(float_type value, float_type tol) const
 {
 
     for (int i = 0; i < rows; ++i)
@@ -413,34 +405,32 @@ Matrix::operator float_type()
 void Matrix::log(std::string name) const
 {
     // Printing
-    printf("-- %s\n", name.c_str());
+    std::cout << "-- " << name << std::endl;
     for (int i = 0; i < rows; ++i)
     {
-        printf(" ");
+        std::cout << " ";
         for (int j = 0; j < columns; ++j)
         {
             std::cout << static_cast<float_type>(at(i, j)) << ' ';
         }
-        printf("\n");
+        std::cout << std::endl;
     }
-    printf("--\n");
+    std::cout << "--" << std::endl;
 }
 
 void Matrix::logtave(std::string varname) const
 {
     // Printing
-    printf("%s = ...\n[", varname.c_str());
+    std::cout << varname << " = ...\n[";
     for (int i = 0; i < rows; ++i)
     {
-
         for (int j = 0; j < columns; ++j)
         {
             std::cout << static_cast<float_type>(at(i, j)) << ' ';
         }
-
-        printf(";\n");
+        std::cout << ";\n";
     }
-    printf("]\n");
+    std::cout << "]" << std::endl;
 }
 
 bool Matrix::is_square() const
@@ -580,7 +570,7 @@ AnonymousMatrix Matrix::gaussian_elimination() const
 
         // Partial pivoting process
         for (int i = j; i < rows; ++i)
-            if (fabs(r(i, j)) > fabs(max))
+            if (abs_float_type(r(i, j)) > abs_float_type(max))
             {
                 column_max_position = i;
                 max = r(i, j);
@@ -732,7 +722,7 @@ void Matrix::get_lupp(Matrix & l, Matrix & u, Matrix & p, PermutationFormat pf =
 
         // Partial pivoting process
         for (int i = j; i < rows; ++i)
-            if (fabs(u(i, j)) > fabs(max))
+            if (abs_float_type(u(i, j)) > abs_float_type(max))
             {
                 column_max_position = i;
                 max = u(i, j);
@@ -740,7 +730,10 @@ void Matrix::get_lupp(Matrix & l, Matrix & u, Matrix & p, PermutationFormat pf =
 
         // If matrix is not singular proceed ..
         if (max == 0.0)
+        {
+            log("Singular matrix");
             throw std::runtime_error("Matrix is singular");
+        }
 
         // Update U and P with TPM only if necessary
         if (j != column_max_position)
@@ -1134,9 +1127,9 @@ AnonymousMatrix::AnonymousMatrix(int r, int c)
 
 // Auxiliary
 
-bool tol_equal(const float_type n, const float_type m, const float_type tol = 0.0000000000000001)
+bool tol_equal(const float_type n, const float_type m, const float_type tol)
 {
-    if (abs(n - m) > tol)
+    if (abs_float_type(n - m) > tol)
         return false;
     return true;
 }

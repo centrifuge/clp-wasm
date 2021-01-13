@@ -19,7 +19,7 @@
       }
       textarea {
         width: 100%;
-        font-family: 'Courier New', Courier, monospace;
+        font-family: "Courier New", Courier, monospace;
         font-size: small;
       }
     </style>
@@ -134,7 +134,7 @@
         solutionElmt = document.getElementById("solution");
         testCaseElmt.value = JSON.stringify(testCase, null, 4);
 
-         // lpProblemElmt.value = prepareProblemFromTestCase();
+        // lpProblemElmt.value = prepareProblemFromTestCase();
         lpProblemElmt.value = trivialProblem;
       }
 
@@ -149,6 +149,18 @@
       }
 
       function prepareProblemFromTestCase() {
+        const weights = {
+          seniorRedeem: 1000000,
+          juniorRedeem: 100000,
+          juniorSupply: 10000,
+          seniorSupply: 1000,
+        };
+
+        const tinInvestWeight = weights.juniorSupply;
+        const tinRedeemWeight = weights.juniorRedeem;
+        const dropInvestWeight = weights.seniorSupply;
+        const dropRedeemWeight = weights.seniorRedeem;
+
         const testCase = JSON.parse(testCaseElmt.value);
 
         const state = testCase.state;
@@ -163,8 +175,8 @@
 
         const minDropRatio = objToNum(state.minSeniorRatio);
         const maxDropRatio = objToNum(state.maxSeniorRatio);
-        const minTinRatio = e27.sub(minDropRatio);
-        const maxTinRatio = e27.sub(maxDropRatio);
+        const maxTinRatio = e27.sub(minDropRatio);
+        const minTinRatio = e27.sub(maxDropRatio);
 
         const netAssetValue = objToNum(state.netAssetValue);
         const seniorAsset = objToNum(state.seniorAsset);
@@ -186,11 +198,19 @@
         //       (1 - state.minTinRatio) * state.reserve +
         //       state.seniorAsset,
         //   },
+        td = (obj) => obj.value * Math.pow(10, obj.base);
 
-        const minTINRatioLb = minDropRatio
+        minTr = state.maxSeniorRatio.value;
+        let tmp =
+          -(1 - minTr) * td(state.netAssetValue) -
+          (1 - minTr) * td(state.reserve) +
+          td(state.seniorAsset);
+        console.log(tmp);
+
+        const minTINRatioLb = maxDropRatio
           .neg()
           .mul(netAssetValue)
-          .sub(minDropRatio.mul(reserve))
+          .sub(maxDropRatio.mul(reserve))
           .add(seniorAsset.mul(e27));
 
         //   name: 'maxTINRatio',
@@ -209,9 +229,9 @@
         //       state.seniorAsset,
         //   },
 
-        const maxTINRatioLb = maxDropRatio
+        const maxTINRatioLb = minDropRatio
           .mul(netAssetValue)
-          .add(maxDropRatio.mul(reserve))
+          .add(minDropRatio.mul(reserve))
           .sub(seniorAsset.mul(e27));
 
         const template = `[METADATA]
@@ -223,11 +243,12 @@ vars 4
 0       tinRedeem       ${tinRedeemOrders}
 0       dropRedeem      ${dropRedeemOrders}
 [CONSTRAINTS]
-1 1 -1 -1 < ${maxReserve.sub(reserve)}
-${minDropRatio.neg()} ${minTinRatio} ${minDropRatio} ${minTinRatio.neg()} < ${minTINRatioLb}
-${maxDropRatio.neg()} ${maxTinRatio} ${maxDropRatio} ${maxTinRatio.neg()} < ${maxTINRatioLb}
+1 1 -1 -1 < ${reserve}
+1 1 -1 -1 > ${reserve.sub(maxReserve)}
+${maxDropRatio} ${minTinRatio.neg()} ${maxDropRatio.neg()} ${minTinRatio} > ${minTINRatioLb}
+${minDropRatio.neg()} ${maxTinRatio} ${minDropRatio} ${maxTinRatio.neg()} > ${maxTINRatioLb}
 [OBJECTIVE]
-maximize 1 1 -1 -1
+maximize ${tinInvestWeight} ${dropInvestWeight} ${tinRedeemWeight} ${dropRedeemWeight}
 `;
         return template;
       }
@@ -245,7 +266,7 @@ maximize 1 1
       `;
 
       Module.onRuntimeInitialized = async (_) => {
-        solveProblemFromFromLP()
+        solveProblemFromFromLP();
       };
 
       function solveLpProblem(lpProblem) {
@@ -258,8 +279,13 @@ maximize 1 1
       }
 
       function solveProblemFromFromLP() {
-        const solution = solveLpProblem(lpProblemElmt.value)
-        solutionElmt.value = solution;
+        const solution = solveLpProblem(lpProblemElmt.value);
+        const solObj = JSON.parse(solution);
+        for (let i in solObj)
+          if (typeof solObj[i] == "string") {
+            solObj[i] = solObj[i].split(".")[0];
+          }
+        solutionElmt.value = JSON.stringify(solObj, null, 4);
       }
 
       function solveProblemFromTestCase() {

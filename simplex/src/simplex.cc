@@ -18,14 +18,10 @@ along with C++lex.  If not, see <http://www.gnu.org/licenses/>.
 #include "simplex.h"
 #include "matrix.h"
 #include "variable.h"
-#include <algorithm>
-#include <cstdlib>
 #include <exception>
 #include <fstream>
 #include <iostream>
-#include <ostream>
 #include <streambuf>
-#include <string>
 
 #ifndef __EMSCRIPTEN__
 #include <filesystem>
@@ -734,6 +730,9 @@ void Simplex::solve_with_base(ColumnSet const & initial_base)
                 if (reduced_cost(current_out_of_base.column(i)) < 0.0)
                     p = current_out_of_base.column(i);
 
+            if (p == -1)
+                p = 0;
+
             for (unsigned int i = 0; i < constraints.size(); ++i)
                 column_p(i) = coefficients_matrix(i, p);
 
@@ -825,7 +824,7 @@ std::string Simplex::get_solution() const
 
                                    const std::string & terminator = ",\n") {
         std::string indent(indentLevel * 4, ' ');
-        ss << indent << '"' << name << ": \"" << value << '"' << terminator;
+        ss << indent << '"' << name << "\": \"" << value << '"' << terminator;
     };
 
     ss << "{" << std::endl;
