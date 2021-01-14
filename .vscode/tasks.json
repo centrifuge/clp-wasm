@@ -26,6 +26,28 @@
             ],
             "group": "build",
             "problemMatcher": []
-        }
+        },
+        {
+            "label": "Build x64 Debug",
+            "type": "shell",
+            "command": "./build.sh debug x64",
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "Build x64 Release",
+            "type": "shell",
+            "command": "./build.sh release x64",
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "Run Solver x64 Release",
+            "type": "shell",
+            "command": "${workspaceFolder}/build_release/cpplex problems/small.problem problems/tinlake-test.problem problems/tinlake-real.problem",
+            "group": "build",
+            "problemMatcher": [],
+            "dependsOn": "Build x64 Release"
+        },
     ],
 }

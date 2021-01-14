@@ -34,7 +34,6 @@ namespace optimization
 
 Constraint::Constraint(Matrix const & coefficients, ConstraintType type, float_type value)
 {
-
     // Coefficients must be a row vector
     if (coefficients.dim().first == 1)
     {
@@ -50,7 +49,6 @@ Constraint::Constraint(Matrix const & coefficients, ConstraintType type, float_t
 
 Constraint::Constraint(Matrix const & coefficients, ConstraintType type, float_type lower, float_type upper)
 {
-
     if (type != CT_BOUNDS)
         throw(DataMismatchException("Invalid constraint type for provided data"));
 

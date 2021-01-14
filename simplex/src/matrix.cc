@@ -24,6 +24,9 @@ using std::make_pair;
 using std::pair;
 using std::swap;
 
+const float_type ZERO = 0.0;
+const float_type ONE = 1.0;
+
 namespace pilal
 {
 
@@ -291,7 +294,6 @@ AnonymousMatrix Matrix::operator*(AnonymousMatrix m) const
 
 Matrix & Matrix::operator=(char const * values)
 {
-
     if (rows == 0 && columns == 0)
     {
         int chunks = 0;
@@ -310,7 +312,6 @@ Matrix & Matrix::operator=(char const * values)
 
 Matrix & Matrix::operator=(Matrix const & m)
 {
-
     // Handle autoassignment
     if (&m == this)
         return *this;
@@ -328,7 +329,6 @@ Matrix & Matrix::operator=(Matrix const & m)
 
 Matrix & Matrix::operator=(AnonymousMatrix m)
 {
-
     // Swap values, m will destroy old Matrix values
     swap(values->contents, m.values->contents); // Does not swap counters
 
@@ -341,7 +341,6 @@ Matrix & Matrix::operator=(AnonymousMatrix m)
 
 AnonymousMatrix Matrix::operator-(AnonymousMatrix m) const
 {
-
     if (dim() != m.dim())
         throw std::runtime_error("Size mismatch exception");
 
@@ -356,7 +355,6 @@ AnonymousMatrix Matrix::operator-(AnonymousMatrix m) const
 
 AnonymousMatrix Matrix::operator+(AnonymousMatrix m) const
 {
-
     if (dim() != m.dim())
         throw std::runtime_error("Size mismatch exception");
 
@@ -387,7 +385,6 @@ bool Matrix::more_equal_than(float_type value, float_type tol) const
 
 bool Matrix::less_equal_than(float_type value, float_type tol) const
 {
-
     for (int i = 0; i < rows; ++i)
         for (int j = 0; j < columns; ++j)
             if (at(i, j) - tol > value)
@@ -468,8 +465,8 @@ bool Matrix::is_identity(const float_type tol) const
     // Identity check
     for (int i = 0; i < rows; ++i)
         for (int j = 0; j < columns; ++j)
-            if (((i == j) && !tol_equal(at(i, j), static_cast<float_type>(1), tol))
-                || ((i != j) && !tol_equal(at(i, j), static_cast<float_type>(0), tol)))
+            if (((i == j) && !tol_equal(at(i, j), ONE, tol))
+                || ((i != j) && !tol_equal(at(i, j), ZERO, tol)))
                 return false;
     return true;
 }
@@ -484,24 +481,22 @@ void Matrix::set_identity()
     for (int i = 0; i < rows; ++i)
         for (int j = 0; j < columns; ++j)
             if (i == j)
-                at(i, j) = 1.0;
+                at(i, j) = ONE;
             else
-                at(i, j) = 0.0;
+                at(i, j) = ZERO;
 
-    det = 1.0;
+    det = ONE;
     determinant_up_to_date = true;
 }
 
 void Matrix::set_determinant(const float_type d) const
 {
-
     det = d;
     determinant_up_to_date = true;
 }
 
 float_type Matrix::determinant() const
 {
-
     // Return determinant if cached, else factorize and return it
     if (!determinant_up_to_date)
     {
@@ -513,7 +508,6 @@ float_type Matrix::determinant() const
 
 void Matrix::transpose()
 {
-
     // If matrix is square just swap the elements
     if (rows == columns)
     {
@@ -539,7 +533,6 @@ void Matrix::empty()
 
 void Matrix::resize(int r, int c)
 {
-
     // Reinitialize values
     delete values;
     values = new storage(r * c);
@@ -554,7 +547,6 @@ void Matrix::resize(int r, int c)
 
 AnonymousMatrix Matrix::gaussian_elimination() const
 {
-
     AnonymousMatrix r(*this);
 
     int j = 0, pivot = 0;
@@ -562,8 +554,8 @@ AnonymousMatrix Matrix::gaussian_elimination() const
     {
 
         // Reset tem and tpm elements
-        Matrix tem(rows, 1, 0.0);
-        tem(pivot, 0) = 1.0;
+        Matrix tem(rows, 1, ZERO);
+        tem(pivot, 0) = ONE;
 
         int column_max_position = pivot;
         float_type max = r(column_max_position, j);
@@ -576,7 +568,7 @@ AnonymousMatrix Matrix::gaussian_elimination() const
                 max = r(i, j);
             }
 
-        if (max != static_cast<float_type>(0))
+        if (!max.is_zero())
         {
 
             // Update U and P with TPM only if necessary
@@ -591,7 +583,7 @@ AnonymousMatrix Matrix::gaussian_elimination() const
             // shape of tem and u
             for (int i = pivot + 1; i < rows; ++i)
             {
-                Matrix t(1, columns, 0.0);
+                Matrix t(1, columns, ZERO);
 
                 for (int o = pivot; o < columns; ++o)
                     t(o) = tem(i, 0) * r(j, o) + r(i, o);
@@ -627,7 +619,7 @@ bool Matrix::columns_linearly_independent()
     {
         bool row_is_zero = true;
         for (int j = 0; j < test.columns; j++)
-            if (test(i, j) != 0.0)
+            if (test(i, j) != ZERO)
             {
                 row_is_zero = false;
                 break;
@@ -656,7 +648,7 @@ bool Matrix::rows_linearly_independent()
     {
         bool row_is_zero = true;
         for (int j = 0; j < test.columns; j++)
-            if (test(i, j) != 0.0)
+            if (test(i, j) != ZERO)
             {
                 row_is_zero = false;
                 break;
@@ -679,7 +671,7 @@ void Matrix::get_lupp(Matrix & l, Matrix & u, Matrix & p, PermutationFormat pf =
         throw std::runtime_error("Matrix is not square");
 
     // Initialize determinant
-    float_type determinant = 1.0;
+    float_type determinant = ONE;
 
     // Initialize passed u
     u = *this; // u will evolve from the original matrix
@@ -710,8 +702,8 @@ void Matrix::get_lupp(Matrix & l, Matrix & u, Matrix & p, PermutationFormat pf =
     {
 
         // Reset tem and tpm elements
-        Matrix tem(rows, 1, 0.0);
-        tem(j) = 1.0;
+        Matrix tem(rows, 1, ZERO);
+        tem(j) = ONE;
 
         // Write tpm:
         //   *  find absolute maximum element j in column i
@@ -729,7 +721,7 @@ void Matrix::get_lupp(Matrix & l, Matrix & u, Matrix & p, PermutationFormat pf =
             }
 
         // If matrix is not singular proceed ..
-        if (max == 0.0)
+        if (max.is_zero())
         {
             log("Singular matrix");
             throw std::runtime_error("Matrix is singular");
@@ -776,7 +768,7 @@ void Matrix::get_lupp(Matrix & l, Matrix & u, Matrix & p, PermutationFormat pf =
         // shape of tem and u
         for (int i = j + 1; i < rows; ++i)
         {
-            Matrix r(1, columns, 0.0);
+            Matrix r(1, columns, ZERO);
 
             for (int o = j; o < columns; ++o)
                 r(o) = tem(i) * u(j, o) + u(i, o);
@@ -835,13 +827,13 @@ void Matrix::get_inverse(Matrix & inverse) const
 
     // Set reciprocals on the diagonal of u, useless in l since they are ones
     for (int i = 0; i < rows; ++i)
-        u_inverse(i, i) = 1.0 / u_inverse(i, i);
+        u_inverse(i, i) = ONE / u_inverse(i, i);
 
     // Calculate inverse of l
     for (int i = 1; i < rows; ++i)
         for (int j = i - 1; j >= 0; --j)
         {
-            float_type dot_product = 0.0;
+            float_type dot_product = ZERO;
             for (int k = i; k > 0; --k)
                 dot_product += l_inverse(i, k) * l_inverse(j, k);
             l_inverse(i, j) = -dot_product; // Optimization of dot_product * - l_inverse.at(j,j)
@@ -850,13 +842,13 @@ void Matrix::get_inverse(Matrix & inverse) const
     // Set zeroes on the upper half of l^-1
     for (int i = 0; i < rows; ++i)
         for (int j = i + 1; j < columns; ++j)
-            l_inverse(i, j) = 0.0;
+            l_inverse(i, j) = ZERO;
 
     // Calculate inverse of u
     for (int i = 1; i < rows; ++i)
         for (int j = i - 1; j >= 0; --j)
         {
-            float_type dot_product = 0.0;
+            float_type dot_product = ZERO;
             for (int k = i; k > 0; --k)
             {
                 dot_product += u_inverse(i, k) * u_inverse(j, k);
@@ -869,7 +861,7 @@ void Matrix::get_inverse(Matrix & inverse) const
     // Set zeroes on the lower half of u^-1
     for (int j = 0; j < columns; ++j)
         for (int i = j + 1; i < rows; ++i)
-            u_inverse(i, j) = 0.0;
+            u_inverse(i, j) = ZERO;
 
     // Optimization of u^-1 * l^-1 that takes into account the
     // shape of the two matrices
@@ -926,13 +918,13 @@ void Matrix::solve(Matrix & x, Matrix const & b) const
 
     // Set reciprocals on the diagonal of u (useless in l since diagonal elements are ones)
     for (int i = 0; i < rows; ++i)
-        u_inverse(i, i) = 1.0 / u_inverse(i, i);
+        u_inverse(i, i) = ONE / u_inverse(i, i);
 
     // Calculate inverse of l
     for (int i = 1; i < rows; ++i)
         for (int j = i - 1; j >= 0; --j)
         {
-            float_type dot_product = 0.0;
+            float_type dot_product = ZERO;
             for (int k = i; k > 0; --k)
                 dot_product += l_inverse(i, k) * l_inverse(j, k);
             l_inverse(i, j) = -dot_product; // Optimization due to ones on diagonal
@@ -947,7 +939,7 @@ void Matrix::solve(Matrix & x, Matrix const & b) const
     for (int i = 1; i < rows; ++i)
         for (int j = i - 1; j >= 0; --j)
         {
-            float_type dot_product = 0.0;
+            float_type dot_product = ZERO;
             for (int k = i; k > 0; --k)
             {
                 dot_product += u_inverse(i, k) * u_inverse(j, k);
@@ -960,7 +952,7 @@ void Matrix::solve(Matrix & x, Matrix const & b) const
     // Set zeroes on the lower half of u^-1
     for (int j = 0; j < columns; ++j)
         for (int i = j + 1; i < rows; ++i)
-            u_inverse(i, j) = 0.0;
+            u_inverse(i, j) = ZERO;
 
     // Optimization of p * b
     Matrix pb(rows, 1);
@@ -984,7 +976,7 @@ void Matrix::solve(Matrix & x, Matrix const & b) const
     // Optimization of x = u_inverse * x
     for (int i = 0; i < rows; ++i)
     {
-        float_type dot_product = 0.0;
+        float_type dot_product = ZERO;
         for (auto j = columns - 1; j >= i; --j)
             dot_product += u_inverse(i, j) * x(j);
         x(i) = dot_product;

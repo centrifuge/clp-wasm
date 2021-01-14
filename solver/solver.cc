@@ -22,10 +22,8 @@ along with C++lex.  If not, see <http://www.gnu.org/licenses/>.
 using namespace pilal;
 using namespace optimization;
 
-#ifndef __EMSCRIPTEN__
-int main(int argc, char * argv[])
+int runSolverForFile(const std::string & problemFile)
 {
-    const auto problemFile = argc <= 1 ? std::string("../problems/other.problem") : std::string(argv[1]);
     if (!problemFile.empty())
     {
         Simplex problem("TinLake");
@@ -67,7 +65,21 @@ int main(int argc, char * argv[])
         std::cout << "Error: omitted problem file." << std::endl;
         return 1;
     }
+}
+
+#ifndef __EMSCRIPTEN__
+int main(int argc, char * argv[])
+{
+    int rc = 0;
+    for (int k = 1; k < argc; ++k)
+    {
+        const auto problemFile = std::string(argv[k]);
+        rc = runSolverForFile(problemFile);
+        if (rc != 0)
+            break;
+    }
 
     std::cout << "Quitting ..." << std::endl;
+    return rc;
 }
 #endif

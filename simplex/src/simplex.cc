@@ -45,7 +45,10 @@ std::string resolvePath(const std::string & relPath)
 }
 #endif
 
-#define TOL ((float_type)(0.00000000000000000001))
+const float_type TOL = 0.000000000000000000000000000001;
+const float_type ZERO = 0.0;
+const float_type ONE = 1.0;
+
 #define VERBOSE 0
 
 using pilal::tol_equal;
@@ -227,7 +230,7 @@ void Simplex::load_problem(const std::string & problem_input)
 
                         if (lower_bound != "inf")
                         {
-                            if (atof(lower_bound.c_str()) == 0)
+                            if (stof(lower_bound) == 0)
                                 add_constraint(Constraint(eye, CT_NON_NEGATIVE, 0));
                             else
                                 add_constraint(Constraint(eye, CT_MORE_EQUAL, stod(lower_bound)));
@@ -491,7 +494,7 @@ void Simplex::process_to_standard_form()
     if (objective_function.type == OFT_MAXIMIZE)
     {
         objective_function.type = OFT_MINIMIZE;
-        Matrix zero(1, solution_dimension, 0);
+        Matrix zero(1, solution_dimension, ZERO);
         changed_sign = true;
         objective_function.costs = zero - objective_function.costs;
     }
@@ -502,7 +505,6 @@ void Simplex::process_to_standard_form()
 
 void Simplex::process_to_artificial_problem()
 {
-
     ColumnSet identity;
 
     // Scans all the columns, when I find a column that is an eye for i
@@ -510,7 +512,6 @@ void Simplex::process_to_artificial_problem()
 
     for (unsigned int i = 0; i < constraints.size(); ++i)
     {
-
         if (VERBOSE)
             std::cout << std::endl;
         if (VERBOSE)
@@ -520,7 +521,6 @@ void Simplex::process_to_artificial_problem()
 
         for (int c = solution_dimension - 1; c > -1 && column_not_found; --c)
         {
-
             if (VERBOSE)
                 std::cout << "Checking against column " << c << std::endl;
 
@@ -528,11 +528,10 @@ void Simplex::process_to_artificial_problem()
 
             for (unsigned int j = 0; j < constraints.size() && column_match; ++j)
             {
-
                 column_match = true;
 
-                if ((i == j && (constraints.at(j).coefficients(c) != 1))
-                    || (i != j && constraints.at(j).coefficients(c) != 0))
+                if ((i == j && (constraints.at(j).coefficients(c) != ONE))
+                    || (i != j && constraints.at(j).coefficients(c) != ZERO))
                     column_match = false;
             }
 
@@ -563,13 +562,10 @@ void Simplex::process_to_artificial_problem()
 
     if (identity.contains(-1))
     {
-
         for (unsigned int i = 0; i < identity.size(); ++i)
         {
-
             if (identity.column(i) == -1)
             {
-
                 // Add column 1 to constraint i
                 for (unsigned int k = 0; k < constraints.size(); ++k)
                     if (k == i)
@@ -583,15 +579,15 @@ void Simplex::process_to_artificial_problem()
 
                 // Create non-negative constraint for new variable
                 Matrix eye(1, solution_dimension);
-                eye(solution_dimension - 1) = 1.0;
+                eye(solution_dimension - 1) = ONE;
 
                 for (auto k = 0; k < nn_constraints.size(); ++k)
-                    nn_constraints.at(k).add_column(0.0);
+                    nn_constraints.at(k).add_column(ZERO);
 
                 // Objective function costs updated
                 objective_function.add_column(1.0);
 
-                this->add_constraint(Constraint(eye, CT_NON_NEGATIVE, 0.0));
+                this->add_constraint(Constraint(eye, CT_NON_NEGATIVE, ZERO));
             }
         }
     }
@@ -602,7 +598,6 @@ void Simplex::process_to_artificial_problem()
 
 void Simplex::solve_with_base(ColumnSet const & initial_base)
 {
-
     // Preprocess constraints data to lead to matrices
     coefficients_matrix.resize( // A
         static_cast<int>(constraints.size()),
@@ -614,7 +609,6 @@ void Simplex::solve_with_base(ColumnSet const & initial_base)
     {
         // Set b
         constraints_vector(i) = constraints.at(i).value;
-
         for (int j = 0; j < solution_dimension; ++j)
             coefficients_matrix(i, j) = constraints.at(i).coefficients(j);
     }
@@ -636,7 +630,6 @@ void Simplex::solve_with_base(ColumnSet const & initial_base)
 
     while (!optimal && !unlimited)
     {
-
         // Temporary matrices
         Matrix u; // c_b * B^-1
         Matrix base_costs(1, (int)current_base.size()); // Costs of base
@@ -650,7 +643,6 @@ void Simplex::solve_with_base(ColumnSet const & initial_base)
         // Every inverse_recalculation steps recompute inverse from scratch
         if (step % inverse_recalculation_rate == 0)
         {
-
             Matrix base_matrix((int)current_base.size());
 
             // Unpack current base and objective costs
@@ -667,7 +659,6 @@ void Simplex::solve_with_base(ColumnSet const & initial_base)
         }
         else
         {
-
             // Unpack objective costs
             for (unsigned int j = 0; j < current_base.size(); ++j)
             {
@@ -716,7 +707,6 @@ void Simplex::solve_with_base(ColumnSet const & initial_base)
 
         if (!optimal)
         {
-
             if (VERBOSE)
                 std::cout << "Base not optimal since reduced cost is negative." << std::endl;
 
@@ -727,7 +717,7 @@ void Simplex::solve_with_base(ColumnSet const & initial_base)
 
             // Bland's strategy
             for (unsigned int i = 0; i < current_out_of_base.size() && p == -1; ++i)
-                if (reduced_cost(current_out_of_base.column(i)) < 0.0)
+                if (reduced_cost(current_out_of_base.column(i)) < ZERO)
                     p = current_out_of_base.column(i);
 
             if (p == -1)
@@ -758,9 +748,7 @@ void Simplex::solve_with_base(ColumnSet const & initial_base)
                 int q_position = -1;
                 for (unsigned int i = 0; i < current_base.size(); ++i)
                 {
-
                     auto value = base_solution(i) / a_tilde(i);
-
                     if (a_tilde(i) > 0
                         && (q_position == -1 || value < (base_solution(q_position) / a_tilde(q_position))))
                         q_position = i;
@@ -821,7 +809,6 @@ std::string Simplex::get_solution() const
     const auto printKeyVal = [&ss](int indentLevel,
                                    const std::string & name,
                                    const float_type & value,
-
                                    const std::string & terminator = ",\n") {
         std::string indent(indentLevel * 4, ' ');
         ss << indent << '"' << name << "\": \"" << value << '"' << terminator;
@@ -886,18 +873,15 @@ void Simplex::solve()
         artificial_problem.solve_with_base(artificial_problem.suggested_base);
         std::cout << "Done." << std::endl;
 
-        if (artificial_problem.solution_value != 0)
+        if (!artificial_problem.solution_value.is_zero())
         {
-
             std::cout << "Problem has no solution." << std::endl;
             overconstrained = true;
             return;
         }
         else
         {
-
             overconstrained = false;
-
             if (VERBOSE)
                 std::cout << "Suggested initial base for original problem:";
             if (VERBOSE)
@@ -912,7 +896,7 @@ void Simplex::solve()
             int artificial_variable = -1;
 
             for (int i = 0; i < artificial_problem.solution_dimension; ++i)
-                if (artificial_problem.objective_function.costs(i) == 1 && artificial_problem.current_base.contains(i))
+                if (artificial_problem.objective_function.costs(i) == ONE && artificial_problem.current_base.contains(i))
                     artificial_variable = i;
 
             // If index is still -1 (no artificial variables)
@@ -945,23 +929,19 @@ void Simplex::solve()
                 int j = -1;
                 for (unsigned int i = 0; i < standard_form_problem.current_out_of_base.size() && j == -1; ++i)
                 {
-
                     // Pick the ones that doesn't refer to an artificial variable
-                    if (artificial_problem.costs(i) == 0)
+                    if (artificial_problem.costs(i).is_zero())
                     {
                         Matrix column_j((int)standard_form_problem.current_base.size(), 1);
-
                         for (unsigned int k = 0; k < standard_form_problem.current_base.size(); ++k)
                             column_j(k) = artificial_problem.coefficients_matrix(k, i);
-
-                        if ((float_type)(bi_row_q * column_j) != (float_type)(0))
+                        if (!((float_type)(bi_row_q * column_j)).is_zero())
                             j = i;
                     }
                 }
 
                 if (j != -1)
                 {
-
                     // Found a j, substitute artificial_value with j
                     standard_form_problem.suggested_base = artificial_problem.current_base;
                     standard_form_problem.suggested_base.substitute(artificial_variable, j);
@@ -970,7 +950,6 @@ void Simplex::solve()
                 }
                 else
                 {
-
                     /*
                     I didn't find a j which respected the requirements.
                     It may happen that for each j we have (B^-1)_q * A^j = 0,
@@ -987,7 +966,7 @@ void Simplex::solve()
                     // Find a constraint to eliminate (change)
                     int change = -1;
                     for (unsigned int i = 0; i < standard_form_problem.constraints.size() && change == -1; ++i)
-                        if (bi_row_q(i) != 0)
+                        if (!bi_row_q(i).is_zero())
                             change = i;
 
                     std::cout << "Constraint #" << change << " must be eliminated." << std::endl;

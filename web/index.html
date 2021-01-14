@@ -282,7 +282,8 @@ maximize 1 1
         const solution = solveLpProblem(lpProblemElmt.value);
         const solObj = JSON.parse(solution);
         for (let i in solObj)
-          if (typeof solObj[i] == "string") {
+          if (typeof solObj[i] == "string" && solObj[i].length > 25) {
+            solObj[i] = Module.bn_round(solObj[i]); 
             // solObj[i] = solObj[i].split(".")[0];
           }
         solutionElmt.value = JSON.stringify(solObj, null, 4);

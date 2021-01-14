@@ -1,7 +1,6 @@
 *.o
 *.d
-build
-build_wasm*
+build_*
 .vs
 build/
 out/

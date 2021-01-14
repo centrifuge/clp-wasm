@@ -60,7 +60,6 @@ int ColumnSet::index_of(int column)
 
 void ColumnSet::log(char const * prelude) const
 {
-
     std::cout << prelude;
     for (const auto column : columns)
     {

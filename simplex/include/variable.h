@@ -28,9 +28,7 @@ class AuxiliaryVariable;
 
 class Variable
 {
-
     friend class Simplex;
-
 public:
     Variable(Simplex * creator, char const * name);
     virtual ~Variable();
@@ -43,9 +41,7 @@ protected:
 
 class SplittedVariable : public Variable
 {
-
     friend class Simplex;
-
 public:
     SplittedVariable(Simplex * creator, char const * name, AuxiliaryVariable * aux);
     ~SplittedVariable();
@@ -57,9 +53,7 @@ private:
 
 class SlackVariable : public Variable
 {
-
     friend class Simplex;
-
 public:
     SlackVariable(Simplex * creator, char const * name);
     ~SlackVariable();
@@ -68,7 +62,6 @@ public:
 
 class AuxiliaryVariable : public Variable
 {
-
     friend class Simplex;
     friend class SplittedVariable;
 

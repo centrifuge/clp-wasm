@@ -28,7 +28,7 @@ include_directories($ENV{BOOST_ROOT})
 include_directories(simplex/include)
 
 message(STATUS CMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS})
- 
+
 add_executable(cpplex
 
     solver/solver.cc
@@ -40,7 +40,6 @@ add_executable(cpplex
     simplex/src/simplex.cc 
     simplex/src/variable.cc
     simplex/src/matrix.cc
-
 )
 target_link_libraries(cpplex ${Boost_LIBRARIES}) 
 
