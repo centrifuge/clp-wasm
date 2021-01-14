@@ -815,10 +815,8 @@ std::string Simplex::get_solution() const
     if (changed_sign)
         dual_problem_value *= -1;
 
-    printKeyVal(1, "optimal", optimal);
     printKeyVal(1, "unlimited", unlimited);
     printKeyVal(1, "overconstrained", overconstrained);
-
     printKeyVal(1, "solutionCostResult", solution_value);
     printKeyVal(1, "dualProblemValue", dual_problem_value, "\n");
 
