@@ -619,7 +619,7 @@ bool Matrix::columns_linearly_independent()
     {
         bool row_is_zero = true;
         for (int j = 0; j < test.columns; j++)
-            if (test(i, j) != ZERO)
+            if (!test(i, j).is_zero())
             {
                 row_is_zero = false;
                 break;

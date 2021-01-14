@@ -74,7 +74,7 @@ int Constraint::size() const
 void Constraint::log() const
 {
     for (int i = 0; i < coefficients.dim().second; ++i)
-        std::cout << coefficients(i) << "\t";
+        std::cout << PRINT_PRECISION << coefficients(i) << "\t";
 
     switch (type)
     {

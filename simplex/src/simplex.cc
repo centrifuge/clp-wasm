@@ -203,7 +203,6 @@ void Simplex::load_problem(const std::string & problem_input)
                     {
                         if (token == "name")
                         {
-
                             buffer_init.erase(0, 5);
                             name = buffer_init;
                         }
@@ -216,7 +215,6 @@ void Simplex::load_problem(const std::string & problem_input)
 
                     case PB_VARS:
                     {
-
                         Matrix eye(1, solution_dimension, 0);
                         eye(current_var) = 1;
                         string variable_name, lower_bound, upper_bound;
@@ -233,10 +231,10 @@ void Simplex::load_problem(const std::string & problem_input)
                             if (stof(lower_bound) == 0)
                                 add_constraint(Constraint(eye, CT_NON_NEGATIVE, 0));
                             else
-                                add_constraint(Constraint(eye, CT_MORE_EQUAL, stod(lower_bound)));
+                                add_constraint(Constraint(eye, CT_MORE_EQUAL, float_type(lower_bound)));
                         }
                         if (upper_bound != "inf")
-                            add_constraint(Constraint(eye, CT_LESS_EQUAL, stod(upper_bound)));
+                            add_constraint(Constraint(eye, CT_LESS_EQUAL, float_type(upper_bound)));
 
                         current_var++;
                     }
@@ -244,33 +242,31 @@ void Simplex::load_problem(const std::string & problem_input)
 
                     case PB_CONSTRAINTS:
                     {
-
                         if (current_var != solution_dimension)
-                            throw(DataMismatchException("Mismatch between declared and defined variables."));
+                            throw std::runtime_error("Mismatch between declared and defined variables.");
 
                         Matrix coefficients(1, solution_dimension);
-                        coefficients(0) = atof(token.c_str());
+                        coefficients(0) = float_type(token);
 
                         for (int i = 1; i < solution_dimension; ++i)
                             buffer >> coefficients(i);
 
-                        string ct;
-                        float_type bound;
+                        string ct, bound;
                         buffer >> ct;
                         buffer >> bound;
 
-                        if (ct == ">")
-                            add_constraint(Constraint(coefficients, CT_MORE_EQUAL, bound));
-                        else if (ct == "<")
-                            add_constraint(Constraint(coefficients, CT_LESS_EQUAL, bound));
+                        if (ct == ">" || ct == ">=")
+                            add_constraint(Constraint(coefficients, CT_MORE_EQUAL, float_type(bound)));
+                        else if (ct == "<" || ct == "<=")
+                            add_constraint(Constraint(coefficients, CT_LESS_EQUAL, float_type(bound)));
                         else if (ct == "=")
-                            add_constraint(Constraint(coefficients, CT_EQUAL, bound));
+                            add_constraint(Constraint(coefficients, CT_EQUAL, float_type(bound)));
                         else
                         {
                             stringstream parse_error;
                             parse_error << " near ";
                             parse_error << buffer_init.c_str();
-                            throw(DataMismatchException(parse_error.str().c_str()));
+                            throw std::runtime_error("Data mismatch error: " + parse_error.str());
                         }
                     }
                     break;
@@ -280,18 +276,19 @@ void Simplex::load_problem(const std::string & problem_input)
                         string oft = token;
                         Matrix costs(1, solution_dimension);
                         for (int i = 0; i < solution_dimension; ++i)
-                            buffer >> costs(i);
+                        {
+                            std::string cost;
+                            buffer >> cost;
+                            costs(i) = float_type(cost);
+                        }
 
                         if (oft == "maximize")
                             set_objective_function(ObjectiveFunction(OFT_MAXIMIZE, costs));
                         else if (oft == "minimize")
                             set_objective_function(ObjectiveFunction(OFT_MINIMIZE, costs));
                         else
-                        {
-                            throw(DataMismatchException("Unknown objective function kind."));
-                        }
+                            throw std::runtime_error("Data mismatch error: Unknown objective function kind.");
                     }
-
                     break;
                 }
             }
@@ -333,7 +330,6 @@ void Simplex::set_objective_function(ObjectiveFunction const & objective_functio
 
 void Simplex::log() const
 {
-
     // Title
     for (unsigned int i = 0; i < name.length(); ++i)
         std::cout << "=";
@@ -427,10 +423,8 @@ void Simplex::process_to_standard_form()
     // Process regular constraints
     for (it = constraints.begin(); it != constraints.end(); ++it)
     {
-
         if (it->type == CT_MORE_EQUAL)
         {
-
             vector<Constraint>::iterator mit;
 
             // Add empty column to all regular constraints except the current
@@ -460,7 +454,6 @@ void Simplex::process_to_standard_form()
         }
         else if (it->type == CT_LESS_EQUAL)
         {
-
             vector<Constraint>::iterator mit;
 
             // Add empty column to all regular constraints except the current
@@ -479,7 +472,7 @@ void Simplex::process_to_standard_form()
 
             // Add constraint
             Matrix eye(1, solution_dimension);
-            eye(solution_dimension - 1) = 1;
+            eye(solution_dimension - 1) = ONE;
             this->add_constraint(Constraint(eye, CT_NON_NEGATIVE, 0));
 
             // Update variables vector
@@ -679,7 +672,6 @@ void Simplex::solve_with_base(ColumnSet const & initial_base)
             current_base.log("Columns in base: ");
         if (VERBOSE)
             current_out_of_base.log("Out of base: ");
-
         if (VERBOSE)
             base_inverse.log("Base inverse is:");
 
@@ -721,8 +713,11 @@ void Simplex::solve_with_base(ColumnSet const & initial_base)
                     p = current_out_of_base.column(i);
 
             if (p == -1)
-                p = 0;
-
+            {
+                p = current_out_of_base.column(0);
+                for (unsigned int i = 0; i < current_out_of_base.size() && p == -1; ++i)
+                    std::cout << reduced_cost(current_out_of_base.column(i)) << " ";
+            }
             for (unsigned int i = 0; i < constraints.size(); ++i)
                 column_p(i) = coefficients_matrix(i, p);
 
@@ -804,26 +799,29 @@ void Simplex::solve_with_base(ColumnSet const & initial_base)
 std::string Simplex::get_solution() const
 {
     stringstream ss;
-    ss << std::setprecision(std::numeric_limits<float_type>::max_digits10);
+    ss << std::setprecision(std::numeric_limits<float_type>::max_digits10) << std::boolalpha;
 
-    const auto printKeyVal = [&ss](int indentLevel,
-                                   const std::string & name,
-                                   const float_type & value,
-                                   const std::string & terminator = ",\n") {
-        std::string indent(indentLevel * 4, ' ');
-        ss << indent << '"' << name << "\": \"" << value << '"' << terminator;
-    };
+    const auto printKeyVal =
+        [&ss](int indentLevel, const std::string & name, const auto & value, const std::string & terminator = ",\n") {
+            std::string indent(indentLevel * 4, ' ');
+            ss << indent << '"' << name << "\": \"" << value << '"' << terminator;
+        };
 
     ss << "{" << std::endl;
     for (int i = 0; i < solution_dimension; ++i)
         printKeyVal(1, variables.at(i)->name, solution(i));
 
-    float_type dual_problem_value = (dual_variables * constraints_vector);
+    auto dual_problem_value = (float_type)(dual_variables * constraints_vector);
     if (changed_sign)
         dual_problem_value *= -1;
 
+    printKeyVal(1, "optimal", optimal);
+    printKeyVal(1, "unlimited", unlimited);
+    printKeyVal(1, "overconstrained", overconstrained);
+
     printKeyVal(1, "solutionCostResult", solution_value);
     printKeyVal(1, "dualProblemValue", dual_problem_value, "\n");
+
     ss << "}";
     return ss.str();
 }
@@ -908,7 +906,6 @@ void Simplex::solve()
             }
             else
             {
-
                 /*
                     If an artificial variable exists ... I can change the i (artificial)
                     column with a j column in current_out_of base so that:
@@ -999,8 +996,8 @@ void Simplex::solve()
 
         vector<Variable *>::const_iterator it;
         int index = 0;
-        for (it = standard_form_problem.variables.begin(); it != standard_form_problem.variables.end(); ++it, ++index)
-            (*it)->process(standard_form_problem.solution, solution, index);
+        for (auto & variable : standard_form_problem.variables)
+            variable->process(standard_form_problem.solution, solution, index++);
 
         solution_value = standard_form_problem.solution_value;
         dual_variables = standard_form_problem.dual_variables;

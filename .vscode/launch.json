@@ -8,7 +8,7 @@
             "name": "Debug solver",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build_debug/cpplex",
+            "program": "${workspaceFolder}/build_x64_debug/cpplex",
             "args": [
                 "problems/tinlake-real.problem"
             ],

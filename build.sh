@@ -10,7 +10,7 @@ if [ -z "$2" ] ; then
     BUILD_PLATFORM=wasm
 fi
 
-BUILD_DIR=build_$BUILD_PLATFORM_$BUILD_CONFIG
+BUILD_DIR=build_${BUILD_PLATFORM}_${BUILD_CONFIG}
 
 if [ $BUILD_PLATFORM == "wasm" ]; then
     echo 'Running wasm build ... '
