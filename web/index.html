@@ -139,6 +139,8 @@
       }
 
       function objToNum(jsonNumber) {
+        if (typeof jsonNumber == "string")
+          return new BN(jsonNumber);
         return new BN(jsonNumber.value * 10000).mul(
           new BN(10).pow(new BN(jsonNumber.base - 5))
         );
