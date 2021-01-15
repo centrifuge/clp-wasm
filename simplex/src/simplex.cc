@@ -105,11 +105,9 @@ Simplex::Simplex(std::string name)
 
 Simplex::~Simplex()
 {
-    // Cleanup variables
-    std::vector<Variable *>::iterator it;
-    for (it = variables.begin(); it != variables.end(); ++it)
-        if ((*it)->creator == this)
-            delete *it;
+    for (auto & variable : variables)
+        if (variable->creator == this)
+            delete variable;
 }
 
 void Simplex::add_variable(Variable * variable)
@@ -412,7 +410,7 @@ void Simplex::process_to_standard_form()
                                                          static_cast<int>(variables.size()));
             Variable * splitted = new SplittedVariable(this,
                                                        variables.at(i)->name.c_str(),
-                                                       (AuxiliaryVariable *)auxiliary);
+                                                       static_cast<AuxiliaryVariable *>(auxiliary));
 
             // Modify variables
             variables.at(i) = splitted;
@@ -592,9 +590,7 @@ void Simplex::process_to_artificial_problem()
 void Simplex::solve_with_base(ColumnSet const & initial_base)
 {
     // Preprocess constraints data to lead to matrices
-    coefficients_matrix.resize( // A
-        static_cast<int>(constraints.size()),
-        solution_dimension);
+    coefficients_matrix.resize(static_cast<int>(constraints.size()), solution_dimension);
 
     constraints_vector.resize(static_cast<int>(constraints.size()), 1);
 
@@ -615,7 +611,7 @@ void Simplex::solve_with_base(ColumnSet const & initial_base)
     if (initial_base.size() == constraints.size())
         current_base = initial_base;
     else
-        throw(DataMismatchException("Wrong initial base size!"));
+        throw DataMismatchException("Wrong initial base size!");
 
     // Exported variables
     optimal = false;
@@ -625,7 +621,7 @@ void Simplex::solve_with_base(ColumnSet const & initial_base)
     {
         // Temporary matrices
         Matrix u; // c_b * B^-1
-        Matrix base_costs(1, (int)current_base.size()); // Costs of base
+        Matrix base_costs(1, static_cast<int>(current_base.size())); // Costs of base
 
         // Populate current_out_of_base
         current_out_of_base.columns.clear();
@@ -636,7 +632,7 @@ void Simplex::solve_with_base(ColumnSet const & initial_base)
         // Every inverse_recalculation steps recompute inverse from scratch
         if (step % inverse_recalculation_rate == 0)
         {
-            Matrix base_matrix((int)current_base.size());
+            Matrix base_matrix(static_cast<int>(current_base.size()));
 
             // Unpack current base and objective costs
             for (unsigned int j = 0; j < current_base.size(); ++j)
@@ -766,7 +762,7 @@ void Simplex::solve_with_base(ColumnSet const & initial_base)
         else
         {
             std::cout << "Optimal found at step " << step << "." << std::endl;
-            Matrix objective_function_base(1, (int)current_base.size(), 0);
+            Matrix objective_function_base(1, static_cast<int>(current_base.size()), 0);
             Matrix full_solution(solution_dimension, 1, 0);
 
             // Update dual variables
@@ -783,7 +779,7 @@ void Simplex::solve_with_base(ColumnSet const & initial_base)
                 full_solution.log("Solution:");
 
             // Saves some flops
-            solution_value = (float_type)(objective_function_base * base_solution);
+            solution_value = static_cast<float_type>(objective_function_base * base_solution);
 
             if (changed_sign)
                 solution_value = -solution_value;
@@ -811,7 +807,7 @@ std::string Simplex::get_solution() const
     for (int i = 0; i < solution_dimension; ++i)
         printKeyVal(1, variables.at(i)->name, solution(i));
 
-    auto dual_problem_value = (float_type)(dual_variables * constraints_vector);
+    auto dual_problem_value = static_cast<float_type>(dual_variables * constraints_vector);
     if (changed_sign)
         dual_problem_value *= -1;
 
@@ -875,36 +871,35 @@ void Simplex::solve()
             overconstrained = true;
             return;
         }
+
+        overconstrained = false;
+        if (VERBOSE)
+            std::cout << "Suggested initial base for original problem:";
+        if (VERBOSE)
+            artificial_problem.current_base.log(" ");
+
+        // If initial base doesn't contain artificial variables
+        // I can just use it, otherwise it may contain an artificial
+        // variable.
+
+        // Check for existence of a column index related  to an artificial
+        // variable by reading costs vector
+        int artificial_variable = -1;
+
+        for (int i = 0; i < artificial_problem.solution_dimension; ++i)
+            if (artificial_problem.objective_function.costs(i) == ONE && artificial_problem.current_base.contains(i))
+                artificial_variable = i;
+
+        // If index is still -1 (no artificial variables)
+        if (artificial_variable == -1)
+        {
+
+            std::cout << "Base is clear about artificial variables, proceed ..." << std::endl;
+            standard_form_problem.suggested_base = artificial_problem.current_base;
+        }
         else
         {
-            overconstrained = false;
-            if (VERBOSE)
-                std::cout << "Suggested initial base for original problem:";
-            if (VERBOSE)
-                artificial_problem.current_base.log(" ");
-
-            // If initial base doesn't contain artificial variables
-            // I can just use it, otherwise it may contain an artificial
-            // variable.
-
-            // Check for existence of a column index related  to an artificial
-            // variable by reading costs vector
-            int artificial_variable = -1;
-
-            for (int i = 0; i < artificial_problem.solution_dimension; ++i)
-                if (artificial_problem.objective_function.costs(i) == ONE && artificial_problem.current_base.contains(i))
-                    artificial_variable = i;
-
-            // If index is still -1 (no artificial variables)
-            if (artificial_variable == -1)
-            {
-
-                std::cout << "Base is clear about artificial variables, proceed ..." << std::endl;
-                standard_form_problem.suggested_base = artificial_problem.current_base;
-            }
-            else
-            {
-                /*
+            /*
                     If an artificial variable exists ... I can change the i (artificial)
                     column with a j column in current_out_of base so that:
 
@@ -912,40 +907,40 @@ void Simplex::solve()
                         *   (B^-1)_q * A^j != 0
                 */
 
+            if (VERBOSE)
+                std::cout << "Artificial variable detected in base: " << artificial_variable << std::endl;
+            int q = artificial_problem.current_base.index_of(artificial_variable);
+            Matrix bi_row_q(1, static_cast<int>(artificial_problem.current_base.size()));
+
+            for (unsigned int k = 0; k < artificial_problem.current_base.size(); ++k)
+                bi_row_q(k) = artificial_problem.base_inverse(q, k);
+
+            // Find j
+            int j = -1;
+            for (unsigned int i = 0; i < standard_form_problem.current_out_of_base.size() && j == -1; ++i)
+            {
+                // Pick the ones that doesn't refer to an artificial variable
+                if (artificial_problem.costs(i).is_zero())
+                {
+                    Matrix column_j(static_cast<int>(standard_form_problem.current_base.size()), 1);
+                    for (unsigned int k = 0; k < standard_form_problem.current_base.size(); ++k)
+                        column_j(k) = artificial_problem.coefficients_matrix(k, i);
+                    if (!static_cast<float_type>(bi_row_q * column_j).is_zero())
+                        j = i;
+                }
+            }
+
+            if (j != -1)
+            {
+                // Found a j, substitute artificial_value with j
+                standard_form_problem.suggested_base = artificial_problem.current_base;
+                standard_form_problem.suggested_base.substitute(artificial_variable, j);
                 if (VERBOSE)
-                    std::cout << "Artificial variable detected in base: " << artificial_variable << std::endl;
-                int q = artificial_problem.current_base.index_of(artificial_variable);
-                Matrix bi_row_q(1, (int)artificial_problem.current_base.size());
-
-                for (unsigned int k = 0; k < artificial_problem.current_base.size(); ++k)
-                    bi_row_q(k) = artificial_problem.base_inverse(q, k);
-
-                // Find j
-                int j = -1;
-                for (unsigned int i = 0; i < standard_form_problem.current_out_of_base.size() && j == -1; ++i)
-                {
-                    // Pick the ones that doesn't refer to an artificial variable
-                    if (artificial_problem.costs(i).is_zero())
-                    {
-                        Matrix column_j((int)standard_form_problem.current_base.size(), 1);
-                        for (unsigned int k = 0; k < standard_form_problem.current_base.size(); ++k)
-                            column_j(k) = artificial_problem.coefficients_matrix(k, i);
-                        if (!((float_type)(bi_row_q * column_j)).is_zero())
-                            j = i;
-                    }
-                }
-
-                if (j != -1)
-                {
-                    // Found a j, substitute artificial_value with j
-                    standard_form_problem.suggested_base = artificial_problem.current_base;
-                    standard_form_problem.suggested_base.substitute(artificial_variable, j);
-                    if (VERBOSE)
-                        standard_form_problem.suggested_base.log("Now initial base is");
-                }
-                else
-                {
-                    /*
+                    standard_form_problem.suggested_base.log("Now initial base is");
+            }
+            else
+            {
+                /*
                     I didn't find a j which respected the requirements.
                     It may happen that for each j we have (B^-1)_q * A^j = 0,
                     this means that the rows of A are linearly dependent and
@@ -956,18 +951,17 @@ void Simplex::solve()
                     We have to eliminate a row for which d is non-zero.
                     */
 
-                    std::cout << "Constraints are linearly dependent!" << std::endl;
+                std::cout << "Constraints are linearly dependent!" << std::endl;
 
-                    // Find a constraint to eliminate (change)
-                    int change = -1;
-                    for (unsigned int i = 0; i < standard_form_problem.constraints.size() && change == -1; ++i)
-                        if (!bi_row_q(i).is_zero())
-                            change = i;
+                // Find a constraint to eliminate (change)
+                int change = -1;
+                for (unsigned int i = 0; i < standard_form_problem.constraints.size() && change == -1; ++i)
+                    if (!bi_row_q(i).is_zero())
+                        change = i;
 
-                    std::cout << "Constraint #" << change << " must be eliminated." << std::endl;
-                    has_to_be_fixed = true;
-                    return;
-                }
+                std::cout << "Constraint #" << change << " must be eliminated." << std::endl;
+                has_to_be_fixed = true;
+                return;
             }
         }
     }
