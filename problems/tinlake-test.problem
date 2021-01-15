@@ -2,7 +2,7 @@
 name Tinlake Solver (WIP)
 vars 4
 [VARIABLES]
-0  tinInvest     200
+0  tinInvest     124
 0  dropInvest    400
 0  tinRedeem     100
 0  dropRedeem    300

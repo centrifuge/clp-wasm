@@ -45,7 +45,7 @@ std::string resolvePath(const std::string & relPath)
 }
 #endif
 
-const float_type TOL = 0.000000000000000000000000000001;
+const float_type TOL("0.0000000000000000000000000001");
 const float_type ZERO = 0.0;
 const float_type ONE = 1.0;
 
@@ -666,8 +666,8 @@ void Simplex::solve_with_base(ColumnSet const & initial_base)
 
         if (VERBOSE)
             current_base.log("Columns in base: ");
-        if (VERBOSE)
-            current_out_of_base.log("Out of base: ");
+          if (VERBOSE)
+        current_out_of_base.log("Out of base: ");
         if (VERBOSE)
             base_inverse.log("Base inverse is:");
 
@@ -683,8 +683,8 @@ void Simplex::solve_with_base(ColumnSet const & initial_base)
         // Compute reduced cost
         reduced_cost = costs - (u * coefficients_matrix);
 
-        if (VERBOSE)
-            reduced_cost.log("Current reduced cost is");
+         if (VERBOSE)
+        reduced_cost.log("Current reduced cost is");
 
         optimal = reduced_cost.more_equal_than(0, TOL);
 
@@ -710,8 +710,9 @@ void Simplex::solve_with_base(ColumnSet const & initial_base)
 
             if (p == -1)
             {
+                std::cout << "\nNo reduced cost was negative" << std::endl;
                 p = current_out_of_base.column(0);
-                for (unsigned int i = 0; i < current_out_of_base.size() && p == -1; ++i)
+                for (unsigned int i = 0; i < current_out_of_base.size(); ++i)
                     std::cout << reduced_cost(current_out_of_base.column(i)) << " ";
             }
             for (unsigned int i = 0; i < constraints.size(); ++i)
