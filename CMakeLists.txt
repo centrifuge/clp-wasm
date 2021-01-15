@@ -30,7 +30,6 @@ include_directories(simplex/include)
 message(STATUS CMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS})
 
 add_executable(cpplex
-
     solver/solver.cc
     solver/bindings.cc
 
@@ -41,5 +40,14 @@ add_executable(cpplex
     simplex/src/variable.cc
     simplex/src/matrix.cc
 )
-target_link_libraries(cpplex ${Boost_LIBRARIES}) 
+
+add_definitions(-DHAVE_CONFIG_H -DCLP_BUILD -DCOINUTILS_BUILD -DCOIN_HAS_CLP)
+
+include_directories(clp/src)
+file(GLOB CLP_CXX_FILES "clp/src/*.cpp")
+add_executable(clp ${CLP_CXX_FILES} )
+
+target_link_libraries(clp)
+
+target_link_libraries(cpplex ${Boost_LIBRARIES} ) 
 

@@ -10,7 +10,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/build_x64_debug/cpplex",
             "args": [
-                "problems/tinlake-real.problem"
+                "problems/tinlake-test.problem"
             ],
             "preLaunchTask": "Build x64 Debug",
             "stopAtEntry": false,

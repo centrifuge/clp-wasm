@@ -26,8 +26,8 @@ along with C++lex.  If not, see <http://www.gnu.org/licenses/>.
 #include <boost/multiprecision/cpp_bin_float.hpp>
 #include <boost/multiprecision/cpp_dec_float.hpp>
 
- using float_type = boost::multiprecision::number<boost::multiprecision::cpp_dec_float<100>>;
-//using float_type = boost::multiprecision::number<boost::multiprecision::cpp_bin_float<128>>;
+// using float_type = boost::multiprecision::number<boost::multiprecision::cpp_dec_float<100>>;
+using float_type = boost::multiprecision::number<boost::multiprecision::cpp_bin_float<64>>;
 
 #define PRINT_PRECISION std::setprecision(30)
 // #define PRINT_PRECISION ""
