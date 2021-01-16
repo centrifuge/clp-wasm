@@ -111,7 +111,7 @@ CoinIndexedVector *altVector[3] = { NULL, NULL, NULL };
    and negative if going to upper bound (scaled bounds in lower,upper) - then will be zero.
    currentValue is distance to bound.
    currentTheta is current theta.
-   alpha is fabs(pivot element).
+   alpha is CoinAbs(pivot element).
    Variable will change theta if currentValue - currentTheta*alpha < 0.0
 */
 bool userChoiceValid1(const ClpSimplex *model,
@@ -245,8 +245,8 @@ int ClpSimplexPrimal::primal(int ifValuesPass, int startFinishOptions)
                     Status status = getColumnStatus(iColumn);
                     if (status != basic && status != isFree) {
                          FloatT value = columnActivity_[iColumn];
-                         if (fabs(value - columnLower_[iColumn]) > primalTolerance_ &&
-                                   fabs(value - columnUpper_[iColumn]) > primalTolerance_) {
+                         if (CoinAbs(value - columnLower_[iColumn]) > primalTolerance_ &&
+                                   CoinAbs(value - columnUpper_[iColumn]) > primalTolerance_) {
                               int iRow = row[columnStart[iColumn]];
                               if (getRowStatus(iRow) == basic) {
                                    setRowStatus(iRow, superBasic);
@@ -434,10 +434,10 @@ int ClpSimplexPrimal::primal(int ifValuesPass, int startFinishOptions)
             dj = dj;
             break;
           case isFree:
-            dj = -100.0 * fabs(dj);
+            dj = -100.0 * CoinAbs(dj);
             break;
           case superBasic:
-            dj = -100.0 * fabs(dj);
+            dj = -100.0 * CoinAbs(dj);
             break;
           }
           if (dj < -dualTolerance_ && dj > -1.0e50) {
@@ -515,7 +515,7 @@ int ClpSimplexPrimal::primal(int ifValuesPass, int startFinishOptions)
       if (hitMaximumIterations() || (ifValuesPass == 2 && firstFree_ < 0)) {
         problemStatus_ = 3;
         break;
-      } else if ((moreSpecialOptions_ & 524288) != 0 && !nonLinearCost_->numberInfeasibilities() && fabs(dblParam_[ClpDualObjectiveLimit]) > 1.0e30) {
+      } else if ((moreSpecialOptions_ & 524288) != 0 && !nonLinearCost_->numberInfeasibilities() && CoinAbs(dblParam_[ClpDualObjectiveLimit]) > 1.0e30) {
         problemStatus_ = 3;
         secondaryStatus_ = 10;
         break;
@@ -641,9 +641,9 @@ int ClpSimplexPrimal::whileIterating(int valuesOption)
                     for (i = 0; i < number; i++) {
                          int iRow = index[i];
                          if (iRow == iPivot)
-                              assert (fabs(array[i] - 1.0) < 1.0e-4);
+                              assert (CoinAbs(array[i] - 1.0) < 1.0e-4);
                          else
-                              assert (fabs(array[i]) < 1.0e-4);
+                              assert (CoinAbs(array[i]) < 1.0e-4);
                     }
                     rowArray_[3]->clear();
                }
@@ -1221,7 +1221,7 @@ void ClpSimplexPrimal::statusOfProblemInPrimal(int &lastCleaned, int type,
 #endif
       FloatT take = -dj_[0] * infeasibilityCost_;
       // was infeasibilityCost_ = CoinMin(CoinMax(1000.0 * take, 1.0e8), 1.0000001e10);
-      infeasibilityCost_ = CoinMin(CoinMax(1000.0 * take, 1.0e3), 1.0000001e10);
+      infeasibilityCost_ = CoinMin(CoinMax(1000.0 * take, fd(1.0e3)), fd(1.0000001e10));
 #ifdef CLP_USEFUL_PRINTOUT
       printf("XXXX changing weight to %g\n", infeasibilityCost_);
 #endif
@@ -1240,7 +1240,7 @@ void ClpSimplexPrimal::statusOfProblemInPrimal(int &lastCleaned, int type,
   FloatT trueInfeasibility = nonLinearCost_->sumInfeasibilities();
   if (!nonLinearCost_->numberInfeasibilities() && infeasibilityCost_ == 1.0e10 && !ifValuesPass && true) {
     // relax if default
-    infeasibilityCost_ = CoinMin(CoinMax(100.0 * sumDualInfeasibilities_, 1.0e8), 1.00000001e10);
+    infeasibilityCost_ = CoinMin(CoinMax(100.0 * sumDualInfeasibilities_, 1.0e8), fd(1.00000001e10));
     // reset looping criterion
     progress->reset();
     trueInfeasibility = 1.123456e10;
@@ -1260,7 +1260,7 @@ void ClpSimplexPrimal::statusOfProblemInPrimal(int &lastCleaned, int type,
     assert(thisObj <= COIN_DBL_MAX);
     assert(lastObj <= COIN_DBL_MAX);
     assert(lastObj3 <= COIN_DBL_MAX);
-    if (lastObj < thisObj - 1.0e-5 * CoinMax(fabs(thisObj), fabs(lastObj)) - 1.0e-7
+    if (lastObj < thisObj - 1.0e-5 * CoinMax(CoinAbs(thisObj), CoinAbs(lastObj)) - 1.0e-7
       && firstFree_ < 0 && thisInf >= lastInf) {
       if (handler_->logLevel() == 63)
         printf("lastobj %g this %g force %d\n", lastObj, thisObj, forceFactorization_);
@@ -1272,7 +1272,7 @@ void ClpSimplexPrimal::statusOfProblemInPrimal(int &lastCleaned, int type,
         if (handler_->logLevel() == 63)
           printf("Reducing factorization frequency to %d\n", forceFactorization_);
       }
-    } else if (lastObj3 < thisObj - 1.0e-5 * CoinMax(fabs(thisObj), fabs(lastObj3)) - 1.0e-7
+    } else if (lastObj3 < thisObj - 1.0e-5 * CoinMax(CoinAbs(thisObj), CoinAbs(lastObj3)) - 1.0e-7
       && firstFree_ < 0 && thisInf >= lastInf) {
       if (handler_->logLevel() == 63)
         printf("lastobj3 %g this3 %g force %d\n", lastObj3, thisObj, forceFactorization_);
@@ -1298,7 +1298,7 @@ void ClpSimplexPrimal::statusOfProblemInPrimal(int &lastCleaned, int type,
   // we may wish to say it is optimal even if infeasible
   bool alwaysOptimal = (specialOptions_ & 1) != 0;
   // give code benefit of doubt
-  if (sumOfRelaxedDualInfeasibilities_ == 0.0 && sumOfRelaxedPrimalInfeasibilities_ == 0.0 && progress->objective_[CLP_PROGRESS - 1] >= progress->objective_[CLP_PROGRESS - 2] - 1.0e-9 * (10.0 + fabs(objectiveValue_))) {
+  if (sumOfRelaxedDualInfeasibilities_ == 0.0 && sumOfRelaxedPrimalInfeasibilities_ == 0.0 && progress->objective_[CLP_PROGRESS - 1] >= progress->objective_[CLP_PROGRESS - 2] - 1.0e-9 * (10.0 + CoinAbs(objectiveValue_))) {
     // say optimal (with these bounds etc)
     numberDualInfeasibilities_ = 0;
     sumDualInfeasibilities_ = 0.0;
@@ -1432,11 +1432,11 @@ void ClpSimplexPrimal::statusOfProblemInPrimal(int &lastCleaned, int type,
               FloatT largestCost = 0.0;
               if (columnScale_) {
                 for (int i = 0; i < numberColumns_; i++) {
-                  largestCost = CoinMax(largestCost, fabs(obj[i] * columnScale_[i]));
+                  largestCost = CoinMax(largestCost, CoinAbs(obj[i] * columnScale_[i]));
                 }
               } else {
                 for (int i = 0; i < numberColumns_; i++) {
-                  largestCost = CoinMax(largestCost, fabs(obj[i]));
+                  largestCost = CoinMax(largestCost, CoinAbs(obj[i]));
                 }
               }
               testValue = 1.0e12 * (largestCost + 1.0e-6);
@@ -1634,8 +1634,8 @@ void ClpSimplexPrimal::statusOfProblemInPrimal(int &lastCleaned, int type,
     FloatT objVal = (nonLinearCost_->feasibleCost()
       + objective_->nonlinearOffset());
     objVal /= (objectiveScale_ * rhsScale_);
-    FloatT tol = 1.0e-10 * CoinMax(fabs(objVal), fabs(objectiveValue_)) + 1.0e-8;
-    if (fabs(objVal - objectiveValue_) > tol) {
+    FloatT tol = 1.0e-10 * CoinMax(CoinAbs(objVal), CoinAbs(objectiveValue_)) + 1.0e-8;
+    if (CoinAbs(objVal - objectiveValue_) > tol) {
 #ifdef COIN_DEVELOP
       if (handler_->logLevel() > 0)
         printf("nonLinearCost has feasible obj of %g, objectiveValue_ is %g\n",
@@ -1799,7 +1799,7 @@ void ClpSimplexPrimal::primalRow(CoinIndexedVector *rowArray,
   // we also need somewhere for effective rhs
   FloatT *rhs = rhsArray->denseVector();
   // and we can use indices to point to alpha
-  // that way we can store fabs(alpha)
+  // that way we can store CoinAbs(alpha)
   int *indexPoint = rhsArray->getIndices();
   //int numberFlip=0; // Those which may change if flips
 
@@ -1837,9 +1837,9 @@ void ClpSimplexPrimal::primalRow(CoinIndexedVector *rowArray,
   // In case tiny bounds increase
   if (maximumMovement < 1.0)
     tentativeTheta *= 1.1;
-  FloatT dualCheck = fabs(dualIn_);
+  FloatT dualCheck = CoinAbs(dualIn_);
   // but make a bit more pessimistic
-  dualCheck = CoinMax(dualCheck - 100.0 * dualTolerance_, 0.99 * dualCheck);
+  dualCheck = CoinMax(dualCheck - 100.0 * dualTolerance_, fd(0.99 * dualCheck));
 
   int iIndex;
   int pivotOne = -1;
@@ -1881,7 +1881,7 @@ void ClpSimplexPrimal::primalRow(CoinIndexedVector *rowArray,
       alpha *= way;
       FloatT oldValue = solution_[iPivot];
       // get where in bound sequence
-      // note that after this alpha is actually fabs(alpha)
+      // note that after this alpha is actually CoinAbs(alpha)
       bool possible;
       // do computation same way as later on in primal
       if (alpha > 0.0) {
@@ -1932,7 +1932,7 @@ void ClpSimplexPrimal::primalRow(CoinIndexedVector *rowArray,
 		    eventHandler_->eventWithInfo(ClpEventHandler::pivotRow,
 						 &info);
 		    totalThruFake=info.totalThru;
-		    if (fabs(totalThruFake-tempThru)>1.0e-4)
+		    if (CoinAbs(totalThruFake-tempThru)>1.0e-4)
 		      printf("%d thru - fake %g real %g\n",nThru,totalThruFake,totalThru);
 		    nThru++;
 #endif
@@ -1985,7 +1985,7 @@ void ClpSimplexPrimal::primalRow(CoinIndexedVector *rowArray,
     // First check if previously chosen one will work
     if (pivotOne >= 0 && 0) {
       FloatT thruCost = infeasibilityCost_ * spare[pivotOne];
-      if (thruCost >= 0.99 * fabs(dualIn_))
+      if (thruCost >= 0.99 * CoinAbs(dualIn_))
         COIN_DETAIL_PRINT(printf("Could pivot on %d as change %g dj %g\n",
           index[pivotOne], thruCost, dualIn_));
       FloatT alpha = spare[pivotOne];
@@ -2110,7 +2110,7 @@ void ClpSimplexPrimal::primalRow(CoinIndexedVector *rowArray,
       pivotRow_ = lastPivotRow;
       theta_ = lastTheta;
     }
-  } else if (pivotRow_ < 0 && maximumMovement > 1.0e20) {
+  } else if (pivotRow_ < 0 && maximumMovement > TOO_BIG_FLOAT) {
     // looks unbounded
     valueOut_ = COIN_DBL_MAX; // say odd
     if (nonLinearCost_->numberInfeasibilities()) {
@@ -2124,7 +2124,7 @@ void ClpSimplexPrimal::primalRow(CoinIndexedVector *rowArray,
         alpha *= way;
         FloatT oldValue = solution_[iPivot];
         // get where in bound sequence
-        // note that after this alpha is actually fabs(alpha)
+        // note that after this alpha is actually CoinAbs(alpha)
         if (alpha > 0.0) {
           // basic variable going towards lower bound
           FloatT bound = lower_[iPivot];
@@ -2140,10 +2140,10 @@ void ClpSimplexPrimal::primalRow(CoinIndexedVector *rowArray,
         }
       }
       // If free in then see if we can get to 0.0
-      if (lowerIn_ < -1.0e20 && upperIn_ > 1.0e20) {
+      if (lowerIn_ < TOO_SMALL_FLOAT && upperIn_ > TOO_BIG_FLOAT) {
         if (dualIn_ * valueIn_ > 0.0) {
-          if (fabs(valueIn_) < 1.0e-2 && (tentativeTheta < fabs(valueIn_) || tentativeTheta > 1.0e20)) {
-            tentativeTheta = fabs(valueIn_);
+          if (CoinAbs(valueIn_) < 1.0e-2 && (tentativeTheta < CoinAbs(valueIn_) || tentativeTheta > TOO_BIG_FLOAT)) {
+            tentativeTheta = CoinAbs(valueIn_);
           }
         }
       }
@@ -2176,8 +2176,8 @@ void ClpSimplexPrimal::primalRow(CoinIndexedVector *rowArray,
       distance = valueOut_ - lowerOut_;
     else
       distance = upperOut_ - valueOut_;
-    if (distance - minimumTheta * fabs(alpha_) < -primalTolerance_)
-      minimumTheta = CoinMax(0.0, (distance + 0.5 * primalTolerance_) / fabs(alpha_));
+    if (distance - minimumTheta * CoinAbs(alpha_) < -primalTolerance_)
+      minimumTheta = CoinMax(0.0, (distance + 0.5 * primalTolerance_) / CoinAbs(alpha_));
     // will we need to increase tolerance
     //#define CLP_DEBUG
     FloatT largestInfeasibility = primalTolerance_;
@@ -2207,21 +2207,21 @@ void ClpSimplexPrimal::primalRow(CoinIndexedVector *rowArray,
     // If  4 bit set - Force outgoing variables to exact bound (primal)
     if (alpha_ * way < 0.0) {
       directionOut_ = -1; // to upper bound
-      if (fabs(theta_) > 1.0e-6 || (specialOptions_ & 4) != 0) {
+      if (CoinAbs(theta_) > 1.0e-6 || (specialOptions_ & 4) != 0) {
         upperOut_ = nonLinearCost_->nearest(sequenceOut_, newValue);
       } else {
         upperOut_ = newValue;
       }
     } else {
       directionOut_ = 1; // to lower bound
-      if (fabs(theta_) > 1.0e-6 || (specialOptions_ & 4) != 0) {
+      if (CoinAbs(theta_) > 1.0e-6 || (specialOptions_ & 4) != 0) {
         lowerOut_ = nonLinearCost_->nearest(sequenceOut_, newValue);
       } else {
         lowerOut_ = newValue;
       }
     }
     dualOut_ = reducedCost(sequenceOut_);
-  } else if (maximumMovement < 1.0e20) {
+  } else if (maximumMovement < TOO_BIG_FLOAT) {
     // flip
     pivotRow_ = -2; // so we can tell its a flip
     sequenceOut_ = sequenceIn_;
@@ -2377,7 +2377,7 @@ int ClpSimplexPrimal::updatePrimalsInPrimal(CoinIndexedVector *rowArray,
             if (iPivot == sequenceOut_ && value > lower_[iPivot] - relaxedTolerance)
               value = lower_[iPivot];
             //FloatT difference = nonLinearCost_->setOne(iPivot, value);
-            //assert (!difference || fabs(change) > 1.0e9);
+            //assert (!difference || CoinAbs(change) > 1.0e9);
           }
         } else {
           // going up
@@ -2385,7 +2385,7 @@ int ClpSimplexPrimal::updatePrimalsInPrimal(CoinIndexedVector *rowArray,
             if (iPivot == sequenceOut_ && value < upper_[iPivot] + relaxedTolerance)
               value = upper_[iPivot];
             //FloatT difference = nonLinearCost_->setOne(iPivot, value);
-            //assert (!difference || fabs(change) > 1.0e9);
+            //assert (!difference || CoinAbs(change) > 1.0e9);
           }
         }
       }
@@ -2525,8 +2525,8 @@ void ClpSimplexPrimal::perturb(int type)
   FloatT largestPositive;
   matrix_->rangeOfElements(smallestNegative, largestNegative,
     smallestPositive, largestPositive);
-  smallestPositive = CoinMin(fabs(smallestNegative), smallestPositive);
-  largestPositive = CoinMax(fabs(largestNegative), largestPositive);
+  smallestPositive = CoinMin(CoinAbs(smallestNegative), smallestPositive);
+  largestPositive = CoinMax(CoinAbs(largestNegative), largestPositive);
   FloatT elementRatio = largestPositive / smallestPositive;
   if (!numberIterations_ && perturbation_ == 50) {
     // See if we need to perturb
@@ -2534,11 +2534,11 @@ void ClpSimplexPrimal::perturb(int type)
     FloatT *sort = new FloatT[numberTotal];
     int nFixed = 0;
     for (i = 0; i < numberRows_; i++) {
-      FloatT lo = fabs(rowLower_[i]);
-      FloatT up = fabs(rowUpper_[i]);
+      FloatT lo = CoinAbs(rowLower_[i]);
+      FloatT up = CoinAbs(rowUpper_[i]);
       FloatT value = 0.0;
-      if (lo && lo < 1.0e20) {
-        if (up && up < 1.0e20) {
+      if (lo && lo < TOO_BIG_FLOAT) {
+        if (up && up < TOO_BIG_FLOAT) {
           value = 0.5 * (lo + up);
           if (lo == up)
             nFixed++;
@@ -2546,7 +2546,7 @@ void ClpSimplexPrimal::perturb(int type)
           value = lo;
         }
       } else {
-        if (up && up < 1.0e20)
+        if (up && up < TOO_BIG_FLOAT)
           value = up;
       }
       sort[i] = value;
@@ -2574,11 +2574,11 @@ void ClpSimplexPrimal::perturb(int type)
       // look at columns
       nFixed = 0;
       for (i = 0; i < numberColumns_; i++) {
-        FloatT lo = fabs(columnLower_[i]);
-        FloatT up = fabs(columnUpper_[i]);
+        FloatT lo = CoinAbs(columnLower_[i]);
+        FloatT up = CoinAbs(columnUpper_[i]);
         FloatT value = 0.0;
-        if (lo && lo < 1.0e20) {
-          if (up && up < 1.0e20) {
+        if (lo && lo < TOO_BIG_FLOAT) {
+          if (up && up < TOO_BIG_FLOAT) {
             value = 0.5 * (lo + up);
             if (lo == up)
               nFixed++;
@@ -2586,7 +2586,7 @@ void ClpSimplexPrimal::perturb(int type)
             value = lo;
           }
         } else {
-          if (up && up < 1.0e20)
+          if (up && up < TOO_BIG_FLOAT)
             value = up;
         }
         sort[i] = value;
@@ -2620,15 +2620,15 @@ void ClpSimplexPrimal::perturb(int type)
     for (i = 0; i < numberColumns_ + numberRows_; i++) {
       if (upper_[i] > lower_[i] + primalTolerance_) {
         FloatT lowerValue, upperValue;
-        if (lower_[i] > -1.0e20)
-          lowerValue = fabs(lower_[i]);
+        if (lower_[i] > TOO_SMALL_FLOAT)
+          lowerValue = CoinAbs(lower_[i]);
         else
           lowerValue = 0.0;
-        if (upper_[i] < 1.0e20)
-          upperValue = fabs(upper_[i]);
+        if (upper_[i] < TOO_BIG_FLOAT)
+          upperValue = CoinAbs(upper_[i]);
         else
           upperValue = 0.0;
-        FloatT value = CoinMax(fabs(lowerValue), fabs(upperValue));
+        FloatT value = CoinMax(CoinAbs(lowerValue), CoinAbs(upperValue));
         value = CoinMin(value, upper_[i] - lower_[i]);
 #if 1
         if (value) {
@@ -2713,7 +2713,7 @@ void ClpSimplexPrimal::perturb(int type)
           FloatT solutionValue = solution_[iSequence];
           FloatT difference = upperValue - lowerValue;
           difference = CoinMin(difference, perturbation);
-          difference = CoinMin(difference, fabs(solutionValue) + 1.0);
+          difference = CoinMin(difference, CoinAbs(solutionValue) + 1.0);
           FloatT value = maximumFraction * (difference + bias);
           value = CoinMin(value, 0.1);
           value = CoinMax(value, primalTolerance_);
@@ -2751,8 +2751,8 @@ void ClpSimplexPrimal::perturb(int type)
                 iSequence, lowerValue, lower_[iSequence], upperValue, upper_[iSequence]);
             if (solutionValue) {
               largest = CoinMax(largest, value);
-              if (value > (fabs(solutionValue) + 1.0) * largestPerCent)
-                largestPerCent = value / (fabs(solutionValue) + 1.0);
+              if (value > (CoinAbs(solutionValue) + 1.0) * largestPerCent)
+                largestPerCent = value / (CoinAbs(solutionValue) + 1.0);
             } else {
               largestZero = CoinMax(largestZero, value);
             }
@@ -2775,11 +2775,11 @@ void ClpSimplexPrimal::perturb(int type)
 #endif
         value *= randomNumberGenerator_.randomDouble();
         if (savePerturbation != 50) {
-          if (fabs(value) <= primalTolerance_)
+          if (CoinAbs(value) <= primalTolerance_)
             value = 0.0;
         }
         if (value) {
-          FloatT valueL = value * (CoinMax(1.0e-2, 1.0e-5 * fabs(lowerValue)));
+          FloatT valueL = value * (CoinMax(1.0e-2, 1.0e-5 * CoinAbs(lowerValue)));
           // get in range
           if (valueL <= tolerance) {
             valueL *= 10.0;
@@ -2790,9 +2790,9 @@ void ClpSimplexPrimal::perturb(int type)
             while (valueL > 1.0e-3)
               valueL *= 0.1;
           }
-          if (lowerValue > -1.0e20 && lowerValue)
+          if (lowerValue > TOO_SMALL_FLOAT && lowerValue)
             lowerValue -= valueL;
-          FloatT valueU = value * (CoinMax(1.0e-2, 1.0e-5 * fabs(upperValue)));
+          FloatT valueU = value * (CoinMax(1.0e-2, 1.0e-5 * CoinAbs(upperValue)));
           // get in range
           if (valueU <= tolerance) {
             valueU *= 10.0;
@@ -2803,20 +2803,20 @@ void ClpSimplexPrimal::perturb(int type)
             while (valueU > 1.0e-3)
               valueU *= 0.1;
           }
-          if (upperValue < 1.0e20 && upperValue)
+          if (upperValue < TOO_BIG_FLOAT && upperValue)
             upperValue += valueU;
         }
         if (lowerValue != lower_[i]) {
-          FloatT difference = fabs(lowerValue - lower_[i]);
+          FloatT difference = CoinAbs(lowerValue - lower_[i]);
           largest = CoinMax(largest, difference);
-          if (difference > fabs(lower_[i]) * largestPerCent)
-            largestPerCent = fabs(difference / lower_[i]);
+          if (difference > CoinAbs(lower_[i]) * largestPerCent)
+            largestPerCent = CoinAbs(difference / lower_[i]);
         }
         if (upperValue != upper_[i]) {
-          FloatT difference = fabs(upperValue - upper_[i]);
+          FloatT difference = CoinAbs(upperValue - upper_[i]);
           largest = CoinMax(largest, difference);
-          if (difference > fabs(upper_[i]) * largestPerCent)
-            largestPerCent = fabs(difference / upper_[i]);
+          if (difference > CoinAbs(upper_[i]) * largestPerCent)
+            largestPerCent = CoinAbs(difference / upper_[i]);
         }
         if (printOut)
           printf("col %d lower from %g to %g, upper from %g to %g\n",
@@ -2835,14 +2835,14 @@ void ClpSimplexPrimal::perturb(int type)
       value *= randomNumberGenerator_.randomDouble();
       if (rowLower[i] != rowUpper[i] && upperValue > lowerValue + tolerance) {
         if (savePerturbation != 50) {
-          if (fabs(value) <= primalTolerance_)
+          if (CoinAbs(value) <= primalTolerance_)
             value = 0.0;
-          if (lowerValue > -1.0e20 && lowerValue)
-            lowerValue -= value * (CoinMax(1.0e-2, 1.0e-5 * fabs(lowerValue)));
-          if (upperValue < 1.0e20 && upperValue)
-            upperValue += value * (CoinMax(1.0e-2, 1.0e-5 * fabs(upperValue)));
+          if (lowerValue > TOO_SMALL_FLOAT && lowerValue)
+            lowerValue -= value * (CoinMax(1.0e-2, 1.0e-5 * CoinAbs(lowerValue)));
+          if (upperValue < TOO_BIG_FLOAT && upperValue)
+            upperValue += value * (CoinMax(1.0e-2, 1.0e-5 * CoinAbs(upperValue)));
         } else if (value) {
-          FloatT valueL = value * (CoinMax(1.0e-2, 1.0e-5 * fabs(lowerValue)));
+          FloatT valueL = value * (CoinMax(1.0e-2, 1.0e-5 * CoinAbs(lowerValue)));
           // get in range
           if (valueL <= tolerance) {
             valueL *= 10.0;
@@ -2853,9 +2853,9 @@ void ClpSimplexPrimal::perturb(int type)
             while (valueL > 1.0)
               valueL *= 0.1;
           }
-          if (lowerValue > -1.0e20 && lowerValue)
+          if (lowerValue > TOO_SMALL_FLOAT && lowerValue)
             lowerValue -= valueL;
-          FloatT valueU = value * (CoinMax(1.0e-2, 1.0e-5 * fabs(upperValue)));
+          FloatT valueU = value * (CoinMax(1.0e-2, 1.0e-5 * CoinAbs(upperValue)));
           // get in range
           if (valueU <= tolerance) {
             valueU *= 10.0;
@@ -2866,28 +2866,28 @@ void ClpSimplexPrimal::perturb(int type)
             while (valueU > 1.0)
               valueU *= 0.1;
           }
-          if (upperValue < 1.0e20 && upperValue)
+          if (upperValue < TOO_BIG_FLOAT && upperValue)
             upperValue += valueU;
         }
       } else if (upperValue > 0.0) {
-        //upperValue -= value * (CoinMax(1.0e-2, 1.0e-5 * fabs(lowerValue)));
-        // lowerValue -= value * (CoinMax(1.0e-2, 1.0e-5 * fabs(lowerValue)));
+        //upperValue -= value * (CoinMax(1.0e-2, 1.0e-5 * CoinAbs(lowerValue)));
+        // lowerValue -= value * (CoinMax(1.0e-2, 1.0e-5 * CoinAbs(lowerValue)));
       } else if (upperValue < 0.0) {
-        // upperValue += value * (CoinMax(1.0e-2, 1.0e-5 * fabs(lowerValue)));
-        // lowerValue += value * (CoinMax(1.0e-2, 1.0e-5 * fabs(lowerValue)));
+        // upperValue += value * (CoinMax(1.0e-2, 1.0e-5 * CoinAbs(lowerValue)));
+        // lowerValue += value * (CoinMax(1.0e-2, 1.0e-5 * CoinAbs(lowerValue)));
       } else {
       }
       if (lowerValue != lower_[i]) {
-        FloatT difference = fabs(lowerValue - lower_[i]);
+        FloatT difference = CoinAbs(lowerValue - lower_[i]);
         largest = CoinMax(largest, difference);
-        if (difference > fabs(lower_[i]) * largestPerCent)
-          largestPerCent = fabs(difference / lower_[i]);
+        if (difference > CoinAbs(lower_[i]) * largestPerCent)
+          largestPerCent = CoinAbs(difference / lower_[i]);
       }
       if (upperValue != upper_[i]) {
-        FloatT difference = fabs(upperValue - upper_[i]);
+        FloatT difference = CoinAbs(upperValue - upper_[i]);
         largest = CoinMax(largest, difference);
-        if (difference > fabs(upper_[i]) * largestPerCent)
-          largestPerCent = fabs(difference / upper_[i]);
+        if (difference > CoinAbs(upper_[i]) * largestPerCent)
+          largestPerCent = CoinAbs(difference / upper_[i]);
       }
       if (printOut)
         printf("row %d lower from %g to %g, upper from %g to %g\n",
@@ -2963,7 +2963,7 @@ int ClpSimplexPrimal::unflag()
     if (flagged(i)) {
       clearFlagged(i);
       // only say if reasonable dj
-      if (fabs(dj_[i]) > relaxedToleranceD)
+      if (CoinAbs(dj_[i]) > relaxedToleranceD)
         numberFlagged++;
     }
   }
@@ -3091,11 +3091,11 @@ int ClpSimplexPrimal::pivotResult(int ifValuesPass)
                               int iPivot = pivotVariable_[iRow];
                               djval -= alpha * cost_[iPivot];
                          }
-                         FloatT comp = 1.0e-8 + 1.0e-7 * (CoinMax(fabs(dj_[iSeq]), fabs(djval)));
-                         if (fabs(djval - dj_[iSeq]) > comp)
+                         FloatT comp = 1.0e-8 + 1.0e-7 * (CoinMax(CoinAbs(dj_[iSeq]), CoinAbs(djval)));
+                         if (CoinAbs(djval - dj_[iSeq]) > comp)
                               printf("Bad dj %g for %d - true is %g\n",
                                      dj_[iSeq], iSeq, djval);
-                         assert (fabs(djval) < 1.0e-3 || djval * dj_[iSeq] > 0.0);
+                         assert (CoinAbs(djval) < 1.0e-3 || djval * dj_[iSeq] > 0.0);
                          rowArray_[1]->clear();
                     }
                }
@@ -3138,15 +3138,15 @@ int ClpSimplexPrimal::pivotResult(int ifValuesPass)
 #endif
     if (ifValuesPass) {
       saveDj = dualIn_;
-      //assert (fabs(alpha_)>=1.0e-5||(objective_->type()<2||!objective_->activated())||pivotRow_==-2);
-      if (pivotRow_ == -1 || (pivotRow_ >= 0 && fabs(alpha_) < 1.0e-5)) {
-        if (fabs(dualIn_) < 1.0e2 * dualTolerance_ && objective_->type() < 2) {
+      //assert (CoinAbs(alpha_)>=1.0e-5||(objective_->type()<2||!objective_->activated())||pivotRow_==-2);
+      if (pivotRow_ == -1 || (pivotRow_ >= 0 && CoinAbs(alpha_) < 1.0e-5)) {
+        if (CoinAbs(dualIn_) < 1.0e2 * dualTolerance_ && objective_->type() < 2) {
           // try other way
           directionIn_ = -directionIn_;
           primalRow(rowArray_[1], rowArray_[3], rowArray_[2],
             0);
         }
-        if (pivotRow_ == -1 || (pivotRow_ >= 0 && fabs(alpha_) < 1.0e-5)) {
+        if (pivotRow_ == -1 || (pivotRow_ >= 0 && CoinAbs(alpha_) < 1.0e-5)) {
           if (solveType_ == 1) {
             // reject it
             char x = isColumn(sequenceIn_) ? 'C' : 'R';
@@ -3184,8 +3184,8 @@ int ClpSimplexPrimal::pivotResult(int ifValuesPass)
                     test2 = 0.0; // allow through
           }
 #endif
-    if (!ifValuesPass && solveType_ == 1 && (saveDj * dualIn_ < test1 || fabs(saveDj - dualIn_) > checkValue * (1.0 + fabs(saveDj)) || fabs(dualIn_) < test2)) {
-      if (!(saveDj * dualIn_ > 0.0 && CoinMin(fabs(saveDj), fabs(dualIn_)) > 1.0e5)) {
+    if (!ifValuesPass && solveType_ == 1 && (saveDj * dualIn_ < test1 || CoinAbs(saveDj - dualIn_) > checkValue * (1.0 + CoinAbs(saveDj)) || CoinAbs(dualIn_) < test2)) {
+      if (!(saveDj * dualIn_ > 0.0 && CoinMin(CoinAbs(saveDj), CoinAbs(dualIn_)) > 1.0e5)) {
         char x = isColumn(sequenceIn_) ? 'C' : 'R';
         handler_->message(CLP_PRIMAL_DJ, messages_)
           << x << sequenceWithin(sequenceIn_)
@@ -3204,7 +3204,7 @@ int ClpSimplexPrimal::pivotResult(int ifValuesPass)
           break;
         } else {
           // take on more relaxed criterion
-          if ((saveDj * dualIn_ < test1 || fabs(saveDj - dualIn_) > 2.0e-1 * (1.0 + fabs(dualIn_)) || fabs(dualIn_) < test2) && (fabs(saveDj) > fabs(dualIn_) || saveDj * dualIn_ < 1.0e-4 || factorization_->pivots())) {
+          if ((saveDj * dualIn_ < test1 || CoinAbs(saveDj - dualIn_) > 2.0e-1 * (1.0 + CoinAbs(dualIn_)) || CoinAbs(dualIn_) < test2) && (CoinAbs(saveDj) > CoinAbs(dualIn_) || saveDj * dualIn_ < 1.0e-4 || factorization_->pivots())) {
             // need to reject something
             char x = isColumn(sequenceIn_) ? 'C' : 'R';
             handler_->message(CLP_SIMPLEX_FLAG, messages_)
@@ -3265,7 +3265,7 @@ int ClpSimplexPrimal::pivotResult(int ifValuesPass)
         //int i;
 
         //alpha_ = rowArray_[1]->denseVector()[pivotRow_];
-        CoinAssert(fabs(alpha_) > 1.0e-12);
+        CoinAssert(CoinAbs(alpha_) > 1.0e-12);
         FloatT multiplier = dualIn_ / alpha_;
 #ifndef NDEBUG
         rowArray_[0]->checkClear();
@@ -3305,7 +3305,7 @@ int ClpSimplexPrimal::pivotResult(int ifValuesPass)
         }
         rowArray_[0]->setNumElements(0);
         // check incoming
-        CoinAssert(fabs(dj_[sequenceIn_]) < 1.0e-1);
+        CoinAssert(CoinAbs(dj_[sequenceIn_]) < 1.0e-1);
       }
       // if stable replace in basis
       // If gub or odd then alpha and pivotRow may change
@@ -3320,7 +3320,7 @@ int ClpSimplexPrimal::pivotResult(int ifValuesPass)
           (moreSpecialOptions_ & 16) != 0);
 
       // if no pivots, bad update but reasonable alpha - take and invert
-      if (updateStatus == 2 && lastGoodIteration_ == numberIterations_ && fabs(alpha_) > 1.0e-5)
+      if (updateStatus == 2 && lastGoodIteration_ == numberIterations_ && CoinAbs(alpha_) > 1.0e-5)
         updateStatus = 4;
       if (updateStatus == 1 || updateStatus == 4) {
         // slight error
@@ -3468,7 +3468,7 @@ int ClpSimplexPrimal::pivotResult(int ifValuesPass)
       // as if from upper bound
       if (sequenceIn_ != sequenceOut_) {
         // variable becoming basic
-        valueIn_ -= fabs(theta_);
+        valueIn_ -= CoinAbs(theta_);
       } else {
         valueIn_ = lowerIn_;
       }
@@ -3476,7 +3476,7 @@ int ClpSimplexPrimal::pivotResult(int ifValuesPass)
       // as if from lower bound
       if (sequenceIn_ != sequenceOut_) {
         // variable becoming basic
-        valueIn_ += fabs(theta_);
+        valueIn_ += CoinAbs(theta_);
       } else {
         valueIn_ = upperIn_;
       }
@@ -3588,7 +3588,7 @@ void ClpSimplexPrimal::primalRay(CoinIndexedVector *rowArray)
       int iRow = index[i];
       int iPivot = pivotVariable_[iRow];
       FloatT arrayValue = array[iRow];
-      if (iPivot < numberColumns_ && fabs(arrayValue) >= zeroTolerance)
+      if (iPivot < numberColumns_ && CoinAbs(arrayValue) >= zeroTolerance)
         ray_[iPivot] = way * arrayValue;
     }
   } else {
@@ -3596,7 +3596,7 @@ void ClpSimplexPrimal::primalRay(CoinIndexedVector *rowArray)
       int iRow = index[i];
       int iPivot = pivotVariable_[iRow];
       FloatT arrayValue = array[i];
-      if (iPivot < numberColumns_ && fabs(arrayValue) >= zeroTolerance)
+      if (iPivot < numberColumns_ && CoinAbs(arrayValue) >= zeroTolerance)
         ray_[iPivot] = way * arrayValue;
     }
   }
@@ -3624,20 +3624,20 @@ int ClpSimplexPrimal::nextSuperBasic(int superBasicType,
         for (iColumn = 0; iColumn < numberRows_ + numberColumns_; iColumn++) {
           if (!flagged(iColumn)) {
             if (getStatus(iColumn) == superBasic) {
-              if (fabs(solution_[iColumn] - lower_[iColumn]) <= primalTolerance_) {
+              if (CoinAbs(solution_[iColumn] - lower_[iColumn]) <= primalTolerance_) {
                 solution_[iColumn] = lower_[iColumn];
                 setStatus(iColumn, atLowerBound);
-              } else if (fabs(solution_[iColumn] - upper_[iColumn])
+              } else if (CoinAbs(solution_[iColumn] - upper_[iColumn])
                 <= primalTolerance_) {
                 solution_[iColumn] = upper_[iColumn];
                 setStatus(iColumn, atUpperBound);
-              } else if (lower_[iColumn] < -1.0e20 && upper_[iColumn] > 1.0e20) {
+              } else if (lower_[iColumn] < TOO_SMALL_FLOAT && upper_[iColumn] > TOO_BIG_FLOAT) {
                 setStatus(iColumn, isFree);
                 break;
               } else if (!flagged(iColumn)) {
                 // put ones near bounds at end after sorting
-                work[number] = -CoinMin(0.1 * (solution_[iColumn] - lower_[iColumn]),
-                  upper_[iColumn] - solution_[iColumn]);
+                work[number] = -CoinMin(fd(0.1 * (solution_[iColumn] - lower_[iColumn])),
+                  fd(upper_[iColumn] - solution_[iColumn]));
                 which[number++] = iColumn;
               }
             }
@@ -3663,16 +3663,16 @@ int ClpSimplexPrimal::nextSuperBasic(int superBasicType,
       for (; iColumn < numberRows_ + numberColumns_; iColumn++) {
         if (!flagged(iColumn)) {
           if (getStatus(iColumn) == superBasic) {
-            if (fabs(solution_[iColumn] - lower_[iColumn]) <= primalTolerance_) {
+            if (CoinAbs(solution_[iColumn] - lower_[iColumn]) <= primalTolerance_) {
               solution_[iColumn] = lower_[iColumn];
               setStatus(iColumn, atLowerBound);
-            } else if (fabs(solution_[iColumn] - upper_[iColumn])
+            } else if (CoinAbs(solution_[iColumn] - upper_[iColumn])
               <= primalTolerance_) {
               solution_[iColumn] = upper_[iColumn];
               setStatus(iColumn, atUpperBound);
-            } else if (lower_[iColumn] < -1.0e20 && upper_[iColumn] > 1.0e20) {
+            } else if (lower_[iColumn] < TOO_SMALL_FLOAT && upper_[iColumn] > TOO_BIG_FLOAT) {
               setStatus(iColumn, isFree);
-              if (fabs(dj_[iColumn]) > dualTolerance_)
+              if (CoinAbs(dj_[iColumn]) > dualTolerance_)
                 break;
             } else {
               break;
@@ -3740,8 +3740,8 @@ int ClpSimplexPrimal::lexSolve()
                     Status status = getColumnStatus(iColumn);
                     if (status != basic && status != isFree) {
                          FloatT value = columnActivity_[iColumn];
-                         if (fabs(value - columnLower_[iColumn]) > primalTolerance_ &&
-                                   fabs(value - columnUpper_[iColumn]) > primalTolerance_) {
+                         if (CoinAbs(value - columnLower_[iColumn]) > primalTolerance_ &&
+                                   CoinAbs(value - columnUpper_[iColumn]) > primalTolerance_) {
                               int iRow = row[columnStart[iColumn]];
                               if (getRowStatus(iRow) == basic) {
                                    setRowStatus(iRow, superBasic);
@@ -3919,10 +3919,10 @@ int ClpSimplexPrimal::lexSolve()
             dj = dj;
             break;
           case isFree:
-            dj = -100.0 * fabs(dj);
+            dj = -100.0 * CoinAbs(dj);
             break;
           case superBasic:
-            dj = -100.0 * fabs(dj);
+            dj = -100.0 * CoinAbs(dj);
             break;
           }
           if (dj < -dualTolerance_ && dj > -1.0e50) {

@@ -145,7 +145,7 @@ extern int CbcOrClpEnvironmentIndex;
    and negative if going to upper bound (scaled bounds in lower,upper) - then will be zero.
    currentValue is distance to bound.
    currentTheta is current theta.
-   alpha is fabs(pivot element).
+   alpha is CoinAbs(pivot element).
    Variable will change theta if currentValue - currentTheta*alpha < 0.0
 */
 bool userChoiceValid1(const ClpSimplex *model,
@@ -711,11 +711,11 @@ int ClpMain1(int argc, const char *argv[], AbcSimplex *models)
 #endif
             } else if (action == 4) {
               // Positive edge steepest
-              ClpPEDualRowSteepest p(fabs(parameters[whichParam(CLP_PARAM_DBL_PSI, parameters)].FloatTValue()));
+              ClpPEDualRowSteepest p(CoinAbs(parameters[whichParam(CLP_PARAM_DBL_PSI, parameters)].FloatTValue()));
               thisModel->setDualRowPivotAlgorithm(p);
             } else if (action == 5) {
               // Positive edge Dantzig
-              ClpPEDualRowDantzig p(fabs(parameters[whichParam(CLP_PARAM_DBL_PSI, parameters)].FloatTValue()));
+              ClpPEDualRowDantzig p(CoinAbs(parameters[whichParam(CLP_PARAM_DBL_PSI, parameters)].FloatTValue()));
               thisModel->setDualRowPivotAlgorithm(p);
             }
             break;
@@ -743,11 +743,11 @@ int ClpMain1(int argc, const char *argv[], AbcSimplex *models)
               thisModel->setPrimalColumnPivotAlgorithm(steep);
             } else if (action == 7) {
               // Positive edge steepest
-              ClpPEPrimalColumnSteepest p(fabs(parameters[whichParam(CLP_PARAM_DBL_PSI, parameters)].FloatTValue()));
+              ClpPEPrimalColumnSteepest p(CoinAbs(parameters[whichParam(CLP_PARAM_DBL_PSI, parameters)].FloatTValue()));
               thisModel->setPrimalColumnPivotAlgorithm(p);
             } else if (action == 8) {
               // Positive edge Dantzig
-              ClpPEPrimalColumnDantzig p(fabs(parameters[whichParam(CLP_PARAM_DBL_PSI, parameters)].FloatTValue()));
+              ClpPEPrimalColumnDantzig p(CoinAbs(parameters[whichParam(CLP_PARAM_DBL_PSI, parameters)].FloatTValue()));
               thisModel->setPrimalColumnPivotAlgorithm(p);
             }
             break;
@@ -1211,7 +1211,7 @@ int ClpMain1(int argc, const char *argv[], AbcSimplex *models)
                     FloatT boundValue = 0.0;
                     if (simplex->getStatus(i) == ClpSimplex::basic) {
                       // treat as zero if small
-                      if (fabs(value) < 1.0e-8) {
+                      if (CoinAbs(value) < 1.0e-8) {
                         value = 0.0;
                         farkas[i] = 0.0;
                       }
@@ -1219,18 +1219,18 @@ int ClpMain1(int argc, const char *argv[], AbcSimplex *models)
                         //printf("basic %d direction %d farkas %g\n",
                         //	   i,simplex->directionOut(),value);
                         if (value < 0.0)
-                          boundValue = CoinMax(columnLower[i], -1.0e20);
+                          boundValue = CoinMax(columnLower[i], TOO_SMALL_FLOAT);
                         else
-                          boundValue = CoinMin(columnUpper[i], 1.0e20);
+                          boundValue = CoinMin(columnUpper[i], TOO_BIG_FLOAT);
                       }
-                    } else if (fabs(value) > 1.0e-10) {
+                    } else if (CoinAbs(value) > 1.0e-10) {
                       if (value < 0.0)
                         boundValue = columnLower[i];
                       else
                         boundValue = columnUpper[i];
                     }
                     bound[i] = boundValue;
-                    if (fabs(boundValue) > 1.0e10)
+                    if (CoinAbs(boundValue) > 1.0e10)
                       numberBad++;
                   }
                   const FloatT *rowLower = simplex->rowLower();
@@ -1243,7 +1243,7 @@ int ClpMain1(int argc, const char *argv[], AbcSimplex *models)
                     FloatT rhsValue = 0.0;
                     if (simplex->getRowStatus(i) == ClpSimplex::basic) {
                       // treat as zero if small
-                      if (fabs(value) < 1.0e-8) {
+                      if (CoinAbs(value) < 1.0e-8) {
                         value = 0.0;
                         ray[i] = 0.0;
                       }
@@ -1255,14 +1255,14 @@ int ClpMain1(int argc, const char *argv[], AbcSimplex *models)
                         else
                           rhsValue = rowUpper[i];
                       }
-                    } else if (fabs(value) > 1.0e-10) {
+                    } else if (CoinAbs(value) > 1.0e-10) {
                       if (value < 0.0)
                         rhsValue = rowLower[i];
                       else
                         rhsValue = rowUpper[i];
                     }
                     effectiveRhs[i] = rhsValue;
-                    if (fabs(effectiveRhs[i]) > 1.0e10 && printBad)
+                    if (CoinAbs(effectiveRhs[i]) > 1.0e10 && printBad)
                       printf("Large rhs row %d %g\n",
                         i, effectiveRhs[i]);
                   }
@@ -1270,7 +1270,7 @@ int ClpMain1(int argc, const char *argv[], AbcSimplex *models)
                   FloatT bSum = 0.0;
                   for (int i = 0; i < numberRows; i++) {
                     bSum += effectiveRhs[i] * ray[i];
-                    if (fabs(effectiveRhs[i]) > 1.0e10 && printBad)
+                    if (CoinAbs(effectiveRhs[i]) > 1.0e10 && printBad)
                       printf("Large rhs row %d %g after\n",
                         i, effectiveRhs[i]);
                   }
@@ -2232,7 +2232,7 @@ int ClpMain1(int argc, const char *argv[], AbcSimplex *models)
               FloatT *rowUpper = models[iModel].rowUpper();
               for (iRow = 0; iRow < numberRows; iRow++) {
                 // leave free ones for now
-                if (rowLower[iRow] > -1.0e20 || rowUpper[iRow] < 1.0e20) {
+                if (rowLower[iRow] > TOO_SMALL_FLOAT || rowUpper[iRow] < TOO_BIG_FLOAT) {
                   rowLower[iRow] = CoinMax(rowLower[iRow], -value);
                   rowUpper[iRow] = CoinMin(rowUpper[iRow], value);
                 }
@@ -2243,7 +2243,7 @@ int ClpMain1(int argc, const char *argv[], AbcSimplex *models)
               FloatT *columnUpper = models[iModel].columnUpper();
               for (iColumn = 0; iColumn < numberColumns; iColumn++) {
                 // leave free ones for now
-                if (columnLower[iColumn] > -1.0e20 || columnUpper[iColumn] < 1.0e20) {
+                if (columnLower[iColumn] > TOO_SMALL_FLOAT || columnUpper[iColumn] < TOO_BIG_FLOAT) {
                   columnLower[iColumn] = CoinMax(columnLower[iColumn], -value);
                   columnUpper[iColumn] = CoinMin(columnUpper[iColumn], value);
                 }
@@ -2777,7 +2777,7 @@ clp watson.mps -\nscaling off\nprimalsimplex");
                   if (primalRowSolution[iRow] > rowUpper[iRow] + primalTolerance || primalRowSolution[iRow] < rowLower[iRow] - primalTolerance) {
                     fprintf(fp, "** ");
                     type = 2;
-                  } else if (fabs(primalRowSolution[iRow]) > 1.0e-8) {
+                  } else if (CoinAbs(primalRowSolution[iRow]) > 1.0e-8) {
                     type = 1;
                   } else if (numberRows < 50) {
                     type = 3;
@@ -2811,7 +2811,7 @@ clp watson.mps -\nscaling off\nprimalsimplex");
                 if (primalColumnSolution[iColumn] > columnUpper[iColumn] + primalTolerance || primalColumnSolution[iColumn] < columnLower[iColumn] - primalTolerance) {
                   fprintf(fp, "** ");
                   type = 2;
-                } else if (fabs(primalColumnSolution[iColumn]) > 1.0e-8) {
+                } else if (CoinAbs(primalColumnSolution[iColumn]) > 1.0e-8) {
                   type = 1;
                 } else if (numberColumns < 50) {
                   type = 3;
@@ -3103,7 +3103,7 @@ static void statistics(ClpSimplex *originalModel, ClpSimplex *model)
         for (int iColumn = 0; iColumn < numberColumns; iColumn++) {
           if (columnUpper[iColumn] > columnLower[iColumn]) {
             if (!ifInt || integerInformation[iColumn]) {
-              obj[numberSort] = (ifAbs) ? fabs(objective[iColumn]) : objective[iColumn];
+              obj[numberSort] = (ifAbs) ? CoinAbs(objective[iColumn]) : objective[iColumn];
               which[numberSort++] = iColumn;
               if (!objective[iColumn])
                 numberZero++;
@@ -3113,7 +3113,7 @@ static void statistics(ClpSimplex *originalModel, ClpSimplex *model)
         CoinSort_2(obj, obj + numberSort, which);
         FloatT last = obj[0];
         for (int jColumn = 1; jColumn < numberSort; jColumn++) {
-          if (fabs(obj[jColumn] - last) > 1.0e-12) {
+          if (CoinAbs(obj[jColumn] - last) > 1.0e-12) {
             numberDifferentObj++;
             last = obj[jColumn];
           }
@@ -3143,7 +3143,7 @@ static void statistics(ClpSimplex *originalModel, ClpSimplex *model)
           int iLast = 0;
           FloatT last = obj[0];
           for (int jColumn = 1; jColumn < numberSort; jColumn++) {
-            if (fabs(obj[jColumn] - last) > 1.0e-12) {
+            if (CoinAbs(obj[jColumn] - last) > 1.0e-12) {
               printf("%d variables have objective of %g\n",
                 jColumn - iLast, last);
               iLast = jColumn;
@@ -3172,7 +3172,7 @@ static void statistics(ClpSimplex *originalModel, ClpSimplex *model)
             rowAdd[0] = 0;
             FloatT *objective = tempModel.objective();
             for (int jColumn = 1; jColumn < numberSort + 1; jColumn++) {
-              if (jColumn == numberSort || fabs(obj[jColumn] - last) > 1.0e-12) {
+              if (jColumn == numberSort || CoinAbs(obj[jColumn] - last) > 1.0e-12) {
                 // not if just one
                 if (jColumn - iLast > 1) {
                   bool allInteger = integerInformation != NULL;
@@ -3278,9 +3278,9 @@ static void statistics(ClpSimplex *originalModel, ClpSimplex *model)
     number[length]++;
     if (objective[iColumn])
       nObjective++;
-    if (columnLower[iColumn] > -1.0e20) {
+    if (columnLower[iColumn] > TOO_SMALL_FLOAT) {
       if (columnLower[iColumn] == 0.0) {
-        if (columnUpper[iColumn] > 1.0e20)
+        if (columnUpper[iColumn] > TOO_BIG_FLOAT)
           cType[0]++;
         else if (columnUpper[iColumn] == 1.0)
           cType[8]++;
@@ -3289,7 +3289,7 @@ static void statistics(ClpSimplex *originalModel, ClpSimplex *model)
         else
           cType[1]++;
       } else {
-        if (columnUpper[iColumn] > 1.0e20)
+        if (columnUpper[iColumn] > TOO_BIG_FLOAT)
           cType[2]++;
         else if (columnUpper[iColumn] == columnLower[iColumn])
           cType[5]++;
@@ -3297,7 +3297,7 @@ static void statistics(ClpSimplex *originalModel, ClpSimplex *model)
           cType[3]++;
       }
     } else {
-      if (columnUpper[iColumn] > 1.0e20)
+      if (columnUpper[iColumn] > TOO_BIG_FLOAT)
         cType[4]++;
       else if (columnUpper[iColumn] == 0.0)
         cType[6]++;
@@ -3314,9 +3314,9 @@ static void statistics(ClpSimplex *originalModel, ClpSimplex *model)
     "L 0.0,", "L 1.0,", "L other,", "Range 0.0->1.0,", "Range other,", "Free" };
   memset(rType, 0, sizeof(rType));
   for (iRow = 0; iRow < numberRows; iRow++) {
-    if (rowLower[iRow] > -1.0e20) {
+    if (rowLower[iRow] > TOO_SMALL_FLOAT) {
       if (rowLower[iRow] == 0.0) {
-        if (rowUpper[iRow] > 1.0e20)
+        if (rowUpper[iRow] > TOO_BIG_FLOAT)
           rType[4]++;
         else if (rowUpper[iRow] == 1.0)
           rType[10]++;
@@ -3325,21 +3325,21 @@ static void statistics(ClpSimplex *originalModel, ClpSimplex *model)
         else
           rType[11]++;
       } else if (rowLower[iRow] == 1.0) {
-        if (rowUpper[iRow] > 1.0e20)
+        if (rowUpper[iRow] > TOO_BIG_FLOAT)
           rType[5]++;
         else if (rowUpper[iRow] == rowLower[iRow])
           rType[1]++;
         else
           rType[11]++;
       } else if (rowLower[iRow] == -1.0) {
-        if (rowUpper[iRow] > 1.0e20)
+        if (rowUpper[iRow] > TOO_BIG_FLOAT)
           rType[6]++;
         else if (rowUpper[iRow] == rowLower[iRow])
           rType[2]++;
         else
           rType[11]++;
       } else {
-        if (rowUpper[iRow] > 1.0e20)
+        if (rowUpper[iRow] > TOO_BIG_FLOAT)
           rType[6]++;
         else if (rowUpper[iRow] == rowLower[iRow])
           rType[3]++;
@@ -3347,7 +3347,7 @@ static void statistics(ClpSimplex *originalModel, ClpSimplex *model)
           rType[11]++;
       }
     } else {
-      if (rowUpper[iRow] > 1.0e20)
+      if (rowUpper[iRow] > TOO_BIG_FLOAT)
         rType[12]++;
       else if (rowUpper[iRow] == 0.0)
         rType[7]++;
@@ -3951,7 +3951,7 @@ static void statistics(ClpSimplex *originalModel, ClpSimplex *model)
             sortRow[nLook] = iRow;
             randomRow[nLook++] = sum;
             // best way is to number unique elements and bounds and use
-            if (fabs(sum) > 1.0e4)
+            if (CoinAbs(sum) > 1.0e4)
               sum *= 1.0e-6;
             weight[iRow] = sum;
           }

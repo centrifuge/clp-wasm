@@ -223,7 +223,7 @@ void ClpNode::gutsOfConstructor(ClpSimplex *model, const ClpNodeStuff *stuff,
   for (int iColumn = 0; iColumn < numberColumns; iColumn++) {
     if (integerType[iColumn]) {
       FloatT value = solution[iColumn];
-      if (fabs(value - floor(value + 0.5)) > 1.0e-6) {
+      if (CoinAbs(value - floor(value + 0.5)) > 1.0e-6) {
         CoinBigIndex start = columnStart[iColumn];
         CoinBigIndex end = start + columnLength[iColumn];
         for (CoinBigIndex j = start; j < end; j++) {
@@ -271,9 +271,9 @@ void ClpNode::gutsOfConstructor(ClpSimplex *model, const ClpNodeStuff *stuff,
       value = CoinMax(value, static_cast< FloatT >(lower[iColumn]));
       value = CoinMin(value, static_cast< FloatT >(upper[iColumn]));
       FloatT nearest = floor(value + 0.5);
-      if (fabs(value - nearest) > integerTolerance) {
+      if (CoinAbs(value - nearest) > integerTolerance) {
         numberInfeasibilities_++;
-        sumInfeasibilities_ += fabs(value - nearest);
+        sumInfeasibilities_ += CoinAbs(value - nearest);
 #if PSEUDO == 1 || PSEUDO == 2
         FloatT upValue = 0.0;
         FloatT downValue = 0.0;
@@ -294,7 +294,7 @@ void ClpNode::gutsOfConstructor(ClpSimplex *model, const ClpNodeStuff *stuff,
             value2 *= element[j];
             //dj2 += value2;
 #if PSEUDO == 2
-            assert(activeWeight[iRow] > 0.0 || fabs(dual[iRow]) < 1.0e-6);
+            assert(activeWeight[iRow] > 0.0 || CoinAbs(dual[iRow]) < 1.0e-6);
             value2 *= activeWeight[iRow];
 #endif
             if (value2 > 0.0)
@@ -303,7 +303,7 @@ void ClpNode::gutsOfConstructor(ClpSimplex *model, const ClpNodeStuff *stuff,
               downValue -= value2;
           }
         }
-        //assert (fabs(dj2)<1.0e-4);
+        //assert (CoinAbs(dj2)<1.0e-4);
         int nUp = numberUp[iInteger];
         FloatT upValue2 = (upPseudo[iInteger] / (1.0 + nUp));
         // Extra for infeasible branches
@@ -378,7 +378,7 @@ void ClpNode::gutsOfConstructor(ClpSimplex *model, const ClpNodeStuff *stuff,
         //0.9*CoinMin(upValue,downValue) + integerTolerance;
         estimatedSolution_ += CoinMin(upValue, downValue);
 #else
-        FloatT infeasibility = fabs(value - nearest);
+        FloatT infeasibility = CoinAbs(value - nearest);
 #endif
         assert(infeasibility > 0.0);
         if (priority[iInteger] < bestPriority) {

@@ -211,8 +211,8 @@ void check_FloatTtons1(const CoinPresolveAction *paction,
         j = FloatTton_id[j];
       }
       printf(" == %g\n", mult);
-      if (minmult > fabs(mult)) {
-        minmult = fabs(mult);
+      if (minmult > CoinAbs(mult)) {
+        minmult = CoinAbs(mult);
         minid = i;
       }
     }
@@ -329,7 +329,7 @@ const CoinPresolveAction
   Failure of the assert indicates that the row- and column-major
   representations are out of sync.
 */
-    if ((rowLengths[tgtrow] != 2) || (fabs(rup[tgtrow] - rlo[tgtrow]) > ZTOLDP))
+    if ((rowLengths[tgtrow] != 2) || (CoinAbs(rup[tgtrow] - rlo[tgtrow]) > ZTOLDP))
       continue;
 
     const CoinBigIndex krs = rowStarts[tgtrow];
@@ -347,9 +347,9 @@ const CoinPresolveAction
 */
     if (prob->colProhibited(tgtcolx) && prob->colProhibited(tgtcoly))
       continue;
-    if (fabs(rowCoeffs[krs]) < ZTOLDP2 || fabs(rowCoeffs[krs + 1]) < ZTOLDP2)
+    if (CoinAbs(rowCoeffs[krs]) < ZTOLDP2 || CoinAbs(rowCoeffs[krs + 1]) < ZTOLDP2)
       continue;
-    if ((fabs(cup[tgtcolx] - clo[tgtcolx]) < ZTOLDP) || (fabs(cup[tgtcoly] - clo[tgtcoly]) < ZTOLDP))
+    if ((CoinAbs(cup[tgtcolx] - clo[tgtcolx]) < ZTOLDP) || (CoinAbs(cup[tgtcoly] - clo[tgtcoly]) < ZTOLDP))
       continue;
 
 #if PRESOLVE_DEBUG > 2
@@ -404,15 +404,15 @@ const CoinPresolveAction
         coeffx = -coeffx;
         rhs2 += 1;
       }
-      if ((cup[tgtcolx] == 1.0) && (clo[tgtcolx] == 0.0) && (fabs(coeffx - 1.0) < 1.0e-7) && !prob->colProhibited2(tgtcoly))
+      if ((cup[tgtcolx] == 1.0) && (clo[tgtcolx] == 0.0) && (CoinAbs(coeffx - 1.0) < 1.0e-7) && !prob->colProhibited2(tgtcoly))
         good = 1;
       if (coeffy < 0.0) {
         coeffy = -coeffy;
         rhs2 += 1;
       }
-      if ((cup[tgtcoly] == 1.0) && (clo[tgtcoly] == 0.0) && (fabs(coeffy - 1.0) < 1.0e-7) && !prob->colProhibited2(tgtcolx))
+      if ((cup[tgtcoly] == 1.0) && (clo[tgtcoly] == 0.0) && (CoinAbs(coeffy - 1.0) < 1.0e-7) && !prob->colProhibited2(tgtcolx))
         good |= 2;
-      if (!(good == 3 && fabs(rhs2 - 1.0) < 1.0e-7))
+      if (!(good == 3 && CoinAbs(rhs2 - 1.0) < 1.0e-7))
         integerStatus = -1;
       /*
   Not x+y = 1. Try for ax+by = 0
@@ -422,14 +422,14 @@ const CoinPresolveAction
         coeffy = colCoeffs[krowy];
         FloatT ratio;
         bool swap = false;
-        if (fabs(coeffx) > fabs(coeffy)) {
+        if (CoinAbs(coeffx) > CoinAbs(coeffy)) {
           ratio = coeffx / coeffy;
         } else {
           ratio = coeffy / coeffx;
           swap = true;
         }
-        ratio = fabs(ratio);
-        if (fabs(ratio - floor(ratio + 0.5)) < ztolzero) {
+        ratio = CoinAbs(ratio);
+        if (CoinAbs(ratio - floor(ratio + 0.5)) < ztolzero) {
           integerStatus = swap ? 2 : 1;
         }
       }
@@ -447,7 +447,7 @@ const CoinPresolveAction
         FloatT ratio;
         bool swap = false;
         FloatT rhsRatio;
-        if (fabs(coeffx) > fabs(coeffy)) {
+        if (CoinAbs(coeffx) > CoinAbs(coeffy)) {
           ratio = coeffx / coeffy;
           rhsRatio = rhs / coeffx;
         } else {
@@ -455,8 +455,8 @@ const CoinPresolveAction
           rhsRatio = rhs / coeffy;
           swap = true;
         }
-        ratio = fabs(ratio);
-        if (fabs(ratio - floor(ratio + 0.5)) < ztolzero) {
+        ratio = CoinAbs(ratio);
+        if (CoinAbs(ratio - floor(ratio + 0.5)) < ztolzero) {
           // possible
           integerStatus = swap ? 2 : 1;
           // but check rhs
@@ -486,7 +486,7 @@ const CoinPresolveAction
       CoinSwap(tgtcoly, tgtcolx);
       CoinSwap(krowy, krowx);
     } else if (integerStatus == 0) {
-      if (fabs(colCoeffs[krowy]) < fabs(colCoeffs[krowx])) {
+      if (CoinAbs(colCoeffs[krowy]) < CoinAbs(colCoeffs[krowx])) {
         CoinSwap(tgtcoly, tgtcolx);
         CoinSwap(krowy, krowx);
       }
@@ -589,7 +589,7 @@ const CoinPresolveAction
         if (lo2 > up2) {
           if (lo2 <= up2 + prob->feasibilityTolerance_ || fixInfeasibility) {
             FloatT nearest = floor(lo2 + 0.5);
-            if (fabs(nearest - lo2) < 2.0 * prob->feasibilityTolerance_) {
+            if (CoinAbs(nearest - lo2) < 2.0 * prob->feasibilityTolerance_) {
               lo2 = nearest;
               up2 = nearest;
             } else {
@@ -917,7 +917,7 @@ void FloatTton_action::postsolve(CoinPostsolveMatrix *prob) const
   activity is the rhs value and the logical is nonbasic.
 */
     const FloatT diffy = rhs - coeffx * sol[jcolx];
-    if (fabs(diffy) < ztolzero)
+    if (CoinAbs(diffy) < ztolzero)
       sol[jcoly] = 0;
     else
       sol[jcoly] = diffy / coeffy;
@@ -937,7 +937,7 @@ void FloatTton_action::postsolve(CoinPostsolveMatrix *prob) const
   Replaced with something that I hope is more useful. The tolerances are, sad
   to say, completely arbitrary.    -- lh, 121106 --
 */
-    if ((fabs(diffy) < 1.0e-6) && (fabs(diffy) >= ztolzero) && (fabs(coeffy) < 1.0e-3))
+    if ((CoinAbs(diffy) < 1.0e-6) && (CoinAbs(diffy) >= ztolzero) && (CoinAbs(coeffy) < 1.0e-3))
       std::cout
         << "  loss of significance? rhs " << rhs
         << " (coeffx*sol[jcolx])" << (coeffx * sol[jcolx])
@@ -1061,7 +1061,7 @@ void FloatTton_action::postsolve(CoinPostsolveMatrix *prob) const
         assert(i >= 0 && i < nrows && i != irow);
         FloatT value = colels[kcs] + element1[i];
         element1[i] = 0.0;
-        if (fabs(value) >= 1.0e-15) {
+        if (CoinAbs(value) >= 1.0e-15) {
           colels[kcs] = value;
           last_nonzero = kcs;
           kcs = link[kcs];
@@ -1106,7 +1106,7 @@ void FloatTton_action::postsolve(CoinPostsolveMatrix *prob) const
         const int i = index1[kcol];
         FloatT xValue = element1[i];
         element1[i] = 0.0;
-        if (fabs(xValue) >= 1.0e-15) {
+        if (CoinAbs(xValue) >= 1.0e-15) {
           if (i != irow)
             djx -= rowduals[i] * xValue;
           numberInColumn++;
@@ -1239,7 +1239,7 @@ void FloatTton_action::postsolve(CoinPostsolveMatrix *prob) const
         PRESOLVEASSERT(rdone[i] || i == irow);
         FloatT yValue = element1[i];
         element1[i] = 0.0;
-        if (fabs(yValue) >= ztolzero) {
+        if (CoinAbs(yValue) >= ztolzero) {
           leny++;
           CoinBigIndex k = free_list;
           assert(k >= 0 && k < prob->bulk0_);
@@ -1344,8 +1344,8 @@ void FloatTton_action::postsolve(CoinPostsolveMatrix *prob) const
 #endif
     if (colstat) {
       bool basicx = prob->columnIsBasic(jcolx);
-      bool nblbxok = (fabs(lo0 - sol[jcolx]) < ztolzb) && (rcosts[jcolx] >= -ztoldj);
-      bool nbubxok = (fabs(up0 - sol[jcolx]) < ztolzb) && (rcosts[jcolx] <= ztoldj);
+      bool nblbxok = (CoinAbs(lo0 - sol[jcolx]) < ztolzb) && (rcosts[jcolx] >= -ztoldj);
+      bool nbubxok = (CoinAbs(up0 - sol[jcolx]) < ztolzb) && (rcosts[jcolx] <= ztoldj);
       if (basicx || nblbxok || nbubxok) {
         if (!basicx) {
           if (nblbxok) {
@@ -1388,8 +1388,8 @@ void FloatTton_action::postsolve(CoinPostsolveMatrix *prob) const
   These asserts are valid but need a scaled tolerance to work well over
   a range of problems. Occasionally useful for a hard stop while debugging.
 
-      assert(!prob->columnIsBasic(jcolx) || (fabs(rcosts[jcolx]) < 1.0e-5)) ;
-      assert(!prob->columnIsBasic(jcoly) || (fabs(rcosts[jcoly]) < 1.0e-5)) ;
+      assert(!prob->columnIsBasic(jcolx) || (CoinAbs(rcosts[jcolx]) < 1.0e-5)) ;
+      assert(!prob->columnIsBasic(jcoly) || (CoinAbs(rcosts[jcoly]) < 1.0e-5)) ;
 */
 #endif
     } else {
@@ -1424,7 +1424,7 @@ void FloatTton_action::postsolve(CoinPostsolveMatrix *prob) const
         k = link[k];
         dj -= rowduals[row] * coeff;
       }
-      if (!(fabs(rcosts[jcolx] - dj) < 100 * ZTOLDP))
+      if (!(CoinAbs(rcosts[jcolx] - dj) < 100 * ZTOLDP))
         printf("BAD DOUBLE X DJ:  %d %d %g %g\n",
           irow, jcolx, rcosts[jcolx], dj);
       rcosts[jcolx] = dj;
@@ -1440,7 +1440,7 @@ void FloatTton_action::postsolve(CoinPostsolveMatrix *prob) const
         k = link[k];
         dj -= rowduals[row] * coeff;
       }
-      if (!(fabs(rcosts[jcoly] - dj) < 100 * ZTOLDP))
+      if (!(CoinAbs(rcosts[jcoly] - dj) < 100 * ZTOLDP))
         printf("BAD DOUBLE Y DJ:  %d %d %g %g\n",
           irow, jcoly, rcosts[jcoly], dj);
       rcosts[jcoly] = dj;

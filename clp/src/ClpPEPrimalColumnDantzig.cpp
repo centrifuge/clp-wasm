@@ -158,8 +158,8 @@ int ClpPEPrimalColumnDantzig::pivotColumn(CoinIndexedVector *updates,
   //
   // store the number of degenerate pivots on compatible variables and the
   // overal number of degenerate pivots
-  FloatT progress = fabs(modelPE_->lastObjectiveValue() - model_->objectiveValue());
-  bool isLastDegenerate = progress <= 1.0e-12 * fabs(model_->objectiveValue()) ? true : false;
+  FloatT progress = CoinAbs(modelPE_->lastObjectiveValue() - model_->objectiveValue());
+  bool isLastDegenerate = progress <= 1.0e-12 * CoinAbs(model_->objectiveValue()) ? true : false;
   if (isLastDegenerate) {
     modelPE_->addDegeneratePivot();
     modelPE_->addDegeneratePivotConsecutive();
@@ -224,9 +224,9 @@ int ClpPEPrimalColumnDantzig::pivotColumn(CoinIndexedVector *updates,
 
       // the checking frequency is modified to reflect what appears to be needed
       if (iCurrent_ == iInterval_)
-        iInterval_ = std::max(50, iInterval_ - 50);
+        iInterval_ = CoinMax(50, iInterval_ - 50);
       else
-        iInterval_ = std::min(300, iInterval_ + 50);
+        iInterval_ = CoinMin(300, iInterval_ + 50);
 
       // reset all the indicators that are used to decide whether the compatible
       // variables must be updated
@@ -289,7 +289,7 @@ int ClpPEPrimalColumnDantzig::pivotColumn(CoinIndexedVector *updates,
     // check flagged variable
     if (!model_->flagged(iSequence)) {
       FloatT value = reducedCost[iSequence];
-      FloatT largestDj = std::max(psi_ * bestDj, bestDjComp);
+      FloatT largestDj = CoinMax(psi_ * bestDj, bestDjComp);
       ClpSimplex::Status status = model_->getStatus(iSequence);
 
       // we choose the nonbasic column whose reduced cost is either
@@ -307,7 +307,7 @@ int ClpPEPrimalColumnDantzig::pivotColumn(CoinIndexedVector *updates,
         // since these variables never leave basis once they're in
       case ClpSimplex::isFree:
       case ClpSimplex::superBasic:
-        value = fabs(value);
+        value = CoinAbs(value);
         if (checkCompatibles && modelPE_->isCompatibleCol(iSequence) && value > 0.1 * bestDjComp) {
           bestDjComp = 10.0 * value;
           bestSequenceComp = iSequence;

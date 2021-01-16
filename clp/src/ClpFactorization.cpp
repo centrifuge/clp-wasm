@@ -211,10 +211,10 @@ int ClpFactorization::factorize(ClpSimplex *model,
                                         FloatT lower = model->lowerRegion()[iPivot];
                                         FloatT upper = model->upperRegion()[iPivot];
                                         ClpSimplex::Status status;
-                                        if (fabs(value - lower) < tolerance) {
+                                        if (CoinAbs(value - lower) < tolerance) {
                                              status = ClpSimplex::atLowerBound;
                                              nAtBound++;
-                                        } else if (fabs(value - upper) < tolerance) {
+                                        } else if (CoinAbs(value - upper) < tolerance) {
                                              nAtBound++;
                                              status = ClpSimplex::atUpperBound;
                                         } else if (value > lower && value < upper) {
@@ -233,7 +233,7 @@ int ClpFactorization::factorize(ClpSimplex *model,
                                                   offset += dual * model->solutionRegion(0)[i];
                                              }
                                         }
-                                        if (fabs(dual) < 1.0e-5)
+                                        if (CoinAbs(dual) < 1.0e-5)
                                              nZeroDual++;
                                    }
                               }
@@ -616,7 +616,7 @@ int ClpFactorization::factorize(ClpSimplex *model,
               FloatT upper = columnUpper[iColumn];
               FloatT value = columnActivity[iColumn];
               if (lower > -largeValue || upper < largeValue) {
-                if (fabs(value - lower) < fabs(value - upper)) {
+                if (CoinAbs(value - lower) < CoinAbs(value - upper)) {
                   model->setColumnStatus(iColumn, ClpSimplex::atLowerBound);
                   columnActivity[iColumn] = lower;
                 } else {
@@ -1904,7 +1904,7 @@ scaledDense,scaledDense_2,scaledL,scaledR,scaledU\n");
               FloatT upper = columnUpper[iColumn];
               FloatT value = columnActivity[iColumn];
               if (lower > -largeValue || upper < largeValue) {
-                if (fabs(value - lower) < fabs(value - upper)) {
+                if (CoinAbs(value - lower) < CoinAbs(value - upper)) {
                   model->setColumnStatus(iColumn, ClpSimplex::atLowerBound);
                   columnActivity[iColumn] = lower;
                 } else {
@@ -1928,7 +1928,7 @@ scaledDense,scaledDense_2,scaledL,scaledR,scaledU\n");
               FloatT upper = columnUpper[iRow];
               FloatT value = columnActivity[iRow];
               if (lower > -largeValue || upper < largeValue) {
-                if (fabs(value - lower) < fabs(value - upper)) {
+                if (CoinAbs(value - lower) < CoinAbs(value - upper)) {
                   model->setRowStatus(iRow, ClpSimplex::atLowerBound);
                   columnActivity[iRow] = lower;
                 } else {
@@ -1981,13 +1981,13 @@ scaledDense,scaledDense_2,scaledL,scaledR,scaledU\n");
       int iSequence = pivotVariable[iPivot];
       model->unpack(&region2B, iSequence);
       coinFactorizationB_->updateColumn(&region1, &region2B);
-      if (fabs(arrayB[iPivot] - 1.0) < 1.0e-4) {
+      if (CoinAbs(arrayB[iPivot] - 1.0) < 1.0e-4) {
         // OK?
         arrayB[iPivot] = 0.0;
       } else {
-        assert(fabs(arrayB[iPivot]) < 1.0e-4);
+        assert(CoinAbs(arrayB[iPivot]) < 1.0e-4);
         for (i = 0; i < numberRows; i++) {
-          if (fabs(arrayB[i] - 1.0) < 1.0e-4)
+          if (CoinAbs(arrayB[i] - 1.0) < 1.0e-4)
             break;
         }
         assert(i < numberRows);
@@ -1995,7 +1995,7 @@ scaledDense,scaledDense_2,scaledL,scaledR,scaledU\n");
         arrayB[i] = 0.0;
       }
       for (i = 0; i < numberRows; i++)
-        assert(fabs(arrayB[i]) < 1.0e-4);
+        assert(CoinAbs(arrayB[i]) < 1.0e-4);
       region2B.clear();
     }
 #endif
@@ -2057,10 +2057,10 @@ scaledDense,scaledDense_2,scaledL,scaledR,scaledU\n");
                                         FloatT lower = model->lowerRegion()[iPivot];
                                         FloatT upper = model->upperRegion()[iPivot];
                                         ClpSimplex::Status status;
-                                        if (fabs(value - lower) < tolerance) {
+                                        if (CoinAbs(value - lower) < tolerance) {
                                              status = ClpSimplex::atLowerBound;
                                              nAtBound++;
-                                        } else if (fabs(value - upper) < tolerance) {
+                                        } else if (CoinAbs(value - upper) < tolerance) {
                                              nAtBound++;
                                              status = ClpSimplex::atUpperBound;
                                         } else if (value > lower && value < upper) {
@@ -2079,7 +2079,7 @@ scaledDense,scaledDense_2,scaledL,scaledR,scaledU\n");
                                                   offset += dual * model->solutionRegion(0)[i];
                                              }
                                         }
-                                        if (fabs(dual) < 1.0e-5)
+                                        if (CoinAbs(dual) < 1.0e-5)
                                              nZeroDual++;
                                    }
                               }
@@ -2464,7 +2464,7 @@ scaledDense,scaledDense_2,scaledL,scaledR,scaledU\n");
               FloatT upper = columnUpper[iColumn];
               FloatT value = columnActivity[iColumn];
               if (lower > -largeValue || upper < largeValue) {
-                if (fabs(value - lower) < fabs(value - upper)) {
+                if (CoinAbs(value - lower) < CoinAbs(value - upper)) {
                   model->setColumnStatus(iColumn, ClpSimplex::atLowerBound);
                   columnActivity[iColumn] = lower;
                 } else {
@@ -2669,10 +2669,10 @@ int ClpFactorization::replaceColumn(const ClpSimplex *model,
             iSequence = model->sequenceIn();
           model->unpack(&region2B, iSequence);
           coinFactorizationB_->updateColumn(&region1, &region2B);
-          assert(fabs(arrayB[iPivot] - 1.0) < 1.0e-4);
+          assert(CoinAbs(arrayB[iPivot] - 1.0) < 1.0e-4);
           arrayB[iPivot] = 0.0;
           for (i = 0; i < numberRows; i++)
-            assert(fabs(arrayB[i]) < 1.0e-4);
+            assert(CoinAbs(arrayB[i]) < 1.0e-4);
           region2B.clear();
         }
 #endif

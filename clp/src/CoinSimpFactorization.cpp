@@ -743,7 +743,7 @@ void CoinSimpFactorization::preProcess()
       int ind = UrowStarts_[iRow] + UrowLengths_[iRow];
       UrowInd_[ind] = column;
       Urows_[ind] = elements_[j];
-      //maxA_=CoinMax( maxA_, fabs(Urows_[ind]) );
+      //maxA_=CoinMax( maxA_, CoinAbs(Urows_[ind]) );
       ++UrowLengths_[iRow];
     }
   }
@@ -896,7 +896,7 @@ int CoinSimpFactorization::replaceColumn(CoinIndexedVector *,
     return 3;
 
   FloatT pivotValue = pivotCheck;
-  if (fabs(pivotValue) < zeroTolerance_)
+  if (CoinAbs(pivotValue) < zeroTolerance_)
     return 2;
   int realPivotRow = pivotRow_[pivotRow];
 
@@ -948,7 +948,7 @@ int CoinSimpFactorization::upColumn(CoinIndexedVector *regionSparse,
   if (!regionSparse2->packedMode()) {
     for (int i = 0; i < numberRows_; i++) {
       const FloatT value = solution[i];
-      if (fabs(value) > zeroTolerance_) {
+      if (CoinAbs(value) > zeroTolerance_) {
         region[i] = value;
         regionIndex[numberNonZero++] = i;
       } else
@@ -958,7 +958,7 @@ int CoinSimpFactorization::upColumn(CoinIndexedVector *regionSparse,
     memset(region, 0, numberRows_ * sizeof(FloatT));
     for (int i = 0; i < numberRows_; i++) {
       const FloatT value = solution[i];
-      if (fabs(value) > zeroTolerance_) {
+      if (CoinAbs(value) > zeroTolerance_) {
         region2[numberNonZero] = value;
         regionIndex[numberNonZero++] = i;
       }
@@ -1013,7 +1013,7 @@ int CoinSimpFactorization::updateTwoColumnsFT(CoinIndexedVector *regionSparse1,
     FloatT value;
     for (int i = 0; i < numberRows_; i++) {
       value = solution1[i];
-      if (fabs(value) > zeroTolerance_) {
+      if (CoinAbs(value) > zeroTolerance_) {
         vec1[i] = value;
         regionIndex2[numberNonZero2++] = i;
       } else
@@ -1024,7 +1024,7 @@ int CoinSimpFactorization::updateTwoColumnsFT(CoinIndexedVector *regionSparse1,
     for (int i = 0; i < numberRows_; i++) {
       vec1[i] = 0.0;
       value = solution1[i];
-      if (fabs(value) > zeroTolerance_) {
+      if (CoinAbs(value) > zeroTolerance_) {
         region2[numberNonZero2] = value;
         regionIndex2[numberNonZero2++] = i;
       }
@@ -1037,7 +1037,7 @@ int CoinSimpFactorization::updateTwoColumnsFT(CoinIndexedVector *regionSparse1,
     FloatT value;
     for (int i = 0; i < numberRows_; i++) {
       value = solution2[i];
-      if (fabs(value) > zeroTolerance_) {
+      if (CoinAbs(value) > zeroTolerance_) {
         vec2[i] = value;
         regionIndex3[numberNonZero3++] = i;
       } else
@@ -1047,7 +1047,7 @@ int CoinSimpFactorization::updateTwoColumnsFT(CoinIndexedVector *regionSparse1,
     FloatT value;
     for (int i = 0; i < numberRows_; i++) {
       value = solution2[i];
-      if (fabs(value) > zeroTolerance_) {
+      if (CoinAbs(value) > zeroTolerance_) {
         region3[numberNonZero3] = value;
         regionIndex3[numberNonZero3++] = i;
       }
@@ -1088,7 +1088,7 @@ int CoinSimpFactorization::upColumnTranspose(CoinIndexedVector *regionSparse,
     FloatT value;
     for (int i = 0; i < numberRows_; i++) {
       value = solution[i];
-      if (fabs(value) > zeroTolerance_) {
+      if (CoinAbs(value) > zeroTolerance_) {
         region[i] = value;
         regionIndex[numberNonZero++] = i;
       } else
@@ -1098,7 +1098,7 @@ int CoinSimpFactorization::upColumnTranspose(CoinIndexedVector *regionSparse,
     memset(region, 0, numberRows_ * sizeof(FloatT));
     for (int i = 0; i < numberRows_; i++) {
       const FloatT value = solution[i];
-      if (fabs(value) > zeroTolerance_) {
+      if (CoinAbs(value) > zeroTolerance_) {
         region2[numberNonZero] = value;
         regionIndex[numberNonZero++] = i;
       }
@@ -1266,7 +1266,7 @@ int CoinSimpFactorization::findPivotShCol(FactorPointers &pointers, int &r, int 
     const int row = UcolInd_[j];
     const int columnIndx = findInRow(row, column);
     assert(columnIndx != -1);
-    FloatT coeff = fabs(Urows_[columnIndx]);
+    FloatT coeff = CoinAbs(Urows_[columnIndx]);
     if (coeff < largest)
       continue;
     largest = coeff;
@@ -1290,7 +1290,7 @@ int CoinSimpFactorization::findPivotSimp(FactorPointers &, int &r, int &s)
     const int row = UcolInd_[j];
     const int columnIndx = findInRow(row, column);
     assert(columnIndx != -1);
-    FloatT coeff = fabs(Urows_[columnIndx]);
+    FloatT coeff = CoinAbs(Urows_[columnIndx]);
     if (coeff < largest)
       continue;
     largest = coeff;
@@ -1322,7 +1322,7 @@ int CoinSimpFactorization::findShortRow(const int column,
     int columnIndx = findInRow(row, column);
     assert(columnIndx != -1);
     FloatT coeff = Urows_[columnIndx];
-    if (fabs(coeff) < pivotTolerance_ * largestInRow)
+    if (CoinAbs(coeff) < pivotTolerance_ * largestInRow)
       continue;
     minRow = row;
     minRowLength = UrowLengths_[row];
@@ -1347,7 +1347,7 @@ int CoinSimpFactorization::findShortColumn(const int row,
     if (UcolLengths_[column] >= minColLength)
       continue;
     FloatT coeff = Urows_[i];
-    if (fabs(coeff) < pivotTolerance_ * largestInRow)
+    if (CoinAbs(coeff) < pivotTolerance_ * largestInRow)
       continue;
     minCol = column;
     minColLength = UcolLengths_[column];
@@ -1491,7 +1491,7 @@ void CoinSimpFactorization::updateCurrentRow(const int pivotRow,
     const int column = UrowInd_[i];
     if (colLabels[column]) {
       Urows_[i] -= multiplier * denseRow[column];
-      const FloatT absNewCoeff = fabs(Urows_[i]);
+      const FloatT absNewCoeff = CoinAbs(Urows_[i]);
       colLabels[column] = 0;
       --newNonZeros;
       if (absNewCoeff < zeroTolerance_) {
@@ -1526,7 +1526,7 @@ void CoinSimpFactorization::updateCurrentRow(const int pivotRow,
     const int column = UrowInd_[i];
     if (colLabels[column]) {
       const FloatT value = -multiplier * denseRow[column];
-      const FloatT absNewCoeff = fabs(value);
+      const FloatT absNewCoeff = CoinAbs(value);
       if (absNewCoeff >= zeroTolerance_) {
         const int newInd = UrowStarts_[row] + UrowLengths_[row];
         Urows_[newInd] = value;
@@ -1649,7 +1649,7 @@ FloatT CoinSimpFactorization::findMaxInRrow(const int row,
   const int rowBeg = UrowStarts_[row];
   const int rowEnd = rowBeg + UrowLengths_[row];
   for (int i = rowBeg; i < rowEnd; ++i) {
-    const FloatT absValue = fabs(Urows_[i]);
+    const FloatT absValue = CoinAbs(Urows_[i]);
     if (absValue > largest)
       largest = absValue;
   }
@@ -1741,7 +1741,7 @@ void CoinSimpFactorization::copyUbyColumns()
     int rowEnd = rowBeg + UrowLengths_[row];
     for (int j = rowBeg; j < rowEnd; ++j) {
       // remove els close to zero
-      while (fabs(Urows_[j]) < zeroTolerance_) {
+      while (CoinAbs(Urows_[j]) < zeroTolerance_) {
         --UrowLengths_[row];
         --rowEnd;
         if (j < rowEnd) {
@@ -2045,7 +2045,7 @@ void CoinSimpFactorization::Lxeqb(FloatT *b) const
     k = rowOfU_[j];
     xk = rhs[k];
     if (xk != 0.0) {
-      //if ( fabs(xk)>zeroTolerance_ ) {
+      //if ( CoinAbs(xk)>zeroTolerance_ ) {
       colBeg = LcolStarts_[k];
       ind = LcolInd_ + colBeg;
       indEnd = ind + LcolLengths_[k];
@@ -2134,7 +2134,7 @@ void CoinSimpFactorization::Uxeqb(FloatT *b, FloatT *sol) const
     x = rhs[row];
     column = colOfU_[k];
     if (x != 0.0) {
-      //if ( fabs(x) > zeroTolerance_ ) {
+      //if ( CoinAbs(x) > zeroTolerance_ ) {
       x *= invOfPivots_[row];
       colBeg = UcolStarts_[column];
       ind = UcolInd_ + colBeg;
@@ -2288,7 +2288,7 @@ void CoinSimpFactorization::xUeqb(FloatT *b, FloatT *sol) const
     col = colOfU_[k];
     xr = rhs[col];
     if (xr != 0.0) {
-      //if ( fabs(xr)> zeroTolerance_ ) {
+      //if ( CoinAbs(xr)> zeroTolerance_ ) {
       xr = -xr;
       rowBeg = UrowStarts_[row];
       ind = UrowInd_ + rowBeg;
@@ -2307,7 +2307,7 @@ void CoinSimpFactorization::xUeqb(FloatT *b, FloatT *sol) const
     col = colOfU_[k];
     xr = rhs[col];
     if (xr != 0.0) {
-      //if ( fabs(xr)> zeroTolerance_ ) {
+      //if ( CoinAbs(xr)> zeroTolerance_ ) {
       xr *= invOfPivots_[row];
       rowBeg = UrowStarts_[row];
       ind = UrowInd_ + rowBeg;
@@ -2375,7 +2375,7 @@ int CoinSimpFactorization::LUupdate(int newBasicCol)
   // now add new column to U
   int lastRowInU = -1;
   for (int i = 0; i < sizeNewColumn; ++i) {
-    //if ( fabs(newColumn[i]) < zeroTolerance_ ) continue;
+    //if ( CoinAbs(newColumn[i]) < zeroTolerance_ ) continue;
     const int row = indNewColumn[i];
     // add to row
 #ifdef COIN_SIMP_CAPACITY
@@ -2487,7 +2487,7 @@ int CoinSimpFactorization::LUupdate(int newBasicCol)
     const int column = colOfU_[i];
     const FloatT coeff = denseVector_[column];
     denseVector_[column] = 0.0;
-    if (fabs(coeff) < zeroTolerance_)
+    if (CoinAbs(coeff) < zeroTolerance_)
       continue;
 #ifdef COIN_SIMP_CAPACITY
     if (UcolLengths_[column] + 1 > UcolCapacities_[column]) {
@@ -2510,7 +2510,7 @@ int CoinSimpFactorization::LUupdate(int newBasicCol)
   memcpy(&UrowInd_[startRow], &indVector_[0], newEls * sizeof(int));
   UrowLengths_[rowInU] = newEls;
   //
-  if (fabs(invOfPivots_[rowInU]) > updateTol_)
+  if (CoinAbs(invOfPivots_[rowInU]) > updateTol_)
     return 2;
 
   return 0;
@@ -2620,7 +2620,7 @@ void CoinSimpFactorization::xHeqb(FloatT *b) const
     xr = rhs[row];
     if (xr == 0.0)
       continue;
-    //if ( fabs(xr) <= zeroTolerance_ ) continue;
+    //if ( CoinAbs(xr) <= zeroTolerance_ ) continue;
     rowBeg = EtaStarts_[k];
     ind = EtaInd_ + rowBeg;
     indEnd = ind + EtaLengths_[k];
@@ -2640,7 +2640,7 @@ void CoinSimpFactorization::ftran(FloatT *b, FloatT *sol, bool save) const
     // keep vector
     keepSize_ = 0;
     for (int i = 0; i < numberRows_; ++i) {
-      if (fabs(b[i]) < zeroTolerance_)
+      if (CoinAbs(b[i]) < zeroTolerance_)
         continue;
       vecKeep_[keepSize_] = b[i];
       indKeep_[keepSize_++] = i;
@@ -2656,7 +2656,7 @@ void CoinSimpFactorization::ftran2(FloatT *b1, FloatT *sol1, FloatT *b2, FloatT 
   // keep vector
   keepSize_ = 0;
   for (int i = 0; i < numberRows_; ++i) {
-    if (fabs(b1[i]) < zeroTolerance_)
+    if (CoinAbs(b1[i]) < zeroTolerance_)
       continue;
     vecKeep_[keepSize_] = b1[i];
     indKeep_[keepSize_++] = i;

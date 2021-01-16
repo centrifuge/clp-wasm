@@ -45,7 +45,7 @@ int check_row(CoinBigIndex *mrstrt,
       nFill++;
     }
     // kill small
-    if (fabs(newcoeff) < tolerance) {
+    if (CoinAbs(newcoeff) < tolerance) {
       if (newcoeff > 0.1 * tolerance)
         numberBadElements++;
       nFill--;
@@ -267,7 +267,7 @@ const CoinPresolveAction *implied_free_action::presolve(
 #ifdef USE_SMALL_LARGE
   const FloatT large = 1.0e10;
 #else
-  const FloatT large = 1.0e20;
+  const FloatT large = TOO_BIG_FLOAT;
 #endif
 
   /*
@@ -335,7 +335,7 @@ const CoinPresolveAction *implied_free_action::presolve(
     if (singletonCol) {
       const int i = rowIndices[kcs];
       singletonRow = (rowLengths[i] == 1);
-      possibleRow = (fabs(colCoeffs[kcs]) > ZTOLDP2);
+      possibleRow = (CoinAbs(colCoeffs[kcs]) > ZTOLDP2);
     } else {
 
       /*
@@ -350,9 +350,9 @@ const CoinPresolveAction *implied_free_action::presolve(
           singletonRow = true;
           break;
         }
-        const FloatT abs_ait = fabs(colCoeffs[kcol]);
+        const FloatT abs_ait = CoinAbs(colCoeffs[kcol]);
         ait_max = CoinMax(ait_max, abs_ait);
-        if (fabs(rlo[i] - rup[i]) < feasTol && abs_ait > .1 * ait_max) {
+        if (CoinAbs(rlo[i] - rup[i]) < feasTol && abs_ait > .1 * ait_max) {
           possibleRow = true;
         }
       }
@@ -403,8 +403,8 @@ const CoinPresolveAction *implied_free_action::presolve(
     * if x(t) is integer, the constant term in the substitution formula must be
       integer.
 */
-      bool rowiOK = (fabs(rloi - rupi) < feasTol) && (fabs(ait) > .1 * ait_max);
-      rowiOK = rowiOK && ((integerType[tgtcol] == 0) || (fabs((rloi / ait) - floor((rloi / ait) + 0.5)) < feasTol));
+      bool rowiOK = (CoinAbs(rloi - rupi) < feasTol) && (CoinAbs(ait) > .1 * ait_max);
+      rowiOK = rowiOK && ((integerType[tgtcol] == 0) || (CoinAbs((rloi / ait) - floor((rloi / ait) + 0.5)) < feasTol));
       /*
   If we don't already have L(i) and U(i), calculate now. Check for useless and
   infeasible constraints when that's done.
@@ -516,12 +516,12 @@ const CoinPresolveAction *implied_free_action::presolve(
           if (!infUi) {
             assert(ut < large);
             ltprime = ut + (rloi - maxUi) / ait;
-            if (fabs(maxUi) > 1.0e8 && !singletonCol)
-              ltprime -= 1.0e-12 * fabs(maxUi);
+            if (CoinAbs(maxUi) > 1.0e8 && !singletonCol)
+              ltprime -= 1.0e-12 * CoinAbs(maxUi);
           } else if (infUi == 1 && ut > large) {
             ltprime = (rloi - maxUi) / ait;
-            if (fabs(maxUi) > 1.0e8 && !singletonCol)
-              ltprime -= 1.0e-12 * fabs(maxUi);
+            if (CoinAbs(maxUi) > 1.0e8 && !singletonCol)
+              ltprime -= 1.0e-12 * CoinAbs(maxUi);
           } else {
             ltprime = -COIN_DBL_MAX;
           }
@@ -531,12 +531,12 @@ const CoinPresolveAction *implied_free_action::presolve(
           if (!infLi) {
             assert(lt > -large);
             utprime = lt + (rupi - maxLi) / ait;
-            if (fabs(maxLi) > 1.0e8 && !singletonCol)
-              utprime += 1.0e-12 * fabs(maxLi);
+            if (CoinAbs(maxLi) > 1.0e8 && !singletonCol)
+              utprime += 1.0e-12 * CoinAbs(maxLi);
           } else if (infLi == 1 && lt < -large) {
             utprime = (rupi - maxLi) / ait;
-            if (fabs(maxLi) > 1.0e8 && !singletonCol)
-              utprime += 1.0e-12 * fabs(maxLi);
+            if (CoinAbs(maxLi) > 1.0e8 && !singletonCol)
+              utprime += 1.0e-12 * CoinAbs(maxLi);
           } else {
             utprime = COIN_DBL_MAX;
           }
@@ -547,12 +547,12 @@ const CoinPresolveAction *implied_free_action::presolve(
           if (!infUi) {
             assert(lt > -large);
             utprime = lt + (rloi - maxUi) / ait;
-            if (fabs(maxUi) > 1.0e8 && !singletonCol)
-              utprime += 1.0e-12 * fabs(maxUi);
+            if (CoinAbs(maxUi) > 1.0e8 && !singletonCol)
+              utprime += 1.0e-12 * CoinAbs(maxUi);
           } else if (infUi == 1 && lt < -large) {
             utprime = (rloi - maxUi) / ait;
-            if (fabs(maxUi) > 1.0e8 && !singletonCol)
-              utprime += 1.0e-12 * fabs(maxUi);
+            if (CoinAbs(maxUi) > 1.0e8 && !singletonCol)
+              utprime += 1.0e-12 * CoinAbs(maxUi);
           } else {
             utprime = COIN_DBL_MAX;
           }
@@ -562,12 +562,12 @@ const CoinPresolveAction *implied_free_action::presolve(
           if (!infLi) {
             assert(ut < large);
             ltprime = ut + (rupi - maxLi) / ait;
-            if (fabs(maxLi) > 1.0e8 && !singletonCol)
-              ltprime -= 1.0e-12 * fabs(maxLi);
+            if (CoinAbs(maxLi) > 1.0e8 && !singletonCol)
+              ltprime -= 1.0e-12 * CoinAbs(maxLi);
           } else if (infLi == 1 && ut > large) {
             ltprime = (rupi - maxLi) / ait;
-            if (fabs(maxLi) > 1.0e8 && !singletonCol)
-              ltprime -= 1.0e-12 * fabs(maxLi);
+            if (CoinAbs(maxLi) > 1.0e8 && !singletonCol)
+              ltprime -= 1.0e-12 * CoinAbs(maxLi);
           } else {
             ltprime = -COIN_DBL_MAX;
           }
@@ -599,9 +599,9 @@ const CoinPresolveAction *implied_free_action::presolve(
         for (CoinBigIndex krow = krs; krow < kre; ++krow) {
           const int j = colIndices[krow];
           const FloatT scaled_aij = rowCoeffs[krow] / ait;
-          if (fabs(scaled_aij) != 1.0)
+          if (CoinAbs(scaled_aij) != 1.0)
             allOnes = false;
-          if (!integerType[j] || fabs(scaled_aij - floor(scaled_aij + 0.5)) > feasTol) {
+          if (!integerType[j] || CoinAbs(scaled_aij - floor(scaled_aij + 0.5)) > feasTol) {
             possibleRow = false;
             break;
           }
@@ -703,8 +703,8 @@ const CoinPresolveAction *implied_free_action::presolve(
         if (j != tgtcol) {
           FloatT oldCost = cost[j];
           FloatT newCost = oldCost - (tgtcol_cost * rowCoeffs[krow]) / tgtcol_coeff;
-          oldCost = fabs(oldCost);
-          newCost = fabs(newCost);
+          oldCost = CoinAbs(oldCost);
+          newCost = CoinAbs(newCost);
           //minOldCost=CoinMin(minOldCost,oldCost);
           maxOldCost = CoinMax(maxOldCost, oldCost);
           //minNewCost=CoinMin(minNewCost,newCost);
@@ -753,7 +753,7 @@ const CoinPresolveAction *implied_free_action::presolve(
 */
     if (tgtcol_cost != 0.0) {
       FloatT tgtrow_rhs = rup[tgtrow];
-      if (fabs(rlo[tgtrow] - rup[tgtrow]) > feasTol) {
+      if (CoinAbs(rlo[tgtrow] - rup[tgtrow]) > feasTol) {
         const FloatT rlot = rlo[tgtrow];
         const FloatT rupt = rup[tgtrow];
         if (rlot > -COIN_DBL_MAX && rupt < COIN_DBL_MAX) {
@@ -765,7 +765,7 @@ const CoinPresolveAction *implied_free_action::presolve(
           tgtrow_rhs = rlot;
         }
       }
-      assert(fabs(tgtrow_rhs) <= large);
+      assert(CoinAbs(tgtrow_rhs) <= large);
       FloatT *save_costs = new FloatT[tgtrow_len];
 
       for (CoinBigIndex krow = krs; krow < kre; krow++) {
@@ -901,7 +901,7 @@ const CoinPresolveAction *implied_free_action::presolve(
             break;
           }
           const FloatT aij = colCoeffs[kcol];
-          if (fabs(aij) <= ZTOLDP2) {
+          if (CoinAbs(aij) <= ZTOLDP2) {
             dealBreaker = true;
             break;
           }
@@ -923,7 +923,7 @@ const CoinPresolveAction *implied_free_action::presolve(
 	*/
         dealBreaker = false;
         for (CoinBigIndex kcol = tgtcs; kcol < tgtce; ++kcol) {
-          const FloatT coeff_factor = fabs(colCoeffs[kcol] / tgtcoeff);
+          const FloatT coeff_factor = CoinAbs(colCoeffs[kcol] / tgtcoeff);
           if (coeff_factor > 10.0)
             dealBreaker = true;
         }
@@ -1137,7 +1137,7 @@ void implied_free_action::postsolve(CoinPostsolveMatrix *prob) const
   /*
   And a suitably small infinity.
 */
-  const FloatT large = 1.0e20;
+  const FloatT large = TOO_BIG_FLOAT;
   /*
   Open a loop to restore the row and column for each action. Start by
   unpacking the action. There won't be saved costs if the original cost c(t)
@@ -1197,7 +1197,7 @@ void implied_free_action::postsolve(CoinPostsolveMatrix *prob) const
     rlo[tgtrow] = f->rlo;
     rup[tgtrow] = f->rup;
 
-    PRESOLVEASSERT(fabs(tgt_coeff) > ZTOLDP);
+    PRESOLVEASSERT(CoinAbs(tgt_coeff) > ZTOLDP);
 #if PRESOLVE_DEBUG > 0 || PRESOLVE_CONSISTENCY > 0
     cdone[tgtcol] = IMPLIED_FREE;
     rdone[tgtrow] = IMPLIED_FREE;
@@ -1336,10 +1336,10 @@ void implied_free_action::postsolve(CoinPostsolveMatrix *prob) const
         dj -= rowduals[i] * aij;
         kcol = link[kcol];
       }
-      if (fabs(dj - rcosts[j]) > 1.0e-3) {
+      if (CoinAbs(dj - rcosts[j]) > 1.0e-3) {
         std::cout
           << "  cbar(" << j << ") update " << rcosts[j]
-          << " expected " << dj << " err " << fabs(dj - rcosts[j])
+          << " expected " << dj << " err " << CoinAbs(dj - rcosts[j])
           << "." << std::endl;
       }
     }

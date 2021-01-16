@@ -211,8 +211,8 @@ inline void pdxxxresid2(FloatT mu, int nlow, int nupp, int *low, int *upp,
   // Cinf  is the complementarity residual for X1 z1 = mu e, etc.
   // Cinf0 is the same for mu=0 (i.e., for the original problem).
 
-  FloatT maxXz = -1e20;
-  FloatT minXz = 1e20;
+  FloatT maxXz = TOO_SMALL_FLOAT;
+  FloatT minXz = TOO_BIG_FLOAT;
 
   FloatT *x1_elts = x1.getElements();
   FloatT *z1_elts = z1.getElements();

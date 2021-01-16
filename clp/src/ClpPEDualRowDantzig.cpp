@@ -93,8 +93,8 @@ int ClpPEDualRowDantzig::pivotRow()
 */
   // store the number of degenerate pivots on compatible variables and the
   // overal number of degenerate pivots
-  FloatT progress = fabs(modelPE_->lastObjectiveValue() - model_->objectiveValue());
-  bool isLastDegenerate = progress <= 1.0e-12 * fabs(model_->objectiveValue()) ? true : false;
+  FloatT progress = CoinAbs(modelPE_->lastObjectiveValue() - model_->objectiveValue());
+  bool isLastDegenerate = progress <= 1.0e-12 * CoinAbs(model_->objectiveValue()) ? true : false;
   if (isLastDegenerate) {
     modelPE_->addDegeneratePivot();
     modelPE_->addDegeneratePivotConsecutive();
@@ -160,9 +160,9 @@ int ClpPEDualRowDantzig::pivotRow()
 
       // the checking frequency is modified to reflect what appears to be needed
       if (iCurrent_ == iInterval_)
-        iInterval_ = std::max(50, iInterval_ - 50);
+        iInterval_ = CoinMax(50, iInterval_ - 50);
       else
-        iInterval_ = std::min(300, iInterval_ + 50);
+        iInterval_ = CoinMin(300, iInterval_ + 50);
 
       // reset all the indicators that are used to decide whether the compatible
       // variables must be updated
@@ -215,7 +215,7 @@ int ClpPEDualRowDantzig::pivotRow()
   // the percentage of compatible variables is computed as the ratio to the
   // smallest number among columns and rows
   bool checkCompatibles = true;
-  FloatT ratioCompatibles = static_cast< FloatT >(modelPE_->coCompatibleRows()) / static_cast< FloatT >(std::min(model_->numberRows(), model_->numberColumns()));
+  FloatT ratioCompatibles = static_cast< FloatT >(modelPE_->coCompatibleRows()) / static_cast< FloatT >(CoinMin(model_->numberRows(), model_->numberColumns()));
 
   if (psi_ >= 1.0 || ratioCompatibles < 0.01)
     checkCompatibles = false;
@@ -227,7 +227,7 @@ int ClpPEDualRowDantzig::pivotRow()
     FloatT lower = model_->lower(iSequence);
     FloatT upper = model_->upper(iSequence);
     FloatT infeas = CoinMax(value - upper, lower - value);
-    FloatT largestMax = std::max(psi_ * largest, largestComp);
+    FloatT largestMax = CoinMax(psi_ * largest, largestComp);
     if (infeas > tolerance) {
 #ifdef CLP_DUAL_COLUMN_MULTIPLIER
       if (iSequence < numberColumns)

@@ -128,14 +128,14 @@ slack_FloatTton_action::presolve(CoinPresolveMatrix *prob,
     FloatT aij = rowels[mrstrt[i]];
     FloatT lo = rlo[i];
     FloatT up = rup[i];
-    FloatT abs_aij = fabs(aij);
+    FloatT abs_aij = CoinAbs(aij);
     /*
   A tiny value of a(ij) invites numerical error, since the new bound will be
   (something)/a(ij). Columns that are already fixed are also uninteresting.
 */
     if (abs_aij < ZTOLDP2)
       continue;
-    if (fabs(cup[j] - clo[j]) < ztolzb)
+    if (CoinAbs(cup[j] - clo[j]) < ztolzb)
       continue;
 
     PRESOLVE_DETAIL_PRINT(printf("pre_singleton %dC %dR E\n", j, i));
@@ -204,7 +204,7 @@ slack_FloatTton_action::presolve(CoinPresolveMatrix *prob,
     if (clo[j] < lo && lo > -1.0e100) {
       // If integer be careful
       if (integerType[j]) {
-        if (fabs(lo - floor(lo + 0.5)) < 0.000001)
+        if (CoinAbs(lo - floor(lo + 0.5)) < 0.000001)
           lo = floor(lo + 0.5);
         if (clo[j] < lo)
           clo[j] = lo;
@@ -214,7 +214,7 @@ slack_FloatTton_action::presolve(CoinPresolveMatrix *prob,
     }
     if (cup[j] > up && up < 1.0e100) {
       if (integerType[j]) {
-        if (fabs(up - floor(up + 0.5)) < 0.000001)
+        if (CoinAbs(up - floor(up + 0.5)) < 0.000001)
           up = floor(up + 0.5);
         if (cup[j] > up)
           cup[j] = up;
@@ -225,7 +225,7 @@ slack_FloatTton_action::presolve(CoinPresolveMatrix *prob,
     /*
   Is x(j) now fixed? Remember it for later.
 */
-    if (fabs(cup[j] - clo[j]) < ZTOLDP) {
+    if (CoinAbs(cup[j] - clo[j]) < ZTOLDP) {
       fixed_cols[nfixed_cols++] = j;
     }
     /*
@@ -239,7 +239,7 @@ slack_FloatTton_action::presolve(CoinPresolveMatrix *prob,
     if (lo > up) {
       if (lo <= up + prob->feasibilityTolerance_ || fixInfeasibility) {
         FloatT nearest = floor(lo + 0.5);
-        if (fabs(nearest - lo) < 2.0 * prob->feasibilityTolerance_) {
+        if (CoinAbs(nearest - lo) < 2.0 * prob->feasibilityTolerance_) {
           lo = nearest;
           up = nearest;
         } else {
@@ -458,14 +458,14 @@ void slack_FloatTton_action::postsolve(CoinPostsolveMatrix *prob) const
 	*/
         prob->setRowStatus(irow, CoinPrePostsolveMatrix::basic);
         rowduals[irow] = 0.0;
-      } else if ((fabs(sol[jcol] - lo0) <= ztolzb && rcosts[jcol] >= 0) || (fabs(sol[jcol] - up0) <= ztolzb && rcosts[jcol] <= 0)) {
+      } else if ((CoinAbs(sol[jcol] - lo0) <= ztolzb && rcosts[jcol] >= 0) || (CoinAbs(sol[jcol] - up0) <= ztolzb && rcosts[jcol] <= 0)) {
         /*
 	  The variable is nonbasic and the sign of the reduced cost is correct
 	  for the bound. Again, the slack will be basic and the dual zero.
 	*/
         prob->setRowStatus(irow, CoinPrePostsolveMatrix::basic);
         rowduals[irow] = 0.0;
-      } else if (!(fabs(sol[jcol] - lo0) <= ztolzb) && !(fabs(sol[jcol] - up0) <= ztolzb)) {
+      } else if (!(CoinAbs(sol[jcol] - lo0) <= ztolzb) && !(CoinAbs(sol[jcol] - up0) <= ztolzb)) {
         /*
 	  The variable was not basic but transferring bounds back to the
 	  constraint has relaxed the column bounds. The variable will need to
@@ -577,11 +577,11 @@ slack_singleton_action::presolve(CoinPresolveMatrix *prob,
     if (hincol[iCol] == 1) {
       int iRow = hrow[mcstrt[iCol]];
       FloatT coeff = colels[mcstrt[iCol]];
-      FloatT acoeff = fabs(coeff);
+      FloatT acoeff = CoinAbs(coeff);
       if (acoeff < ZTOLDP2)
         continue;
       // don't bother with fixed cols
-      if (fabs(cup[iCol] - clo[iCol]) < ztolzb)
+      if (CoinAbs(cup[iCol] - clo[iCol]) < ztolzb)
         continue;
       if (integerType && integerType[iCol]) {
         // only possible if everything else integer and unit coefficient
@@ -596,7 +596,7 @@ slack_singleton_action::presolve(CoinPresolveMatrix *prob,
           for (CoinBigIndex j = mrstrt[iRow];
                j < mrstrt[iRow] + hinrow[iRow]; j++) {
             int iColumn = hcol[j];
-            FloatT value = fabs(rowels[j]);
+            FloatT value = CoinAbs(rowels[j]);
             if (!integerType[iColumn] || value != 1.0) {
               allInt = false;
               break;
@@ -618,33 +618,33 @@ slack_singleton_action::presolve(CoinPresolveMatrix *prob,
         FloatT newLower = currentLower;
         FloatT newUpper = currentUpper;
         if (coeff < 0.0) {
-          if (currentUpper > 1.0e20 || cup[iCol] > 1.0e20) {
+          if (currentUpper > TOO_BIG_FLOAT || cup[iCol] > TOO_BIG_FLOAT) {
             newUpper = COIN_DBL_MAX;
           } else {
             newUpper -= coeff * cup[iCol];
-            if (newUpper > 1.0e20)
+            if (newUpper > TOO_BIG_FLOAT)
               newUpper = COIN_DBL_MAX;
           }
-          if (currentLower < -1.0e20 || clo[iCol] < -1.0e20) {
+          if (currentLower < TOO_SMALL_FLOAT || clo[iCol] < TOO_SMALL_FLOAT) {
             newLower = -COIN_DBL_MAX;
           } else {
             newLower -= coeff * clo[iCol];
-            if (newLower < -1.0e20)
+            if (newLower < TOO_SMALL_FLOAT)
               newLower = -COIN_DBL_MAX;
           }
         } else {
-          if (currentUpper > 1.0e20 || clo[iCol] < -1.0e20) {
+          if (currentUpper > TOO_BIG_FLOAT || clo[iCol] < TOO_SMALL_FLOAT) {
             newUpper = COIN_DBL_MAX;
           } else {
             newUpper -= coeff * clo[iCol];
-            if (newUpper > 1.0e20)
+            if (newUpper > TOO_BIG_FLOAT)
               newUpper = COIN_DBL_MAX;
           }
-          if (currentLower < -1.0e20 || cup[iCol] > 1.0e20) {
+          if (currentLower < TOO_SMALL_FLOAT || cup[iCol] > TOO_BIG_FLOAT) {
             newLower = -COIN_DBL_MAX;
           } else {
             newLower -= coeff * cup[iCol];
-            if (newLower < -1.0e20)
+            if (newLower < TOO_SMALL_FLOAT)
               newLower = -COIN_DBL_MAX;
           }
         }
@@ -662,7 +662,7 @@ slack_singleton_action::presolve(CoinPresolveMatrix *prob,
           for (CoinBigIndex j = mrstrt[iRow];
                j < mrstrt[iRow] + hinrow[iRow]; j++) {
             int iColumn = hcol[j];
-            FloatT value = fabs(rowels[j]);
+            FloatT value = CoinAbs(rowels[j]);
             if (!integerType[iColumn] || value != floor(value + 0.5)) {
               allInt = false;
               break;
@@ -727,7 +727,7 @@ slack_singleton_action::presolve(CoinPresolveMatrix *prob,
         }
         if (sol) {
           FloatT movement;
-          if (fabs(sol[iCol] - clo[iCol]) < fabs(sol[iCol] - cup[iCol])) {
+          if (CoinAbs(sol[iCol] - clo[iCol]) < CoinAbs(sol[iCol] - cup[iCol])) {
             movement = clo[iCol] - sol[iCol];
             sol[iCol] = clo[iCol];
           } else {
@@ -925,9 +925,9 @@ void slack_singleton_action::postsolve(CoinPostsolveMatrix *prob) const
       // adjust for coefficient
       cost -= rowduals[iRow] * coeff;
       bool basic = true;
-      if (fabs(sol[iCol] - cup[iCol]) < ztolzb && cost < -1.0e-6)
+      if (CoinAbs(sol[iCol] - cup[iCol]) < ztolzb && cost < -1.0e-6)
         basic = false;
-      else if (fabs(sol[iCol] - clo[iCol]) < ztolzb && cost > 1.0e-6)
+      else if (CoinAbs(sol[iCol] - clo[iCol]) < ztolzb && cost > 1.0e-6)
         basic = false;
       //printf("Singleton %d had coeff of %g in row %d (dual %g) - bounds %g %g - cost %g, (dj %g)\n",
       //     iCol,coeff,iRow,rowduals[iRow],clo[iCol],cup[iCol],dcost[iCol],rcosts[iCol]) ;
@@ -947,7 +947,7 @@ void slack_singleton_action::postsolve(CoinPostsolveMatrix *prob) const
 #endif
         basic = false;
       }
-      if (fabs(rowduals[iRow]) > 1.0e-6 && prob->rowIsBasic(iRow))
+      if (CoinAbs(rowduals[iRow]) > 1.0e-6 && prob->rowIsBasic(iRow))
         basic = true;
       if (basic) {
         // Make basic have zero reduced cost

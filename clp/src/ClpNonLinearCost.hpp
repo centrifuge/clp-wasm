@@ -267,7 +267,7 @@ public:
 #ifdef NONLIN_DEBUG
       assert(saveRhs1 == rhs);
 #endif
-      returnValue = fabs(alpha) * infeasibilityWeight_;
+      returnValue = CoinAbs(alpha) * infeasibilityWeight_;
     }
     return returnValue;
   }

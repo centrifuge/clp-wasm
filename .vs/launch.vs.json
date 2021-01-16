@@ -8,7 +8,7 @@
       "projectTarget": "solver.exe",
       "name": "solver.exe",
       "currentDir": "${projectDir}",
-      "args": [ "problems/tinlake-test.problem" ]
+      "args": [ "problems/tinlake-real.problem" ]
     },
     {
       "type": "default",

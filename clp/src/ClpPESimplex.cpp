@@ -259,7 +259,7 @@ void ClpPESimplex::updatePrimalDegenerates()
 {
 
   coPrimalDegenerates_ = 0;
-  epsDegeneracy_ = 1.0e-04; //std::min(1.0e-2, 1.0e-7*CoinAbs(model_->objectiveValue()));
+  epsDegeneracy_ = 1.0e-04; //CoinMin(1.0e-2, 1.0e-7*CoinAbs(model_->objectiveValue()));
   std::fill(isPrimalDegenerate_, isPrimalDegenerate_ + numberRows_ + numberColumns_, false);
   int *pivotVariable = model_->pivotVariable();
 
@@ -293,14 +293,14 @@ void ClpPESimplex::updateDualDegenerates()
 
   // The dual degenerate variables are the nonbasic variables with a zero reduced costs
   // An epsDegeneracy_ tolerance is used to detect zero reduced costs
-  epsDegeneracy_ = 1.0e-04; //std::min(1.0e-2, 1.0e-7*CoinAbs(model_->objectiveValue()));
+  epsDegeneracy_ = 1.0e-04; //CoinMin(1.0e-2, 1.0e-7*CoinAbs(model_->objectiveValue()));
   FloatT maxDegen = 0.0;
   for (int i = 0; i < numberColumns_ + numberRows_; i++) {
 
     if (model_->getStatus(i) != ClpSimplex::basic && CoinAbs(model_->reducedCost(i)) <= epsDegeneracy_) {
       dualDegenerates_[coDualDegenerates_++] = i;
       isDualDegenerate_[i] = true;
-      maxDegen = std::max(maxDegen, CoinAbs(model_->reducedCost(i)));
+      maxDegen = CoinMax(maxDegen, CoinAbs(model_->reducedCost(i)));
     }
   }
   coUpdateDegenerates_++;
@@ -553,7 +553,7 @@ void ClpPESimplex::updatePrimalDegeneratesAvg(int coPivots)
 {
   int totalPivots = model_->numberIterations() + 1;
   FloatT fracPivots = static_cast< FloatT >(coPivots) / totalPivots;
-  coPrimalDegeneratesAvg_ = floor((1.0 - fracPivots) * (coPrimalDegeneratesAvg_ + fracPivots * coPrimalDegenerates_));
+  coPrimalDegeneratesAvg_ = floor(fd((1.0 - fracPivots) * (coPrimalDegeneratesAvg_ + fracPivots * coPrimalDegenerates_)));
 }
 
 /* Update the average number of dual degenerate columns 
@@ -564,7 +564,7 @@ void ClpPESimplex::updateDualDegeneratesAvg(int coPivots)
 {
   int totalPivots = model_->numberIterations() + 1;
   FloatT fracPivots = static_cast< FloatT >(coPivots) / totalPivots;
-  coDualDegeneratesAvg_ = floor((1.0 - fracPivots) * coDualDegeneratesAvg_ + fracPivots * coDualDegenerates_);
+  coDualDegeneratesAvg_ = floor(fd((1.0 - fracPivots) * coDualDegeneratesAvg_ + fracPivots * coDualDegenerates_));
 }
 
 /* Update the average number of compatible columns.
@@ -574,7 +574,7 @@ void ClpPESimplex::updateCompatibleColsAvg(int coPivots)
 {
   int totalPivots = model_->numberIterations() + 1;
   FloatT fracPivots = static_cast< FloatT >(coPivots) / totalPivots;
-  coCompatibleColsAvg_ = floor((1.0 - fracPivots) * coCompatibleColsAvg_ + fracPivots * (coCompatibleCols_ /*-(numberRows_-coPrimalDegenerates_)*/));
+  coCompatibleColsAvg_ = floor(fd((1.0 - fracPivots) * coCompatibleColsAvg_ + fracPivots * (coCompatibleCols_ /*-(numberRows_-coPrimalDegenerates_)*/)));
 }
 
 /* Update the average number of compatible rows.
@@ -584,7 +584,7 @@ void ClpPESimplex::updateCompatibleRowsAvg(int coPivots)
 {
   int totalPivots = model_->numberIterations() + 1;
   FloatT fracPivots = static_cast< FloatT >(coPivots) / totalPivots;
-  coCompatibleRowsAvg_ = floor((1.0 - fracPivots) * coCompatibleRowsAvg_ + fracPivots * coCompatibleRows_);
+  coCompatibleRowsAvg_ = floor(fd((1.0 - fracPivots) * coCompatibleRowsAvg_ + fracPivots * coCompatibleRows_));
 }
 
 /** DEBUG METHODS */

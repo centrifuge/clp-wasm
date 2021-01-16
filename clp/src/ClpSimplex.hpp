@@ -1986,8 +1986,8 @@ protected:
 void ClpSimplexUnitTest(const std::string &mpsDir);
 
 // For Devex stuff
-#define DEVEX_TRY_NORM 1.0e-4
-#define DEVEX_ADD_ONE 1.0
+#define DEVEX_TRY_NORM ((FloatT)(1.0e-4))
+#define DEVEX_ADD_ONE ((FloatT)(1.0))
 #if defined(ABC_INHERIT) || defined(CBC_THREAD) || defined(THREADS_IN_ANALYZE)
 // Use pthreads
 #include <pthread.h>

@@ -383,7 +383,7 @@ void clp_free(void *oldArray);
           jj = maction[j];
           maction[j] = static_cast< MACTION_T >(-maction[j]);
           dluval[knprs] += multip * dvalpv[jj];
-          d1 = fabs(dluval[knprs]);
+          d1 = CoinAbs(dluval[knprs]);
         }
       }
       j2 = hcoli[nres + 1];
@@ -396,7 +396,7 @@ void clp_free(void *oldArray);
           maction[j1] = static_cast< MACTION_T >(-maction[j1]);
           dluval[kr] += multip * dvalpv[jj1];
           cancel = cancel || !(fact->zeroTolerance < d1);
-          d1 = fabs(dluval[kr]);
+          d1 = CoinAbs(dluval[kr]);
         }
         j1 = hcoli[kr + 2];
         if ((jj2 == 0)) {
@@ -405,7 +405,7 @@ void clp_free(void *oldArray);
           maction[j2] = static_cast< MACTION_T >(-maction[j2]);
           dluval[kr + 1] += multip * dvalpv[jj2];
           cancel = cancel || !(fact->zeroTolerance < d1);
-          d1 = fabs(dluval[kr + 1]);
+          d1 = CoinAbs(dluval[kr + 1]);
         }
         jj1 = maction[j1];
         j2 = hcoli[kr + 3];
@@ -440,7 +440,7 @@ void clp_free(void *oldArray);
           /* there is an entry for this column in the pivot row */
           maction[j1] = -maction[j1];
           dluval[kr] += multip * dvalpv[jj1];
-          d1 = fabs(dluval[kr]);
+          d1 = CoinAbs(dluval[kr]);
           cancel = cancel || !(fact->zeroTolerance < d1);
         }
       }
@@ -453,7 +453,7 @@ void clp_free(void *oldArray);
         kstart = knprs - 1;
         for (kr = knprs; kr <= knpre; ++kr) {
           j = hcoli[kr];
-          if (fabs(dluval[kr]) > fact->zeroTolerance) {
+          if (CoinAbs(dluval[kr]) > fact->zeroTolerance) {
             ++kstart;
             dluval[kstart] = dluval[kr];
             hcoli[kstart] = j;
@@ -587,7 +587,7 @@ void clp_free(void *oldArray);
           jj = maction[j];
           if (jj > 0) {
             elemnt = multip * dvalpv[jj];
-            if (fabs(elemnt) > fact->zeroTolerance) {
+            if (CoinAbs(elemnt) > fact->zeroTolerance) {
               ++kstart;
               dluval[kstart] = elemnt;
               //printf("pivot %d at %d col %d el %g\n",
@@ -712,7 +712,7 @@ void clp_free(void *oldArray);
         koff = 0;
         j = 0;
         while (j < nel) {
-          FloatT d = fabs(els[j]);
+          FloatT d = CoinAbs(els[j]);
           if (maxaij < d) {
             maxaij = d;
             koff = j;
@@ -722,9 +722,9 @@ void clp_free(void *oldArray);
 #else
         assert(nel);
         koff = 0;
-        FloatT maxaij = fabs(els[0]);
+        FloatT maxaij = CoinAbs(els[0]);
         for (j = 1; j < nel; j++) {
-          FloatT d = fabs(els[j]);
+          FloatT d = CoinAbs(els[j]);
           if (maxaij < d) {
             maxaij = d;
             koff = j;
@@ -736,13 +736,13 @@ void clp_free(void *oldArray);
         koff = 0;
         j = 0;
         if ((nel & 1) != 0) {
-          maxaij = fabs(els[0]);
+          maxaij = CoinAbs(els[0]);
           j = 1;
         }
 
         while (j < nel) {
           UNROLL_LOOP_BODY2({
-            FloatT d = fabs(els[j]);
+            FloatT d = CoinAbs(els[j]);
             if (maxaij < d) {
               maxaij = d;
               koff = j;

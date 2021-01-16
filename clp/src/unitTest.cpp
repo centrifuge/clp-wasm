@@ -253,7 +253,7 @@ static void printSol(ClpSimplex &model)
       iColumn, columnPrimal[iColumn], columnDual[iColumn],
       columnLower[iColumn], columnUpper[iColumn]);
     objValue += columnPrimal[iColumn] * gradient[iColumn];
-    if (fabs(columnPrimal[iColumn] * gradient[iColumn]) > 1.0e-8)
+    if (CoinAbs(columnPrimal[iColumn] * gradient[iColumn]) > 1.0e-8)
       printf("obj -> %g gradient %g\n", objValue, gradient[iColumn]);
   }
   printf("Computed objective %g\n", objValue);
@@ -1133,7 +1133,7 @@ int mainTest(int argc, const char *argv[], int algorithm,
             printf("Finished %s Took %g seconds (%d iterations) - status %d\n",
               mpsName[m].c_str(), time2, solution.problemStatus(), solution.numberIterations());
             if (solution.problemStatus())
-              testTime[iTest] = 1.0e20;
+              testTime[iTest] = TOO_BIG_FLOAT;
           } else {
             testTime[iTest] = 1.0e30;
           }
@@ -1516,7 +1516,7 @@ void ClpSimplexUnitTest(const std::string &dirSample)
     objective[4] = 10.0;
     solution.dual();
     for (i = 0; i < 3; i++) {
-      rowLower[i] = -1.0e20;
+      rowLower[i] = TOO_SMALL_FLOAT;
       colUpper[i + 2] = 0.0;
     }
     solution.setLogLevel(3);
@@ -1581,7 +1581,7 @@ void ClpSimplexUnitTest(const std::string &dirSample)
       for (s = 0; s < numSavedSolutions; ++s) {
         const StdVectorDouble &solnVec = fep[s];
         for (int c = 0; c < nc; ++c) {
-          if (fabs(solnVec[c]) > 1.0e-8)
+          if (CoinAbs(solnVec[c]) > 1.0e-8)
             std::cout << "Saved Solution: " << s << " ColNum: " << c << " Value: " << solnVec[c] << std::endl;
         }
       }
@@ -1598,7 +1598,7 @@ void ClpSimplexUnitTest(const std::string &dirSample)
       for (s = 0; s < numSavedSolutions; ++s) {
         const StdVectorDouble &solnVec = fep[s];
         for (int c = 0; c < nc; ++c) {
-          if (fabs(solnVec[c]) > 1.0e-8)
+          if (CoinAbs(solnVec[c]) > 1.0e-8)
             std::cout << "Saved Solution: " << s << " ColNum: " << c << " Value: " << solnVec[c] << std::endl;
         }
       }
@@ -1630,8 +1630,8 @@ void ClpSimplexUnitTest(const std::string &dirSample)
         printf("%d increase %g %d, decrease %g %d\n",
           i, costIncrease[i], sequenceIncrease[i],
           costDecrease[i], sequenceDecrease[i]);
-      assert(fabs(costDecrease[3]) < 1.0e-4);
-      assert(fabs(costIncrease[7] - 1.0) < 1.0e-4);
+      assert(CoinAbs(costDecrease[3]) < 1.0e-4);
+      assert(CoinAbs(costIncrease[7] - 1.0) < 1.0e-4);
       model.setOptimizationDirection(-1);
       {
         int j;
@@ -1648,8 +1648,8 @@ void ClpSimplexUnitTest(const std::string &dirSample)
       model.dualRanging(13, which, costIncrease2, sequenceIncrease2,
         costDecrease2, sequenceDecrease2);
       for (i = 0; i < 13; i++) {
-        assert(fabs(costIncrease[i] - costDecrease2[i]) < 1.0e-6);
-        assert(fabs(costDecrease[i] - costIncrease2[i]) < 1.0e-6);
+        assert(CoinAbs(costIncrease[i] - costDecrease2[i]) < 1.0e-6);
+        assert(CoinAbs(costDecrease[i] - costIncrease2[i]) < 1.0e-6);
         assert(sequenceIncrease[i] == sequenceDecrease2[i]);
         assert(sequenceDecrease[i] == sequenceIncrease2[i]);
       }
@@ -1692,8 +1692,8 @@ void ClpSimplexUnitTest(const std::string &dirSample)
         printf("%d increase %g %d, decrease %g %d\n",
           i, valueIncrease[i], sequenceIncrease[i],
           valueDecrease[i], sequenceDecrease[i]);
-      assert(fabs(valueIncrease[3] - 0.642857) < 1.0e-4);
-      assert(fabs(valueIncrease[8] - 2.95113) < 1.0e-4);
+      assert(CoinAbs(valueIncrease[3] - 0.642857) < 1.0e-4);
+      assert(CoinAbs(valueIncrease[8] - 2.95113) < 1.0e-4);
     } else {
       std::cerr << "Error reading exmip1 from sample data. Skipping test." << std::endl;
     }
@@ -2091,13 +2091,13 @@ void ClpSimplexUnitTest(const std::string &dirSample)
         FloatT lo = 0.0, up = 0.0;
         int nl = 0, nu = 0;
         for (iRow = 0; iRow < numberRows; iRow++) {
-          if (lower[iRow] > -1.0e20) {
+          if (lower[iRow] > TOO_SMALL_FLOAT) {
             lo += ray[iRow] * lower[iRow];
           } else {
             if (ray[iRow] > 1.0e-8)
               nl++;
           }
-          if (upper[iRow] < 1.0e20) {
+          if (upper[iRow] < TOO_BIG_FLOAT) {
             up += ray[iRow] * upper[iRow];
           } else {
             if (ray[iRow] > 1.0e-8)
@@ -2117,20 +2117,20 @@ void ClpSimplexUnitTest(const std::string &dirSample)
         nl = nu = 0;
         for (iColumn = 0; iColumn < numberColumns; iColumn++) {
           if (result[iColumn] > 1.0e-8) {
-            if (lower[iColumn] > -1.0e20)
+            if (lower[iColumn] > TOO_SMALL_FLOAT)
               lo2 += result[iColumn] * lower[iColumn];
             else
               nl++;
-            if (upper[iColumn] < 1.0e20)
+            if (upper[iColumn] < TOO_BIG_FLOAT)
               up2 += result[iColumn] * upper[iColumn];
             else
               nu++;
           } else if (result[iColumn] < -1.0e-8) {
-            if (lower[iColumn] > -1.0e20)
+            if (lower[iColumn] > TOO_SMALL_FLOAT)
               up2 += result[iColumn] * lower[iColumn];
             else
               nu++;
-            if (upper[iColumn] < 1.0e20)
+            if (upper[iColumn] < TOO_BIG_FLOAT)
               lo2 += result[iColumn] * upper[iColumn];
             else
               nl++;

@@ -22,7 +22,7 @@ maximumAbsElement(const FloatT *region, int size)
   int i;
   FloatT maxValue = 0.0;
   for (i = 0; i < size; i++)
-    maxValue = CoinMax(maxValue, fabs(region[i]));
+    maxValue = CoinMax(maxValue, CoinAbs(region[i]));
   return maxValue;
 }
 void setElements(FloatT *region, int size, FloatT value)
@@ -108,7 +108,7 @@ void getNorms(const FloatT *region, int size, FloatT &norm1, FloatT &norm2)
   int i;
   for (i = 0; i < size; i++) {
     norm2 += region[i] * region[i];
-    norm1 = CoinMax(norm1, fabs(region[i]));
+    norm1 = CoinMax(norm1, CoinAbs(region[i]));
   }
 }
 #ifndef NDEBUG

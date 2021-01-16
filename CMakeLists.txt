@@ -5,6 +5,7 @@ project(solver)
 
 string(TOLOWER ${CMAKE_BUILD_TYPE} BUILD_CONFIG_LOWER)
 
+
 add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 
 if(EMSCRIPTEN)

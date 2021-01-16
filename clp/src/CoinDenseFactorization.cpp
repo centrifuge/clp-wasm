@@ -210,8 +210,8 @@ int CoinDenseFactorization::factor()
       const CoinFactorizationDouble * column = elements_;
       FloatT smallest=COIN_DBL_MAX;
       for (int i=0;i<numberRows_;i++) {
-	if (fabs(column[i])<smallest)
-	  smallest = fabs(column[i]);
+	if (CoinAbs(column[i])<smallest)
+	  smallest = CoinAbs(column[i]);
 	column += numberRows_;
       }
       if (smallest<1.0e-8)
@@ -233,7 +233,7 @@ int CoinDenseFactorization::factor()
     // Find largest
     FloatT largest = zeroTolerance_;
     for (int j = i; j < numberRows_; j++) {
-      FloatT value = fabs(elements[j]);
+      FloatT value = CoinAbs(elements[j]);
       if (value > largest) {
         largest = value;
         iRow = j;
@@ -372,7 +372,7 @@ int CoinDenseFactorization::replaceColumn(CoinIndexedVector *regionSparse,
   int i;
   memset(elements, 0, numberRows_ * sizeof(CoinFactorizationDouble));
   CoinFactorizationDouble pivotValue = pivotCheck;
-  if (fabs(pivotValue) < zeroTolerance_)
+  if (CoinAbs(pivotValue) < zeroTolerance_)
     return 2;
   pivotValue = 1.0 / pivotValue;
 #ifdef COIN_FACTORIZATION_DENSE_CODE
@@ -547,7 +547,7 @@ int CoinDenseFactorization::updateColumn(CoinIndexedVector *regionSparse,
 #endif
           FloatT value = region[iRow];
           region[iRow] = 0.0;
-          if (fabs(value) > zeroTolerance_) {
+          if (CoinAbs(value) > zeroTolerance_) {
             region2[j] = value;
             regionIndex[numberNonZero++] = j;
           }
@@ -562,7 +562,7 @@ int CoinDenseFactorization::updateColumn(CoinIndexedVector *regionSparse,
 #endif
           FloatT value = region[iRow];
           region[iRow] = 0.0;
-          if (fabs(value) > zeroTolerance_) {
+          if (CoinAbs(value) > zeroTolerance_) {
             region2[numberNonZero] = value;
             regionIndex[numberNonZero++] = j;
           }
@@ -571,7 +571,7 @@ int CoinDenseFactorization::updateColumn(CoinIndexedVector *regionSparse,
     } else {
       for (int j = 0; j < numberRows_; j++) {
         FloatT value = region[j];
-        if (fabs(value) > zeroTolerance_) {
+        if (CoinAbs(value) > zeroTolerance_) {
           regionIndex[numberNonZero++] = j;
         } else {
           region[j] = 0.0;
@@ -586,7 +586,7 @@ int CoinDenseFactorization::updateColumn(CoinIndexedVector *regionSparse,
         for (int j = 0; j < numberRows_; j++) {
           FloatT value = region[j];
           region[j] = 0.0;
-          if (fabs(value) > zeroTolerance_) {
+          if (CoinAbs(value) > zeroTolerance_) {
             region2[j] = value;
             regionIndex[numberNonZero++] = j;
           }
@@ -596,7 +596,7 @@ int CoinDenseFactorization::updateColumn(CoinIndexedVector *regionSparse,
         for (int j = 0; j < numberRows_; j++) {
           FloatT value = region[j];
           region[j] = 0.0;
-          if (fabs(value) > zeroTolerance_) {
+          if (CoinAbs(value) > zeroTolerance_) {
             region2[numberNonZero] = value;
             regionIndex[numberNonZero++] = j;
           }
@@ -605,7 +605,7 @@ int CoinDenseFactorization::updateColumn(CoinIndexedVector *regionSparse,
     } else {
       for (int j = 0; j < numberRows_; j++) {
         FloatT value = region[j];
-        if (fabs(value) > zeroTolerance_) {
+        if (CoinAbs(value) > zeroTolerance_) {
           regionIndex[numberNonZero++] = j;
         } else {
           region[j] = 0.0;
@@ -700,7 +700,7 @@ int CoinDenseFactorization::updateTwoColumnsFT(CoinIndexedVector *regionSparse1,
       for (int j = 0; j < numberRows_; j++) {
         FloatT value = regionW2[j];
         regionW2[j] = 0.0;
-        if (fabs(value) > zeroTolerance_) {
+        if (CoinAbs(value) > zeroTolerance_) {
           region2[j] = value;
           regionIndex2[numberNonZero2++] = j;
         }
@@ -710,7 +710,7 @@ int CoinDenseFactorization::updateTwoColumnsFT(CoinIndexedVector *regionSparse1,
       for (int j = 0; j < numberRows_; j++) {
         FloatT value = regionW2[j];
         regionW2[j] = 0.0;
-        if (fabs(value) > zeroTolerance_) {
+        if (CoinAbs(value) > zeroTolerance_) {
           region2[numberNonZero2] = value;
           regionIndex2[numberNonZero2++] = j;
         }
@@ -722,7 +722,7 @@ int CoinDenseFactorization::updateTwoColumnsFT(CoinIndexedVector *regionSparse1,
       for (int j = 0; j < numberRows_; j++) {
         FloatT value = regionW3[j];
         regionW3[j] = 0.0;
-        if (fabs(value) > zeroTolerance_) {
+        if (CoinAbs(value) > zeroTolerance_) {
           region3[j] = value;
           regionIndex3[numberNonZero3++] = j;
         }
@@ -732,7 +732,7 @@ int CoinDenseFactorization::updateTwoColumnsFT(CoinIndexedVector *regionSparse1,
       for (int j = 0; j < numberRows_; j++) {
         FloatT value = regionW3[j];
         regionW3[j] = 0.0;
-        if (fabs(value) > zeroTolerance_) {
+        if (CoinAbs(value) > zeroTolerance_) {
           region3[numberNonZero3] = value;
           regionIndex3[numberNonZero3++] = j;
         }
@@ -870,7 +870,7 @@ int CoinDenseFactorization::updateColumnTranspose(CoinIndexedVector *regionSpars
         int iRow = pivotRow_[j + numberRows_];
         FloatT value = region[j];
         region[j] = 0.0;
-        if (fabs(value) > zeroTolerance_) {
+        if (CoinAbs(value) > zeroTolerance_) {
           region2[iRow] = value;
           regionIndex[numberNonZero++] = iRow;
         }
@@ -880,7 +880,7 @@ int CoinDenseFactorization::updateColumnTranspose(CoinIndexedVector *regionSpars
         int iRow = pivotRow_[j + numberRows_];
         FloatT value = region[j];
         region[j] = 0.0;
-        if (fabs(value) > zeroTolerance_) {
+        if (CoinAbs(value) > zeroTolerance_) {
           region2[numberNonZero] = value;
           regionIndex[numberNonZero++] = iRow;
         }
@@ -893,7 +893,7 @@ int CoinDenseFactorization::updateColumnTranspose(CoinIndexedVector *regionSpars
       for (int j = 0; j < numberRows_; j++) {
         FloatT value = region[j];
         region[j] = 0.0;
-        if (fabs(value) > zeroTolerance_) {
+        if (CoinAbs(value) > zeroTolerance_) {
           region2[j] = value;
           regionIndex[numberNonZero++] = j;
         }
@@ -902,7 +902,7 @@ int CoinDenseFactorization::updateColumnTranspose(CoinIndexedVector *regionSpars
       for (int j = 0; j < numberRows_; j++) {
         FloatT value = region[j];
         region[j] = 0.0;
-        if (fabs(value) > zeroTolerance_) {
+        if (CoinAbs(value) > zeroTolerance_) {
           region2[numberNonZero] = value;
           regionIndex[numberNonZero++] = j;
         }

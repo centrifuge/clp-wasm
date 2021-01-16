@@ -6,9 +6,8 @@
 #ifndef CoinFloatEqual_H
 #define CoinFloatEqual_H
 
-#include <algorithm>
-#include <cmath>
 
+#include "CoinHelperFunctions.hpp"
 #include "CoinFinite.hpp"
 
 /*! \file CoinFloatEqual.hpp
@@ -54,7 +53,7 @@ public:
       return false;
     if (f1 == f2)
       return true;
-    return (fabs(f1 - f2) < epsilon_);
+    return (CoinAbs(f1 - f2) < epsilon_);
   }
 
   /*! \name Constructors and destructors */
@@ -131,9 +130,9 @@ public:
     if (!CoinFinite(f1) || !CoinFinite(f2))
       return false;
 
-    FloatT tol = (fabs(f1) > fabs(f2)) ? fabs(f1) : fabs(f2);
+    FloatT tol = (CoinAbs(f1) > CoinAbs(f2)) ? CoinAbs(f1) : CoinAbs(f2);
 
-    return (fabs(f1 - f2) <= epsilon_ * (1 + tol));
+    return (CoinAbs(f1 - f2) <= epsilon_ * (1 + tol));
   }
 
   /*! \name Constructors and destructors */

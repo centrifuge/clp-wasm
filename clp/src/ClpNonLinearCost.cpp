@@ -380,18 +380,18 @@ ClpNonLinearCost::ClpNonLinearCost(ClpSimplex *model, const int *starts,
   FloatT *columnUpper = model_->columnUpper();
   FloatT *columnLower = model_->columnLower();
   for (iSequence = 0; iSequence < numberColumns_; iSequence++) {
-    if (columnLower[iSequence] > -1.0e20)
+    if (columnLower[iSequence] > TOO_SMALL_FLOAT)
       put++;
-    if (columnUpper[iSequence] < 1.0e20)
+    if (columnUpper[iSequence] < TOO_BIG_FLOAT)
       put++;
   }
 
   FloatT *rowUpper = model_->rowUpper();
   FloatT *rowLower = model_->rowLower();
   for (iSequence = 0; iSequence < numberRows_; iSequence++) {
-    if (rowLower[iSequence] > -1.0e20)
+    if (rowLower[iSequence] > TOO_SMALL_FLOAT)
       put++;
-    if (rowUpper[iSequence] < 1.0e20)
+    if (rowUpper[iSequence] < TOO_BIG_FLOAT)
       put++;
     put += 2;
   }
@@ -432,7 +432,7 @@ ClpNonLinearCost::ClpNonLinearCost(ClpSimplex *model, const int *starts,
       }
       int iIndex = starts[iSequence];
       int end = starts[iSequence + 1];
-      assert(fabs(columnLower[iSequence] - lowerNon[iIndex]) < 1.0e-8);
+      assert(CoinAbs(columnLower[iSequence] - lowerNon[iIndex]) < 1.0e-8);
       thisCost = -COIN_DBL_MAX;
       for (; iIndex < end; iIndex++) {
         if (lowerNon[iIndex] < columnUpper[iSequence] - 1.0e-8) {
@@ -450,7 +450,7 @@ ClpNonLinearCost::ClpNonLinearCost(ClpSimplex *model, const int *starts,
     lower_[put] = upperValue;
     setInfeasible(put, true);
     cost_[put++] = thisCost + infeasibilityCost;
-    if (upperValue < 1.0e20) {
+    if (upperValue < TOO_BIG_FLOAT) {
       lower_[put] = COIN_DBL_MAX;
       cost_[put++] = 1.0e50;
     }
@@ -760,15 +760,15 @@ void ClpNonLinearCost::checkInfeasibilities(FloatT oldTolerance)
       case ClpSimplex::atUpperBound:
         if (!toNearest) {
           // With increasing tolerances - we may be at wrong place
-          if (fabs(value - upperValue) > oldTolerance * 1.0001) {
-            if (fabs(value - lowerValue) <= oldTolerance * 1.0001) {
-              if (fabs(value - lowerValue) > primalTolerance)
+          if (CoinAbs(value - upperValue) > oldTolerance * 1.0001) {
+            if (CoinAbs(value - lowerValue) <= oldTolerance * 1.0001) {
+              if (CoinAbs(value - lowerValue) > primalTolerance)
                 solution[iSequence] = lowerValue;
               model_->setStatus(iSequence, ClpSimplex::atLowerBound);
             } else {
               model_->setStatus(iSequence, ClpSimplex::superBasic);
             }
-          } else if (fabs(value - upperValue) > primalTolerance) {
+          } else if (CoinAbs(value - upperValue) > primalTolerance) {
             solution[iSequence] = upperValue;
           }
         } else {
@@ -777,8 +777,8 @@ void ClpNonLinearCost::checkInfeasibilities(FloatT oldTolerance)
           iRange = -1;
           FloatT nearest = COIN_DBL_MAX;
           for (kRange = start; kRange < end; kRange++) {
-            if (fabs(lower_[kRange] - value) < nearest) {
-              nearest = fabs(lower_[kRange] - value);
+            if (CoinAbs(lower_[kRange] - value) < nearest) {
+              nearest = CoinAbs(lower_[kRange] - value);
               iRange = kRange;
             }
           }
@@ -794,15 +794,15 @@ void ClpNonLinearCost::checkInfeasibilities(FloatT oldTolerance)
           // below stops compiler error with gcc 3.2!!!
           if (iSequence == -119)
             printf("ZZ %g %g %g %g\n", lowerValue, value, upperValue, oldTolerance);
-          if (fabs(value - lowerValue) > oldTolerance * 1.0001) {
-            if (fabs(value - upperValue) <= oldTolerance * 1.0001) {
-              if (fabs(value - upperValue) > primalTolerance)
+          if (CoinAbs(value - lowerValue) > oldTolerance * 1.0001) {
+            if (CoinAbs(value - upperValue) <= oldTolerance * 1.0001) {
+              if (CoinAbs(value - upperValue) > primalTolerance)
                 solution[iSequence] = upperValue;
               model_->setStatus(iSequence, ClpSimplex::atUpperBound);
             } else {
               model_->setStatus(iSequence, ClpSimplex::superBasic);
             }
-          } else if (fabs(value - lowerValue) > primalTolerance) {
+          } else if (CoinAbs(value - lowerValue) > primalTolerance) {
             solution[iSequence] = lowerValue;
           }
         } else {
@@ -811,8 +811,8 @@ void ClpNonLinearCost::checkInfeasibilities(FloatT oldTolerance)
           iRange = -1;
           FloatT nearest = COIN_DBL_MAX;
           for (kRange = start; kRange < end; kRange++) {
-            if (fabs(lower_[kRange] - value) < nearest) {
-              nearest = fabs(lower_[kRange] - value);
+            if (CoinAbs(lower_[kRange] - value) < nearest) {
+              nearest = CoinAbs(lower_[kRange] - value);
               iRange = kRange;
             }
           }
@@ -835,8 +835,8 @@ void ClpNonLinearCost::checkInfeasibilities(FloatT oldTolerance)
             iRange = -1;
             FloatT nearest = COIN_DBL_MAX;
             for (kRange = start; kRange < end; kRange++) {
-              if (fabs(lower_[kRange] - value) < nearest) {
-                nearest = fabs(lower_[kRange] - value);
+              if (CoinAbs(lower_[kRange] - value) < nearest) {
+                nearest = CoinAbs(lower_[kRange] - value);
                 iRange = kRange;
               }
             }
@@ -927,7 +927,7 @@ void ClpNonLinearCost::checkInfeasibilities(FloatT oldTolerance)
           } else {
             // below
             newWhere = CLP_BELOW_LOWER;
-            assert(fabs(lowerValue) < 1.0e100);
+            assert(CoinAbs(lowerValue) < 1.0e100);
             FloatT infeasibility = lowerValue - value - primalTolerance;
             sumInfeasibilities_ += infeasibility;
             largestInfeasibility_ = CoinMax(largestInfeasibility_, infeasibility);
@@ -951,9 +951,9 @@ void ClpNonLinearCost::checkInfeasibilities(FloatT oldTolerance)
       case ClpSimplex::atUpperBound:
         if (!toNearest) {
           // With increasing tolerances - we may be at wrong place
-          if (fabs(value - upperValue) > oldTolerance * 1.0001) {
-            if (fabs(value - lowerValue) <= oldTolerance * 1.0001) {
-              if (fabs(value - lowerValue) > primalTolerance) {
+          if (CoinAbs(value - upperValue) > oldTolerance * 1.0001) {
+            if (CoinAbs(value - lowerValue) <= oldTolerance * 1.0001) {
+              if (CoinAbs(value - lowerValue) > primalTolerance) {
                 solution[iSequence] = lowerValue;
                 value = lowerValue;
               }
@@ -974,13 +974,13 @@ void ClpNonLinearCost::checkInfeasibilities(FloatT oldTolerance)
                 value = upperValue;
               }
             }
-          } else if (fabs(value - upperValue) > primalTolerance) {
+          } else if (CoinAbs(value - upperValue) > primalTolerance) {
             solution[iSequence] = upperValue;
             value = upperValue;
           }
         } else {
           // Set to nearest and make at bound
-          if (fabs(value - lowerValue) < fabs(value - upperValue)) {
+          if (CoinAbs(value - lowerValue) < CoinAbs(value - upperValue)) {
             solution[iSequence] = lowerValue;
             value = lowerValue;
             model_->setStatus(iSequence, ClpSimplex::atLowerBound);
@@ -993,9 +993,9 @@ void ClpNonLinearCost::checkInfeasibilities(FloatT oldTolerance)
       case ClpSimplex::atLowerBound:
         if (!toNearest) {
           // With increasing tolerances - we may be at wrong place
-          if (fabs(value - lowerValue) > oldTolerance * 1.0001) {
-            if (fabs(value - upperValue) <= oldTolerance * 1.0001) {
-              if (fabs(value - upperValue) > primalTolerance) {
+          if (CoinAbs(value - lowerValue) > oldTolerance * 1.0001) {
+            if (CoinAbs(value - upperValue) <= oldTolerance * 1.0001) {
+              if (CoinAbs(value - upperValue) > primalTolerance) {
                 solution[iSequence] = upperValue;
                 value = upperValue;
               }
@@ -1016,13 +1016,13 @@ void ClpNonLinearCost::checkInfeasibilities(FloatT oldTolerance)
                 model_->setStatus(iSequence, ClpSimplex::atUpperBound);
               }
             }
-          } else if (fabs(value - lowerValue) > primalTolerance) {
+          } else if (CoinAbs(value - lowerValue) > primalTolerance) {
             solution[iSequence] = lowerValue;
             value = lowerValue;
           }
         } else {
           // Set to nearest and make at bound
-          if (fabs(value - lowerValue) < fabs(value - upperValue)) {
+          if (CoinAbs(value - lowerValue) < CoinAbs(value - upperValue)) {
             solution[iSequence] = lowerValue;
             value = lowerValue;
           } else {
@@ -1079,7 +1079,7 @@ void ClpNonLinearCost::checkInfeasibilities(FloatT oldTolerance)
   }
 #ifdef NONLIN_DEBUG
   if (method_ == 3)
-    assert(fabs(saveCost - feasibleCost_) < 0.001 * (1.0 + CoinMax(fabs(saveCost), fabs(feasibleCost_))));
+    assert(CoinAbs(saveCost - feasibleCost_) < 0.001 * (1.0 + CoinMax(CoinAbs(saveCost), CoinAbs(feasibleCost_))));
   delete[] saveSolution;
   delete[] saveLower;
   delete[] saveUpper;
@@ -1106,7 +1106,7 @@ void ClpNonLinearCost::feasibleBounds()
       if (iWhere == CLP_BELOW_LOWER) {
         lowerValue = upperValue;
         upperValue = bound_[iSequence];
-        assert(fabs(lowerValue) < 1.0e100);
+        assert(CoinAbs(lowerValue) < 1.0e100);
       } else if (iWhere == CLP_ABOVE_UPPER) {
         upperValue = lowerValue;
         lowerValue = bound_[iSequence];
@@ -1371,7 +1371,7 @@ void ClpNonLinearCost::checkInfeasibilities(int numberInArray, const int *index)
         lowerValue = upperValue;
         upperValue = bound_[iSequence];
         numberInfeasibilities_--;
-        assert(fabs(lowerValue) < 1.0e100);
+        assert(CoinAbs(lowerValue) < 1.0e100);
       } else if (iWhere == CLP_ABOVE_UPPER) {
         upperValue = lowerValue;
         lowerValue = bound_[iSequence];
@@ -1386,7 +1386,7 @@ void ClpNonLinearCost::checkInfeasibilities(int numberInArray, const int *index)
         } else {
           // below
           newWhere = CLP_BELOW_LOWER;
-          assert(fabs(lowerValue) < 1.0e100);
+          assert(CoinAbs(lowerValue) < 1.0e100);
           costValue -= infeasibilityWeight_;
           numberInfeasibilities_++;
         }
@@ -1485,7 +1485,7 @@ void ClpNonLinearCost::checkChanged(int numberInArray, CoinIndexedVector *update
         lowerValue = upperValue;
         upperValue = bound_[iSequence];
         numberInfeasibilities_--;
-        assert(fabs(lowerValue) < 1.0e100);
+        assert(CoinAbs(lowerValue) < 1.0e100);
       } else if (iWhere == CLP_ABOVE_UPPER) {
         upperValue = lowerValue;
         lowerValue = bound_[iSequence];
@@ -1502,7 +1502,7 @@ void ClpNonLinearCost::checkChanged(int numberInArray, CoinIndexedVector *update
           newWhere = CLP_BELOW_LOWER;
           costValue -= infeasibilityWeight_;
           numberInfeasibilities_++;
-          assert(fabs(lowerValue) < 1.0e100);
+          assert(CoinAbs(lowerValue) < 1.0e100);
         }
       } else {
         // above
@@ -1547,7 +1547,7 @@ ClpNonLinearCost::setOne(int iSequence, FloatT value)
     int end = start_[iSequence + 1] - 1;
     if (!bothWays_) {
       // If fixed try and get feasible
-      if (lower_[start + 1] == lower_[start + 2] && fabs(value - lower_[start + 1]) < 1.001 * primalTolerance) {
+      if (lower_[start + 1] == lower_[start + 2] && CoinAbs(value - lower_[start + 1]) < 1.001 * primalTolerance) {
         iRange = start + 1;
       } else {
         for (iRange = start; iRange < end; iRange++) {
@@ -1603,9 +1603,9 @@ ClpNonLinearCost::setOne(int iSequence, FloatT value)
     case ClpSimplex::atLowerBound:
     case ClpSimplex::isFixed:
       // set correctly
-      if (fabs(value - lower) <= primalTolerance * 1.001) {
+      if (CoinAbs(value - lower) <= primalTolerance * 1.001) {
         model_->setStatus(iSequence, ClpSimplex::atLowerBound);
-      } else if (fabs(value - upper) <= primalTolerance * 1.001) {
+      } else if (CoinAbs(value - upper) <= primalTolerance * 1.001) {
         model_->setStatus(iSequence, ClpSimplex::atUpperBound);
       } else {
         // set superBasic
@@ -1641,7 +1641,7 @@ ClpNonLinearCost::setOne(int iSequence, FloatT value)
       lowerValue = upperValue;
       upperValue = bound_[iSequence];
       numberInfeasibilities_--;
-      assert(fabs(lowerValue) < 1.0e100);
+      assert(CoinAbs(lowerValue) < 1.0e100);
     } else if (iWhere == CLP_ABOVE_UPPER) {
       upperValue = lowerValue;
       lowerValue = bound_[iSequence];
@@ -1658,7 +1658,7 @@ ClpNonLinearCost::setOne(int iSequence, FloatT value)
         newWhere = CLP_BELOW_LOWER;
         costValue -= infeasibilityWeight_;
         numberInfeasibilities_++;
-        assert(fabs(lowerValue) < 1.0e100);
+        assert(CoinAbs(lowerValue) < 1.0e100);
       }
     } else {
       // above
@@ -1699,9 +1699,9 @@ ClpNonLinearCost::setOne(int iSequence, FloatT value)
     case ClpSimplex::atLowerBound:
     case ClpSimplex::isFixed:
       // set correctly
-      if (fabs(value - lowerValue) <= primalTolerance * 1.001) {
+      if (CoinAbs(value - lowerValue) <= primalTolerance * 1.001) {
         model_->setStatus(iSequence, ClpSimplex::atLowerBound);
-      } else if (fabs(value - upperValue) <= primalTolerance * 1.001) {
+      } else if (CoinAbs(value - upperValue) <= primalTolerance * 1.001) {
         model_->setStatus(iSequence, ClpSimplex::atUpperBound);
       } else {
         // set superBasic
@@ -1783,7 +1783,7 @@ int ClpNonLinearCost::setOneOutgoing(int iSequence, FloatT &value)
       direction = 0;
     }
     // If fixed try and get feasible
-    if (lower_[start + 1] == lower_[start + 2] && fabs(value - lower_[start + 1]) < 1.001 * primalTolerance) {
+    if (lower_[start + 1] == lower_[start + 2] && CoinAbs(value - lower_[start + 1]) < 1.001 * primalTolerance) {
       iRange = start + 1;
     } else {
       // See if exact
@@ -1824,9 +1824,9 @@ int ClpNonLinearCost::setOneOutgoing(int iSequence, FloatT &value)
       value = upper;
     } else {
       // set correctly
-      if (fabs(value - lower) <= primalTolerance * 1.001) {
+      if (CoinAbs(value - lower) <= primalTolerance * 1.001) {
         value = CoinMin(value, lower + primalTolerance);
-      } else if (fabs(value - upper) <= primalTolerance * 1.001) {
+      } else if (CoinAbs(value - upper) <= primalTolerance * 1.001) {
         value = CoinMax(value, upper - primalTolerance);
       } else {
         //printf("*** variable wandered off bound %g %g %g!\n",
@@ -1863,7 +1863,7 @@ int ClpNonLinearCost::setOneOutgoing(int iSequence, FloatT &value)
       lowerValue = upperValue;
       upperValue = bound_[iSequence];
       numberInfeasibilities_--;
-      assert(fabs(lowerValue) < 1.0e100);
+      assert(CoinAbs(lowerValue) < 1.0e100);
     } else if (iWhere == CLP_ABOVE_UPPER) {
       upperValue = lowerValue;
       lowerValue = bound_[iSequence];
@@ -1883,7 +1883,7 @@ int ClpNonLinearCost::setOneOutgoing(int iSequence, FloatT &value)
         newWhere = CLP_BELOW_LOWER;
         costValue -= infeasibilityWeight_;
         numberInfeasibilities_++;
-        assert(fabs(lowerValue) < 1.0e100);
+        assert(CoinAbs(lowerValue) < 1.0e100);
       }
     } else {
       // above
@@ -1909,9 +1909,9 @@ int ClpNonLinearCost::setOneOutgoing(int iSequence, FloatT &value)
       cost[iSequence] = costValue;
     }
     // set correctly
-    if (fabs(value - lowerValue) <= primalTolerance * 1.001) {
+    if (CoinAbs(value - lowerValue) <= primalTolerance * 1.001) {
       value = CoinMin(value, lowerValue + primalTolerance);
-    } else if (fabs(value - upperValue) <= primalTolerance * 1.001) {
+    } else if (CoinAbs(value - upperValue) <= primalTolerance * 1.001) {
       value = CoinMax(value, upperValue - primalTolerance);
     } else {
       //printf("*** variable wandered off bound %g %g %g!\n",
@@ -1950,9 +1950,9 @@ ClpNonLinearCost::nearest(int iSequence, FloatT solutionValue)
     int jRange = -1;
     nearest = COIN_DBL_MAX;
     for (iRange = start; iRange < end; iRange++) {
-      if (fabs(solutionValue - lower_[iRange]) < nearest) {
+      if (CoinAbs(solutionValue - lower_[iRange]) < nearest) {
         jRange = iRange;
-        nearest = fabs(solutionValue - lower_[iRange]);
+        nearest = CoinAbs(solutionValue - lower_[iRange]);
       }
     }
     assert(jRange < end);
@@ -1967,12 +1967,12 @@ ClpNonLinearCost::nearest(int iSequence, FloatT solutionValue)
     if (iWhere == CLP_BELOW_LOWER) {
       lowerValue = upperValue;
       upperValue = bound_[iSequence];
-      assert(fabs(lowerValue) < 1.0e100);
+      assert(CoinAbs(lowerValue) < 1.0e100);
     } else if (iWhere == CLP_ABOVE_UPPER) {
       upperValue = lowerValue;
       lowerValue = bound_[iSequence];
     }
-    if (fabs(solutionValue - lowerValue) < fabs(solutionValue - upperValue))
+    if (CoinAbs(solutionValue - lowerValue) < CoinAbs(solutionValue - upperValue))
       nearest = lowerValue;
     else
       nearest = upperValue;
@@ -2038,7 +2038,7 @@ void ClpNonLinearCost::validate()
     if (iWhere == CLP_BELOW_LOWER) {
       lowerValue = upperValue;
       upperValue = bound_[iSequence];
-      assert(fabs(lowerValue) < 1.0e100);
+      assert(CoinAbs(lowerValue) < 1.0e100);
       costValue -= infeasibilityCost;
       assert(value <= lowerValue - primalTolerance);
       numberInfeasibilities++;

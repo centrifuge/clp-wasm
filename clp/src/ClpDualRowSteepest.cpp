@@ -348,7 +348,7 @@ int ClpDualRowSteepest::pivotRow()
               value2 = solution[iSequence] - upper[iSequence];
             else if (solution[iSequence] < lower[iSequence] - tolerance)
               value2 = solution[iSequence] - lower[iSequence];
-            assert(fabs(value2 * value2 - infeas[iRow]) < 1.0e-8 * CoinMin(value2 * value2, infeas[iRow]));
+            assert(CoinAbs(value2 * value2 - infeas[iRow]) < 1.0e-8 * CoinMin(value2 * value2, infeas[iRow]));
 #endif
             if (solution[iSequence] > upper[iSequence] + tolerance || solution[iSequence] < lower[iSequence] - tolerance) {
               chosenRow = iRow;
@@ -381,7 +381,7 @@ int ClpDualRowSteepest::pivotRow()
     int nLeft = 0;
     for (int i = 0; i < number; i++) {
       int iRow = index[i];
-      if (fabs(infeas[iRow]) > 1.0e-50) {
+      if (CoinAbs(infeas[iRow]) > 1.0e-50) {
         index[nLeft++] = iRow;
       } else {
         infeas[iRow] = 0.0;
@@ -434,7 +434,7 @@ ClpDualRowSteepest::updateWeights(CoinIndexedVector *input,
       }
       alternateWeights_->setNumElements(0);
       FloatT w = CoinMax(weights_[i], value) * .1;
-      if (fabs(weights_[i] - value) > w) {
+      if (CoinAbs(weights_[i] - value) > w) {
         printf("%d old %g, true %g\n", i, weights_[i], value);
         weights_[i] = value; // to reduce printout
       }
@@ -523,7 +523,7 @@ ClpDualRowSteepest::updateWeights(CoinIndexedVector *input,
     // alternateWeights_ should still be empty
     int pivotRow = model_->pivotRow();
 #ifdef CLP_DEBUG
-    if (model_->logLevel() > 4 && fabs(norm - weights_[pivotRow]) > 1.0e-3 * (1.0 + norm))
+    if (model_->logLevel() > 4 && CoinAbs(norm - weights_[pivotRow]) > 1.0e-3 * (1.0 + norm))
       printf("on row %d, true weight %g, old %g\n",
         pivotRow, sqrt(norm), sqrt(weights_[pivotRow]));
 #endif
@@ -601,7 +601,7 @@ ClpDualRowSteepest::updateWeights(CoinIndexedVector *input,
 #endif
     int pivotRow = model_->pivotRow();
 #ifdef CLP_DEBUG
-    if (model_->logLevel() > 4 && fabs(norm - weights_[pivotRow]) > 1.0e-3 * (1.0 + norm))
+    if (model_->logLevel() > 4 && CoinAbs(norm - weights_[pivotRow]) > 1.0e-3 * (1.0 + norm))
       printf("on row %d, true weight %g, old %g\n",
         pivotRow, sqrt(norm), sqrt(weights_[pivotRow]));
 #endif

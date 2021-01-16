@@ -105,7 +105,7 @@ const FloatT ZTOLDP2 = 1e-10;
 /// The usual finite infinity
 #define PRESOLVE_INF COIN_DBL_MAX
 /// And a small infinity
-#define PRESOLVE_SMALL_INF 1.0e20
+#define PRESOLVE_SMALL_INF TOO_BIG_FLOAT
 /// Check for infinity using finite infinity
 #define PRESOLVEFINITE(n) (-PRESOLVE_INF < (n) && (n) < PRESOLVE_INF)
 
@@ -1097,7 +1097,7 @@ public:
   {
     dobias_ += change_amount;
 #if PRESOLVE_DEBUG > 2
-    assert(fabs(change_amount) < 1.0e50);
+    assert(CoinAbs(change_amount) < 1.0e50);
     if (change_amount)
       PRESOLVE_STMT(printf("changing bias by %g to %g\n",
         change_amount, dobias_));

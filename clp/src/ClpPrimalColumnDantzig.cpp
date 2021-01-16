@@ -138,8 +138,8 @@ int ClpPrimalColumnDantzig::pivotColumn(CoinIndexedVector *updates,
         break;
       case ClpSimplex::isFree:
       case ClpSimplex::superBasic:
-        if (fabs(value) > bestFreeDj) {
-          bestFreeDj = fabs(value);
+        if (CoinAbs(value) > bestFreeDj) {
+          bestFreeDj = CoinAbs(value);
           bestFreeSequence = iSequence;
         }
         break;
@@ -173,8 +173,8 @@ int ClpPrimalColumnDantzig::pivotColumn(CoinIndexedVector *updates,
         break;
       case ClpSimplex::isFree:
       case ClpSimplex::superBasic:
-        if (fabs(value) > bestFreeDj) {
-          bestFreeDj = fabs(value);
+        if (CoinAbs(value) > bestFreeDj) {
+          bestFreeDj = CoinAbs(value);
           bestFreeSequence = iSequence;
         }
         break;
@@ -206,8 +206,8 @@ int ClpPrimalColumnDantzig::pivotColumn(CoinIndexedVector *updates,
         break;
       case ClpSimplex::isFree:
       case ClpSimplex::superBasic:
-        if (fabs(value) > bestFreeDj) {
-          bestFreeDj = fabs(value);
+        if (CoinAbs(value) > bestFreeDj) {
+          bestFreeDj = CoinAbs(value);
           bestFreeSequence = iSequence;
         }
         break;

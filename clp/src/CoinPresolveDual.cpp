@@ -545,7 +545,7 @@ const CoinPresolveAction
     if (no_ub != no_lb) {
       const int &i = hrow[mcstrt[j]];
       FloatT aij = colels[mcstrt[j]];
-      PRESOLVEASSERT(fabs(aij) > ZTOLDP);
+      PRESOLVEASSERT(CoinAbs(aij) > ZTOLDP);
       const FloatT yzero = cost[j] / aij;
       if ((aij > 0.0) == no_ub) {
         if (ymax[i] > yzero)
@@ -1287,7 +1287,7 @@ const CoinPresolveAction
     for (i = 0; i < nrows; ++i) {
       if (rlo[i] == rup[i]) {
         infCount[i] = 10 | (10 << 16);
-      } else if (rlo[i] > -1.0e20 || rup[i] < 1.0e20) {
+      } else if (rlo[i] > TOO_SMALL_FLOAT || rup[i] < TOO_BIG_FLOAT) {
         iflagu = 0;
         iflagl = 0;
         dmaxup = 0.0;

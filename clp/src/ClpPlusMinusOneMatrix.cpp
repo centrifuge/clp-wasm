@@ -146,12 +146,12 @@ ClpPlusMinusOneMatrix::ClpPlusMinusOneMatrix(const CoinPackedMatrix &rhs)
     for (k = columnStart[iColumn]; k < columnStart[iColumn] + columnLength[iColumn];
          k++) {
       int iRow;
-      if (fabs(elementByColumn[k] - 1.0) < 1.0e-10) {
+      if (CoinAbs(elementByColumn[k] - 1.0) < 1.0e-10) {
         iRow = row[k];
         numberRows_ = CoinMax(numberRows_, iRow);
         indices_[j++] = iRow;
         numberGoodP++;
-      } else if (fabs(elementByColumn[k] + 1.0) < 1.0e-10) {
+      } else if (CoinAbs(elementByColumn[k] + 1.0) < 1.0e-10) {
         iRow = row[k];
         numberRows_ = CoinMax(numberRows_, iRow);
         temp[iNeg++] = iRow;
@@ -617,7 +617,7 @@ void ClpPlusMinusOneMatrix::transposeTimes(const ClpSimplex *model, FloatT scala
             int iRow = indices_[j];
             value -= pi[iRow];
           }
-          if (fabs(value) > zeroTolerance) {
+          if (CoinAbs(value) > zeroTolerance) {
             array[numberNonZero] = value;
             index[numberNonZero++] = iColumn;
           }
@@ -632,7 +632,7 @@ void ClpPlusMinusOneMatrix::transposeTimes(const ClpSimplex *model, FloatT scala
             int iRow = indices_[j];
             value += pi[iRow];
           }
-          if (fabs(value) > zeroTolerance) {
+          if (CoinAbs(value) > zeroTolerance) {
             array[numberNonZero] = value;
             index[numberNonZero++] = iColumn;
           }
@@ -655,7 +655,7 @@ void ClpPlusMinusOneMatrix::transposeTimes(const ClpSimplex *model, FloatT scala
           value -= pi[iRow];
         }
         value *= scalar;
-        if (fabs(value) > zeroTolerance) {
+        if (CoinAbs(value) > zeroTolerance) {
           index[numberNonZero++] = iColumn;
           array[iColumn] = value;
         }
@@ -770,7 +770,7 @@ void ClpPlusMinusOneMatrix::transposeTimesByRow(const ClpSimplex *model, FloatT 
             FloatT value = array2[iColumn];
             array2[iColumn] = 0.0;
             marked[iColumn] = 0;
-            if (fabs(value) > zeroTolerance) {
+            if (CoinAbs(value) > zeroTolerance) {
               array[numberNonZero] = value;
               index[numberNonZero++] = iColumn;
             }
@@ -814,7 +814,7 @@ void ClpPlusMinusOneMatrix::transposeTimesByRow(const ClpSimplex *model, FloatT 
           FloatT value = array[i];
           if (value) {
             array[i] = 0.0;
-            if (fabs(value) > zeroTolerance) {
+            if (CoinAbs(value) > zeroTolerance) {
               array[numberNonZero] = value;
               index[numberNonZero++] = i;
             }
@@ -856,7 +856,7 @@ void ClpPlusMinusOneMatrix::transposeTimesByRow(const ClpSimplex *model, FloatT 
       for (i = 0; i < numberOriginal; i++) {
         int iColumn = index[i];
         marked[iColumn] = 0;
-        if (fabs(array[iColumn]) > zeroTolerance) {
+        if (CoinAbs(array[iColumn]) > zeroTolerance) {
           index[numberNonZero++] = iColumn;
         } else {
           array[iColumn] = 0.0;
@@ -909,7 +909,7 @@ void ClpPlusMinusOneMatrix::transposeTimesByRow(const ClpSimplex *model, FloatT 
             int iLookup = lookup[iColumn];
             array[iLookup] += value;
           } else {
-            if (fabs(value) > zeroTolerance) {
+            if (CoinAbs(value) > zeroTolerance) {
               array[numberNonZero] = value;
               index[numberNonZero++] = iColumn;
             }
@@ -921,7 +921,7 @@ void ClpPlusMinusOneMatrix::transposeTimesByRow(const ClpSimplex *model, FloatT 
             int iLookup = lookup[iColumn];
             array[iLookup] -= value;
           } else {
-            if (fabs(value) > zeroTolerance) {
+            if (CoinAbs(value) > zeroTolerance) {
               array[numberNonZero] = -value;
               index[numberNonZero++] = iColumn;
             }
@@ -946,7 +946,7 @@ void ClpPlusMinusOneMatrix::transposeTimesByRow(const ClpSimplex *model, FloatT 
             int iLookup = lookup[iColumn];
             array[iLookup] += value;
           } else {
-            if (fabs(value) > zeroTolerance) {
+            if (CoinAbs(value) > zeroTolerance) {
               array[numberNonZero] = value;
               index[numberNonZero++] = iColumn;
             }
@@ -959,7 +959,7 @@ void ClpPlusMinusOneMatrix::transposeTimesByRow(const ClpSimplex *model, FloatT 
       for (j = 0; j < numberOriginal; j++) {
         int iColumn = index[j];
         marked[iColumn] = 0;
-        if (fabs(array[j]) <= zeroTolerance)
+        if (CoinAbs(array[j]) <= zeroTolerance)
           nDelete++;
       }
       if (nDelete) {
@@ -969,7 +969,7 @@ void ClpPlusMinusOneMatrix::transposeTimesByRow(const ClpSimplex *model, FloatT 
           int iColumn = index[j];
           FloatT value = array[j];
           array[j] = 0.0;
-          if (fabs(value) > zeroTolerance) {
+          if (CoinAbs(value) > zeroTolerance) {
             array[numberNonZero] = value;
             index[numberNonZero++] = iColumn;
           }
@@ -1025,7 +1025,7 @@ void ClpPlusMinusOneMatrix::transposeTimesByRow(const ClpSimplex *model, FloatT 
       numberNonZero = 0;
       for (i = 0; i < numberOriginal; i++) {
         int iColumn = index[i];
-        if (fabs(array[iColumn]) > zeroTolerance) {
+        if (CoinAbs(array[iColumn]) > zeroTolerance) {
           index[numberNonZero++] = iColumn;
         } else {
           array[iColumn] = 0.0;
@@ -1041,7 +1041,7 @@ void ClpPlusMinusOneMatrix::transposeTimesByRow(const ClpSimplex *model, FloatT 
     CoinBigIndex j;
     if (packed) {
       value = pi[0] * scalar;
-      if (fabs(value) > zeroTolerance) {
+      if (CoinAbs(value) > zeroTolerance) {
 #ifdef CLP_PLUS_ONE_MATRIX
         if ((otherFlags_ & 1) == 0 || !doPlusOnes) {
 #endif
@@ -1069,7 +1069,7 @@ void ClpPlusMinusOneMatrix::transposeTimesByRow(const ClpSimplex *model, FloatT 
       }
     } else {
       value = pi[iRow] * scalar;
-      if (fabs(value) > zeroTolerance) {
+      if (CoinAbs(value) > zeroTolerance) {
         for (j = startPositive[iRow]; j < startNegative[iRow]; j++) {
           int iColumn = column[j];
           array[iColumn] = value;
@@ -1570,7 +1570,7 @@ void ClpPlusMinusOneMatrix::appendCols(int number, const CoinPackedVectorBase *c
     size += n;
     int i;
     for (i = 0; i < n; i++) {
-      if (fabs(element[i]) != 1.0)
+      if (CoinAbs(element[i]) != 1.0)
         numberBad++;
     }
   }
@@ -1754,7 +1754,7 @@ void ClpPlusMinusOneMatrix::partialPricing(ClpSimplex *model, FloatT startFracti
   const FloatT *COIN_RESTRICT cost = model->costRegion();
   FloatT bestDj;
   if (bestSequence >= 0)
-    bestDj = fabs(reducedCost[bestSequence]);
+    bestDj = CoinAbs(reducedCost[bestSequence]);
   else
     bestDj = tolerance;
   int sequenceOut = model->sequenceOut();
@@ -1782,7 +1782,7 @@ void ClpPlusMinusOneMatrix::partialPricing(ClpSimplex *model, FloatT startFracti
           int iRow = indices_[j];
           value += duals[iRow];
         }
-        value = fabs(value);
+        value = CoinAbs(value);
         if (value > FREE_ACCEPT * tolerance) {
           numberWanted--;
           // we are going to bias towards free (but only if reasonable)
@@ -1971,7 +1971,7 @@ int ClpPlusMinusOneMatrix::transposeTimes2(const ClpSimplex *model,
         int iRow = indices_[j];
         value += pi[iRow];
       }
-      if (fabs(value) > zeroTolerance) {
+      if (CoinAbs(value) > zeroTolerance) {
         // and do other array
         FloatT modification = 0.0;
         for (j = startPositive_[iColumn]; j < startNegative_[iColumn]; j++) {
@@ -2025,7 +2025,7 @@ int ClpPlusMinusOneMatrix::transposeTimes2(const ClpSimplex *model,
         int iRow = indices_[j];
         value += pi[iRow];
       }
-      if (fabs(value) > zeroTolerance) {
+      if (CoinAbs(value) > zeroTolerance) {
         // and do other array
         FloatT modification = 0.0;
         for (j = startPositive_[iColumn]; j < startNegative_[iColumn]; j++) {
@@ -2793,7 +2793,7 @@ void ClpPoolMatrix::transposeTimes(const ClpSimplex *model, FloatT scalar,
     for (iColumn = 0; iColumn < numberColumns_ - 1; iColumn++) {
       CoinBigIndex start = end;
       end = columnStart_[iColumn + 2];
-      if (fabs(value) > zeroTolerance) {
+      if (CoinAbs(value) > zeroTolerance) {
         array[numberNonZero] = value;
         index[numberNonZero++] = iColumn;
       }
@@ -2803,7 +2803,7 @@ void ClpPoolMatrix::transposeTimes(const ClpSimplex *model, FloatT scalar,
         value += pi[iRow] * elements_[stuff_[j].pool_];
       }
     }
-    if (fabs(value) > zeroTolerance) {
+    if (CoinAbs(value) > zeroTolerance) {
       array[numberNonZero] = value;
       index[numberNonZero++] = iColumn;
     }
@@ -2829,7 +2829,7 @@ void ClpPoolMatrix::transposeTimes(const ClpSimplex *model, FloatT scalar,
       CoinBigIndex start = end;
       scale = columnScale[iColumn + 1];
       end = columnStart_[iColumn + 2];
-      if (fabs(value) > zeroTolerance) {
+      if (CoinAbs(value) > zeroTolerance) {
         array[numberNonZero] = value;
         index[numberNonZero++] = iColumn;
       }
@@ -2840,7 +2840,7 @@ void ClpPoolMatrix::transposeTimes(const ClpSimplex *model, FloatT scalar,
       }
     }
     value *= scale;
-    if (fabs(value) > zeroTolerance) {
+    if (CoinAbs(value) > zeroTolerance) {
       array[numberNonZero] = value;
       index[numberNonZero++] = iColumn;
     }
@@ -3325,7 +3325,7 @@ int ClpPoolMatrix::transposeTimes2(const ClpSimplex *model,
         int iRow = stuff_[j].row_;
         value -= pi[iRow] * elements_[stuff_[j].pool_];
       }
-      if (fabs(value) > zeroTolerance) {
+      if (CoinAbs(value) > zeroTolerance) {
         // and do other array
         FloatT modification = 0.0;
         for (j = start; j < end; j++) {
@@ -3362,7 +3362,7 @@ int ClpPoolMatrix::transposeTimes2(const ClpSimplex *model,
             break;
           case ClpSimplex::isFree:
           case ClpSimplex::superBasic:
-            if (fabs(value) > FREE_ACCEPT * dualTolerance) {
+            if (CoinAbs(value) > FREE_ACCEPT * dualTolerance) {
               // we are going to bias towards free (but only if reasonable)
               value *= FREE_BIAS;
               value *= value;
@@ -3443,7 +3443,7 @@ int ClpPoolMatrix::transposeTimes2(const ClpSimplex *model,
         value -= pi[iRow] * elements_[stuff_[j].pool_];
       }
       value *= scale;
-      if (fabs(value) > zeroTolerance) {
+      if (CoinAbs(value) > zeroTolerance) {
         FloatT modification = 0.0;
         for (j = start; j < end; j++) {
           int iRow = stuff_[j].row_;
@@ -3480,7 +3480,7 @@ int ClpPoolMatrix::transposeTimes2(const ClpSimplex *model,
             break;
           case ClpSimplex::isFree:
           case ClpSimplex::superBasic:
-            if (fabs(value) > FREE_ACCEPT * dualTolerance) {
+            if (CoinAbs(value) > FREE_ACCEPT * dualTolerance) {
               // we are going to bias towards free (but only if reasonable)
               value *= FREE_BIAS;
               value *= value;

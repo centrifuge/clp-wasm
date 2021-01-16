@@ -708,7 +708,7 @@ inline FloatT atan_wrapper(FloatT x) { return atan(x); }
 inline FloatT log_wrapper(FloatT x) { return log(x); }
 inline FloatT exp_wrapper(FloatT x) { return exp(x); }
 inline FloatT sqrt_wrapper(FloatT x) { return sqrt(x); }
-inline FloatT fabs_wrapper(FloatT x) { return fabs(x); }
+inline FloatT CoinAbs_wrapper(FloatT x) { return CoinAbs(x); }
 inline FloatT floor_wrapper(FloatT x) { return floor(x); }
 inline FloatT ceil_wrapper(FloatT x) { return ceil(x); }
 
@@ -719,8 +719,8 @@ struct init const arith_fncts[] = {
   { "ln", log_wrapper },
   { "exp", exp_wrapper },
   { "sqrt", sqrt_wrapper },
-  { "fabs", fabs_wrapper },
-  { "abs", fabs_wrapper },
+  { "CoinAbs", CoinAbs_wrapper },
+  { "abs", CoinAbs_wrapper },
   { "floor", floor_wrapper },
   { "ceil", ceil_wrapper },
   { NULL, 0 }

@@ -113,7 +113,7 @@ const CoinPresolveAction
   compute the answer now. Try to make it nonbasic at bound. If we're
   unbounded, say so and quit.
 */
-    if (fabs(cost[j]) < ztoldj)
+    if (CoinAbs(cost[j]) < ztoldj)
       cost[j] = 0.0;
     if (cost[j] == 0.0) {
       if (-PRESOLVE_INF < lj)

@@ -1276,7 +1276,7 @@ static void c_ekksmem_copy(EKKfactinfo *fact, const EKKfactinfo *rhsFact)
               {
                 int j;
                 for (j = istart; j < istart + hinrow[i]; j++)
-                  assert(fabs(de2val[j]) < 1.0e50);
+                  assert(CoinAbs(de2val[j]) < 1.0e50);
               }
 #endif
             }
@@ -1485,7 +1485,7 @@ CoinOslFactorization::conditionNumber() const
     const FloatT dpiv = dluval[kx];
     condition *= dpiv;
   }
-  condition = CoinMax(fabs(condition), 1.0e-50);
+  condition = CoinMax(CoinAbs(condition), 1.0e-50);
   return 1.0 / condition;
 }
 #endif

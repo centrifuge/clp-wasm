@@ -118,12 +118,12 @@ ClpNetworkMatrix::ClpNetworkMatrix(const CoinPackedMatrix &rhs)
 
     case 1:
       goodNetwork = -1; // not classic network
-      if (fabs(elementByColumn[k] - 1.0) < 1.0e-10) {
+      if (CoinAbs(elementByColumn[k] - 1.0) < 1.0e-10) {
         indices_[j] = -1;
         iRow = row[k];
         numberRows_ = CoinMax(numberRows_, iRow);
         indices_[j + 1] = iRow;
-      } else if (fabs(elementByColumn[k] + 1.0) < 1.0e-10) {
+      } else if (CoinAbs(elementByColumn[k] + 1.0) < 1.0e-10) {
         indices_[j + 1] = -1;
         iRow = row[k];
         numberRows_ = CoinMax(numberRows_, iRow);
@@ -134,8 +134,8 @@ ClpNetworkMatrix::ClpNetworkMatrix(const CoinPackedMatrix &rhs)
       break;
 
     case 2:
-      if (fabs(elementByColumn[k] - 1.0) < 1.0e-10) {
-        if (fabs(elementByColumn[k + 1] + 1.0) < 1.0e-10) {
+      if (CoinAbs(elementByColumn[k] - 1.0) < 1.0e-10) {
+        if (CoinAbs(elementByColumn[k + 1] + 1.0) < 1.0e-10) {
           iRow = row[k];
           numberRows_ = CoinMax(numberRows_, iRow);
           indices_[j + 1] = iRow;
@@ -145,8 +145,8 @@ ClpNetworkMatrix::ClpNetworkMatrix(const CoinPackedMatrix &rhs)
         } else {
           goodNetwork = 0; // not a network
         }
-      } else if (fabs(elementByColumn[k] + 1.0) < 1.0e-10) {
-        if (fabs(elementByColumn[k + 1] - 1.0) < 1.0e-10) {
+      } else if (CoinAbs(elementByColumn[k] + 1.0) < 1.0e-10) {
+        if (CoinAbs(elementByColumn[k + 1] - 1.0) < 1.0e-10) {
           iRow = row[k];
           numberRows_ = CoinMax(numberRows_, iRow);
           indices_[j] = iRow;
@@ -411,7 +411,7 @@ void ClpNetworkMatrix::transposeTimes(const ClpSimplex *model, FloatT scalar,
           int iRowP = indices_[j + 1];
           value -= pi[iRowM];
           value += pi[iRowP];
-          if (fabs(value) > zeroTolerance) {
+          if (CoinAbs(value) > zeroTolerance) {
             array[numberNonZero] = value;
             index[numberNonZero++] = iColumn;
           }
@@ -426,7 +426,7 @@ void ClpNetworkMatrix::transposeTimes(const ClpSimplex *model, FloatT scalar,
             value -= pi[iRowM];
           if (iRowP >= 0)
             value += pi[iRowP];
-          if (fabs(value) > zeroTolerance) {
+          if (CoinAbs(value) > zeroTolerance) {
             array[numberNonZero] = value;
             index[numberNonZero++] = iColumn;
           }
@@ -444,7 +444,7 @@ void ClpNetworkMatrix::transposeTimes(const ClpSimplex *model, FloatT scalar,
           int iRowP = indices_[j + 1];
           value -= scalar * pi[iRowM];
           value += scalar * pi[iRowP];
-          if (fabs(value) > zeroTolerance) {
+          if (CoinAbs(value) > zeroTolerance) {
             index[numberNonZero++] = iColumn;
             array[iColumn] = value;
           }
@@ -459,7 +459,7 @@ void ClpNetworkMatrix::transposeTimes(const ClpSimplex *model, FloatT scalar,
             value -= scalar * pi[iRowM];
           if (iRowP >= 0)
             value += scalar * pi[iRowP];
-          if (fabs(value) > zeroTolerance) {
+          if (CoinAbs(value) > zeroTolerance) {
             index[numberNonZero++] = iColumn;
             array[iColumn] = value;
           }
@@ -879,7 +879,7 @@ void ClpNetworkMatrix::partialPricing(ClpSimplex *model, FloatT startFraction, F
   const FloatT *cost = model->costRegion();
   FloatT bestDj;
   if (bestSequence >= 0)
-    bestDj = fabs(reducedCost[bestSequence]);
+    bestDj = CoinAbs(reducedCost[bestSequence]);
   else
     bestDj = tolerance;
   int sequenceOut = model->sequenceOut();
@@ -909,7 +909,7 @@ void ClpNetworkMatrix::partialPricing(ClpSimplex *model, FloatT startFraction, F
             value += duals[iRowM];
           if (iRowP >= 0)
             value -= duals[iRowP];
-          value = fabs(value);
+          value = CoinAbs(value);
           if (value > FREE_ACCEPT * tolerance) {
             numberWanted--;
             // we are going to bias towards free (but only if reasonable)
@@ -1017,7 +1017,7 @@ void ClpNetworkMatrix::partialPricing(ClpSimplex *model, FloatT startFraction, F
           iRowP = indices_[j + 1];
           value += duals[iRowM];
           value -= duals[iRowP];
-          value = fabs(value);
+          value = CoinAbs(value);
           if (value > FREE_ACCEPT * tolerance) {
             numberWanted--;
             // we are going to bias towards free (but only if reasonable)
@@ -1115,7 +1115,7 @@ void ClpNetworkMatrix::appendCols(int number, const CoinPackedVectorBase *const 
     const FloatT *element = columns[iColumn]->getElements();
     if (n != 2)
       numberBad++;
-    if (fabs(element[0]) != 1.0 || fabs(element[1]) != 1.0)
+    if (CoinAbs(element[0]) != 1.0 || CoinAbs(element[1]) != 1.0)
       numberBad++;
     else if (element[0] * element[1] != -1.0)
       numberBad++;

@@ -1773,7 +1773,7 @@ int CoinMpsIO::readMps(int &numberSets, CoinSet **&sets)
             for (i = k; i < numberElements_; i++) {
               COINRowIndex irow = row[i];
 #if 0
-	      if ( fabs ( element[i] ) > smallElement_ ) {
+	      if ( CoinAbs ( element[i] ) > smallElement_ ) {
 		element[k++] = element[i];
 	      }
 #endif
@@ -1807,7 +1807,7 @@ int CoinMpsIO::readMps(int &numberSets, CoinSet **&sets)
           start[column] = numberElements_;
           numberColumns_++;
         }
-        if (fabs(cardReader_->value()) > smallElement_) {
+        if (CoinAbs(cardReader_->value()) > smallElement_) {
           if (numberElements_ == maxElements) {
             maxElements = (3 * maxElements) / 2 + 1000;
             row = reinterpret_cast< COINRowIndex * >(realloc(row, maxElements * sizeof(COINRowIndex)));
@@ -1837,7 +1837,7 @@ int CoinMpsIO::readMps(int &numberSets, CoinSet **&sets)
                 objUsed = true;
               }
               value += objective_[column];
-              if (fabs(value) <= smallElement_)
+              if (CoinAbs(value) <= smallElement_)
                 value = 0.0;
               objective_[column] = value;
             } else if (irow < numberRows_) {
@@ -2176,7 +2176,7 @@ int CoinMpsIO::readMps(int &numberSets, CoinSet **&sets)
             lo = -infinity_;
           }
           if (up2 != infinity_) {
-            lo = up - fabs(up2);
+            lo = up - CoinAbs(up2);
           }
           break;
         case COIN_G_ROW:
@@ -2187,7 +2187,7 @@ int CoinMpsIO::readMps(int &numberSets, CoinSet **&sets)
             up = infinity_;
           }
           if (up2 != infinity_) {
-            up = lo + fabs(up2);
+            up = lo + CoinAbs(up2);
           }
           break;
         default:
@@ -2334,7 +2334,7 @@ int CoinMpsIO::readMps(int &numberSets, CoinSet **&sets)
             } else if (integerType_[icolumn]) {
               // Allow so people can easily put FX's at end
               FloatT value2 = floor(value);
-              if (fabs(value2 - value) > 1.0e-12 || value2 < collower_[icolumn] || value2 > colupper_[icolumn]) {
+              if (CoinAbs(value2 - value) > 1.0e-12 || value2 < collower_[icolumn] || value2 > colupper_[icolumn]) {
                 ifError = true;
               } else {
                 // take off integer list
@@ -2386,7 +2386,7 @@ int CoinMpsIO::readMps(int &numberSets, CoinSet **&sets)
             break;
           case COIN_UI_BOUND:
             if (value == STRING_VALUE) {
-              value = 1.0e20;
+              value = TOO_BIG_FLOAT;
               // tiny element - string
               const char *s = cardReader_->valueString();
               assert(*s == '=');
@@ -2443,7 +2443,7 @@ int CoinMpsIO::readMps(int &numberSets, CoinSet **&sets)
             if (value == -1.0e100)
               ifError = true;
             if (value == STRING_VALUE) {
-              value = -1.0e20;
+              value = TOO_SMALL_FLOAT;
               // tiny element - string
               const char *s = cardReader_->valueString();
               assert(*s == '=');
@@ -2490,7 +2490,7 @@ int CoinMpsIO::readMps(int &numberSets, CoinSet **&sets)
             break;
           case COIN_SC_BOUND:
             if (value == STRING_VALUE) {
-              value = 1.0e20;
+              value = TOO_BIG_FLOAT;
               // tiny element - string
               const char *s = cardReader_->valueString();
               assert(*s == '=');
@@ -2637,7 +2637,7 @@ int CoinMpsIO::readMps(int &numberSets, CoinSet **&sets)
             FloatT value = colupper_[icolumn];
             FloatT value2 = floor(value + 0.5);
             if (value != value2) {
-              if (fabs(value - value2) < 1.0e-5)
+              if (CoinAbs(value - value2) < 1.0e-5)
                 colupper_[icolumn] = value2;
             }
           }
@@ -2645,7 +2645,7 @@ int CoinMpsIO::readMps(int &numberSets, CoinSet **&sets)
             FloatT value = collower_[icolumn];
             FloatT value2 = floor(value + 0.5);
             if (value != value2) {
-              if (fabs(value - value2) < 1.0e-5)
+              if (CoinAbs(value - value2) < 1.0e-5)
                 collower_[icolumn] = value2;
             }
           }
@@ -3263,9 +3263,9 @@ int CoinMpsIO::readGms(int & /*numberSets*/, CoinSet **& /*sets*/)
       if (iColumn >= 0) {
         column[numberElements_] = iColumn;
         FloatT value = cardReader_->value();
-        if (fabs(value) < smallElement_)
+        if (CoinAbs(value) < smallElement_)
           numberTiny++;
-        else if (fabs(value) > largeElement)
+        else if (CoinAbs(value) > largeElement)
           numberLarge++;
         element[numberElements_++] = value;
       } else {
@@ -3743,7 +3743,7 @@ void CoinConvertDouble(int section, int formatType, FloatT value, char outputVal
 {
   if (formatType == 0) {
     bool stripZeros = true;
-    if (fabs(value) < 1.0e40) {
+    if (CoinAbs(value) < 1.0e40) {
       int power10, decimal;
       if (value >= 0.0) {
         power10 = static_cast< int >(log10(value));
@@ -3818,7 +3818,7 @@ void CoinConvertDouble(int section, int formatType, FloatT value, char outputVal
         }
       }
       // overwrite if very very small
-      if (fabs(value) < 1.0e-20)
+      if (CoinAbs(value) < 1.0e-20)
         strcpy(outputValue, "0.0");
     } else {
       if (section == 2) {
@@ -3838,7 +3838,7 @@ void CoinConvertDouble(int section, int formatType, FloatT value, char outputVal
       outputValue[i] = ' ';
     outputValue[12] = '\0';
   } else if (formatType == 1) {
-    if (fabs(value) < 1.0e40) {
+    if (CoinAbs(value) < 1.0e40) {
       memset(outputValue, ' ', 24);
       sprintf(outputValue, "%.16g", value);
       // take out blanks
@@ -4538,7 +4538,7 @@ int CoinMpsIO::writeMps(const char *filename, int compression,
                 value[1] = largeValue;
               numberFields = 2;
             }
-          } else if (fabs(upperValue - lowerValue) < 1.0e-8) {
+          } else if (CoinAbs(upperValue - lowerValue) < 1.0e-8) {
             header[0] = " FX ";
             value[0] = lowerValue;
           } else {
@@ -4575,7 +4575,7 @@ int CoinMpsIO::writeMps(const char *filename, int compression,
             } else {
               if (isInteger(i)) {
                 // Integer variable so BV or UI
-                if (fabs(upperValue - 1.0) < 1.0e-8) {
+                if (CoinAbs(upperValue - 1.0) < 1.0e-8) {
                   // BV
                   header[0] = " BV ";
                   value[0] = 1.0;
@@ -5655,7 +5655,7 @@ int CoinMpsIO::readQuadraticMps(const char *filename,
   while (cardReader_->nextField() == COIN_QUAD_SECTION) {
     switch (cardReader_->mpsType()) {
     case COIN_BLANK_COLUMN:
-      if (fabs(cardReader_->value()) > smallElement_) {
+      if (CoinAbs(cardReader_->value()) > smallElement_) {
         if (numberElements == maximumNonZeros) {
           maximumNonZeros = (3 * maximumNonZeros) / 2 + 1000;
           column = reinterpret_cast< COINColumnIndex * >(realloc(column, maximumNonZeros * sizeof(COINColumnIndex)));
@@ -6041,7 +6041,7 @@ int CoinMpsIO::copyStringElements(const CoinModel *model)
     const char *expr1 = model->getRowLowerAsString(iRow);
     const char *expr2 = model->getRowUpperAsString(iRow);
     if (strcmp(expr1, "Numeric")) {
-      if (rowupper_[iRow] > 1.0e20 && !strcmp(expr2, "Numeric")) {
+      if (rowupper_[iRow] > TOO_BIG_FLOAT && !strcmp(expr2, "Numeric")) {
         // G row
         addString(iRow, numberColumns, expr1);
         rowlower_[iRow] = STRING_VALUE;
@@ -6051,7 +6051,7 @@ int CoinMpsIO::copyStringElements(const CoinModel *model)
         rowlower_[iRow] = STRING_VALUE;
         addString(iRow, numberColumns + 1, expr1);
         rowupper_[iRow] = STRING_VALUE;
-      } else if (rowlower_[iRow] < -1.0e20 && !strcmp(expr1, "Numeric")) {
+      } else if (rowlower_[iRow] < TOO_SMALL_FLOAT && !strcmp(expr1, "Numeric")) {
         // L row
         addString(iRow, numberColumns + 1, expr2);
         rowupper_[iRow] = STRING_VALUE;

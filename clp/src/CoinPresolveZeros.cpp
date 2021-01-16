@@ -34,7 +34,7 @@ int count_col_zeros(int &ncheckcols, int *checkcols,
     int zerosj = 0;
 
     for (CoinBigIndex kcol = kcs; kcol < kce; ++kcol) {
-      if (fabs(colels[kcol]) < ZTOLDP) {
+      if (CoinAbs(colels[kcol]) < ZTOLDP) {
         zerosj++;
       }
     }
@@ -66,7 +66,7 @@ int count_col_zeros2(int &ncheckcols, int *checkcols,
 
     int zerosj = 0;
     for (CoinBigIndex k = kcs; k < kce; ++k) {
-      if (fabs(colels[k]) < ZTOLDP) {
+      if (CoinAbs(colels[k]) < ZTOLDP) {
         zerosj++;
       }
     }
@@ -106,7 +106,7 @@ int drop_col_zeros(int ncheckcols, const int *checkcols,
 #endif
 
     for (CoinBigIndex k = kcs; k < kce; ++k) {
-      if (fabs(colels[k]) < ZTOLDP) {
+      if (CoinAbs(colels[k]) < ZTOLDP) {
         actions[nactions].col = col;
         actions[nactions].row = hrow[k];
 
@@ -160,7 +160,7 @@ void drop_row_zeros(int nzeros, const dropped_zero *zeros,
 #endif
 
     for (CoinBigIndex k = krs; k < kre; k++) {
-      if (fabs(rowels[k]) < ZTOLDP) {
+      if (CoinAbs(rowels[k]) < ZTOLDP) {
 
 #if PRESOLVE_DEBUG > 2
         std::cout << " (" << row << "," << hcol[k] << ") ";

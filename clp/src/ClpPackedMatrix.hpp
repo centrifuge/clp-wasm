@@ -708,7 +708,7 @@ protected:
 #elif INCLUDE_MATRIX3_PRICING
 int iColumn = *column;
 column++;
-if (fabs(value) > zeroTolerance) {
+if (CoinAbs(value) > zeroTolerance) {
   FloatT thisWeight = weights[iColumn];
   FloatT pivot = value * scaleFactor;
   FloatT pivotSquared = pivot * pivot;

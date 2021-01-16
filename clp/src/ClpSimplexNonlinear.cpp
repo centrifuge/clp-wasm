@@ -422,7 +422,7 @@ void ClpSimplexNonlinear::statusOfProblemInPrimal(int &lastCleaned, int type,
           numberDualInfeasibilities_ = 1; // carry on
           problemStatus_ = -1;
         }
-        if (infeasibilityCost_ >= 1.0e20 || numberDualInfeasibilities_ == 0) {
+        if (infeasibilityCost_ >= TOO_BIG_FLOAT || numberDualInfeasibilities_ == 0) {
           // we are infeasible - use as ray
           delete[] ray_;
           ray_ = new FloatT[numberRows_];
@@ -439,7 +439,7 @@ void ClpSimplexNonlinear::statusOfProblemInPrimal(int &lastCleaned, int type,
           ;
           numberPrimalInfeasibilities_ = nonLinearCost_->numberInfeasibilities();
         }
-        if (infeasibilityCost_ < 1.0e20) {
+        if (infeasibilityCost_ < TOO_BIG_FLOAT) {
           infeasibilityCost_ *= 5.0;
           changeMade_++; // say change made
           unflag();
@@ -527,7 +527,7 @@ void ClpSimplexNonlinear::statusOfProblemInPrimal(int &lastCleaned, int type,
           unPerturb(); // stop any further perturbation
         }
         //we need infeasiblity cost changed
-        if (infeasibilityCost_ < 1.0e20) {
+        if (infeasibilityCost_ < TOO_BIG_FLOAT) {
           infeasibilityCost_ *= 5.0;
           changeMade_++; // say change made
           unflag();
@@ -817,7 +817,7 @@ void ClpSimplexNonlinear::directionVector(CoinIndexedVector *vectorArray,
             break;
           case isFree:
           case superBasic:
-            if (fabs(dj_[iSequence]) > dualTolerance3)
+            if (CoinAbs(dj_[iSequence]) > dualTolerance3)
               normFlagged += dj_[iSequence] * dj_[iSequence];
             break;
           }
@@ -863,14 +863,14 @@ void ClpSimplexNonlinear::directionVector(CoinIndexedVector *vectorArray,
           //#define ALLSUPER
 #define NOSUPER
 #ifndef ALLSUPER
-          if (fabs(dj_[iSequence]) > dualTolerance_) {
-            if (fabs(dj_[iSequence]) > dualTolerance3)
+          if (CoinAbs(dj_[iSequence]) > dualTolerance_) {
+            if (CoinAbs(dj_[iSequence]) > dualTolerance3)
               normUnflagged += dj_[iSequence] * dj_[iSequence];
             nSuper++;
-            bestSuper = CoinMax(fabs(dj_[iSequence]), bestSuper);
-            sumSuper += fabs(dj_[iSequence]);
+            bestSuper = CoinMax(CoinAbs(dj_[iSequence]), bestSuper);
+            sumSuper += CoinAbs(dj_[iSequence]);
           }
-          if (fabs(dj_[iSequence]) > dualTolerance2) {
+          if (CoinAbs(dj_[iSequence]) > dualTolerance2) {
             array[iSequence] = -dj_[iSequence];
             index[number++] = iSequence;
           }
@@ -878,7 +878,7 @@ void ClpSimplexNonlinear::directionVector(CoinIndexedVector *vectorArray,
           array[iSequence] = -dj_[iSequence];
           index[number++] = iSequence;
           if (pivotMode2 >= 10)
-            bestSuper = CoinMax(fabs(dj_[iSequence]), bestSuper);
+            bestSuper = CoinMax(CoinAbs(dj_[iSequence]), bestSuper);
 #endif
           break;
         }
@@ -905,7 +905,7 @@ void ClpSimplexNonlinear::directionVector(CoinIndexedVector *vectorArray,
         if (pivotMode2 == 100 && nSuper > 1)
           takeBest = false;
         if (sequenceIn_ >= 0 && takeBest) {
-          if (fabs(dj_[sequenceIn_]) > bestSuper) {
+          if (CoinAbs(dj_[sequenceIn_]) > bestSuper) {
             array[sequenceIn_] = -dj_[sequenceIn_];
             index[number++] = sequenceIn_;
           } else {
@@ -995,7 +995,7 @@ void ClpSimplexNonlinear::directionVector(CoinIndexedVector *vectorArray,
             if (pivotMode2 == 1)
               merit *= 1.0e-20; // discourage
             if (pivotMode2 == 3)
-              merit = fabs(dj_[iSequence]);
+              merit = CoinAbs(dj_[iSequence]);
             if (merit > bestDj) {
               sequenceIn_ = iSequence;
               bestDj = merit;
@@ -1009,7 +1009,7 @@ void ClpSimplexNonlinear::directionVector(CoinIndexedVector *vectorArray,
             if (pivotMode2 == 1)
               merit *= 1.0e-20; // discourage
             if (pivotMode2 == 3)
-              merit = fabs(dj_[iSequence]);
+              merit = CoinAbs(dj_[iSequence]);
             if (merit > bestDj) {
               sequenceIn_ = iSequence;
               bestDj = merit;
@@ -1026,7 +1026,7 @@ void ClpSimplexNonlinear::directionVector(CoinIndexedVector *vectorArray,
             if (pivotMode2 == 1)
               merit = distance;
             if (pivotMode2 == 3)
-              merit = fabs(dj_[iSequence]);
+              merit = CoinAbs(dj_[iSequence]);
             if (merit > bestDj) {
               sequenceIn_ = iSequence;
               bestDj = merit;
@@ -1039,7 +1039,7 @@ void ClpSimplexNonlinear::directionVector(CoinIndexedVector *vectorArray,
             if (pivotMode2 == 1)
               merit = distance;
             if (pivotMode2 == 3)
-              merit = fabs(dj_[iSequence]);
+              merit = CoinAbs(dj_[iSequence]);
             if (merit > bestDj) {
               sequenceIn_ = iSequence;
               bestDj = merit;
@@ -1079,7 +1079,7 @@ void ClpSimplexNonlinear::directionVector(CoinIndexedVector *vectorArray,
           break;
         case isFree:
         case superBasic:
-          if (fabs(dj_[iSequence]) > dualTolerance_)
+          if (CoinAbs(dj_[iSequence]) > dualTolerance_)
             normFlagged += dj_[iSequence] * dj_[iSequence];
           break;
         }
@@ -1112,7 +1112,7 @@ void ClpSimplexNonlinear::directionVector(CoinIndexedVector *vectorArray,
         break;
       case isFree:
       case superBasic:
-        if (fabs(dj_[iSequence]) > dualTolerance_) {
+        if (CoinAbs(dj_[iSequence]) > dualTolerance_) {
           number++;
           normUnflagged += dj_[iSequence] * dj_[iSequence];
         }
@@ -1347,7 +1347,7 @@ int ClpSimplexNonlinear::pivotColumn(CoinIndexedVector *longArray,
         int iLargest = -1;
 #endif
         for (iRow = 0; iRow < numberRows_; iRow++) {
-          FloatT value = fabs(rhs[iRow]);
+          FloatT value = CoinAbs(rhs[iRow]);
           rhs[iRow] = 0.0;
           if (value > largest) {
             largest = value;
@@ -1462,7 +1462,7 @@ int ClpSimplexNonlinear::pivotColumn(CoinIndexedVector *longArray,
           }
           // But largest has to match up with change
           assert(work[sequenceIn_]);
-          largest /= fabs(work[sequenceIn_]);
+          largest /= CoinAbs(work[sequenceIn_]);
           if (largest < objTheta2) {
             easyMove = true;
           } else if (!easyMove) {
@@ -1565,7 +1565,7 @@ int ClpSimplexNonlinear::pivotColumn(CoinIndexedVector *longArray,
           FloatT zzz[10000];
           int iVariable;
           g2 = 1.0e50; // temp
-          if (fabs(g2) >= 0.2 * fabs(g1)) {
+          if (CoinAbs(g2) >= 0.2 * CoinAbs(g1)) {
             // restart
             FloatT delta = innerProduct(saveY2, number2, saveS2) / innerProduct(saveY2, number2, saveY2);
             delta = 1.0; //temp
@@ -1702,7 +1702,7 @@ int ClpSimplexNonlinear::pivotColumn(CoinIndexedVector *longArray,
             FloatT largest = 0.0;
             int iLargest = -1;
             for (iRow = 0; iRow < numberRows_; iRow++) {
-              FloatT value = fabs(qq[iRow]);
+              FloatT value = CoinAbs(qq[iRow]);
               if (value > largest) {
                 largest = value;
                 iLargest = iRow;
@@ -1711,7 +1711,7 @@ int ClpSimplexNonlinear::pivotColumn(CoinIndexedVector *longArray,
             printf("largest null error %g on row %d\n", largest, iLargest);
             for (iSequence = 0; iSequence < numberTotal; iSequence++) {
               if (getStatus(iSequence) == basic)
-                assert(fabs(dj_[iSequence]) < 1.0e-3);
+                assert(CoinAbs(dj_[iSequence]) < 1.0e-3);
             }
           }
 #endif
@@ -1788,7 +1788,7 @@ int ClpSimplexNonlinear::pivotColumn(CoinIndexedVector *longArray,
               break;
             case isFree:
             case superBasic:
-              if (fabs(dj_[iSequence]) > dualTolerance_)
+              if (CoinAbs(dj_[iSequence]) > dualTolerance_)
                 nFlagged++;
               break;
             }
@@ -1809,7 +1809,7 @@ int ClpSimplexNonlinear::pivotColumn(CoinIndexedVector *longArray,
             break;
           case isFree:
           case superBasic:
-            if (fabs(dj_[iSequence]) > dualTolerance_)
+            if (CoinAbs(dj_[iSequence]) > dualTolerance_)
               nSuper++;
             break;
           }
@@ -1864,7 +1864,7 @@ int ClpSimplexNonlinear::pivotColumn(CoinIndexedVector *longArray,
         Status thisStatus = getStatus(iSequence);
         FloatT oldValue = solution_[iSequence];
         if (thisStatus != basic) {
-          if (fabs(alpha) >= acceptablePivot) {
+          if (CoinAbs(alpha) >= acceptablePivot) {
             if (alpha < 0.0) {
               // variable going towards lower bound
               FloatT bound = lower_[iSequence];
@@ -1884,7 +1884,7 @@ int ClpSimplexNonlinear::pivotColumn(CoinIndexedVector *longArray,
             }
           }
         } else {
-          if (fabs(alpha) >= acceptableBasic) {
+          if (CoinAbs(alpha) >= acceptableBasic) {
             if (alpha < 0.0) {
               // variable going towards lower bound
               FloatT bound = lower_[iSequence];
@@ -2383,7 +2383,7 @@ int ClpSimplexNonlinear::pivotColumn(CoinIndexedVector *longArray,
         break;
       case isFree:
       case superBasic:
-        if (fabs(dj_[iSequence]) > dualTolerance3)
+        if (CoinAbs(dj_[iSequence]) > dualTolerance3)
           normFlagged += dj_[iSequence] * dj_[iSequence];
         break;
       }
@@ -2451,7 +2451,7 @@ int ClpSimplexNonlinear::pivotNonlinearResult()
     for (iIndex = 0; iIndex < number; iIndex++) {
       int iRow = which[iIndex];
       FloatT alpha = work[iIndex];
-      if (fabs(alpha) > 1.0e-6) {
+      if (CoinAbs(alpha) > 1.0e-6) {
         int iPivot = pivotVariable_[iRow];
         FloatT distance = CoinMin(upper_[iPivot] - solution_[iPivot],
           solution_[iPivot] - lower_[iPivot]);
@@ -2467,7 +2467,7 @@ int ClpSimplexNonlinear::pivotNonlinearResult()
       for (iIndex = 0; iIndex < number; iIndex++) {
         int iRow = which[iIndex];
         FloatT alpha = work[iIndex];
-        if (fabs(alpha) > 1.0e-6) {
+        if (CoinAbs(alpha) > 1.0e-6) {
           FloatT distance = randomNumberGenerator_.randomDouble();
           if (distance < smallest) {
             pivotRow_ = iRow;
@@ -2509,7 +2509,7 @@ int ClpSimplexNonlinear::pivotNonlinearResult()
     alpha_);
 
   // if no pivots, bad update but reasonable alpha - take and invert
-  if (updateStatus == 2 && lastGoodIteration_ == numberIterations_ && fabs(alpha_) > 1.0e-5)
+  if (updateStatus == 2 && lastGoodIteration_ == numberIterations_ && CoinAbs(alpha_) > 1.0e-5)
     updateStatus = 4;
   if (updateStatus == 1 || updateStatus == 4) {
     // slight error
@@ -2569,7 +2569,7 @@ int ClpSimplexNonlinear::pivotNonlinearResult()
     // as if from upper bound
     if (sequenceIn_ != sequenceOut_) {
       // variable becoming basic
-      valueIn_ -= fabs(theta_);
+      valueIn_ -= CoinAbs(theta_);
     } else {
       valueIn_ = lowerIn_;
     }
@@ -2577,7 +2577,7 @@ int ClpSimplexNonlinear::pivotNonlinearResult()
     // as if from lower bound
     if (sequenceIn_ != sequenceOut_) {
       // variable becoming basic
-      valueIn_ += fabs(theta_);
+      valueIn_ += CoinAbs(theta_);
     } else {
       valueIn_ = upperIn_;
     }
@@ -3264,7 +3264,7 @@ for (iPass = 0; iPass < numberPasses; iPass++) {
           }
           // update one used outside
           objValue = currentObj;
-          if (theta > 1.0e-9 && (currentObj - thetaObj < -CoinMax(1.0e-8, 1.0e-15 * fabs(currentObj)) || jPass < 5)) {
+          if (theta > 1.0e-9 && (currentObj - thetaObj < -CoinMax(1.0e-8, 1.0e-15 * CoinAbs(currentObj)) || jPass < 5)) {
             // Update solution
             for (iSequence = 0; iSequence < numberTotal; iSequence++) {
               FloatT alpha = work[iSequence];
@@ -3332,7 +3332,7 @@ for (iPass = 0; iPass < numberPasses; iPass++) {
         FloatT subtractB = theta2 * 0.5;
         FloatT a = (rhs2 - subtractB * rhs1) / (theta2 * theta2 - 4.0 * subtractB);
         FloatT b = 0.5 * (rhs1 - 4.0 * a);
-        if (fabs(a + b) > 1.0e-2) {
+        if (CoinAbs(a + b) > 1.0e-2) {
           // tighten all
           goodMove = -1;
         }
@@ -3357,12 +3357,12 @@ for (iPass = 0; iPass < numberPasses; iPass++) {
     iColumn = listNonLinearColumn[jNon];
     FloatT change = solution[iColumn] - saveSolution[iColumn];
     if (change < -1.0e-5) {
-      if (fabs(change + trust[jNon]) < 1.0e-5)
+      if (CoinAbs(change + trust[jNon]) < 1.0e-5)
         temp[jNon] = -1;
       else
         temp[jNon] = -2;
     } else if (change > 1.0e-5) {
-      if (fabs(change - trust[jNon]) < 1.0e-5)
+      if (CoinAbs(change - trust[jNon]) < 1.0e-5)
         temp[jNon] = 1;
       else
         temp[jNon] = 2;
@@ -3373,7 +3373,7 @@ for (iPass = 0; iPass < numberPasses; iPass++) {
   // goodMove +1 yes, 0 no, -1 last was bad - just halve gaps, -2 do nothing
   FloatT maxDelta = 0.0;
   if (goodMove >= 0) {
-    if (objValue - lastObjective <= 1.0e-15 * fabs(lastObjective))
+    if (objValue - lastObjective <= 1.0e-15 * CoinAbs(lastObjective))
       goodMove = 1;
     else
       goodMove = 0;
@@ -3387,7 +3387,7 @@ for (iPass = 0; iPass < numberPasses; iPass++) {
   for (jNon = 0; jNon < numberNonLinearColumns; jNon++) {
     iColumn = listNonLinearColumn[jNon];
     maxDelta = CoinMax(maxDelta,
-      fabs(solution[iColumn] - saveSolution[iColumn]));
+      CoinAbs(solution[iColumn] - saveSolution[iColumn]));
     if (goodMove > 0) {
       if (last[0][jNon] * last[1][jNon] < 0) {
         // halve
@@ -3423,7 +3423,7 @@ for (iPass = 0; iPass < numberPasses; iPass++) {
       << iPass << objValue - objectiveOffset
       << drop << maxDelta
       << CoinMessageEol;
-    if (iPass > 20 && drop < 1.0e-12 * fabs(objValue))
+    if (iPass > 20 && drop < 1.0e-12 * CoinAbs(objValue))
       drop = 0.999e-4; // so will exit
     if (maxDelta < deltaTolerance && drop < 1.0e-4 && goodMove && theta < 0.99999) {
       if (handler_->logLevel() > 1)
@@ -3511,7 +3511,7 @@ for (iPass = 0; iPass < numberPasses; iPass++) {
                 << std::endl;
 #endif
     lastObjective = objValue;
-    if (targetDrop < CoinMax(1.0e-8, CoinMin(1.0e-6, 1.0e-6 * fabs(objValue))) && goodMove && iPass > 3) {
+    if (targetDrop < CoinMax(1.0e-8, CoinMin(1.0e-6, 1.0e-6 * CoinAbs(objValue))) && goodMove && iPass > 3) {
       if (handler_->logLevel() > 1)
         printf("Exiting on target drop %g\n", targetDrop);
       break;
@@ -3682,9 +3682,9 @@ int ClpSimplexNonlinear::primalSLP(int numberConstraints, ClpConstraint **constr
       numberBad++;
     else if (rowLength[iRow] && n)
       numberBad++;
-    if (rowLower_[iRow] > -1.0e20)
+    if (rowLower_[iRow] > TOO_SMALL_FLOAT)
       numberArtificials++;
-    if (rowUpper_[iRow] < 1.0e20)
+    if (rowUpper_[iRow] < TOO_BIG_FLOAT)
       numberArtificials++;
   }
   if (numberBad)
@@ -3717,7 +3717,7 @@ int ClpSimplexNonlinear::primalSLP(int numberConstraints, ClpConstraint **constr
     for (iConstraint = 0; iConstraint < numberConstraints; iConstraint++) {
       ClpConstraint *constraint = constraints[iConstraint];
       int iRow = constraint->rowNumber();
-      if (rowLower_[iRow] > -1.0e20) {
+      if (rowLower_[iRow] > TOO_SMALL_FLOAT) {
         for (int k = 0; k < SEGMENTS; k++) {
           addRow[numberArtificials] = iRow;
           addElement[numberArtificials] = 1.0;
@@ -3727,7 +3727,7 @@ int ClpSimplexNonlinear::primalSLP(int numberConstraints, ClpConstraint **constr
           addStarts[numberArtificials] = numberArtificials;
         }
       }
-      if (rowUpper_[iRow] < 1.0e20) {
+      if (rowUpper_[iRow] < TOO_BIG_FLOAT) {
         for (int k = 0; k < SEGMENTS; k++) {
           addRow[numberArtificials] = iRow;
           addElement[numberArtificials] = -1.0;
@@ -3803,9 +3803,9 @@ int ClpSimplexNonlinear::primalSLP(int numberConstraints, ClpConstraint **constr
       ClpConstraint *constraint = constraints[backRow[iRow]];
       assert(iRow == constraint->rowNumber());
       int numberArtificials = 0;
-      if (rowLower_[iRow] > -1.0e20)
+      if (rowLower_[iRow] > TOO_SMALL_FLOAT)
         numberArtificials += SEGMENTS;
-      if (rowUpper_[iRow] < 1.0e20)
+      if (rowUpper_[iRow] < TOO_BIG_FLOAT)
         numberArtificials += SEGMENTS;
       if (numberArtificials == rowLength[iRow]) {
         // all possible
@@ -3891,7 +3891,7 @@ int ClpSimplexNonlinear::primalSLP(int numberConstraints, ClpConstraint **constr
     else if (solution[iColumn] > upper)
       solution[iColumn] = upper;
 #if 0
-          FloatT large = CoinMax(1000.0, 10.0 * fabs(solution[iColumn]));
+          FloatT large = CoinMax(1000.0, 10.0 * CoinAbs(solution[iColumn]));
           if (upper > 1.0e10)
                upper = solution[iColumn] + large;
           if (lower < -1.0e10)
@@ -3999,9 +3999,9 @@ int ClpSimplexNonlinear::primalSLP(int numberConstraints, ClpConstraint **constr
       }
       for (int k = 0; k < numberColumns_; k++)
         assert(!gradient[k]);
-      if (rowLower_[iRow] > -1.0e20)
+      if (rowLower_[iRow] > TOO_SMALL_FLOAT)
         rowLower[iRow] = rowLower_[iRow] - offset;
-      if (rowUpper_[iRow] < 1.0e20)
+      if (rowUpper_[iRow] < TOO_BIG_FLOAT)
         rowUpper[iRow] = rowUpper_[iRow] - offset;
     }
     // Replace matrix
@@ -4093,14 +4093,14 @@ int ClpSimplexNonlinear::primalSLP(int numberConstraints, ClpConstraint **constr
           newModel.primalRowSolution()[iRow],
           dualValue);
       FloatT movement = newModel.primalRowSolution()[iRow] + constraint->offset();
-      movement = fabs((movement - functionValue) * dualValue);
+      movement = CoinAbs((movement - functionValue) * dualValue);
       infPenalty2 += movement;
       FloatT sumOfActivities = 0.0;
       for (CoinBigIndex j = rowStart[iRow]; j < rowStart[iRow] + rowLength[iRow]; j++) {
         int iColumn = column[j];
-        sumOfActivities += fabs(solution[iColumn] * elementByRow[j]);
+        sumOfActivities += CoinAbs(solution[iColumn] * elementByRow[j]);
       }
-      if (rowLower_[iRow] > -1.0e20) {
+      if (rowLower_[iRow] > TOO_SMALL_FLOAT) {
         if (functionValue < rowLower_[iRow] - 1.0e-5) {
           FloatT infeasibility = rowLower_[iRow] - functionValue;
           FloatT thisPenalty = 0.0;
@@ -4128,7 +4128,7 @@ int ClpSimplexNonlinear::primalSLP(int numberConstraints, ClpConstraint **constr
         }
         jColumn += SEGMENTS;
       }
-      if (rowUpper_[iRow] < 1.0e20) {
+      if (rowUpper_[iRow] < TOO_BIG_FLOAT) {
         if (functionValue > rowUpper_[iRow] + 1.0e-5) {
           FloatT infeasibility = functionValue - rowUpper_[iRow];
           FloatT thisPenalty = 0.0;
@@ -4173,7 +4173,7 @@ int ClpSimplexNonlinear::primalSLP(int numberConstraints, ClpConstraint **constr
     if (iPass) {
       FloatT drop = lastObjective - objValue;
       std::cout << "True drop was " << drop << std::endl;
-      if (drop < -0.05 * fabs(objValue) - 1.0e-4) {
+      if (drop < -0.05 * CoinAbs(objValue) - 1.0e-4) {
         // pretty bad - go back and halve
         CoinMemcpyN(saveSolution, numberColumns2, solution);
         CoinMemcpyN(saveSolution + numberColumns2,
@@ -4202,12 +4202,12 @@ int ClpSimplexNonlinear::primalSLP(int numberConstraints, ClpConstraint **constr
         iColumn = listNonLinearColumn[jNon];
         FloatT change = solution[iColumn] - saveSolution[iColumn];
         if (change < -1.0e-5) {
-          if (fabs(change + trust[jNon]) < 1.0e-5)
+          if (CoinAbs(change + trust[jNon]) < 1.0e-5)
             temp[jNon] = -1;
           else
             temp[jNon] = -2;
         } else if (change > 1.0e-5) {
-          if (fabs(change - trust[jNon]) < 1.0e-5)
+          if (CoinAbs(change - trust[jNon]) < 1.0e-5)
             temp[jNon] = 1;
           else
             temp[jNon] = 2;
@@ -4241,7 +4241,7 @@ int ClpSimplexNonlinear::primalSLP(int numberConstraints, ClpConstraint **constr
           }
         }
         maxDelta = CoinMax(maxDelta,
-          fabs(solution[iColumn] - saveSolution[iColumn]));
+          CoinAbs(solution[iColumn] - saveSolution[iColumn]));
         if (last[0][jNon] * last[1][jNon] < 0) {
           // halve
           if (trust[jNon] > 1.0)
@@ -4395,7 +4395,7 @@ int ClpSimplexNonlinear::primalSLP(int numberConstraints, ClpConstraint **constr
   FloatT *rowActivity = newModel.primalRowSolution();
   for (iRow = 0; iRow < numberRows; iRow++) {
     FloatT difference;
-    if (fabs(rowLower_[iRow]) < fabs(rowUpper_[iRow]))
+    if (CoinAbs(rowLower_[iRow]) < CoinAbs(rowUpper_[iRow]))
       difference = rowLower_[iRow] - rowLower[iRow];
     else
       difference = rowUpper_[iRow] - rowUpper[iRow];

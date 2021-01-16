@@ -567,7 +567,7 @@ const CoinPresolveAction
                 }
             }
           }
-          //assert (fabs(l-lowerBound)<1.0e-5&&fabs(u-upperBound)<1.0e-5);
+          //assert (CoinAbs(l-lowerBound)<1.0e-5&&CoinAbs(u-upperBound)<1.0e-5);
         } else {
           // can do faster
           lowerBound = 0.0;
@@ -650,12 +650,12 @@ const CoinPresolveAction
   -- lh, 040908 --
 */
       clo1 += clo2;
-      if (clo1 < -1.0e20) {
+      if (clo1 < TOO_SMALL_FLOAT) {
         clo1 = -PRESOLVE_INF;
       }
       clo[j1] = clo1;
       cup1 += cup2;
-      if (cup1 > 1.0e20) {
+      if (cup1 > TOO_BIG_FLOAT) {
         cup1 = PRESOLVE_INF;
       }
       cup[j1] = cup1;
@@ -1192,7 +1192,7 @@ const CoinPresolveAction
         CoinBigIndex ishift = mrstrt[ilast] - krs;
         CoinBigIndex k;
         for (k = krs; k < kre; k++) {
-          if (hcol[k] != hcol[k + ishift] || fabs(rowels[k] - rowels[k + ishift]) > 1.0e-14) {
+          if (hcol[k] != hcol[k + ishift] || CoinAbs(rowels[k] - rowels[k + ishift]) > 1.0e-14) {
             break;
           }
         }
@@ -1223,7 +1223,7 @@ const CoinPresolveAction
               /* this is strictly tighter than last */
               idelete = ilast;
               PRESOLVE_DETAIL_PRINT(printf("pre_duprow %dR %dR E\n", ilast, ithis));
-            } else if (fabs(rlo1 - rlo2) < 1.0e-12) {
+            } else if (CoinAbs(rlo1 - rlo2) < 1.0e-12) {
               /* last is strictly tighter than this */
               idelete = ithis;
               PRESOLVE_DETAIL_PRINT(printf("pre_duprow %dR %dR E\n", ithis, ilast));
@@ -1242,7 +1242,7 @@ const CoinPresolveAction
                   << rup[ithis]
                   << CoinMessageEol;
                 break;
-              } else if (allowIntersection /*||fabs(rup1-rlo2)<tolerance*/) {
+              } else if (allowIntersection /*||CoinAbs(rup1-rlo2)<tolerance*/) {
                 /* overlapping - could merge */
 #ifdef CLP_INVESTIGATE7
                 printf("overlapping duplicate row %g %g, %g %g\n",
@@ -1278,7 +1278,7 @@ const CoinPresolveAction
                   << rup[ithis]
                   << CoinMessageEol;
                 break;
-              } else if (allowIntersection /*||fabs(rup2-rlo1)<tolerance*/) {
+              } else if (allowIntersection /*||CoinAbs(rup2-rlo1)<tolerance*/) {
 #ifdef CLP_INVESTIGATE7
                 printf("overlapping duplicate row %g %g, %g %g\n",
                   rlo1, rup1, rlo2, rup2);
@@ -1417,7 +1417,7 @@ const CoinPresolveAction
           iRow = rowBack[iRow];
           if (iRow >= 0) {
             n++;
-            FloatT value = fabs(colels[j]);
+            FloatT value = CoinAbs(colels[j]);
             minValue[iRow] = CoinMin(minValue[iRow], value);
             maxValue[iRow] = CoinMax(maxValue[iRow], value);
           }
@@ -1543,7 +1543,7 @@ const CoinPresolveAction
             for (int i = 0; i < nBad; i++) {
               int iRealRow = badRow[i];
               int iRow = rowBack[iRealRow];
-              if (fabs(rowLower[iRealRow] - minValue[iRow]) > 1.0e-7) {
+              if (CoinAbs(rowLower[iRealRow] - minValue[iRow]) > 1.0e-7) {
                 //printf("bad %d %d real row %d rhs %g - computed %g\n",
                 //     i,iRow,iRealRow,rowLower[iRealRow],minValue[iRow]);
               } else {
@@ -1701,9 +1701,9 @@ const CoinPresolveAction
               PRESOLVE_REMOVE_LINK(prob->rlink_, iRow);
             FloatT value = (rlo[i] / value1) * els[iRow];
             // correct rhs
-            if (rlo[iRow] > -1.0e20)
+            if (rlo[iRow] > TOO_SMALL_FLOAT)
               rlo[iRow] -= value;
-            if (rup[iRow] < 1.0e20)
+            if (rup[iRow] < TOO_BIG_FLOAT)
               rup[iRow] -= value;
           } else {
             number[iRow] = 0;
@@ -1870,9 +1870,9 @@ void gubrow_action::postsolve(CoinPostsolveMatrix *prob) const
       acts[tgtrow] += value;
       ;
       // correct rhs
-      if (rlo[tgtrow] > -1.0e20)
+      if (rlo[tgtrow] > TOO_SMALL_FLOAT)
         rlo[tgtrow] += value;
-      if (rup[tgtrow] < 1.0e20)
+      if (rup[tgtrow] < TOO_BIG_FLOAT)
         rup[tgtrow] += value;
 #if PRESOLVE_DEBUG > 2
       std::cout << std::endl;
@@ -2074,7 +2074,7 @@ const CoinPresolveAction
           FloatT sum0 = 0.0;
           FloatT sum1 = 0.0;
           FloatT value = bound[k];
-          if (fabs(value) < 1.0e30) {
+          if (CoinAbs(value) < 1.0e30) {
             sum0 += alpha[0] * value;
             sum1 += alpha[1] * value;
           } else {
@@ -2239,8 +2239,8 @@ const CoinPresolveAction
           // cost>0 so will be at lower
           //FloatT yValueAtBound1=newLower;
           newUpper = CoinMax(newUpper, CoinMax(yValue0, yValue1));
-          lowerX = CoinMax(lowerX, newLower - 1.0e-12 * fabs(newLower));
-          upperX = CoinMin(upperX, newUpper + 1.0e-12 * fabs(newUpper));
+          lowerX = CoinMax(lowerX, newLower - 1.0e-12 * CoinAbs(newLower));
+          upperX = CoinMin(upperX, newUpper + 1.0e-12 * CoinAbs(newUpper));
           // Now make duplicate row
           // keep row 0 so need to adjust costs so same
           PRESOLVE_DETAIL_PRINT(printf("Costs for x %g,%g,%g are %g,%g,%g\n",
@@ -2256,11 +2256,11 @@ const CoinPresolveAction
           xValue = xValueEqual - 1.0;
           yValue0 = CoinMax((rowUpper0 - xValue * alpha[0]) / element0, lowerX);
           PRESOLVE_DETAIL_PRINT(printf("new cost at -1 %g\n", costOther * xValue + costThis * yValue0 + thisOffset));
-          assert(fabs((costOther * xValue + costThis * yValue0 + thisOffset) - (costEqual - slope[0])) < 1.0e-5);
+          assert(CoinAbs((costOther * xValue + costThis * yValue0 + thisOffset) - (costEqual - slope[0])) < 1.0e-5);
           xValue = xValueEqual + 1.0;
           yValue0 = CoinMax((rowUpper0 - xValue * alpha[0]) / element0, lowerX);
           PRESOLVE_DETAIL_PRINT(printf("new cost at +1 %g\n", costOther * xValue + costThis * yValue0 + thisOffset));
-          assert(fabs((costOther * xValue + costThis * yValue0 + thisOffset) - (costEqual + slope[1])) < 1.0e-5);
+          assert(CoinAbs((costOther * xValue + costThis * yValue0 + thisOffset) - (costEqual + slope[1])) < 1.0e-5);
           action &boundRecord = boundRecords[nactions++];
           boundRecord.row = row1;
           boundRecord.col = icol;

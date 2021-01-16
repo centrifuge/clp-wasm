@@ -680,7 +680,7 @@ ClpModel::ClpModel(const ClpModel &rhs, int scalingMode)
   , savedColumnScale_(NULL)
 {
   gutsOfCopy(rhs);
-  if (scalingMode >= 0 && matrix_ && matrix_->allElementsInRange(this, smallElement_, 1.0e20)) {
+  if (scalingMode >= 0 && matrix_ && matrix_->allElementsInRange(this, smallElement_, TOO_BIG_FLOAT)) {
     // really do scaling
     scalingFlag_ = scalingMode;
     setRowScale(NULL);
@@ -1408,10 +1408,10 @@ void ClpModel::deleteRows(int number, const int *which)
       if (!nChange)
         break;
       if ((rowStatus[iRow] & 7) == 1) {
-        if (fabs(rowActivity_[iRow] - rowLower_[iRow]) < 1.0e-8) {
+        if (CoinAbs(rowActivity_[iRow] - rowLower_[iRow]) < 1.0e-8) {
           rowStatus[iRow] = 3;
           nChange--;
-        } else if (fabs(rowActivity_[iRow] - rowUpper_[iRow]) < 1.0e-8) {
+        } else if (CoinAbs(rowActivity_[iRow] - rowUpper_[iRow]) < 1.0e-8) {
           rowStatus[iRow] = 2;
           nChange--;
         }
@@ -1769,7 +1769,7 @@ void ClpModel::addRows(int number, const FloatT *rowLower,
     if (rowLower) {
       for (iRow = 0; iRow < number; iRow++) {
         FloatT value = rowLower[iRow];
-        if (value < -1.0e20)
+        if (value < TOO_SMALL_FLOAT)
           value = -COIN_DBL_MAX;
         lower[iRow] = value;
       }
@@ -1781,7 +1781,7 @@ void ClpModel::addRows(int number, const FloatT *rowLower,
     if (rowUpper) {
       for (iRow = 0; iRow < number; iRow++) {
         FloatT value = rowUpper[iRow];
-        if (value > 1.0e20)
+        if (value > TOO_BIG_FLOAT)
           value = COIN_DBL_MAX;
         upper[iRow] = value;
       }
@@ -1860,7 +1860,7 @@ void ClpModel::addRows(int number, const FloatT *rowLower,
   if (rowLower) {
     for (iRow = 0; iRow < number; iRow++) {
       FloatT value = rowLower[iRow];
-      if (value < -1.0e20)
+      if (value < TOO_SMALL_FLOAT)
         value = -COIN_DBL_MAX;
       lower[iRow] = value;
     }
@@ -1872,7 +1872,7 @@ void ClpModel::addRows(int number, const FloatT *rowLower,
   if (rowUpper) {
     for (iRow = 0; iRow < number; iRow++) {
       FloatT value = rowUpper[iRow];
-      if (value > 1.0e20)
+      if (value > TOO_BIG_FLOAT)
         value = COIN_DBL_MAX;
       upper[iRow] = value;
     }
@@ -1921,7 +1921,7 @@ int ClpModel::addRows(const CoinBuild &buildObject, bool tryPlusMinusOne, bool c
         for (int i = 0; i < numberElements; i++) {
           // allow for zero elements
           if (elements[i]) {
-            if (fabs(elements[i]) == 1.0) {
+            if (CoinAbs(elements[i]) == 1.0) {
               size++;
             } else {
               // bad
@@ -2238,7 +2238,7 @@ void ClpModel::addColumns(int number, const FloatT *columnLower,
     if (columnLower) {
       for (iColumn = 0; iColumn < number; iColumn++) {
         FloatT value = columnLower[iColumn];
-        if (value < -1.0e20)
+        if (value < TOO_SMALL_FLOAT)
           value = -COIN_DBL_MAX;
         lower[iColumn] = value;
       }
@@ -2250,7 +2250,7 @@ void ClpModel::addColumns(int number, const FloatT *columnLower,
     if (columnUpper) {
       for (iColumn = 0; iColumn < number; iColumn++) {
         FloatT value = columnUpper[iColumn];
-        if (value > 1.0e20)
+        if (value > TOO_BIG_FLOAT)
           value = COIN_DBL_MAX;
         upper[iColumn] = value;
       }
@@ -2338,7 +2338,7 @@ void ClpModel::addColumns(int number, const FloatT *columnLower,
   if (columnLower) {
     for (iColumn = 0; iColumn < number; iColumn++) {
       FloatT value = columnLower[iColumn];
-      if (value < -1.0e20)
+      if (value < TOO_SMALL_FLOAT)
         value = -COIN_DBL_MAX;
       lower[iColumn] = value;
     }
@@ -2350,7 +2350,7 @@ void ClpModel::addColumns(int number, const FloatT *columnLower,
   if (columnUpper) {
     for (iColumn = 0; iColumn < number; iColumn++) {
       FloatT value = columnUpper[iColumn];
-      if (value > 1.0e20)
+      if (value > TOO_BIG_FLOAT)
         value = COIN_DBL_MAX;
       upper[iColumn] = value;
     }
@@ -2411,7 +2411,7 @@ int ClpModel::addColumns(const CoinBuild &buildObject, bool tryPlusMinusOne, boo
         for (int i = 0; i < numberElements; i++) {
           // allow for zero elements
           if (elements[i]) {
-            if (fabs(elements[i]) == 1.0) {
+            if (CoinAbs(elements[i]) == 1.0) {
               size++;
             } else {
               // bad
@@ -2652,7 +2652,7 @@ void ClpModel::chgRowLower(const FloatT *rowLower)
   if (rowLower) {
     for (iRow = 0; iRow < numberRows; iRow++) {
       FloatT value = rowLower[iRow];
-      if (value < -1.0e20)
+      if (value < TOO_SMALL_FLOAT)
         value = -COIN_DBL_MAX;
       rowLower_[iRow] = value;
     }
@@ -2671,7 +2671,7 @@ void ClpModel::chgRowUpper(const FloatT *rowUpper)
   if (rowUpper) {
     for (iRow = 0; iRow < numberRows; iRow++) {
       FloatT value = rowUpper[iRow];
-      if (value > 1.0e20)
+      if (value > TOO_BIG_FLOAT)
         value = COIN_DBL_MAX;
       rowUpper_[iRow] = value;
     }
@@ -2691,7 +2691,7 @@ void ClpModel::chgColumnLower(const FloatT *columnLower)
   if (columnLower) {
     for (iColumn = 0; iColumn < numberColumns; iColumn++) {
       FloatT value = columnLower[iColumn];
-      if (value < -1.0e20)
+      if (value < TOO_SMALL_FLOAT)
         value = -COIN_DBL_MAX;
       columnLower_[iColumn] = value;
     }
@@ -2710,7 +2710,7 @@ void ClpModel::chgColumnUpper(const FloatT *columnUpper)
   if (columnUpper) {
     for (iColumn = 0; iColumn < numberColumns; iColumn++) {
       FloatT value = columnUpper[iColumn];
-      if (value > 1.0e20)
+      if (value > TOO_BIG_FLOAT)
         value = COIN_DBL_MAX;
       columnUpper_[iColumn] = value;
     }
@@ -3624,7 +3624,7 @@ int ClpModel::emptyProblem(int *infeasNumber, FloatT *infeasSum, bool printMessa
       if (rowLower_[i] <= rowUpper_[i]) {
         if (rowLower_[i] > -1.0e30 || rowUpper_[i] < 1.0e30) {
           if (rowLower_[i] <= 0.0 && rowUpper_[i] >= 0.0) {
-            if (fabs(rowLower_[i]) < fabs(rowUpper_[i]))
+            if (CoinAbs(rowLower_[i]) < CoinAbs(rowUpper_[i]))
               rowActivity_[i] = rowLower_[i];
             else
               rowActivity_[i] = rowUpper_[i];
@@ -3657,7 +3657,7 @@ int ClpModel::emptyProblem(int *infeasNumber, FloatT *infeasSum, bool printMessa
       if (columnLower_[i] <= columnUpper_[i]) {
         if (columnLower_[i] > -1.0e30 || columnUpper_[i] < 1.0e30) {
           if (!objValue) {
-            if (fabs(columnLower_[i]) < fabs(columnUpper_[i])) {
+            if (CoinAbs(columnLower_[i]) < CoinAbs(columnUpper_[i])) {
               columnActivity_[i] = columnLower_[i];
               status_[i] = 3;
             } else {
@@ -3673,7 +3673,7 @@ int ClpModel::emptyProblem(int *infeasNumber, FloatT *infeasSum, bool printMessa
               status_[i] = 2;
               numberDualInfeasibilities++;
               ;
-              sumDualInfeasibilities += fabs(objValue);
+              sumDualInfeasibilities += CoinAbs(objValue);
               badColumn = i;
               badValue = -1.0;
               returnCode |= 2;
@@ -3688,7 +3688,7 @@ int ClpModel::emptyProblem(int *infeasNumber, FloatT *infeasSum, bool printMessa
               status_[i] = 3;
               numberDualInfeasibilities++;
               ;
-              sumDualInfeasibilities += fabs(objValue);
+              sumDualInfeasibilities += CoinAbs(objValue);
               badColumn = i;
               badValue = 1.0;
               returnCode |= 2;
@@ -3700,13 +3700,13 @@ int ClpModel::emptyProblem(int *infeasNumber, FloatT *infeasSum, bool printMessa
           if (objValue) {
             numberDualInfeasibilities++;
             ;
-            sumDualInfeasibilities += fabs(objValue);
+            sumDualInfeasibilities += CoinAbs(objValue);
             returnCode |= 2;
           }
           status_[i] = 0;
         }
       } else {
-        if (fabs(columnLower_[i]) < fabs(columnUpper_[i])) {
+        if (CoinAbs(columnLower_[i]) < CoinAbs(columnUpper_[i])) {
           columnActivity_[i] = columnLower_[i];
           status_[i] = 3;
         } else {
@@ -4196,7 +4196,7 @@ int ClpModel::findNetwork(char *rotate, FloatT fractionNeeded)
     for (CoinBigIndex j = rowStartIn[iRow]; j < rowStartIn[iRow] + rowLength[iRow]; j++) {
       //int iColumn = column[j];
       FloatT value = elementByRowIn[j];
-      if (fabs(value) != 1.0) {
+      if (CoinAbs(value) != 1.0) {
         possible = false;
         break;
       }

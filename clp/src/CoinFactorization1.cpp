@@ -820,7 +820,7 @@ void CoinFactorization::preProcess(int state,
           int largest = first;
           int iRowSave = indexRow[first];
           CoinFactorizationDouble valueSave = element[first];
-          FloatT valueLargest = fabs(valueSave);
+          FloatT valueLargest = CoinAbs(valueSave);
           int iLook = numberInRow[iRowSave];
 
           numberInRow[iRowSave] = iLook + 1;
@@ -832,7 +832,7 @@ void CoinFactorization::preProcess(int state,
             numberInRow[iRow] = iLook + 1;
             indexColumn[startRow[iRow] + iLook] = iColumn;
             CoinFactorizationDouble value = element[k];
-            FloatT valueAbs = fabs(value);
+            FloatT valueAbs = CoinAbs(value);
 
             if (valueAbs > valueLargest) {
               valueLargest = valueAbs;
@@ -918,7 +918,7 @@ void CoinFactorization::preProcess(int state,
           CoinFactorizationDouble value = element[k];
           if (numberInRow[iRow] >= 0) {
             numberInRow[iRow]++;
-            FloatT valueAbs = fabs(value);
+            FloatT valueAbs = CoinAbs(value);
             if (valueAbs > valueLargest) {
               valueLargest = valueAbs;
               largest = nOther;
@@ -1380,14 +1380,14 @@ bool CoinFactorization::pivotColumnSingleton(int pivotRow,
           //find new largest element
           int iRowSave = indexRowU[start + 1];
           CoinFactorizationDouble valueSave = elementU[start + 1];
-          FloatT valueLargest = fabs(valueSave);
+          FloatT valueLargest = CoinAbs(valueSave);
           int end = start + numberInColumn[iColumn];
           int largest = start + 1;
 
           int k;
           for (k = start + 2; k < end; k++) {
             CoinFactorizationDouble value = elementU[k];
-            FloatT valueAbs = fabs(value);
+            FloatT valueAbs = CoinAbs(value);
 
             if (valueAbs > valueLargest) {
               valueLargest = valueAbs;
@@ -2278,7 +2278,7 @@ bool CoinFactorization::pivotOneOtherRow(int pivotRow,
       //compress column and find largest not updated
       if (iRow != pivotRow) {
         if (iRow != otherRow) {
-          largest = fabs(value);
+          largest = CoinAbs(value);
           elementU[put] = value;
           indexRowU[put] = iRow;
           positionLargest = put;
@@ -2334,7 +2334,7 @@ bool CoinFactorization::pivotOneOtherRow(int pivotRow,
               indexRowU[put] = iRow;
               elementU[put] = value;
               ;
-              FloatT absValue = fabs(value);
+              FloatT absValue = CoinAbs(value);
 
               if (absValue > largest) {
                 largest = absValue;
@@ -2368,7 +2368,7 @@ bool CoinFactorization::pivotOneOtherRow(int pivotRow,
             indexRowU[put] = iRow;
             elementU[put] = value;
             ;
-            FloatT absValue = fabs(value);
+            FloatT absValue = CoinAbs(value);
 
             if (absValue > largest) {
               largest = absValue;
@@ -2390,7 +2390,7 @@ bool CoinFactorization::pivotOneOtherRow(int pivotRow,
       numberInColumnPlus[iColumn]++;
       startColumnU[iColumn]++;
       otherElement = otherElement - thisPivotValue * otherMultiplier;
-      FloatT absValue = fabs(otherElement);
+      FloatT absValue = CoinAbs(otherElement);
 
       if (absValue > zeroTolerance_) {
         if (!foundOther) {

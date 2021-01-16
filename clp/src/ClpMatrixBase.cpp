@@ -337,7 +337,7 @@ ClpMatrixBase::rhsOffset(ClpSimplex *model, bool forceRefresh, bool
       times(-1.0, solution, rhs);
       delete[] solution;
       for (iRow = 0; iRow < numberRows; iRow++) {
-        if (fabs(rhs[iRow] - rhsOffset_[iRow]) > 1.0e-3)
+        if (CoinAbs(rhs[iRow] - rhsOffset_[iRow]) > 1.0e-3)
           printf("** bad effective %d - true %g old %g\n", iRow, rhs[iRow], rhsOffset_[iRow]);
       }
     }
@@ -434,7 +434,7 @@ int ClpMatrixBase::checkFeasible(ClpSimplex *model, FloatT &sum) const
     FloatT value = rhs[iRow];
     FloatT value2 = solution[iRow];
     if (logLevel > 3) {
-      if (fabs(value - value2) > 1.0e-8)
+      if (CoinAbs(value - value2) > 1.0e-8)
         printf("Row %d stored %g, computed %g\n", iRow, value2, value);
     }
     if (value < rowLower[iRow] - tolerance || value > rowUpper[iRow] + tolerance) {

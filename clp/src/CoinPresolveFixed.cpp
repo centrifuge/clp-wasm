@@ -714,7 +714,7 @@ const CoinPresolveAction *make_fixed(CoinPresolveMatrix *prob,
   FloatT *cup = prob->cup_;
 
   for (int i = 0; i < ncols; i++) {
-    if (hincol[i] > 0 && fabs(cup[i] - clo[i]) < ZTOLDP && !prob->colProhibited2(i)) {
+    if (hincol[i] > 0 && CoinAbs(cup[i] - clo[i]) < ZTOLDP && !prob->colProhibited2(i)) {
       fcols[nfcols++] = i;
     }
   }

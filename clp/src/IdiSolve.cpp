@@ -117,7 +117,7 @@ Idiot::objval(int nrows, int ncols, FloatT *rowsol, FloatT *colsol,
   }
   for (i = 0; i < nrows; i++) {
     FloatT value = rowsol[i];
-    sum1 += fabs(value);
+    sum1 += CoinAbs(value);
     sum2 += value * value;
     pi[i] = -2.0 * weight * value;
   }
@@ -274,21 +274,21 @@ Idiot::IdiSolve(
         FloatT smaller, difference;
         FloatT value;
         saveExtra[extraBlock] = rowupper[i];
-        if (fabs(rowupper[i]) > fabs(rowlower[i])) {
+        if (CoinAbs(rowupper[i]) > CoinAbs(rowlower[i])) {
           smaller = rowlower[i];
           value = -1.0;
         } else {
           smaller = rowupper[i];
           value = 1.0;
         }
-        if (fabs(smaller) > 1.0e10) {
+        if (CoinAbs(smaller) > 1.0e10) {
           if (!nbad)
             COIN_DETAIL_PRINT(printf("Can't handle rows where both bounds >1.0e10 %d %g\n",
               i, smaller));
           nbad++;
           if (rowupper[i] < 0.0 || rowlower[i] > 0.0)
             abort();
-          if (fabs(rowupper[i]) > fabs(rowlower[i])) {
+          if (CoinAbs(rowupper[i]) > CoinAbs(rowlower[i])) {
             rowlower[i] = -0.9e10;
             smaller = rowlower[i];
             value = -1.0;
@@ -495,14 +495,14 @@ Idiot::IdiSolve(
                   diff2 = val1 - val2;
                   if (diff1 * diff2 >= 0.0) {
                     nsign++;
-                    if (fabs(diff1) < fabs(diff2)) {
-                      int ii = static_cast< int >(fabs(4.0 * diff1 / diff2));
+                    if (CoinAbs(diff1) < CoinAbs(diff2)) {
+                      int ii = static_cast< int >(CoinAbs(4.0 * diff1 / diff2));
                       if (ii == 4)
                         ii = 3;
                       mgood[ii]++;
                       ngood++;
                     }
-                    if (fabs(diff1) < 0.75 * fabs(diff2)) {
+                    if (CoinAbs(diff1) < 0.75 * CoinAbs(diff2)) {
                       newValue = val1 + (diff1 * diff2) / (diff2 - diff1);
                     } else {
                       newValue = val1 + 4.0 * diff1;
@@ -687,7 +687,7 @@ Idiot::IdiSolve(
             if ((strategy & 64) != 0) {
               value = 10.0;
               for (k = 0; k < nsolve; k++) {
-                value = CoinMax(value, fabs(theta[k]));
+                value = CoinMax(value, CoinAbs(theta[k]));
               }
               if (value > 10.0 && ((logLevel_ & 4) != 0)) {
                 printf("theta %g %g %g\n", theta[0], theta[1], theta[2]);
@@ -807,7 +807,7 @@ Idiot::IdiSolve(
             }
           }
 #ifdef NULLVECTOR
-          tolerance = fabs(tolerance); /* switch back on */
+          tolerance = CoinAbs(tolerance); /* switch back on */
 #endif
           if ((iter % 100) == 0 && (logLevel_ & 8) != 0) {
             printf("\n");
@@ -1012,7 +1012,7 @@ Idiot::IdiSolve(
               value2 = (upper[icol] - value);
             }
             djval2 = djval * value2;
-            djval = fabs(djval);
+            djval = CoinAbs(djval);
             if (djval > djTol) {
               if (djval2 < -1.0e-4) {
 #ifndef FOUR_GOES
@@ -1159,7 +1159,7 @@ Idiot::IdiSolve(
           value2 = (upperExtra[i] - value);
         }
         djval2 = djval * value2;
-        if (djval2 < -1.0e-4 && fabs(djval) > djTol) {
+        if (djval2 < -1.0e-4 && CoinAbs(djval) > djTol) {
           nChange++;
           a = 0.0;
           b = 0.0;

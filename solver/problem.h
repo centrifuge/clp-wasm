@@ -3,8 +3,8 @@
 #include <string>
 #include <vector>
 
-inline auto MinusInf = std::numeric_limits<FloatT>::min();
-inline auto PlusInf = std::numeric_limits<FloatT>::max();
+inline auto MinusInf = std::numeric_limits<double>::min();
+inline auto PlusInf = std::numeric_limits<double>::max();
 
 using FloatVector = std::vector<FloatT>;
 using IntVector = std::vector<int>;

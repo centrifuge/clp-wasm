@@ -400,7 +400,7 @@ int ClpPredictorCorrector::solve()
       }
     }
     // See if we should be thinking about exit if diverging
-    FloatT relativeMultiplier = 1.0 + fabs(primalObjective_) + fabs(dualObjective_);
+    FloatT relativeMultiplier = 1.0 + CoinAbs(primalObjective_) + CoinAbs(dualObjective_);
     // Quadratic coding is rubbish so be more forgiving?
     if (quadraticObj)
       relativeMultiplier *= 5.0;
@@ -2251,7 +2251,7 @@ int ClpPredictorCorrector::createSolution()
           } else {
             zVec_[iColumn] = safeObjectiveValue * ratioZ;
             wVec_[iColumn] = -reducedCost + safeObjectiveValue * ratioT;
-            wVec_[iColumn] = CoinMax(-reducedCost, safeObjectiveValue * ratioT);
+            wVec_[iColumn] = CoinMax(fd(-reducedCost), safeObjectiveValue * ratioT);
           }
           CoinWorkDouble gammaTerm = gamma2;
           if (primalR_)
@@ -2307,7 +2307,7 @@ int ClpPredictorCorrector::createSolution()
           } else {
             zVec_[iColumn] = 0.0;
             wVec_[iColumn] = -reducedCost + safeObjectiveValue * ratioT;
-            wVec_[iColumn] = CoinMax(-reducedCost, safeObjectiveValue * ratioT);
+            wVec_[iColumn] = CoinMax(fd(-reducedCost), safeObjectiveValue * ratioT);
           }
           CoinWorkDouble gammaTerm = gamma2;
           if (primalR_)
@@ -2639,7 +2639,7 @@ void ClpPredictorCorrector::setupForSolve(const int phase)
             value = (minBeta - gapProduct);
             assert(value > 0.0);
           } else if (gapProduct > maxBeta) {
-            value = CoinMax(maxBeta - gapProduct, -maxBeta);
+            value = CoinMax(maxBeta - gapProduct, fd(-maxBeta));
             assert(value < 0.0);
           }
           rhsZ_[iColumn] += value;
@@ -2662,7 +2662,7 @@ void ClpPredictorCorrector::setupForSolve(const int phase)
             value = (minBeta - gapProduct);
             assert(value > 0.0);
           } else if (gapProduct > maxBeta) {
-            value = CoinMax(maxBeta - gapProduct, -maxBeta);
+            value = CoinMax(maxBeta - gapProduct, fd(-maxBeta));
             assert(value < 0.0);
           }
           rhsW_[iColumn] += value;

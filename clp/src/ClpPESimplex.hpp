@@ -105,7 +105,7 @@ public:
   /** Tracking the degenerate iterations after compatible pivots */
   inline FloatT lastObjectiveValue() { return lastObjectiveValue_; }
   inline void updateLastObjectiveValue() { lastObjectiveValue_ = model_->objectiveValue(); }
-  inline bool isDegeneratePivot() { return fabs(model_->objectiveValue() - lastObjectiveValue_) < model_->dualTolerance(); }
+  inline bool isDegeneratePivot() { return CoinAbs(model_->objectiveValue() - lastObjectiveValue_) < model_->dualTolerance(); }
   inline bool isLastPivotCompatible() { return isLastPivotCompatible_; }
   inline void isLastPivotCompatible(bool yesOrNo) { isLastPivotCompatible_ = yesOrNo; }
 

@@ -152,7 +152,7 @@ add_row(CoinBigIndex *mrstrt, FloatT *rlo, FloatT *acts, FloatT *rup,
 #endif
 
       // kill small
-      if (fabs(newcoeff) < tolerance)
+      if (CoinAbs(newcoeff) < tolerance)
         newcoeff = 0.0;
       rowels[krowx] = newcoeff;
       x_to_y[x_to_y_i++] = static_cast< int >(krowx - krsx);
@@ -328,7 +328,7 @@ const CoinPresolveAction *subst_constraint_action::presolve(
     const int tgtrow = implied_free[iLook];
     const int tgtrow_len = rowLengths[tgtrow];
 
-    assert(fabs(rlo[tgtrow] - rup[tgtrow]) < tol);
+    assert(CoinAbs(rlo[tgtrow] - rup[tgtrow]) < tol);
 
     if (colLengths[tgtcol] < 2 || colLengths[tgtcol] > maxLook) {
 #if PRESOLVE_DEBUG > 3
@@ -363,7 +363,7 @@ const CoinPresolveAction *subst_constraint_action::presolve(
         break;
       }
       const FloatT aij = colCoeffs[kcol];
-      if (fabs(aij) <= ZTOLDP2) {
+      if (CoinAbs(aij) <= ZTOLDP2) {
         dealBreaker = true;
         break;
       }
@@ -385,7 +385,7 @@ const CoinPresolveAction *subst_constraint_action::presolve(
 */
     dealBreaker = false;
     for (CoinBigIndex kcol = tgtcs; kcol < tgtce; ++kcol) {
-      const FloatT coeff_factor = fabs(colCoeffs[kcol] / tgtcoeff);
+      const FloatT coeff_factor = CoinAbs(colCoeffs[kcol] / tgtcoeff);
       if (coeff_factor > 10.0)
         dealBreaker = true;
     }
@@ -407,7 +407,7 @@ const CoinPresolveAction *subst_constraint_action::presolve(
   If c(t) != 0, we will need to modify the objective coefficients and remember
   the original objective.
 */
-    const bool nonzero_cost = (fabs(cost[tgtcol]) > tol);
+    const bool nonzero_cost = (CoinAbs(cost[tgtcol]) > tol);
     FloatT *costsx = (nonzero_cost ? new FloatT[rowLengths[tgtrow]] : 0);
 
 #if PRESOLVE_DEBUG > 1

@@ -74,7 +74,7 @@ void CoinSearchTreeManager::newSolution(FloatT solValue)
   hasUB_ = true;
   CoinTreeNode *top = candidates_->top();
   const FloatT q = top ? top->getQuality() : solValue;
-  const bool switchToDFS = fabs(q) < 1e-3 ? (fabs(solValue) < 0.005) : ((solValue - q) / fabs(q) < 0.005);
+  const bool switchToDFS = CoinAbs(q) < 1e-3 ? (CoinAbs(solValue) < 0.005) : ((solValue - q) / CoinAbs(q) < 0.005);
   if (switchToDFS && dynamic_cast< CoinSearchTree< CoinSearchTreeCompareDepth > * >(candidates_) == NULL) {
     CoinSearchTree< CoinSearchTreeCompareDepth > *cands = new CoinSearchTree< CoinSearchTreeCompareDepth >(*candidates_);
     delete candidates_;

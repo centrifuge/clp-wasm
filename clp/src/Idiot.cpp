@@ -26,13 +26,13 @@
 For first two major iterations these are small.  Then:
 
 drop - exit a major iteration if drop over 5*checkFrequency < this is
-used as info->drop*(10.0+fabs(last weighted objective))
+used as info->drop*(10.0+CoinAbs(last weighted objective))
 
 exitDrop - exit idiot if feasible and drop < this is
-used as info->exitDrop*(10.0+fabs(last objective))
+used as info->exitDrop*(10.0+CoinAbs(last objective))
 
 djExit - exit a major iteration if largest dj (averaged over 5 checks)
-drops below this - used as info->djTolerance*(10.0+fabs(last weighted objective)
+drops below this - used as info->djTolerance*(10.0+CoinAbs(last weighted objective)
 
 djFlag - mostly skip variables with bad dj worse than this => 2*djExit
 
@@ -47,7 +47,7 @@ int Idiot::dropping(IdiotResult result,
   int *nbad)
 {
   if (result.infeas <= small) {
-    FloatT value = CoinMax(fabs(result.objval), fabs(result.dropThis)) + 1.0;
+    FloatT value = CoinMax(CoinAbs(result.objval), CoinAbs(result.dropThis)) + 1.0;
     if (result.dropThis > tolerance * value) {
       *nbad = 0;
       return 1;
@@ -344,7 +344,7 @@ void Idiot::crash(int numberPass, CoinMessageHandler *handler,
   int i;
   for (i = 0; i < numberColumns; i++) {
     if (objective[i]) {
-      sum += fabs(objective[i]);
+      sum += CoinAbs(objective[i]);
       nnzero++;
     }
   }
@@ -716,7 +716,7 @@ void Idiot::solve2(CoinMessageHandler *handler, const CoinMessages *messages)
         FloatT scale = columnScale[i];
         for (j = columnStart[i]; j < columnStart[i] + columnLength[i]; j++) {
           int jrow = row[j];
-          FloatT scaledValue = fabs(scale * element[j]);
+          FloatT scaledValue = CoinAbs(scale * element[j]);
           rowlower[jrow] = CoinMin(rowlower[jrow], scaledValue);
           rowupper[jrow] = CoinMax(rowupper[jrow], scaledValue);
         }
@@ -871,7 +871,7 @@ void Idiot::solve2(CoinMessageHandler *handler, const CoinMessages *messages)
       strategy |= 256;
     if ((saveStrategy & 4) != 0 && iteration > 2) {
       /* go to relative tolerances */
-      FloatT weighted = 10.0 + fabs(lastWeighted);
+      FloatT weighted = 10.0 + CoinAbs(lastWeighted);
       djExit = djTolerance_ * weighted;
       djFlag = 2.0 * djExit;
       drop = drop_ * weighted;
@@ -1022,7 +1022,7 @@ void Idiot::solve2(CoinMessageHandler *handler, const CoinMessages *messages)
       }
       saveLambdaScale = 0.0;
       if (result.infeas > reasonableInfeas || (nTry + 1 == maxBigIts && result.infeas > fakeSmall)) {
-        if (result.infeas > lastResult.infeas * (1.0 - dropEnoughFeasibility_) || nTry + 1 == maxBigIts || (result.infeas > lastResult.infeas * 0.9 && result.weighted > lastResult.weighted - dropEnoughWeighted_ * CoinMax(fabs(lastResult.weighted), fabs(result.weighted)))) {
+        if (result.infeas > lastResult.infeas * (1.0 - dropEnoughFeasibility_) || nTry + 1 == maxBigIts || (result.infeas > lastResult.infeas * 0.9 && result.weighted > lastResult.weighted - dropEnoughWeighted_ * CoinMax(CoinAbs(lastResult.weighted), CoinAbs(result.weighted)))) {
           mu *= changeMu;
           if ((saveStrategy & 32) != 0 && result.infeas < reasonableInfeas && 0) {
             reasonableInfeas = CoinMax(smallInfeas, reasonableInfeas * sqrt(changeMu));
@@ -1504,10 +1504,10 @@ void Idiot::crossOver(int mode)
           // Amount contributed by other varaibles
           sum = rowsol[i] - sum;
           FloatT lo = rowlower[i];
-          if (lo > -1.0e20)
+          if (lo > TOO_SMALL_FLOAT)
             lo -= sum;
           FloatT up = rowupper[i];
-          if (up < 1.0e20)
+          if (up < TOO_BIG_FLOAT)
             up -= sum;
           //printf("row bounds %g %g\n",lo,up);
           if (0) {
@@ -1636,7 +1636,7 @@ void Idiot::crossOver(int mode)
           }
           rowsol[i] = sum;
           if (basic) {
-            if (fabs(rowsol[i] - rowlower[i]) < fabs(rowsol[i] - rowupper[i]))
+            if (CoinAbs(rowsol[i] - rowlower[i]) < CoinAbs(rowsol[i] - rowupper[i]))
               model_->setRowStatus(i, ClpSimplex::atLowerBound);
             else
               model_->setRowStatus(i, ClpSimplex::atUpperBound);
@@ -1661,7 +1661,7 @@ void Idiot::crossOver(int mode)
             iCol = nextSlack[iCol];
           }
           if (n) {
-            if (fabs(rowsol[i] - rowlower[i]) < fabs(rowsol[i] - rowupper[i]))
+            if (CoinAbs(rowsol[i] - rowlower[i]) < CoinAbs(rowsol[i] - rowupper[i]))
               model_->setRowStatus(i, ClpSimplex::atLowerBound);
             else
               model_->setRowStatus(i, ClpSimplex::atUpperBound);
@@ -1696,7 +1696,7 @@ void Idiot::crossOver(int mode)
         iCol = nextSlack[iCol];
       }
       if (n) {
-        if (fabs(rowsol[i] - rowlower[i]) < fabs(rowsol[i] - rowupper[i]))
+        if (CoinAbs(rowsol[i] - rowlower[i]) < CoinAbs(rowsol[i] - rowupper[i]))
           model_->setRowStatus(i, ClpSimplex::atLowerBound);
         else
           model_->setRowStatus(i, ClpSimplex::atUpperBound);
@@ -1825,7 +1825,7 @@ void Idiot::crossOver(int mode)
         // fix up so will be feasible
         const FloatT *dual = model_->dualRowSolution();
         for (i = 0; i < nrows; i++)
-          rhs[i] = fabs(dual[i]);
+          rhs[i] = CoinAbs(dual[i]);
         std::sort(rhs, rhs + nrows);
         int nSmall = nrows;
         int nMedium = nrows;
@@ -1891,7 +1891,7 @@ void Idiot::crossOver(int mode)
               rowlower[i] = rhs[i];
               rowupper[i] = rowlower[i];
               nFixedRows++;
-            } else if (fabs(dual[i]) < small && rhs[i] - rowlower[i] > check && rowupper[i] - rhs[i] > check) {
+            } else if (CoinAbs(dual[i]) < small && rhs[i] - rowlower[i] > check && rowupper[i] - rhs[i] > check) {
               nFreed++;
 #if MESS_UP == 1 || MESS_UP == 2
               rowupper[i] = COIN_DBL_MAX;
@@ -2240,7 +2240,7 @@ Idiot::Idiot()
   djTolerance_ = 1e-1;
   mu_ = 1e-4;
   drop_ = 5.0;
-  exitDrop_ = -1.0e20;
+  exitDrop_ = TOO_SMALL_FLOAT;
   muFactor_ = 0.3333;
   stopMu_ = 1e-12;
   smallInfeas_ = 1e-1;
@@ -2276,7 +2276,7 @@ Idiot::Idiot(OsiSolverInterface &model)
   djTolerance_ = 1e-1;
   mu_ = 1e-4;
   drop_ = 5.0;
-  exitDrop_ = -1.0e20;
+  exitDrop_ = TOO_SMALL_FLOAT;
   muFactor_ = 0.3333;
   stopMu_ = 1e-12;
   smallInfeas_ = 1e-1;

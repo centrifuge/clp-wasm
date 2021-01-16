@@ -1,32 +1,32 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": [
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug solver",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/build_x64_debug/solver",
+      "args": [
+        "problems/tinlake-real.problem"
+      ],
+      "preLaunchTask": "Build x64 Debug",
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}",
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "gdb",
+      "setupCommands": [
         {
-            "name": "Debug solver",
-            "type": "cppdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/build_x64_debug/cpplex",
-            "args": [
-                "problems/tinlake-test.problem"
-            ],
-            "preLaunchTask": "Build x64 Debug",
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}",
-            "environment": [],
-            "externalConsole": false,
-            "MIMode": "gdb",
-            "setupCommands": [
-                {
-                    "description": "Enable pretty-printing for gdb",
-                    "text": "-enable-pretty-printing",
-                    "ignoreFailures": true
-                }
-            ],
-            "miDebuggerPath": "/usr/bin/gdb",
-            "visualizerFile": "${workspaceFolder}/.vscode/boost.natvis"
+          "description": "Enable pretty-printing for gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
         }
-    ]
+      ],
+      "miDebuggerPath": "/usr/bin/gdb",
+      "visualizerFile": "${workspaceFolder}/.vscode/boost.natvis"
+    }
+  ]
 }

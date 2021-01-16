@@ -367,7 +367,7 @@ const CoinPresolveAction *tripleton_action::presolve(CoinPresolveMatrix *prob,
   // wasfor (int irow=0; irow<nrows; irow++)
   for (iLook = 0; iLook < numberLook; iLook++) {
     int irow = look[iLook];
-    if (hinrow[irow] == 3 && fabs(rup[irow] - rlo[irow]) <= ZTOLDP) {
+    if (hinrow[irow] == 3 && CoinAbs(rup[irow] - rlo[irow]) <= ZTOLDP) {
       FloatT rhs = rlo[irow];
       CoinBigIndex krs = mrstrt[irow];
       CoinBigIndex kre = krs + hinrow[irow];
@@ -383,7 +383,7 @@ const CoinPresolveAction *tripleton_action::presolve(CoinPresolveMatrix *prob,
       }
       PRESOLVEASSERT(k < kre);
       coeffx = rowels[k];
-      if (fabs(coeffx) < ZTOLDP2)
+      if (CoinAbs(coeffx) < ZTOLDP2)
         continue;
       icolx = hcol[k];
 
@@ -395,7 +395,7 @@ const CoinPresolveAction *tripleton_action::presolve(CoinPresolveMatrix *prob,
       }
       PRESOLVEASSERT(k < kre);
       coeffy = rowels[k];
-      if (fabs(coeffy) < ZTOLDP2)
+      if (CoinAbs(coeffy) < ZTOLDP2)
         continue;
       icoly = hcol[k];
 
@@ -407,7 +407,7 @@ const CoinPresolveAction *tripleton_action::presolve(CoinPresolveMatrix *prob,
       }
       PRESOLVEASSERT(k < kre);
       coeffz = rowels[k];
-      if (fabs(coeffz) < ZTOLDP2)
+      if (CoinAbs(coeffz) < ZTOLDP2)
         continue;
       icolz = hcol[k];
 
@@ -432,7 +432,7 @@ const CoinPresolveAction *tripleton_action::presolve(CoinPresolveMatrix *prob,
       }
       // Not all same sign and y is odd one out
       // don't bother with fixed variables
-      if (!(fabs(cup[icolx] - clo[icolx]) < ZTOLDP) && !(fabs(cup[icoly] - clo[icolx]) < ZTOLDP) && !(fabs(cup[icolz] - clo[icoly]) < ZTOLDP)) {
+      if (!(CoinAbs(cup[icolx] - clo[icolx]) < ZTOLDP) && !(CoinAbs(cup[icoly] - clo[icolx]) < ZTOLDP) && !(CoinAbs(cup[icolz] - clo[icoly]) < ZTOLDP)) {
         assert(coeffx * coeffz > 0.0 && coeffx * coeffy < 0.0);
         // Only do if does not give implicit bounds on x and z
         FloatT cx = -coeffx / coeffy;
@@ -846,7 +846,7 @@ void tripleton_action::postsolve(CoinPostsolveMatrix *prob) const
       assert(iRow >= 0 && iRow < nrows);
       FloatT value = colels[k] + element1[iRow];
       element1[iRow] = 0.0;
-      if (fabs(value) >= 1.0e-15) {
+      if (CoinAbs(value) >= 1.0e-15) {
         colels[k] = value;
         last = k;
         k = link[k];
@@ -870,7 +870,7 @@ void tripleton_action::postsolve(CoinPostsolveMatrix *prob) const
       int iRow = index1[i];
       FloatT xValue = element1[iRow];
       element1[iRow] = 0.0;
-      if (fabs(xValue) >= 1.0e-15) {
+      if (CoinAbs(xValue) >= 1.0e-15) {
         if (iRow != irow)
           djx -= rowduals[iRow] * xValue;
         numberInColumn++;
@@ -903,7 +903,7 @@ void tripleton_action::postsolve(CoinPostsolveMatrix *prob) const
       assert(iRow >= 0 && iRow < nrows);
       FloatT value = colels[k] + element2[iRow];
       element2[iRow] = 0.0;
-      if (fabs(value) >= 1.0e-15) {
+      if (CoinAbs(value) >= 1.0e-15) {
         colels[k] = value;
         last = k;
         k = link[k];
@@ -928,7 +928,7 @@ void tripleton_action::postsolve(CoinPostsolveMatrix *prob) const
       int iRow = index2[i];
       FloatT zValue = element2[iRow];
       element2[iRow] = 0.0;
-      if (fabs(zValue) >= 1.0e-15) {
+      if (CoinAbs(zValue) >= 1.0e-15) {
         if (iRow != irow)
           djz -= rowduals[iRow] * zValue;
         numberInColumn++;
@@ -957,7 +957,7 @@ void tripleton_action::postsolve(CoinPostsolveMatrix *prob) const
     // to become basic.
     //printf("djs x - %g (%g), y - %g (%g)\n",djx,coeffx,djy,coeffy);
     if (colstat) {
-      if (prob->columnIsBasic(jcolx) || (fabs(clo[jcolx] - sol[jcolx]) < ztolzb && rcosts[jcolx] >= -ztoldj) || (fabs(cup[jcolx] - sol[jcolx]) < ztolzb && rcosts[jcolx] <= ztoldj) || (prob->getColumnStatus(jcolx) == CoinPrePostsolveMatrix::isFree && fabs(rcosts[jcolx]) <= ztoldj)) {
+      if (prob->columnIsBasic(jcolx) || (CoinAbs(clo[jcolx] - sol[jcolx]) < ztolzb && rcosts[jcolx] >= -ztoldj) || (CoinAbs(cup[jcolx] - sol[jcolx]) < ztolzb && rcosts[jcolx] <= ztoldj) || (prob->getColumnStatus(jcolx) == CoinPrePostsolveMatrix::isFree && CoinAbs(rcosts[jcolx]) <= ztoldj)) {
         // colx or y is fine as it is - make coly basic
 
         prob->setColumnStatus(jcoly, CoinPrePostsolveMatrix::basic);
@@ -966,12 +966,12 @@ void tripleton_action::postsolve(CoinPostsolveMatrix *prob) const
         rowduals[irow] = djy / coeffy;
         rcosts[jcolx] = djx - rowduals[irow] * coeffx;
 #if PRESOLVE_DEBUG > 0
-        if (prob->columnIsBasic(jcolx) && fabs(rcosts[jcolx]) > 1.0e-5)
+        if (prob->columnIsBasic(jcolx) && CoinAbs(rcosts[jcolx]) > 1.0e-5)
           printf("bad dj %d %g\n", jcolx, rcosts[jcolx]);
 #endif
         rcosts[jcolz] = djz - rowduals[irow] * coeffz;
         //if (prob->columnIsBasic(jcolz))
-        //assert (fabs(rcosts[jcolz])<1.0e-5);
+        //assert (CoinAbs(rcosts[jcolz])<1.0e-5);
         rcosts[jcoly] = 0.0;
       } else {
         prob->setColumnStatus(jcolx, CoinPrePostsolveMatrix::basic);
@@ -1008,7 +1008,7 @@ void tripleton_action::postsolve(CoinPostsolveMatrix *prob) const
 
         dj -= rowduals[row] * coeff;
       }
-      if (!(fabs(rcosts[jcolx] - dj) < 100 * ZTOLDP))
+      if (!(CoinAbs(rcosts[jcolx] - dj) < 100 * ZTOLDP))
         printf("BAD DOUBLE X DJ:  %d %d %g %g\n",
           irow, jcolx, rcosts[jcolx], dj);
       rcosts[jcolx] = dj;
@@ -1027,7 +1027,7 @@ void tripleton_action::postsolve(CoinPostsolveMatrix *prob) const
         //printf("b %d coeff %g dual %g dj %g\n",
         // row,coeff,rowduals[row],dj);
       }
-      if (!(fabs(rcosts[jcoly] - dj) < 100 * ZTOLDP))
+      if (!(CoinAbs(rcosts[jcoly] - dj) < 100 * ZTOLDP))
         printf("BAD DOUBLE Y DJ:  %d %d %g %g\n",
           irow, jcoly, rcosts[jcoly], dj);
       rcosts[jcoly] = dj;

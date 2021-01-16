@@ -112,7 +112,7 @@ ClpPresolve::presolvedModel(ClpSimplex &si,
   // Check matrix
   int checkType = ((si.specialOptions() & 128) != 0) ? 14 : 15;
   if (!si.clpMatrix()->allElementsInRange(&si, si.getSmallElementValue(),
-        1.0e20, checkType))
+        TOO_BIG_FLOAT, checkType))
     return NULL;
   else
     return gutsOfPresolvedModel(&si, feasibilityTolerance, keepIntegers, numberPasses, dropNames,
@@ -133,7 +133,7 @@ int ClpPresolve::presolvedModelToFile(ClpSimplex &si, std::string fileName,
 {
   // Check matrix
   if (!si.clpMatrix()->allElementsInRange(&si, si.getSmallElementValue(),
-        1.0e20))
+        TOO_BIG_FLOAT))
     return 2;
   saveFile_ = fileName;
   si.saveModel(saveFile_.c_str());
@@ -435,7 +435,7 @@ void check_sol(CoinPresolveMatrix *prob, FloatT tol)
   int rowx;
   for (rowx = 0; rowx < nrows; ++rowx) {
     if (hinrow[rowx]) {
-      if (fabs(rsol[rowx] - acts[rowx]) > tol)
+      if (CoinAbs(rsol[rowx] - acts[rowx]) > tol)
         printf("inacc RSOL:  %d - %g %g (acts_ %g) %g\n",
           rowx, rlo[rowx], rsol[rowx], acts[rowx], rup[rowx]);
       if (rsol[rowx] < rlo[rowx] - tol) {
@@ -587,7 +587,7 @@ static int tightenDoubletons2(CoinPresolveMatrix *prob)
           FloatT sum0 = 0.0;
           FloatT sum1 = 0.0;
           FloatT value = bound[k];
-          if (fabs(value) < 1.0e30) {
+          if (CoinAbs(value) < 1.0e30) {
             sum0 += alpha[0] * value;
             sum1 += alpha[1] * value;
           } else {
@@ -780,8 +780,8 @@ static int tightenDoubletons2(CoinPresolveMatrix *prob)
           // cost>0 so will be at lower
           //FloatT yValueAtBound1=newLower;
           newUpper = CoinMax(newUpper, CoinMax(yValue0, yValue1));
-          lowerX = CoinMax(lowerX, newLower - 1.0e-12 * fabs(newLower));
-          upperX = CoinMin(upperX, newUpper + 1.0e-12 * fabs(newUpper));
+          lowerX = CoinMax(lowerX, newLower - 1.0e-12 * CoinAbs(newLower));
+          upperX = CoinMin(upperX, newUpper + 1.0e-12 * CoinAbs(newUpper));
           // Now make duplicate row
           // keep row 0 so need to adjust costs so same
 #ifdef PRINT_VALUES
@@ -803,13 +803,13 @@ static int tightenDoubletons2(CoinPresolveMatrix *prob)
 #ifdef PRINT_VALUES
           printf("new cost at -1 %g\n", costOther * xValue + costThis * yValue0 + thisOffset);
 #endif
-          assert(fabs((costOther * xValue + costThis * yValue0 + thisOffset) - (costEqual - slope[0])) < 1.0e-5);
+          assert(CoinAbs((costOther * xValue + costThis * yValue0 + thisOffset) - (costEqual - slope[0])) < 1.0e-5);
           xValue = xValueEqual + 1.0;
           yValue0 = CoinMax((rowUpper0 - xValue * alpha[0]) / element0, lowerX);
 #ifdef PRINT_VALUES
           printf("new cost at +1 %g\n", costOther * xValue + costThis * yValue0 + thisOffset);
 #endif
-          assert(fabs((costOther * xValue + costThis * yValue0 + thisOffset) - (costEqual + slope[1])) < 1.0e-5);
+          assert(CoinAbs((costOther * xValue + costThis * yValue0 + thisOffset) - (costEqual + slope[1])) < 1.0e-5);
           numberChanged++;
           //	  continue;
           cost[otherCol] = costOther;
@@ -1787,7 +1787,7 @@ CoinPresolveMatrix::CoinPresolveMatrix(int ncols0_in,
     CoinBigIndex j;
     for (j = start[icol]; j < start[icol] + hincol_[icol]; j++) {
       hrow_[nel] = row[j];
-      if (fabs(element[j]) > ZTOLDP)
+      if (CoinAbs(element[j]) > ZTOLDP)
         colels_[nel++] = element[j];
     }
     mcstrt_[icol + 1] = nel;
@@ -1835,7 +1835,7 @@ CoinPresolveMatrix::CoinPresolveMatrix(int ncols0_in,
       CoinBigIndex j;
       for (j = start; j < start + hinrow_[irow]; j++) {
         hcol_[nel] = hcol_[j];
-        if (fabs(rowels_[j]) > ZTOLDP)
+        if (CoinAbs(rowels_[j]) > ZTOLDP)
           rowels_[nel++] = rowels_[j];
       }
       start = mrstrt_[irow + 1];
@@ -2335,11 +2335,11 @@ ClpPresolve::gutsOfPresolvedModel(ClpSimplex *originalModel,
 
         for (i = 0; i < n; i++) {
           FloatT gap = up[i] - lo[i];
-          if (rsol[i] < lo[i] - feasibilityTolerance && fabs(rsol[i] - lo[i]) < 1.0e-3) {
+          if (rsol[i] < lo[i] - feasibilityTolerance && CoinAbs(rsol[i] - lo[i]) < 1.0e-3) {
             lo[i] = rsol[i];
             if (gap < 1.0e5)
               up[i] = lo[i] + gap;
-          } else if (rsol[i] > up[i] + feasibilityTolerance && fabs(rsol[i] - up[i]) < 1.0e-3) {
+          } else if (rsol[i] > up[i] + feasibilityTolerance && CoinAbs(rsol[i] - up[i]) < 1.0e-3) {
             up[i] = rsol[i];
             if (gap < 1.0e5)
               lo[i] = up[i] - gap;

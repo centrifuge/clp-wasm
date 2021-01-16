@@ -337,7 +337,7 @@ ClpQuadraticObjective::gradient(const ClpSimplex *model,
                 FloatT elementValue = quadraticElement[j];
                 if (iColumn != jColumn) {
                   offset += valueI * valueJ * elementValue;
-                  //if (fabs(valueI*valueJ*elementValue)>1.0e-12)
+                  //if (CoinAbs(valueI*valueJ*elementValue)>1.0e-12)
                   //printf("%d %d %g %g %g -> %g\n",
                   //       iColumn,jColumn,valueI,valueJ,elementValue,
                   //       valueI*valueJ*elementValue);
@@ -347,7 +347,7 @@ ClpQuadraticObjective::gradient(const ClpSimplex *model,
                   gradient_[jColumn] += gradientJ;
                 } else {
                   offset += 0.5 * valueI * valueI * elementValue;
-                  //if (fabs(valueI*valueI*elementValue)>1.0e-12)
+                  //if (CoinAbs(valueI*valueI*elementValue)>1.0e-12)
                   //printf("XX %d %g %g -> %g\n",
                   //       iColumn,valueI,elementValue,
                   //       0.5*valueI*valueI*elementValue);

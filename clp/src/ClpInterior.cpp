@@ -520,7 +520,7 @@ bool ClpInterior::createWorkingData()
 {
   bool goodMatrix = true;
   //check matrix
-  if (!matrix_->allElementsInRange(this, 1.0e-12, 1.0e20)) {
+  if (!matrix_->allElementsInRange(this, 1.0e-12, TOO_BIG_FLOAT)) {
     problemStatus_ = 4;
     goodMatrix = false;
   }
@@ -1093,7 +1093,7 @@ int ClpInterior::numberFixed() const
   int i;
   int nFixed = 0;
   for (i = 0; i < numberColumns_; i++) {
-    if (columnUpper_[i] < 1.0e20 || columnLower_[i] > -1.0e20) {
+    if (columnUpper_[i] < TOO_BIG_FLOAT || columnLower_[i] > TOO_SMALL_FLOAT) {
       if (columnUpper_[i] > columnLower_[i]) {
         if (fixedOrFree(i))
           nFixed++;
@@ -1101,7 +1101,7 @@ int ClpInterior::numberFixed() const
     }
   }
   for (i = 0; i < numberRows_; i++) {
-    if (rowUpper_[i] < 1.0e20 || rowLower_[i] > -1.0e20) {
+    if (rowUpper_[i] < TOO_BIG_FLOAT || rowLower_[i] > TOO_SMALL_FLOAT) {
       if (rowUpper_[i] > rowLower_[i]) {
         if (fixedOrFree(i + numberColumns_))
           nFixed++;
@@ -1122,7 +1122,7 @@ void ClpInterior::fixFixed(bool reallyFix)
   int i;
   CoinWorkDouble tolerance = primalTolerance();
   for (i = 0; i < numberColumns_; i++) {
-    if (columnUpper_[i] < 1.0e20 || columnLower_[i] > -1.0e20) {
+    if (columnUpper_[i] < TOO_BIG_FLOAT || columnLower_[i] > TOO_SMALL_FLOAT) {
       if (columnUpper_[i] > columnLower_[i]) {
         if (fixedOrFree(i)) {
           if (columnActivity_[i] - columnLower_[i] < columnUpper_[i] - columnActivity_[i]) {
@@ -1166,7 +1166,7 @@ void ClpInterior::fixFixed(bool reallyFix)
     matrix_->times(1.0, columnActivity_, rowActivity_);
     if (reallyFix) {
       for (i = 0; i < numberRows_; i++) {
-        if (rowUpper_[i] < 1.0e20 || rowLower_[i] > -1.0e20) {
+        if (rowUpper_[i] < TOO_BIG_FLOAT || rowLower_[i] > TOO_SMALL_FLOAT) {
           if (rowUpper_[i] > rowLower_[i]) {
             if (fixedOrFree(i + numberColumns_)) {
               if (rowActivity_[i] - rowLower_[i] < rowUpper_[i] - rowActivity_[i]) {

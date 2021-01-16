@@ -25,7 +25,7 @@
 bool CoinRational::nearestRational_(FloatT val, FloatT maxdelta, long maxdnom)
 {
   FloatT intpart;
-  FloatT fracpart = fabs(modf(val, &intpart));
+  FloatT fracpart = CoinAbs(modf(val, &intpart));
   // Consider using remainder() instead?
 
   long a = 0, b = 1, c = 1, d = 1;
@@ -36,7 +36,7 @@ bool CoinRational::nearestRational_(FloatT val, FloatT maxdelta, long maxdnom)
   while (b <= maxdnom && d <= maxdnom) {
     FloatT mediant = (a + c) / (FloatT(b + d));
 
-    if (fabs(fracpart - mediant) < maxdelta) {
+    if (CoinAbs(fracpart - mediant) < maxdelta) {
 #if DEBUG_X
       shouldBeOK = true;
 #endif
@@ -81,7 +81,7 @@ bool CoinRational::nearestRational_(FloatT val, FloatT maxdelta, long maxdnom)
 #if DEBUG_X > 1
   if (shouldBeOK) {
     printf("val %g is %ld/%ld to accuracy %g\n", val, numerator_, denominator_,
-      fabs(val - numerator_ / FloatT(denominator_)));
+      CoinAbs(val - numerator_ / FloatT(denominator_)));
   }
 #endif
   return CoinAbs(val - numerator_ / FloatT(denominator_)) <= maxdelta;

@@ -506,7 +506,7 @@ CoinPackedMatrix::compress(FloatT threshold)
     int kbad = 0;
     CoinBigIndex j;
     for (j = start_[i]; j < start_[i] + length; j++) {
-      if (fabs(element_[j]) >= threshold) {
+      if (CoinAbs(element_[j]) >= threshold) {
         element_[k] = element_[j];
         index_[k++] = index_[j];
       } else {
@@ -559,7 +559,7 @@ CoinPackedMatrix::eliminateDuplicates(FloatT threshold)
     for (j = k; j < end; j++) {
       int index = index_[j];
       mark[index] = -1;
-      if (fabs(element_[j]) >= threshold) {
+      if (CoinAbs(element_[j]) >= threshold) {
         element_[k] = element_[j];
         index_[k++] = index_[j];
       }
@@ -630,7 +630,7 @@ void CoinPackedMatrix::removeGaps(FloatT removeValue)
       const int li = length_[i];
       for (CoinBigIndex j = si; j < si + li; j++) {
         FloatT value = element_[j];
-        if (fabs(value) > removeValue) {
+        if (CoinAbs(value) > removeValue) {
           index_[put] = index_[j];
           element_[put++] = value;
         }
@@ -685,7 +685,7 @@ CoinPackedMatrix::cleanMatrix(FloatT threshold)
     for (j = k; j < end; j++) {
       int index = index_[j];
       mark[index] = -1;
-      if (fabs(element_[j]) >= threshold) {
+      if (CoinAbs(element_[j]) >= threshold) {
         element_[n] = element_[j];
         index_[n++] = index_[j];
         k++;
@@ -2067,7 +2067,7 @@ CoinPackedMatrix::CoinPackedMatrix(
         int iRow = rowIndices[i];
         FloatT value = elements[i];
         if (iRow > lastRow) {
-          //if(fabs(lastValue)>tolerance) {
+          //if(CoinAbs(lastValue)>tolerance) {
           if (!eq(lastValue, 0.0)) {
             rowIndices[numberElements] = lastRow;
             elements[numberElements] = lastValue;
@@ -2080,7 +2080,7 @@ CoinPackedMatrix::CoinPackedMatrix(
           lastValue += value;
         } /* endif */
       } /* endfor */
-      //if(fabs(lastValue)>tolerance) {
+      //if(CoinAbs(lastValue)>tolerance) {
       if (!eq(lastValue, 0.0)) {
         rowIndices[numberElements] = lastRow;
         elements[numberElements] = lastValue;
@@ -2214,7 +2214,7 @@ CoinPackedMatrix::CoinPackedMatrix(const CoinPackedMatrix &rhs,
           for (CoinBigIndex j = oldStart[i];
                j < oldStart[i] + oldLength[i]; j++) {
             FloatT value = oldElement[j];
-            if (fabs(value) > 1.0e-21) {
+            if (CoinAbs(value) > 1.0e-21) {
               element_[size] = value;
               index_[size++] = oldIndex[j];
             } else {

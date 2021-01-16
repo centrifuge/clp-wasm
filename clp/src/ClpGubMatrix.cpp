@@ -600,7 +600,7 @@ void ClpGubMatrix::transposeTimes(const ClpSimplex *model, FloatT scalar,
             int iRow = row[j];
             value += pi[iRow] * elementByColumn[j];
           }
-          if (fabs(value) > zeroTolerance) {
+          if (CoinAbs(value) > zeroTolerance) {
             array[numberNonZero] = value;
             index[numberNonZero++] = iColumn;
           }
@@ -644,7 +644,7 @@ void ClpGubMatrix::transposeTimes(const ClpSimplex *model, FloatT scalar,
             value += pi[iRow] * elementByColumn[j];
           }
           value *= columnScale[iColumn];
-          if (fabs(value) > zeroTolerance) {
+          if (CoinAbs(value) > zeroTolerance) {
             array[numberNonZero] = value;
             index[numberNonZero++] = iColumn;
           }
@@ -668,7 +668,7 @@ void ClpGubMatrix::transposeTimes(const ClpSimplex *model, FloatT scalar,
               int iRow = row[j];
               value += pi[iRow] * elementByColumn[j];
             }
-            if (fabs(value) > zeroTolerance) {
+            if (CoinAbs(value) > zeroTolerance) {
               index[numberNonZero++] = iColumn;
               array[iColumn] = -value;
             }
@@ -682,7 +682,7 @@ void ClpGubMatrix::transposeTimes(const ClpSimplex *model, FloatT scalar,
               int iRow = row[j];
               value += pi[iRow] * elementByColumn[j];
             }
-            if (fabs(value) > zeroTolerance) {
+            if (CoinAbs(value) > zeroTolerance) {
               index[numberNonZero++] = iColumn;
               array[iColumn] = value;
             }
@@ -697,7 +697,7 @@ void ClpGubMatrix::transposeTimes(const ClpSimplex *model, FloatT scalar,
               value += pi[iRow] * elementByColumn[j];
             }
             value *= scalar;
-            if (fabs(value) > zeroTolerance) {
+            if (CoinAbs(value) > zeroTolerance) {
               index[numberNonZero++] = iColumn;
               array[iColumn] = value;
             }
@@ -716,7 +716,7 @@ void ClpGubMatrix::transposeTimes(const ClpSimplex *model, FloatT scalar,
               value += pi[iRow] * elementByColumn[j] * rowScale[iRow];
             }
             value *= columnScale[iColumn];
-            if (fabs(value) > zeroTolerance) {
+            if (CoinAbs(value) > zeroTolerance) {
               index[numberNonZero++] = iColumn;
               array[iColumn] = -value;
             }
@@ -732,7 +732,7 @@ void ClpGubMatrix::transposeTimes(const ClpSimplex *model, FloatT scalar,
               value += pi[iRow] * elementByColumn[j] * rowScale[iRow];
             }
             value *= columnScale[iColumn];
-            if (fabs(value) > zeroTolerance) {
+            if (CoinAbs(value) > zeroTolerance) {
               index[numberNonZero++] = iColumn;
               array[iColumn] = value;
             }
@@ -748,7 +748,7 @@ void ClpGubMatrix::transposeTimes(const ClpSimplex *model, FloatT scalar,
               value += pi[iRow] * elementByColumn[j] * rowScale[iRow];
             }
             value *= scalar * columnScale[iColumn];
-            if (fabs(value) > zeroTolerance) {
+            if (CoinAbs(value) > zeroTolerance) {
               index[numberNonZero++] = iColumn;
               array[iColumn] = value;
             }
@@ -941,11 +941,11 @@ int ClpGubMatrix::countBasis(const int *whichColumn,
           FloatT keyValue = work[iRow];
           FloatT value = elementByColumn[j];
           if (!keyValue) {
-            if (fabs(value) > 1.0e-20)
+            if (CoinAbs(value) > 1.0e-20)
               extra++;
           } else {
             value -= keyValue;
-            if (fabs(value) <= 1.0e-20)
+            if (CoinAbs(value) <= 1.0e-20)
               extra--;
           }
         }
@@ -1022,7 +1022,7 @@ void ClpGubMatrix::fillBasis(ClpSimplex *model,
       if (iSet < 0 || keyVariable_[iSet] >= numberColumns) {
         for (j = columnStart[iColumn]; j < columnStart[iColumn] + columnLength[iColumn]; j++) {
           FloatT value = elementByColumn[j];
-          if (fabs(value) > 1.0e-20) {
+          if (CoinAbs(value) > 1.0e-20) {
             int iRow = row[j];
             indexRowU[numberElements] = iRow;
             rowCount[iRow]++;
@@ -1063,7 +1063,7 @@ void ClpGubMatrix::fillBasis(ClpSimplex *model,
               FloatT keyValue = work[iRow];
               value -= keyValue;
             }
-            if (fabs(value) > 1.0e-20) {
+            if (CoinAbs(value) > 1.0e-20) {
               indexRowU[numberElements] = iRow;
               rowCount[iRow]++;
               elementU[numberElements++] = value;
@@ -1073,7 +1073,7 @@ void ClpGubMatrix::fillBasis(ClpSimplex *model,
             int iRow = row[j];
             if (mark[iRow]) {
               FloatT value = -work[iRow];
-              if (fabs(value) > 1.0e-20) {
+              if (CoinAbs(value) > 1.0e-20) {
                 indexRowU[numberElements] = iRow;
                 rowCount[iRow]++;
                 elementU[numberElements++] = value;
@@ -1103,7 +1103,7 @@ void ClpGubMatrix::fillBasis(ClpSimplex *model,
         for (j = columnStart[iColumn]; j < columnStart[iColumn] + columnLength[iColumn]; j++) {
           int iRow = row[j];
           FloatT value = elementByColumn[j] * scale * rowScale[iRow];
-          if (fabs(value) > 1.0e-20) {
+          if (CoinAbs(value) > 1.0e-20) {
             indexRowU[numberElements] = iRow;
             rowCount[iRow]++;
             elementU[numberElements++] = value;
@@ -1145,7 +1145,7 @@ void ClpGubMatrix::fillBasis(ClpSimplex *model,
               FloatT keyValue = work[iRow];
               value -= keyValue;
             }
-            if (fabs(value) > 1.0e-20) {
+            if (CoinAbs(value) > 1.0e-20) {
               indexRowU[numberElements] = iRow;
               rowCount[iRow]++;
               elementU[numberElements++] = value;
@@ -1155,7 +1155,7 @@ void ClpGubMatrix::fillBasis(ClpSimplex *model,
             int iRow = row[j];
             if (mark[iRow]) {
               FloatT value = -work[iRow];
-              if (fabs(value) > 1.0e-20) {
+              if (CoinAbs(value) > 1.0e-20) {
                 indexRowU[numberElements] = iRow;
                 rowCount[iRow]++;
                 elementU[numberElements++] = value;
@@ -1361,7 +1361,7 @@ void ClpGubMatrix::partialPricing(ClpSimplex *model, FloatT startFraction, Float
       int numberColumns = model->numberColumns();
       int numberRows = model->numberRows();
       if (bestSequence >= 0)
-        bestDj = fabs(this->reducedCost(model, bestSequence));
+        bestDj = CoinAbs(this->reducedCost(model, bestSequence));
       else
         bestDj = tolerance;
       int sequenceOut = model->sequenceOut();
@@ -1470,7 +1470,7 @@ void ClpGubMatrix::partialPricing(ClpSimplex *model, FloatT startFraction, Float
                 int jRow = row[j];
                 value -= duals[jRow] * element[j] * rowScale[jRow];
               }
-              value = fabs(cost[iSequence] + value * columnScale[iSequence]);
+              value = CoinAbs((FloatT)(cost[iSequence] + value * columnScale[iSequence]));
               if (value > FREE_ACCEPT * tolerance) {
                 numberWanted--;
                 // we are going to bias towards free (but only if reasonable)
@@ -1660,7 +1660,7 @@ void ClpGubMatrix::partialPricing(ClpSimplex *model, FloatT startFraction, Float
                 int jRow = row[j];
                 value -= duals[jRow] * element[j];
               }
-              value = fabs(value);
+              value = CoinAbs(value);
               if (value > FREE_ACCEPT * tolerance) {
                 numberWanted--;
                 // we are going to bias towards free (but only if reasonable)
@@ -1768,7 +1768,7 @@ void ClpGubMatrix::partialPricing(ClpSimplex *model, FloatT startFraction, Float
       FloatT offset = static_cast< FloatT >(lastGub_) / static_cast< FloatT >(numberColumns);
       FloatT ratio = static_cast< FloatT >(numberColumns) / static_cast< FloatT >(numberColumns) - offset;
       FloatT start2 = offset + ratio * startFraction;
-      FloatT end2 = CoinMin(1.0, offset + ratio * endFraction + 1.0e-6);
+      FloatT end2 = CoinMin(fd(1.0), offset + ratio * endFraction + 1.0e-6);
       ClpPackedMatrix::partialPricing(model, start2, end2, bestSequence, numberWanted);
     }
   } else {
@@ -1872,7 +1872,7 @@ int ClpGubMatrix::extendUpdated(ClpSimplex *model, CoinIndexedVector *update, in
               solution[iKey] = sol;
               if (model->algorithm() > 0)
                 model->nonLinearCost()->setOne(iKey, sol);
-              //assert (fabs(sol-solution[iKey])<1.0e-3);
+              //assert (CoinAbs(sol-solution[iKey])<1.0e-3);
             } else {
               // gub slack is basic
               // Save current cost of key
@@ -1986,7 +1986,7 @@ int ClpGubMatrix::extendUpdated(ClpSimplex *model, CoinIndexedVector *update, in
         solution[iKey] = sol;
         if (model->algorithm() > 0)
           model->nonLinearCost()->setOne(iKey, sol);
-        //assert (fabs(sol-solution[iKey])<1.0e-3);
+        //assert (CoinAbs(sol-solution[iKey])<1.0e-3);
       } else {
         // gub slack is basic
         array[number2] = -1.0;
@@ -2656,7 +2656,7 @@ int ClpGubMatrix::generalExpanded(ClpSimplex *model, int mode, int &number)
           int iRow = which[i];
           int iPivot = pivotVariable[iRow];
           if (iPivot < numberColumns && backward_[iPivot] == iSetOut) {
-            if (fabs(array[i]) > fabs(bestAlpha)) {
+            if (CoinAbs(array[i]) > CoinAbs(bestAlpha)) {
               bestAlpha = array[i];
               possiblePivotKey_ = iRow;
             }
@@ -3018,9 +3018,9 @@ void ClpGubMatrix::useEffectiveRhs(ClpSimplex *model, bool cheapest)
     CoinBigIndex iStart = start_[iSet];
     CoinBigIndex iEnd = end_[iSet];
     for (j = iStart; j < iEnd; j++) {
-      if (columnLower[j] && columnLower[j] > -1.0e20)
+      if (columnLower[j] && columnLower[j] > TOO_SMALL_FLOAT)
         noNormalBounds = false;
-      if (columnUpper[j] && columnUpper[j] < 1.0e20)
+      if (columnUpper[j] && columnUpper[j] < TOO_BIG_FLOAT)
         noNormalBounds = false;
     }
   }
@@ -3065,10 +3065,10 @@ void ClpGubMatrix::useEffectiveRhs(ClpSimplex *model, bool cheapest)
           columnSolution[iBasic] = thisSolution;
         }
         // try setting slack to a bound
-        assert(upper_[iSet] < 1.0e20 || lower_[iSet] > -1.0e20);
+        assert(upper_[iSet] < TOO_BIG_FLOAT || lower_[iSet] > TOO_SMALL_FLOAT);
         FloatT cost1 = COIN_DBL_MAX;
         int whichBound = -1;
-        if (upper_[iSet] < 1.0e20) {
+        if (upper_[iSet] < TOO_BIG_FLOAT) {
           // try slack at ub
           FloatT newBasic = thisSolution + upper_[iSet] - value;
           if (newBasic >= columnLower[iBasic] - tolerance && newBasic <= columnUpper[iBasic] + tolerance) {
@@ -3076,18 +3076,18 @@ void ClpGubMatrix::useEffectiveRhs(ClpSimplex *model, bool cheapest)
             whichBound = 1;
             cost1 = newBasic * objective[iBasic];
             // But if exact then may be good solution
-            if (fabs(upper_[iSet] - value) < tolerance)
+            if (CoinAbs(upper_[iSet] - value) < tolerance)
               cost1 = -COIN_DBL_MAX;
           }
         }
-        if (lower_[iSet] > -1.0e20) {
+        if (lower_[iSet] > TOO_SMALL_FLOAT) {
           // try slack at lb
           FloatT newBasic = thisSolution + lower_[iSet] - value;
           if (newBasic >= columnLower[iBasic] - tolerance && newBasic <= columnUpper[iBasic] + tolerance) {
             // can go but is it cheaper
             FloatT cost2 = newBasic * objective[iBasic];
             // But if exact then may be good solution
-            if (fabs(lower_[iSet] - value) < tolerance)
+            if (CoinAbs(lower_[iSet] - value) < tolerance)
               cost2 = -COIN_DBL_MAX;
             if (cost2 < cost1)
               whichBound = 0;
@@ -3195,7 +3195,7 @@ void ClpGubMatrix::useEffectiveRhs(ClpSimplex *model, bool cheapest)
                     basicDistance = solution[iBasic] - lower[iBasic];
                   }
                   // need extra coding for unbounded
-                  assert(CoinMin(distance, basicDistance) < 1.0e20);
+                  assert(CoinMin(distance, basicDistance) < TOO_BIG_FLOAT);
                   if (distance > basicDistance) {
                     // incoming becomes basic
                     solution[chosen] += basicDistance;
@@ -3222,7 +3222,7 @@ void ClpGubMatrix::useEffectiveRhs(ClpSimplex *model, bool cheapest)
                     basicDistance = upper[iBasic] - solution[iBasic];
                   }
                   // need extra coding for unbounded - for now just exit
-                  if (CoinMin(distance, basicDistance) > 1.0e20) {
+                  if (CoinMin(distance, basicDistance) > TOO_BIG_FLOAT) {
                     printf("unbounded on set %d\n", iSet);
                     iphase = 1;
                     iBasic = numberInSet;
@@ -3501,7 +3501,7 @@ ClpGubMatrix::rhsOffset(ClpSimplex *model, bool forceRefresh, bool
         }
       }
       for (iRow = 0; iRow < numberRows; iRow++) {
-        if (fabs(rhs[iRow] - rhsOffset_[iRow]) > 1.0e-3)
+        if (CoinAbs(rhs[iRow] - rhsOffset_[iRow]) > 1.0e-3)
           printf("** bad effective %d - true %g old %g\n", iRow, rhs[iRow], rhsOffset_[iRow]);
       }
       delete[] rhs;
@@ -3740,7 +3740,7 @@ int ClpGubMatrix::updatePivot(ClpSimplex *model, FloatT oldInValue, FloatT /*old
       } else if (value == lower_[iSetOut]) {
         setStatus(iSetOut, ClpSimplex::atLowerBound);
       } else {
-        if (fabs(value - upper_[iSetOut]) < fabs(value - lower_[iSetOut])) {
+        if (CoinAbs(value - upper_[iSetOut]) < CoinAbs(value - lower_[iSetOut])) {
           setStatus(iSetOut, ClpSimplex::atUpperBound);
         } else {
           setStatus(iSetOut, ClpSimplex::atLowerBound);
@@ -3964,7 +3964,7 @@ int ClpGubMatrix::updatePivot(ClpSimplex *model, FloatT oldInValue, FloatT /*old
           sol = lower_[i] - value;
         //printf("xx Value of key structural %d for set %d is %g - cost %g\n",key,i,sol,
         //     cost[key]);
-        //if (fabs(sol-solution[key])>1.0e-3)
+        //if (CoinAbs(sol-solution[key])>1.0e-3)
         //printf("** stored value was %g\n",solution[key]);
       } else {
         // slack is key

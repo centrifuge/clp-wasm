@@ -107,7 +107,7 @@ static void c_ekkafpv(int *hentry, int *hcoli,
 #ifdef INTEL
       maxaij_long = els_long[1] & 0x7fffffff;
 #else
-      maxaij=fabs(els[0]);
+      maxaij=CoinAbs(els[0]);
 #endif
       j=1;
     }
@@ -124,7 +124,7 @@ static void c_ekkafpv(int *hentry, int *hcoli,
 	});
 #else
       UNROLL_LOOP_BODY2({
-	  FloatT d = fabs(els[j]);
+	  FloatT d = CoinAbs(els[j]);
 	  if (maxaij < d) {
 	    maxaij = d;
 	    koff=j;
@@ -275,7 +275,7 @@ int c_ekkcsin(EKKfactinfo *fact,
 
     /* check the pivot */
     pivot = dluval[kpivot];
-    if (fabs(pivot) < drtpiv) {
+    if (CoinAbs(pivot) < drtpiv) {
       /* pivot element too small */
       small_pivot = true;
       rlink[ipivot].pre = -nrow - 1;
@@ -418,7 +418,7 @@ int c_ekkrsin(EKKfactinfo *fact,
 
     /* Perform numerical part of elimination. */
     pivot = dluval[mrstrt[ipivot]];
-    if (fabs(pivot) < drtpiv) {
+    if (CoinAbs(pivot) < drtpiv) {
       irtcod = 7;
       rlink[ipivot].pre = -nrow - 1;
       clink[jpivot].pre = -nrow - 1;
@@ -468,8 +468,8 @@ int c_ekkrsin(EKKfactinfo *fact,
         if (!(kr != knprs || hinrow[npr] <= 1)) {
           maxaij = 0.f;
           for (k = knprs; k <= knpre; ++k) {
-            if (!(fabs(dluval[k]) <= maxaij)) {
-              maxaij = fabs(dluval[k]);
+            if (!(CoinAbs(dluval[k]) <= maxaij)) {
+              maxaij = CoinAbs(dluval[k]);
               kpivot = k;
             }
           }
@@ -554,10 +554,10 @@ int c_ekkfpvt(const EKKfactinfo *fact,
       ks = mrstrt[i];
       ke = ks + nz - 1;
       /* Determine magnitude of minimal acceptable element */
-      minsze = fabs(dluval[ks]) * zpivlu;
+      minsze = CoinAbs(dluval[ks]) * zpivlu;
       for (k = ks; k <= ke; ++k) {
         /* Consider a column only if it passes the stability test */
-        if (!(fabs(dluval[k]) < minsze)) {
+        if (!(CoinAbs(dluval[k]) < minsze)) {
           j = hcoli[k];
           marcst = nz1 * hincol[j];
           if (!(marcst >= mincst)) {
@@ -591,7 +591,7 @@ int c_ekkfpvt(const EKKfactinfo *fact,
         marcst = nz1 * nentri;
         if (!(marcst >= mincst)) {
           /* Determine magnitude of minimal acceptable element */
-          minsze = fabs(dluval[mrstrt[i]]) * zpivlu;
+          minsze = CoinAbs(dluval[mrstrt[i]]) * zpivlu;
           krs = mrstrt[i];
           kre = krs + nentri - 1;
           for (kk = krs; kk <= kre; ++kk) {
@@ -601,7 +601,7 @@ int c_ekkfpvt(const EKKfactinfo *fact,
           /* ASSERT (kk <= kre) */
 
           /* perform stability test */
-          if (!(fabs(dluval[kk]) < minsze)) {
+          if (!(CoinAbs(dluval[kk]) < minsze)) {
             mincst = marcst;
             mincnt = nentri;
             ipivot = i;
@@ -817,11 +817,11 @@ int c_ekkcmfc(EKKfactinfo *fact,
   }
 
   ret_val = 1;
-  dmax = fabs(dx[1]);
+  dmax = CoinAbs(dx[1]);
   for (i = 2; i <= n; ++i) {
-    if (fabs(dx[i]) > dmax) {
+    if (CoinAbs(dx[i]) > dmax) {
       ret_val = i;
-      dmax = fabs(dx[i]);
+      dmax = CoinAbs(dx[i]);
     }
   }
 
@@ -934,7 +934,7 @@ int c_ekkcmfd(EKKfactinfo *fact,
           mcol[count] = jcol;
           mjcol[isort] = mcol[count];
           dluval[krs + jcol] = dluval[krs + idense];
-          if (fabs(pivot) < fact->zeroTolerance) {
+          if (CoinAbs(pivot) < fact->zeroTolerance) {
             pivot = 0.;
             dpivx = 0.;
           } else {
@@ -947,7 +947,7 @@ int c_ekkcmfd(EKKfactinfo *fact,
             multip = -dluval[krxs + jcol] * dpivx;
             dluval[krxs + jcol] = dluval[krxs + idense];
             /*           for moment skip if zero */
-            if (fabs(multip) > fact->zeroTolerance) {
+            if (CoinAbs(multip) > fact->zeroTolerance) {
               for (i = 0; i < idense; ++i) {
                 dluval[krxs + i] += multip * dluval[krs + i];
               }
@@ -984,7 +984,7 @@ int c_ekkcmfd(EKKfactinfo *fact,
               jdense = idense + j;
               dpivx = dpivxx[j];
               multip = -dluval[krxs + jdense] * dpivx;
-              if (fabs(multip) <= fact->zeroTolerance) {
+              if (CoinAbs(multip) <= fact->zeroTolerance) {
                 multip = 0.;
               }
               dpivyy[j] = multip;
@@ -1021,7 +1021,7 @@ int c_ekkcmfd(EKKfactinfo *fact,
               jdense = idense + j;
               dpivx = dpivxx[j];
               multip = -dluval[krxs + jdense] * dpivx;
-              if (fabs(multip) <= fact->zeroTolerance) {
+              if (CoinAbs(multip) <= fact->zeroTolerance) {
                 multip = 0.;
               }
               dluval[krxs + jdense] = multip;
@@ -1076,7 +1076,7 @@ int c_ekkcmfd(EKKfactinfo *fact,
         --idense;
         mcol[count] = jcol;
         dluval[krs + jcol] = dluval[krs + idense];
-        if (fabs(pivot) < fact->zeroTolerance) {
+        if (CoinAbs(pivot) < fact->zeroTolerance) {
           dluval[krs + idense] = 0.;
         } else {
           dpivx = 1. / pivot;
@@ -1087,7 +1087,7 @@ int c_ekkcmfd(EKKfactinfo *fact,
             multip = -dluval[krxs + jcol] * dpivx;
             dluval[krxs + jcol] = dluval[krxs + idense];
             /*           for moment skip if zero */
-            if (fabs(multip) > fact->zeroTolerance) {
+            if (CoinAbs(multip) > fact->zeroTolerance) {
               dluval[krxs + idense] = multip;
               for (i = 0; i < idense; ++i) {
                 dluval[krxs + i] += multip * dluval[krs + i];
@@ -1145,7 +1145,7 @@ int c_ekkcmfd(EKKfactinfo *fact,
           hcoli[krs] = jpivot;
           if (!storeZero) {
             for (i = 1; i <= idense; ++i) {
-              if (fabs(dluval[krs + i]) > fact->zeroTolerance) {
+              if (CoinAbs(dluval[krs + i]) > fact->zeroTolerance) {
                 ++nz;
                 hcoli[krs + nz - 1] = hcoli[krlast + i];
                 dluval[krs + nz - 1] = dluval[krs + i];
@@ -1344,8 +1344,8 @@ static void c_ekkmltf(const EKKfactinfo *fact, FloatT *dluval, int *hcoli,
 
       /* this assumes that at least one of the dluvals is non-zero. */
       for (k = krs; k <= kre; ++k) {
-        if (!(fabs(dluval[k]) <= maxaij)) {
-          maxaij = fabs(dluval[k]);
+        if (!(CoinAbs(dluval[k]) <= maxaij)) {
+          maxaij = CoinAbs(dluval[k]);
           koff = k;
         }
       }
@@ -2910,7 +2910,7 @@ int c_ekktria(EKKfactinfo *fact,
       /* check the pivot */
       assert(kpivot > 0);
       pivot = dluval[kpivot];
-      if (fabs(pivot) < drtpiv) {
+      if (CoinAbs(pivot) < drtpiv) {
         irtcod = 7;
         ++(*nsingp);
         rlink[ipivot].pre = -nrow - 1;
@@ -3033,7 +3033,7 @@ int c_ekktria(EKKfactinfo *fact,
 
         /* check the pivot */
         pivot = dluval[mrstrt[ipivot]];
-        if (fabs(pivot) < drtpiv) {
+        if (CoinAbs(pivot) < drtpiv) {
           /* If the pivot is too small, reject it, but keep going */
           irtcod = 7;
           rlink[ipivot].pre = -nrow - 1;

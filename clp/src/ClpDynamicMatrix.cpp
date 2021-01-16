@@ -207,14 +207,14 @@ ClpDynamicMatrix::ClpDynamicMatrix(ClpSimplex *model, int numberSets,
   }
   lowerSet_ = new FloatT[numberSets_];
   for (i = 0; i < numberSets_; i++) {
-    if (lower[i] > -1.0e20)
+    if (lower[i] > TOO_SMALL_FLOAT)
       lowerSet_[i] = lower[i];
     else
       lowerSet_[i] = -1.0e30;
   }
   upperSet_ = new FloatT[numberSets_];
   for (i = 0; i < numberSets_; i++) {
-    if (upper[i] < 1.0e20)
+    if (upper[i] < TOO_BIG_FLOAT)
       upperSet_[i] = upper[i];
     else
       upperSet_[i] = 1.0e30;
@@ -430,7 +430,7 @@ void ClpDynamicMatrix::partialPricing(ClpSimplex *model, FloatT startFraction, F
       endAll = numberSets_;
     if (bestSequence >= 0) {
       if (bestSequence != savedBestSequence_)
-        bestDj = fabs(reducedCost[bestSequence]); // dj from slacks or permanent
+        bestDj = CoinAbs(reducedCost[bestSequence]); // dj from slacks or permanent
       else
         bestDj = savedBestDj_;
     } else {
@@ -702,11 +702,11 @@ ClpDynamicMatrix::rhsOffset(ClpSimplex *model, bool forceRefresh,
           }
         }
       }
-      if (fabs(model->objectiveOffset() - objectiveOffset_ - objectiveOffset) > 1.0e-1)
+      if (CoinAbs(model->objectiveOffset() - objectiveOffset_ - objectiveOffset) > 1.0e-1)
         printf("old offset %g, true %g\n", model->objectiveOffset(),
           objectiveOffset_ - objectiveOffset);
       for (iRow = 0; iRow < numberRows; iRow++) {
-        if (fabs(rhs[iRow] - rhsOffset_[iRow]) > 1.0e-3)
+        if (CoinAbs(rhs[iRow] - rhsOffset_[iRow]) > 1.0e-3)
           printf("** bad effective %d - true %g old %g\n", iRow, rhs[iRow], rhsOffset_[iRow]);
       }
       CoinMemcpyN(rhs, numberRows, saveE);
@@ -817,7 +817,7 @@ ClpDynamicMatrix::rhsOffset(ClpSimplex *model, bool forceRefresh,
       if (saveE) {
         int iRow;
         for (iRow = 0; iRow < numberRows; iRow++) {
-          if (fabs(saveE[iRow] - rhsOffset_[iRow]) > 1.0e-3)
+          if (CoinAbs(saveE[iRow] - rhsOffset_[iRow]) > 1.0e-3)
             printf("** %d - old eff %g new %g\n", iRow, saveE[iRow], rhsOffset_[iRow]);
         }
         delete[] saveE;
@@ -858,7 +858,7 @@ int ClpDynamicMatrix::updatePivot(ClpSimplex *model, FloatT oldInValue, FloatT o
     int iSet = fromIndex_[iDynamic];
     // out may have gone through barrier - so check
     FloatT valueOut = model->lowerRegion()[sequenceOut];
-    if (fabs(valueOut - static_cast< FloatT >(lowerSet_[iSet])) < fabs(valueOut - static_cast< FloatT >(upperSet_[iSet])))
+    if (CoinAbs(valueOut - static_cast< FloatT >(lowerSet_[iSet])) < CoinAbs(valueOut - static_cast< FloatT >(upperSet_[iSet])))
       setStatus(iSet, ClpSimplex::atLowerBound);
     else
       setStatus(iSet, ClpSimplex::atUpperBound);
@@ -1154,11 +1154,11 @@ int ClpDynamicMatrix::generalExpanded(ClpSimplex *model, int mode, int &number)
       int iSet = fromIndex_[i];
       int iSequence = lastDynamic_ + numberStaticRows_ + i;
       if (doBounds) {
-        if (lowerSet_[iSet] > -1.0e20)
+        if (lowerSet_[iSet] > TOO_SMALL_FLOAT)
           columnLower[iSequence] = lowerSet_[iSet];
         else
           columnLower[iSequence] = -COIN_DBL_MAX;
-        if (upperSet_[iSet] < 1.0e20)
+        if (upperSet_[iSet] < TOO_BIG_FLOAT)
           columnUpper[iSequence] = upperSet_[iSet];
         else
           columnUpper[iSequence] = COIN_DBL_MAX;
@@ -1166,12 +1166,12 @@ int ClpDynamicMatrix::generalExpanded(ClpSimplex *model, int mode, int &number)
       if (doCosts) {
         if (model->nonLinearCost()) {
           FloatT trueLower;
-          if (lowerSet_[iSet] > -1.0e20)
+          if (lowerSet_[iSet] > TOO_SMALL_FLOAT)
             trueLower = lowerSet_[iSet];
           else
             trueLower = -COIN_DBL_MAX;
           FloatT trueUpper;
-          if (upperSet_[iSet] < 1.0e20)
+          if (upperSet_[iSet] < TOO_BIG_FLOAT)
             trueUpper = upperSet_[iSet];
           else
             trueUpper = COIN_DBL_MAX;
@@ -1338,9 +1338,9 @@ int ClpDynamicMatrix::refresh(ClpSimplex *model)
       assert(iColumn >= 0);
       if (columnUpper_) {
         if (!columnLower_) {
-          if (fabs(value - columnUpper_[jColumn]) < fabs(value))
+          if (CoinAbs(value - columnUpper_[jColumn]) < CoinAbs(value))
             toLowerBound = false;
-        } else if (fabs(value - columnUpper_[jColumn]) < fabs(value - columnLower_[jColumn])) {
+        } else if (CoinAbs(value - columnUpper_[jColumn]) < CoinAbs(value - columnLower_[jColumn])) {
           toLowerBound = false;
         }
       }
@@ -1415,12 +1415,12 @@ int ClpDynamicMatrix::refresh(ClpSimplex *model)
       columnUpper[out] = columnUpper[in];
       cost[out] = cost[in];
       FloatT trueLower;
-      if (lowerSet_[iSet] > -1.0e20)
+      if (lowerSet_[iSet] > TOO_SMALL_FLOAT)
         trueLower = lowerSet_[iSet];
       else
         trueLower = -COIN_DBL_MAX;
       FloatT trueUpper;
-      if (upperSet_[iSet] < 1.0e20)
+      if (upperSet_[iSet] < TOO_BIG_FLOAT)
         trueUpper = upperSet_[iSet];
       else
         trueUpper = COIN_DBL_MAX;
@@ -1692,11 +1692,11 @@ void ClpDynamicMatrix::createVariable(ClpSimplex *model, int &bestSequence)
           shift += columnLower_[j];
         j = next_[j]; //onto next in set
       }
-      if (lowerSet_[savedBestSet_] > -1.0e20)
+      if (lowerSet_[savedBestSet_] > TOO_SMALL_FLOAT)
         columnLower[iSequence] = lowerSet_[savedBestSet_];
       else
         columnLower[iSequence] = -COIN_DBL_MAX;
-      if (upperSet_[savedBestSet_] < 1.0e20)
+      if (upperSet_[savedBestSet_] < TOO_BIG_FLOAT)
         columnUpper[iSequence] = upperSet_[savedBestSet_];
       else
         columnUpper[iSequence] = COIN_DBL_MAX;
@@ -2019,7 +2019,7 @@ void ClpDynamicMatrix::gubCrash()
                 basicDistance = solution[iBasic] - lower[iBasic];
               }
               // need extra coding for unbounded
-              assert(CoinMin(distance, basicDistance) < 1.0e20);
+              assert(CoinMin(distance, basicDistance) < TOO_BIG_FLOAT);
               if (distance > basicDistance) {
                 // incoming becomes basic
                 solution[chosen] += basicDistance;
@@ -2046,7 +2046,7 @@ void ClpDynamicMatrix::gubCrash()
                 basicDistance = upper[iBasic] - solution[iBasic];
               }
               // need extra coding for unbounded - for now just exit
-              if (CoinMin(distance, basicDistance) > 1.0e20) {
+              if (CoinMin(distance, basicDistance) > TOO_BIG_FLOAT) {
                 printf("unbounded on set %d\n", iSet);
                 iphase = 1;
                 iBasic = numberInSet;
@@ -2082,7 +2082,7 @@ void ClpDynamicMatrix::gubCrash()
         if (j != iBasic) {
           objectiveOffset += solution[j] * cost[j];
           if (columnLower_ && columnUpper_) {
-            if (fabs(solution[j] - columnLower_[back[j]]) > fabs(solution[j] - columnUpper_[back[j]]))
+            if (CoinAbs(solution[j] - columnLower_[back[j]]) > CoinAbs(solution[j] - columnUpper_[back[j]]))
               setDynamicStatus(back[j], atUpperBound);
           } else if (columnUpper_ && solution[j] > 0.0) {
             setDynamicStatus(back[j], atUpperBound);
@@ -2166,12 +2166,12 @@ void ClpDynamicMatrix::initialProblem()
       int iRow = numberActiveSets_ + numberStaticRows_;
       rowSolution[iRow] = 0.0;
       FloatT lowerValue;
-      if (lowerSet_[iSet] > -1.0e20)
+      if (lowerSet_[iSet] > TOO_SMALL_FLOAT)
         lowerValue = lowerSet_[iSet];
       else
         lowerValue = -COIN_DBL_MAX;
       FloatT upperValue;
-      if (upperSet_[iSet] < 1.0e20)
+      if (upperSet_[iSet] < TOO_BIG_FLOAT)
         upperValue = upperSet_[iSet];
       else
         upperValue = COIN_DBL_MAX;
@@ -2544,7 +2544,7 @@ int ClpDynamicMatrix::addColumn(CoinBigIndex numberEntries, const int *row, cons
   if (columnUpper_)
     columnUpper_[numberGubColumns_] = upper;
   else
-    assert(upper > 1.0e20);
+    assert(upper > TOO_BIG_FLOAT);
   setDynamicStatus(numberGubColumns_, status);
   // Do next_
   j = startSet_[iSet];

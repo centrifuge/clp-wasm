@@ -85,7 +85,7 @@ void check_majvec_nozeros(const CoinBigIndex *majstrts, const FloatT *majels,
       CoinBigIndex ks = majstrts[maj];
       CoinBigIndex ke = ks + majlens[maj];
       for (CoinBigIndex k = ks; k < ke; k++) {
-        PRESOLVEASSERT(fabs(majels[k]) > ZTOLDP);
+        PRESOLVEASSERT(CoinAbs(majels[k]) > ZTOLDP);
       }
     }
   }
@@ -537,11 +537,11 @@ void presolve_check_reduced_costs(const CoinPostsolveMatrix *postObj)
             << rowduals[row] << " => dj " << chkdj << std::endl;
         k = link[k];
       }
-      if (fabs(dj - chkdj) > ztoldj && wrndj != dj) {
+      if (CoinAbs(dj - chkdj) > ztoldj && wrndj != dj) {
         std::cout
           << "Inacc rcost: " << j << " " << statjstr << " "
           << strMaxmin << " have " << dj
-          << " should be " << chkdj << " err " << fabs(dj - chkdj)
+          << " should be " << chkdj << " err " << CoinAbs(dj - chkdj)
           << std::endl;
       }
     }
@@ -563,25 +563,25 @@ void presolve_check_reduced_costs(const CoinPostsolveMatrix *postObj)
       FloatT uj = cup[j];
 
       if (postObj->columnIsBasic(j)) {
-        if (fabs(dj) > ztoldj && wrndj != dj) {
+        if (CoinAbs(dj) > ztoldj && wrndj != dj) {
           std::cout
             << "Bad rcost: " << j << " " << maxmin * dj
             << " " << statjstr << " " << strMaxmin << std::endl;
         }
-      } else if (fabs(xj - uj) < ztolzb && fabs(xj - lj) > ztolzb) {
+      } else if (CoinAbs(xj - uj) < ztolzb && CoinAbs(xj - lj) > ztolzb) {
         if (dj >= ztoldj && wrndj != dj) {
           std::cout
             << "Bad rcost: " << j << " " << maxmin * dj
             << " " << statjstr << " " << strMaxmin << std::endl;
         }
-      } else if (fabs(xj - lj) < ztolzb && fabs(xj - uj) > ztolzb) {
+      } else if (CoinAbs(xj - lj) < ztolzb && CoinAbs(xj - uj) > ztolzb) {
         if (dj <= -ztoldj && wrndj != dj) {
           std::cout
             << "Bad rcost: " << j << " " << maxmin * dj
             << " " << statjstr << " " << strMaxmin << std::endl;
         }
-      } else if (fabs(xj - lj) > ztolzb && fabs(xj - uj) > ztolzb) {
-        if (fabs(dj) > ztoldj && wrndj != dj) {
+      } else if (CoinAbs(xj - lj) > ztolzb && CoinAbs(xj - uj) > ztolzb) {
+        if (CoinAbs(dj) > ztoldj && wrndj != dj) {
           std::cout
             << "Superbasic rcost: " << j << " " << maxmin * dj
             << " " << statjstr << " " << strMaxmin
@@ -651,20 +651,20 @@ void presolve_check_duals(const CoinPostsolveMatrix *postObj)
     FloatT lhsi = acts[i];
     const char *statistr = postObj->rowStatusString(i);
 
-    if (fabs(lhsi - li) < ztolzb) {
+    if (CoinAbs(lhsi - li) < ztolzb) {
       if (yi < -ztoldj) {
         std::cout
           << "Bad dual: " << i << " " << maxmin * yi
           << " " << statistr << " " << strMaxmin << std::endl;
       }
-    } else if (fabs(lhsi - ui) < ztolzb) {
+    } else if (CoinAbs(lhsi - ui) < ztolzb) {
       if (yi > ztoldj) {
         std::cout
           << "Bad dual: " << i << " " << maxmin * yi
           << " " << statistr << " " << strMaxmin << std::endl;
       }
     } else if (li < lhsi && lhsi < ui) {
-      if (fabs(yi) > ztoldj) {
+      if (CoinAbs(yi) > ztoldj) {
         std::cout
           << "Bad dual: " << i << " " << maxmin * yi
           << " " << statistr << " " << strMaxmin << std::endl;
@@ -793,14 +793,14 @@ void presolve_check_sol(const CoinPresolveMatrix *preObj,
       CoinPrePostsolveMatrix::Status statj = preObj->getColumnStatus(j);
       switch (statj) {
       case CoinPrePostsolveMatrix::atUpperBound: {
-        if (uj >= PRESOLVE_INF || fabs(xj - uj) > tol) {
+        if (uj >= PRESOLVE_INF || CoinAbs(xj - uj) > tol) {
           printf("Bad status CSOL: %d : status atUpperBound : ", j);
           printf("lb = %g x = %g ub = %g\n", lj, xj, uj);
         }
         break;
       }
       case CoinPrePostsolveMatrix::atLowerBound: {
-        if (lj <= -PRESOLVE_INF || fabs(xj - lj) > tol) {
+        if (lj <= -PRESOLVE_INF || CoinAbs(xj - lj) > tol) {
           printf("Bad status CSOL: %d : status atLowerBound : ", j);
           printf("lb = %g x = %g ub = %g\n", lj, xj, uj);
         }
@@ -856,7 +856,7 @@ void presolve_check_sol(const CoinPresolveMatrix *preObj,
             i, li, evali, lhsi, ui);
         }
         if (chkRowAct >= 2) {
-          if (fabs(evali - lhsi) > tol) {
+          if (CoinAbs(evali - lhsi) > tol) {
             printf("Inacc RSOL: %d : lb = %g eval = %g (expected %g) ub = %g\n",
               i, li, evali, lhsi, ui);
           }
@@ -872,14 +872,14 @@ void presolve_check_sol(const CoinPresolveMatrix *preObj,
           CoinPrePostsolveMatrix::Status stati = preObj->getRowStatus(i);
           switch (stati) {
           case CoinPrePostsolveMatrix::atUpperBound: {
-            if (li <= -PRESOLVE_INF || fabs(lhsi - li) > tol) {
+            if (li <= -PRESOLVE_INF || CoinAbs(lhsi - li) > tol) {
               printf("Bad status RSOL: %d : status atUpperBound : ", i);
               printf("LB = %g lhs = %g UB = %g\n", li, lhsi, ui);
             }
             break;
           }
           case CoinPrePostsolveMatrix::atLowerBound: {
-            if (ui >= PRESOLVE_INF || fabs(lhsi - ui) > tol) {
+            if (ui >= PRESOLVE_INF || CoinAbs(lhsi - ui) > tol) {
               printf("Bad status RSOL: %d : status atLowerBound : ", i);
               printf("LB = %g lhs = %g UB = %g\n", li, lhsi, ui);
             }
@@ -994,14 +994,14 @@ void presolve_check_sol(const CoinPostsolveMatrix *postObj,
       CoinPrePostsolveMatrix::Status statj = postObj->getColumnStatus(j);
       switch (statj) {
       case CoinPrePostsolveMatrix::atUpperBound: {
-        if (uj >= PRESOLVE_INF || fabs(xj - uj) > tol) {
+        if (uj >= PRESOLVE_INF || CoinAbs(xj - uj) > tol) {
           printf("Bad status CSOL: %d : status atUpperBound : ", j);
           printf("lb = %g x = %g ub = %g\n", lj, xj, uj);
         }
         break;
       }
       case CoinPrePostsolveMatrix::atLowerBound: {
-        if (lj <= -PRESOLVE_INF || fabs(xj - lj) > tol) {
+        if (lj <= -PRESOLVE_INF || CoinAbs(xj - lj) > tol) {
           printf("Bad status CSOL: %d : status atLowerBound : ", j);
           printf("lb = %g x = %g ub = %g\n", lj, xj, uj);
         }
@@ -1055,7 +1055,7 @@ void presolve_check_sol(const CoinPostsolveMatrix *postObj,
           i, li, evali, lhsi, ui);
       }
       if (chkRowAct >= 2) {
-        if (fabs(evali - lhsi) > tol) {
+        if (CoinAbs(evali - lhsi) > tol) {
           printf("Inacc RSOL: %d : lb = %g eval = %g (expected %g) ub = %g\n",
             i, li, evali, lhsi, ui);
         }
@@ -1071,14 +1071,14 @@ void presolve_check_sol(const CoinPostsolveMatrix *postObj,
         CoinPrePostsolveMatrix::Status stati = postObj->getRowStatus(i);
         switch (stati) {
         case CoinPrePostsolveMatrix::atUpperBound: {
-          if (li <= -PRESOLVE_INF || fabs(lhsi - li) > tol) {
+          if (li <= -PRESOLVE_INF || CoinAbs(lhsi - li) > tol) {
             printf("Bad status RSOL: %d : status atUpperBound : ", i);
             printf("LB = %g lhs = %g UB = %g\n", li, lhsi, ui);
           }
           break;
         }
         case CoinPrePostsolveMatrix::atLowerBound: {
-          if (ui >= PRESOLVE_INF || fabs(lhsi - ui) > tol) {
+          if (ui >= PRESOLVE_INF || CoinAbs(lhsi - ui) > tol) {
             printf("Bad status RSOL: %d : status atLowerBound : ", i);
             printf("LB = %g lhs = %g UB = %g\n", li, lhsi, ui);
           }

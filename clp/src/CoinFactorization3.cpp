@@ -191,7 +191,7 @@ void CoinFactorization::permuteBack(CoinIndexedVector *regionSparse,
       int iRow = regionIndex[j];
       FloatT value = region[iRow];
       region[iRow] = 0.0;
-      if (fabs(value) > zeroTolerance_) {
+      if (CoinAbs(value) > zeroTolerance_) {
         iRow = permuteBack[iRow];
         outIndex[number] = iRow;
         out[number++] = value;
@@ -204,7 +204,7 @@ void CoinFactorization::permuteBack(CoinIndexedVector *regionSparse,
       j++;
       FloatT value = region[iRow];
       region[iRow] = 0.0;
-      if (fabs(value) > zeroTolerance_) {
+      if (CoinAbs(value) > zeroTolerance_) {
         iRow = permuteBack[iRow];
         outIndex[number++] = iRow;
         out[iRow] = value;
@@ -214,9 +214,9 @@ void CoinFactorization::permuteBack(CoinIndexedVector *regionSparse,
       int iRow0 = regionIndex[j];
       int iRow1 = regionIndex[j + 1];
       FloatT value0 = region[iRow0];
-      bool good0 = fabs(value0) > zeroTolerance_;
+      bool good0 = CoinAbs(value0) > zeroTolerance_;
       FloatT value1 = region[iRow1];
-      bool good1 = fabs(value1) > zeroTolerance_;
+      bool good1 = CoinAbs(value1) > zeroTolerance_;
       region[iRow0] = 0.0;
       region[iRow1] = 0.0;
       if (good0) {
@@ -309,7 +309,7 @@ void CoinFactorization::updateColumnL(CoinIndexedVector *regionSparse,
       for (int i = lastSparse; i < numberRows_; i++) {
         FloatT value = region[i];
         if (value) {
-          if (fabs(value) >= 1.0e-15)
+          if (CoinAbs(value) >= 1.0e-15)
             regionIndex[number++] = i;
           else
             region[i] = 0.0;
@@ -354,7 +354,7 @@ void CoinFactorization::updateColumnLDensish(CoinIndexedVector *regionSparse,
   for (int i = smallestIndex; i < last; i++) {
     CoinFactorizationDouble pivotValue = region[i];
 
-    if (fabs(pivotValue) > tolerance) {
+    if (CoinAbs(pivotValue) > tolerance) {
       int start = startColumn[i];
       int end = startColumn[i + 1];
       for (int j = start; j < end; j++) {
@@ -372,7 +372,7 @@ void CoinFactorization::updateColumnLDensish(CoinIndexedVector *regionSparse,
   // and dense
   for (int i = last; i < numberRows_; i++) {
     CoinFactorizationDouble pivotValue = region[i];
-    if (fabs(pivotValue) > tolerance) {
+    if (CoinAbs(pivotValue) > tolerance) {
       regionIndex[numberNonZero++] = i;
     } else {
       region[i] = 0.0;
@@ -437,7 +437,7 @@ void CoinFactorization::updateColumnLSparsish(CoinIndexedVector *regionSparse,
     int start = startColumn[i];
     int end = startColumn[i + 1];
 
-    if (fabs(pivotValue) > tolerance) {
+    if (CoinAbs(pivotValue) > tolerance) {
       for (int j = start; j < end; j++) {
         int iRow = indexRow[j];
         CoinFactorizationDouble result = region[iRow];
@@ -471,7 +471,7 @@ void CoinFactorization::updateColumnLSparsish(CoinIndexedVector *regionSparse,
           int start = startColumn[i];
           int end = startColumn[i + 1];
 
-          if (fabs(pivotValue) > tolerance) {
+          if (CoinAbs(pivotValue) > tolerance) {
             int j;
             for (j = start; j < end; j++) {
               int iRow = indexRow[j];
@@ -501,7 +501,7 @@ void CoinFactorization::updateColumnLSparsish(CoinIndexedVector *regionSparse,
     int start = startColumn[i];
     int end = startColumn[i + 1];
 
-    if (fabs(pivotValue) > tolerance) {
+    if (CoinAbs(pivotValue) > tolerance) {
       for (int j = start; j < end; j++) {
         int iRow = indexRow[j];
         CoinFactorizationDouble result = region[iRow];
@@ -516,7 +516,7 @@ void CoinFactorization::updateColumnLSparsish(CoinIndexedVector *regionSparse,
   // Now dense part
   for (; i < numberRows_; i++) {
     FloatT pivotValue = region[i];
-    if (fabs(pivotValue) > tolerance) {
+    if (CoinAbs(pivotValue) > tolerance) {
       regionIndex[numberNonZero++] = i;
     } else {
       region[i] = 0.0;
@@ -611,7 +611,7 @@ void CoinFactorization::updateColumnLSparse(CoinIndexedVector *regionSparse,
     int iPivot = list[i];
     mark[iPivot] = 0;
     CoinFactorizationDouble pivotValue = region[iPivot];
-    if (fabs(pivotValue) > tolerance) {
+    if (CoinAbs(pivotValue) > tolerance) {
       regionIndex[numberNonZero++] = iPivot;
       for (int j = startColumn[iPivot];
            j < startColumn[iPivot + 1]; j++) {
@@ -878,11 +878,11 @@ void CoinFactorization::updateTwoColumnsUDensish(
     region2[i] = 0.0;
     CoinFactorizationDouble pivotValue1 = region1[i];
     region1[i] = 0.0;
-    if (fabs(pivotValue2) > tolerance) {
+    if (CoinAbs(pivotValue2) > tolerance) {
       int start = startColumn[i];
       const CoinFactorizationDouble *COIN_RESTRICT thisElement = element + start;
       const int *COIN_RESTRICT thisIndex = indexRow + start;
-      if (fabs(pivotValue1) <= tolerance) {
+      if (CoinAbs(pivotValue1) <= tolerance) {
         // just region 2
         for (int j = numberInColumn[i] - 1; j >= 0; j--) {
           int iRow = thisIndex[j];
@@ -919,7 +919,7 @@ void CoinFactorization::updateTwoColumnsUDensish(
         region2[i] = pivotValue2;
         index2[numberNonZeroB++] = i;
       }
-    } else if (fabs(pivotValue1) > tolerance) {
+    } else if (CoinAbs(pivotValue1) > tolerance) {
       int start = startColumn[i];
       const CoinFactorizationDouble *COIN_RESTRICT thisElement = element + start;
       const int *COIN_RESTRICT thisIndex = indexRow + start;
@@ -945,7 +945,7 @@ void CoinFactorization::updateTwoColumnsUDensish(
     FloatT value2 = region2[i];
     FloatT value1 = region1[i];
     bool value1NonZero = (value1 != 0.0);
-    if (fabs(value2) > tolerance) {
+    if (CoinAbs(value2) > tolerance) {
       region2[i] = -value2;
       index2[numberNonZeroB++] = i;
     } else {
@@ -953,7 +953,7 @@ void CoinFactorization::updateTwoColumnsUDensish(
     }
     if (value1NonZero) {
       index1[numberNonZeroA] = i;
-      if (fabs(value1) > tolerance) {
+      if (CoinAbs(value1) > tolerance) {
         region1[i] = -value1;
         numberNonZeroA++;
       } else {
@@ -1081,7 +1081,7 @@ int CoinFactorization::updateColumnUDensish(FloatT *COIN_RESTRICT region,
       nnz_DZ++;
 #endif
       region[i] = 0.0;
-      if (fabs(pivotValue) > tolerance) {
+      if (CoinAbs(pivotValue) > tolerance) {
         int start = startColumn[i];
         const CoinFactorizationDouble *thisElement = element + start;
         const int *thisIndex = indexRow + start;
@@ -1110,9 +1110,9 @@ int CoinFactorization::updateColumnUDensish(FloatT *COIN_RESTRICT region,
     // might improve pipelining
     for (int i = numberSlacks_-1; i>2;i-=2) {
       FloatT value0 = region[i];
-      FloatT absValue0 = fabs ( value0 );
+      FloatT absValue0 = CoinAbs ( value0 );
       FloatT value1 = region[i-1];
-      FloatT absValue1 = fabs ( value1 );
+      FloatT absValue1 = CoinAbs ( value1 );
       if ( value0 ) {
 	if ( absValue0 > tolerance ) {
 	  region[i]=-value0;
@@ -1132,7 +1132,7 @@ int CoinFactorization::updateColumnUDensish(FloatT *COIN_RESTRICT region,
     }
     for ( ; i>=0;i--) {
       FloatT value = region[i];
-      FloatT absValue = fabs ( value );
+      FloatT absValue = CoinAbs ( value );
       if ( value ) {
 	if ( absValue > tolerance ) {
 	  region[i]=-value;
@@ -1148,7 +1148,7 @@ int CoinFactorization::updateColumnUDensish(FloatT *COIN_RESTRICT region,
     if (value) {
       region[i] = -value;
       regionIndex[numberNonZero] = i;
-      if (fabs(value) > tolerance)
+      if (CoinAbs(value) > tolerance)
         numberNonZero++;
       else
         region[i] = 0.0;
@@ -1160,7 +1160,7 @@ int CoinFactorization::updateColumnUDensish(FloatT *COIN_RESTRICT region,
     assert(slackValue_ == 1.0);
     for (int i = numberSlacks_ - 1; i >= 0; i--) {
       FloatT value = region[i];
-      FloatT absValue = fabs(value);
+      FloatT absValue = CoinAbs(value);
       if (value) {
         region[i] = 0.0;
         if (absValue > tolerance) {
@@ -1293,7 +1293,7 @@ void CoinFactorization::updateColumnUSparse(CoinIndexedVector *regionSparse,
     mark[iPivot] = 0;
     CoinFactorizationDouble pivotValue = region[iPivot];
     region[iPivot] = 0.0;
-    if (fabs(pivotValue) > tolerance) {
+    if (CoinAbs(pivotValue) > tolerance) {
       int start = startColumn[iPivot];
       int number = numberInColumn[iPivot];
 
@@ -1316,7 +1316,7 @@ void CoinFactorization::updateColumnUSparse(CoinIndexedVector *regionSparse,
       mark[iPivot] = 0;
       CoinFactorizationDouble pivotValue = region[iPivot];
       region[iPivot] = 0.0;
-      if (fabs(pivotValue) > tolerance) {
+      if (CoinAbs(pivotValue) > tolerance) {
         region[iPivot] = pivotValue;
         regionIndex[numberNonZero++] = iPivot;
       }
@@ -1328,7 +1328,7 @@ void CoinFactorization::updateColumnUSparse(CoinIndexedVector *regionSparse,
       mark[iPivot] = 0;
       CoinFactorizationDouble pivotValue = region[iPivot];
       region[iPivot] = 0.0;
-      if (fabs(pivotValue) > tolerance) {
+      if (CoinAbs(pivotValue) > tolerance) {
         region[iPivot] = -pivotValue;
         regionIndex[numberNonZero++] = iPivot;
       }
@@ -1409,7 +1409,7 @@ void CoinFactorization::updateColumnUSparsish(CoinIndexedVector *regionSparse,
   for (i = numberU_ - 1; i >= jLast; i--) {
     CoinFactorizationDouble pivotValue = region[i];
     region[i] = 0.0;
-    if (fabs(pivotValue) > tolerance) {
+    if (CoinAbs(pivotValue) > tolerance) {
 #ifdef COIN_DEVELOP
       nnz_SZ++;
 #endif
@@ -1454,7 +1454,7 @@ void CoinFactorization::updateColumnUSparsish(CoinIndexedVector *regionSparse,
             nnz_SZ++;
 #endif
             region[i] = 0.0;
-            if (fabs(pivotValue) > tolerance) {
+            if (CoinAbs(pivotValue) > tolerance) {
               int start = startColumn[i];
               const CoinFactorizationDouble *thisElement = element + start;
               const int *thisIndex = indexRow + start;
@@ -1489,7 +1489,7 @@ void CoinFactorization::updateColumnUSparsish(CoinIndexedVector *regionSparse,
   for (; i >= numberSlacks_; i--) {
     CoinFactorizationDouble pivotValue = region[i];
     region[i] = 0.0;
-    if (fabs(pivotValue) > tolerance) {
+    if (CoinAbs(pivotValue) > tolerance) {
 #ifdef COIN_DEVELOP
       nnz_SZ++;
 #endif
@@ -1529,7 +1529,7 @@ void CoinFactorization::updateColumnUSparsish(CoinIndexedVector *regionSparse,
       jLast = jLast << CHECK_SHIFT;
       for (i = numberSlacks_ - 1; i >= jLast; i--) {
         FloatT value = region[i];
-        FloatT absValue = fabs(value);
+        FloatT absValue = CoinAbs(value);
         if (value) {
           region[i] = 0.0;
           if (absValue > tolerance) {
@@ -1548,7 +1548,7 @@ void CoinFactorization::updateColumnUSparsish(CoinIndexedVector *regionSparse,
           i = iLast + BITS_PER_CHECK - 1;
           for (; i >= iLast; i--) {
             FloatT value = region[i];
-            FloatT absValue = fabs(value);
+            FloatT absValue = CoinAbs(value);
             if (value) {
               region[i] = 0.0;
               if (absValue > tolerance) {
@@ -1568,7 +1568,7 @@ void CoinFactorization::updateColumnUSparsish(CoinIndexedVector *regionSparse,
       jLast = jLast << CHECK_SHIFT;
       for (i = numberSlacks_ - 1; i >= jLast; i--) {
         FloatT value = region[i];
-        FloatT absValue = fabs(value);
+        FloatT absValue = CoinAbs(value);
         if (value) {
           region[i] = 0.0;
           if (absValue > tolerance) {
@@ -1587,7 +1587,7 @@ void CoinFactorization::updateColumnUSparsish(CoinIndexedVector *regionSparse,
           i = iLast + BITS_PER_CHECK - 1;
           for (; i >= iLast; i--) {
             FloatT value = region[i];
-            FloatT absValue = fabs(value);
+            FloatT absValue = CoinAbs(value);
             if (value) {
               region[i] = 0.0;
               if (absValue > tolerance) {
@@ -1760,7 +1760,7 @@ void CoinFactorization::updateColumnR(CoinIndexedVector *regionSparse) const
         pivotValue = region[iPivot] + region[before];
         region[before] = 0.0;
       }
-      if (fabs(pivotValue) > tolerance) {
+      if (CoinAbs(pivotValue) > tolerance) {
         region[iPivot] = pivotValue;
         int start = startR[iPivot];
         int number = numberInColumnPlus[iPivot];
@@ -1828,7 +1828,7 @@ void CoinFactorization::updateColumnR(CoinIndexedVector *regionSparse) const
       CoinFactorizationDouble pivotValue = region[iRow] + region[i];
       //zero out pre-permuted
       region[iRow] = 0.0;
-      if (fabs(pivotValue) > tolerance) {
+      if (CoinAbs(pivotValue) > tolerance) {
         region[i] = pivotValue;
         if (!mark[i])
           regionIndex[numberNonZero++] = i;
@@ -1877,7 +1877,7 @@ void CoinFactorization::updateColumnR(CoinIndexedVector *regionSparse) const
       CoinFactorizationDouble pivotValue = region[iRow] + region[i];
       //zero out pre-permuted
       region[iRow] = 0.0;
-      if (fabs(pivotValue) > tolerance) {
+      if (CoinAbs(pivotValue) > tolerance) {
         region[i] = pivotValue;
         regionIndex[numberNonZero++] = i;
         int number = numberInColumnPlus[i];
@@ -1910,7 +1910,7 @@ void CoinFactorization::updateColumnR(CoinIndexedVector *regionSparse) const
         pivotValue -= value;
       }
       start = end;
-      if (fabs(pivotValue) > tolerance) {
+      if (CoinAbs(pivotValue) > tolerance) {
         region[i] = pivotValue;
         regionIndex[numberNonZero++] = i;
       } else {
@@ -2055,7 +2055,7 @@ void CoinFactorization::updateColumnRFT(CoinIndexedVector *regionSparse,
         CoinFactorizationDouble pivotValue = region[iRow] + region[i];
         //zero out pre-permuted
         region[iRow] = 0.0;
-        if (fabs(pivotValue) > tolerance) {
+        if (CoinAbs(pivotValue) > tolerance) {
           region[i] = pivotValue;
           if (!mark[i]) {
             //putIndex[numberNonZero]=i;
@@ -2108,7 +2108,7 @@ void CoinFactorization::updateColumnRFT(CoinIndexedVector *regionSparse,
         CoinFactorizationDouble pivotValue = region[iRow] + region[i];
         //zero out pre-permuted
         region[iRow] = 0.0;
-        if (fabs(pivotValue) > tolerance) {
+        if (CoinAbs(pivotValue) > tolerance) {
           region[i] = pivotValue;
           regionIndex[numberNonZero++] = i;
           int number = numberInColumnPlus[i];
@@ -2141,7 +2141,7 @@ void CoinFactorization::updateColumnRFT(CoinIndexedVector *regionSparse,
           pivotValue -= value;
         }
         start = end;
-        if (fabs(pivotValue) > tolerance) {
+        if (CoinAbs(pivotValue) > tolerance) {
           region[i] = pivotValue;
           regionIndex[numberNonZero++] = i;
         } else {

@@ -494,11 +494,11 @@ void CoinPrePostsolveMatrix::setRowStatusUsingValue(int iRow)
   FloatT value = acts_[iRow];
   FloatT lower = rlo_[iRow];
   FloatT upper = rup_[iRow];
-  if (lower < -1.0e20 && upper > 1.0e20) {
+  if (lower < TOO_SMALL_FLOAT && upper > TOO_BIG_FLOAT) {
     setRowStatus(iRow, isFree);
-  } else if (fabs(lower - value) <= ztolzb_) {
+  } else if (CoinAbs(lower - value) <= ztolzb_) {
     setRowStatus(iRow, atUpperBound);
-  } else if (fabs(upper - value) <= ztolzb_) {
+  } else if (CoinAbs(upper - value) <= ztolzb_) {
     setRowStatus(iRow, atLowerBound);
   } else {
     setRowStatus(iRow, superBasic);
@@ -515,11 +515,11 @@ void CoinPrePostsolveMatrix::setColumnStatusUsingValue(int iColumn)
   FloatT value = sol_[iColumn];
   FloatT lower = clo_[iColumn];
   FloatT upper = cup_[iColumn];
-  if (lower < -1.0e20 && upper > 1.0e20) {
+  if (lower < TOO_SMALL_FLOAT && upper > TOO_BIG_FLOAT) {
     setColumnStatus(iColumn, isFree);
-  } else if (fabs(lower - value) <= ztolzb_) {
+  } else if (CoinAbs(lower - value) <= ztolzb_) {
     setColumnStatus(iColumn, atLowerBound);
-  } else if (fabs(upper - value) <= ztolzb_) {
+  } else if (CoinAbs(upper - value) <= ztolzb_) {
     setColumnStatus(iColumn, atUpperBound);
   } else {
     setColumnStatus(iColumn, superBasic);

@@ -179,8 +179,8 @@ ClpPrimalColumnSteepest::operator=(const ClpPrimalColumnSteepest &rhs)
   return *this;
 }
 // These have to match ClpPackedMatrix version
-#define TRY_NORM 1.0e-4
-#define ADD_ONE 1.0
+#define TRY_NORM fd(1.0e-4)
+#define ADD_ONE fd(1.0)
 static void
 pivotColumnBit(clpTempInfo &info)
 {
@@ -266,10 +266,10 @@ int ClpPrimalColumnSteepest::pivotColumn(CoinIndexedVector *updates,
     // would have to have two goes for devex, three for steepest
     anyUpdates = 2;
   } else if (updates->getNumElements()) {
-    if (updates->getIndices()[0] == pivotRow && fabs(updates->denseVector()[0]) > 1.0e-6) {
+    if (updates->getIndices()[0] == pivotRow && CoinAbs(updates->denseVector()[0]) > 1.0e-6) {
       // reasonable size
       anyUpdates = 1;
-      //if (fabs(model_->dualIn())<1.0e-4||fabs(fabs(model_->dualIn())-fabs(updates->denseVector()[0]))>1.0e-5)
+      //if (CoinAbs(model_->dualIn())<1.0e-4||CoinAbs(CoinAbs(model_->dualIn())-CoinAbs(updates->denseVector()[0]))>1.0e-5)
       //printf("dualin %g pivot %g\n",model_->dualIn(),updates->denseVector()[0]);
     } else {
       // too small
@@ -408,7 +408,7 @@ int ClpPrimalColumnSteepest::pivotColumn(CoinIndexedVector *updates,
       break;
     case ClpSimplex::isFree:
     case ClpSimplex::superBasic:
-      if (fabs(value) > FREE_ACCEPT * tolerance) {
+      if (CoinAbs(value) > FREE_ACCEPT * tolerance) {
         // we are going to bias towards free (but only if reasonable)
         value *= FREE_BIAS;
         // store square in list
@@ -554,7 +554,7 @@ int ClpPrimalColumnSteepest::pivotColumn(CoinIndexedVector *updates,
     number = 0;
     for (i = 0; i < nLook; i++) {
       if (infeas[i]) {
-        if (fabs(infeas[i]) > COIN_INDEXED_TINY_ELEMENT)
+        if (CoinAbs(infeas[i]) > COIN_INDEXED_TINY_ELEMENT)
           index[number++] = i;
         else
           infeas[i] = 0.0;
@@ -817,7 +817,7 @@ void ClpPrimalColumnSteepest::justDjs(CoinIndexedVector *updates,
         break;
       case ClpSimplex::isFree:
       case ClpSimplex::superBasic:
-        if (fabs(value) > FREE_ACCEPT * tolerance) {
+        if (CoinAbs(value) > FREE_ACCEPT * tolerance) {
           // we are going to bias towards free (but only if reasonable)
           value *= FREE_BIAS;
           // store square in list
@@ -953,7 +953,7 @@ void ClpPrimalColumnSteepest::djsAndDevex(CoinIndexedVector *updates,
       if (reference(iSequence + numberColumns))
         value3 += 1.0;
       weight[iSequence] = CoinMax(0.99 * thisWeight, value3);
-      if (fabs(value) > FREE_ACCEPT * tolerance) {
+      if (CoinAbs(value) > FREE_ACCEPT * tolerance) {
         // we are going to bias towards free (but only if reasonable)
         value *= FREE_BIAS;
         // store square in list
@@ -1053,7 +1053,7 @@ void ClpPrimalColumnSteepest::djsAndDevex(CoinIndexedVector *updates,
       if (reference(iSequence))
         value3 += 1.0;
       weight[iSequence] = CoinMax(0.99 * thisWeight, value3);
-      if (fabs(value) > FREE_ACCEPT * tolerance) {
+      if (CoinAbs(value) > FREE_ACCEPT * tolerance) {
         // we are going to bias towards free (but only if reasonable)
         value *= FREE_BIAS;
         // store square in list
@@ -1163,8 +1163,8 @@ void ClpPrimalColumnSteepest::djsAndSteepest(CoinIndexedVector *updates,
     int iRow = -1;
     FloatT diff = 1.0e-8;
     for (int i = 0; i < numberRows; i++) {
-      FloatT dd = CoinMax(fabs(work1[i]), fabs(worka[i]));
-      FloatT d = fabs(work1[i] - worka[i]);
+      FloatT dd = CoinMax(CoinAbs(work1[i]), CoinAbs(worka[i]));
+      FloatT d = CoinAbs(work1[i] - worka[i]);
       if (dd > 1.0e-6 && d > diff * dd) {
         diff = d / dd;
         iRow = i;
@@ -1254,7 +1254,7 @@ void ClpPrimalColumnSteepest::djsAndSteepest(CoinIndexedVector *updates,
         }
       }
       weight[iSequence] = thisWeight;
-      if (fabs(value) > FREE_ACCEPT * tolerance) {
+      if (CoinAbs(value) > FREE_ACCEPT * tolerance) {
         // we are going to bias towards free (but only if reasonable)
         value *= FREE_BIAS;
         // store square in list
@@ -1397,7 +1397,7 @@ void ClpPrimalColumnSteepest::djsAndSteepest(CoinIndexedVector *updates,
         break;
       case ClpSimplex::isFree:
       case ClpSimplex::superBasic:
-        if (fabs(value) > FREE_ACCEPT * tolerance) {
+        if (CoinAbs(value) > FREE_ACCEPT * tolerance) {
           // we are going to bias towards free (but only if reasonable)
           value *= FREE_BIAS;
           // store square in list
@@ -1537,7 +1537,7 @@ void ClpPrimalColumnSteepest::djsAndDevex2(CoinIndexedVector *updates,
         break;
       case ClpSimplex::isFree:
       case ClpSimplex::superBasic:
-        if (fabs(value) > FREE_ACCEPT * tolerance) {
+        if (CoinAbs(value) > FREE_ACCEPT * tolerance) {
           // we are going to bias towards free (but only if reasonable)
           value *= FREE_BIAS;
           // store square in list
@@ -1750,7 +1750,7 @@ void ClpPrimalColumnSteepest::djsAndSteepest2(CoinIndexedVector *updates,
         break;
       case ClpSimplex::isFree:
       case ClpSimplex::superBasic:
-        if (fabs(value) > FREE_ACCEPT * tolerance) {
+        if (CoinAbs(value) > FREE_ACCEPT * tolerance) {
           // we are going to bias towards free (but only if reasonable)
           value *= FREE_BIAS;
           // store square in list
@@ -1861,8 +1861,8 @@ void ClpPrimalColumnSteepest::djsAndSteepest2(CoinIndexedVector *updates,
         int iRow = -1;
         FloatT diff = 1.0e-8;
         for (int i = 0; i < numberRows; i++) {
-          FloatT dd = CoinMax(fabs(work1[i]), fabs(worka[i]));
-          FloatT d = fabs(work1[i] - worka[i]);
+          FloatT dd = CoinMax(CoinAbs(work1[i]), CoinAbs(worka[i]));
+          FloatT d = CoinAbs(work1[i] - worka[i]);
           if (dd > 1.0e-6 && d > diff * dd) {
             diff = d / dd;
             iRow = i;
@@ -2227,8 +2227,8 @@ void ClpPrimalColumnSteepest::justSteepest(CoinIndexedVector *updates,
     int iRow = -1;
     FloatT diff = 1.0e-8;
     for (int i = 0; i < numberRows; i++) {
-      FloatT dd = CoinMax(fabs(work1[i]), fabs(worka[i]));
-      FloatT d = fabs(work1[i] - worka[i]);
+      FloatT dd = CoinMax(CoinAbs(work1[i]), CoinAbs(worka[i]));
+      FloatT d = CoinAbs(work1[i] - worka[i]);
       if (dd > 1.0e-6 && d > diff * dd) {
         diff = d / dd;
         iRow = i;
@@ -2368,10 +2368,10 @@ int ClpPrimalColumnSteepest::pivotColumnOldMethod(CoinIndexedVector *updates,
     if (pivotRow >= 0)
       updates->add(pivotRow, -dj);
   } else if (pivotRow >= 0) {
-    if (fabs(dj) > 1.0e-15) {
+    if (CoinAbs(dj) > 1.0e-15) {
       // some dj
       updates->insert(pivotRow, -dj);
-      if (fabs(dj) > 1.0e-6) {
+      if (CoinAbs(dj) > 1.0e-6) {
         // reasonable size
         anyUpdates = 1;
       } else {
@@ -2430,7 +2430,7 @@ int ClpPrimalColumnSteepest::pivotColumnOldMethod(CoinIndexedVector *updates,
             break;
           case ClpSimplex::isFree:
           case ClpSimplex::superBasic:
-            if (fabs(value) > FREE_ACCEPT * tolerance) {
+            if (CoinAbs(value) > FREE_ACCEPT * tolerance) {
               // we are going to bias towards free (but only if reasonable)
               value *= FREE_BIAS;
               // store square in list
@@ -2483,7 +2483,7 @@ int ClpPrimalColumnSteepest::pivotColumnOldMethod(CoinIndexedVector *updates,
             break;
           case ClpSimplex::isFree:
           case ClpSimplex::superBasic:
-            if (fabs(value) > FREE_ACCEPT * tolerance) {
+            if (CoinAbs(value) > FREE_ACCEPT * tolerance) {
               // we are going to bias towards free (but only if reasonable)
               value *= FREE_BIAS;
               // store square in list
@@ -2564,7 +2564,7 @@ int ClpPrimalColumnSteepest::pivotColumnOldMethod(CoinIndexedVector *updates,
       break;
     case ClpSimplex::isFree:
     case ClpSimplex::superBasic:
-      if (fabs(value) > FREE_ACCEPT * tolerance) {
+      if (CoinAbs(value) > FREE_ACCEPT * tolerance) {
         // we are going to bias towards free (but only if reasonable)
         value *= FREE_BIAS;
         // store square in list
@@ -2629,7 +2629,7 @@ int ClpPrimalColumnSteepest::pivotColumnOldMethod(CoinIndexedVector *updates,
             break;
           case ClpSimplex::isFree:
           case ClpSimplex::superBasic:
-            if (fabs(value) > tolerance) {
+            if (CoinAbs(value) > tolerance) {
               // we are going to bias towards free (but only if reasonable)
               value *= FREE_BIAS;
               // store square in list
@@ -2679,7 +2679,7 @@ int ClpPrimalColumnSteepest::pivotColumnOldMethod(CoinIndexedVector *updates,
             break;
           case ClpSimplex::isFree:
           case ClpSimplex::superBasic:
-            if (fabs(value) > tolerance) {
+            if (CoinAbs(value) > tolerance) {
               // we are going to bias towards free (but only if reasonable)
               value *= FREE_BIAS;
               // store square in list
@@ -3140,9 +3140,9 @@ void ClpPrimalColumnSteepest::redoInfeasibilities()
       value = -value;
     } else {
       // free or superbasic
-      if (fabs(value) > FREE_ACCEPT * -tolerance) {
+      if (CoinAbs(value) > FREE_ACCEPT * -tolerance) {
         // we are going to bias towards free (but only if reasonable)
-        value = -fabs(value) * FREE_BIAS;
+        value = -CoinAbs(value) * FREE_BIAS;
       } else {
         value = 0.0;
       }
@@ -3395,9 +3395,9 @@ void ClpPrimalColumnSteepest::saveWeights(ClpSimplex *model, int mode)
           value = -value;
         } else {
           // free or superbasic
-          if (fabs(value) > FREE_ACCEPT * tolerance) {
+          if (CoinAbs(value) > FREE_ACCEPT * tolerance) {
             // we are going to bias towards free (but only if reasonable)
-            value = -fabs(value) * FREE_BIAS;
+            value = -CoinAbs(value) * FREE_BIAS;
           } else {
             value = 0.0;
           }
@@ -3422,7 +3422,7 @@ void ClpPrimalColumnSteepest::saveWeights(ClpSimplex *model, int mode)
           value = -value;
         } else {
           // free or superbasic
-          if (fabs(value) > FREE_ACCEPT * tolerance) {
+          if (CoinAbs(value) > FREE_ACCEPT * tolerance) {
             // check hasn't slipped through
             if (solution[iSequence] < lower[iSequence] + primalTolerance) {
               model_->setStatus(iSequence, ClpSimplex::atLowerBound);
@@ -3431,7 +3431,7 @@ void ClpPrimalColumnSteepest::saveWeights(ClpSimplex *model, int mode)
               value = -value;
             } else {
               // we are going to bias towards free (but only if reasonable)
-              value = -fabs(value) * FREE_BIAS;
+              value = -CoinAbs(value) * FREE_BIAS;
             }
           } else {
             value = 0.0;
@@ -3455,9 +3455,9 @@ void ClpPrimalColumnSteepest::saveWeights(ClpSimplex *model, int mode)
           value = -value;
         } else {
           // free or superbasic
-          if (fabs(value) > FREE_ACCEPT * tolerance) {
+          if (CoinAbs(value) > FREE_ACCEPT * tolerance) {
             // we are going to bias towards free (but only if reasonable)
-            value = -fabs(value) * FREE_BIAS;
+            value = -CoinAbs(value) * FREE_BIAS;
           } else {
             value = 0.0;
           }
@@ -3484,7 +3484,7 @@ void ClpPrimalColumnSteepest::saveWeights(ClpSimplex *model, int mode)
           break;
         case ClpSimplex::isFree:
         case ClpSimplex::superBasic:
-          if (fabs(value) > FREE_ACCEPT * tolerance) {
+          if (CoinAbs(value) > FREE_ACCEPT * tolerance) {
             // we are going to bias towards free (but only if reasonable)
             value *= FREE_BIAS;
             // store square in list
@@ -3645,9 +3645,9 @@ void ClpPrimalColumnSteepest::updateWeights(CoinIndexedVector *input)
 	  // uppervalue=-value;
 	} else {
 	  // free or superbasic
-	  //if (fabs(value) > FREE_ACCEPT * -dualTolerance) {
+	  //if (CoinAbs(value) > FREE_ACCEPT * -dualTolerance) {
 	    // we are going to bias towards free (but only if reasonable)
-	    //value = -fabs(value)*FREE_BIAS;
+	    //value = -CoinAbs(value)*FREE_BIAS;
 	  //} else {
 	  //value=0.0;
 	  //}
@@ -3870,7 +3870,7 @@ void ClpPrimalColumnSteepest::updateWeights(CoinIndexedVector *input)
   FloatT testValue = 0.1;
   if (mode_ == 4 && numberSwitched_ == 1)
     testValue = 0.5;
-  if (fabs(devex_ - oldDevex) > testValue * check) {
+  if (CoinAbs(devex_ - oldDevex) > testValue * check) {
 #ifdef CLP_DEBUG
     if ((model_->messageHandler()->logLevel() & 48) == 16)
       printf("old weight %g, new %g\n", oldDevex, devex_);
@@ -3881,7 +3881,7 @@ void ClpPrimalColumnSteepest::updateWeights(CoinIndexedVector *input)
       testValue = 1.01e1; // make unlikely to do if steepest
     else if (mode_ == 4 && numberSwitched_ == 1)
       testValue = 0.9;
-    FloatT difference = fabs(devex_ - oldDevex);
+    FloatT difference = CoinAbs(devex_ - oldDevex);
     if (difference > testValue * check) {
       // need to redo
       model_->messageHandler()->message(CLP_INITIALIZE_STEEP,
@@ -3897,7 +3897,7 @@ void ClpPrimalColumnSteepest::updateWeights(CoinIndexedVector *input)
   if (pivotRow >= 0) {
     // set outgoing weight here
     FloatT alpha = model_->alpha();
-    if (fabs(alpha) > 1.0e15) {
+    if (CoinAbs(alpha) > 1.0e15) {
       COIN_DETAIL_PRINT(printf("alpha %g for %d !!\n", alpha, model_->sequenceOut()));
       alpha = 1.0e15;
     }
@@ -3947,7 +3947,7 @@ void ClpPrimalColumnSteepest::checkAccuracy(int sequence,
   FloatT check = CoinMax(devex, oldDevex);
   ;
   rowArray1->setNumElements(0);
-  if (fabs(devex - oldDevex) > relativeTolerance * check) {
+  if (CoinAbs(devex - oldDevex) > relativeTolerance * check) {
     //COIN_DETAIL_PRINT(printf("check %d old weight %g, new %g\n", sequence, oldDevex, devex));
     printf("check %d old weight %g, new %g\n", sequence, oldDevex, devex);
     if (mode_ == 0) {
@@ -4089,7 +4089,7 @@ bool ClpPrimalColumnSteepest::looksOptimal() const
         break;
       case ClpSimplex::isFree:
       case ClpSimplex::superBasic:
-        if (fabs(value) > FREE_ACCEPT * tolerance)
+        if (CoinAbs(value) > FREE_ACCEPT * tolerance)
           numberInfeasible++;
         break;
       case ClpSimplex::atUpperBound:
@@ -4115,7 +4115,7 @@ bool ClpPrimalColumnSteepest::looksOptimal() const
         break;
       case ClpSimplex::isFree:
       case ClpSimplex::superBasic:
-        if (fabs(value) > FREE_ACCEPT * tolerance)
+        if (CoinAbs(value) > FREE_ACCEPT * tolerance)
           numberInfeasible++;
         break;
       case ClpSimplex::atUpperBound:
@@ -4255,7 +4255,7 @@ int ClpPrimalColumnSteepest::partialPricing(CoinIndexedVector *updates,
     for (iRow = 0; iRow < numberRows; iRow++) {
       // slack
       FloatT value = array[iRow];
-      if (fabs(duals[iRow] - value) > 1.0e-3)
+      if (CoinAbs(duals[iRow] - value) > 1.0e-3)
         printf("bad row %d old dual %g new %g\n", iRow, duals[iRow], value);
       //duals[iRow]=value;
     }
@@ -4326,7 +4326,7 @@ int ClpPrimalColumnSteepest::partialPricing(CoinIndexedVector *updates,
             break;
           case ClpSimplex::isFree:
           case ClpSimplex::superBasic:
-            value = fabs(cost[iSequence] + duals2[iSequence]);
+            value = CoinAbs(cost[iSequence] + duals2[iSequence]);
             if (value > FREE_ACCEPT * tolerance) {
               numberWanted--;
               // we are going to bias towards free (but only if reasonable)
@@ -4386,7 +4386,7 @@ int ClpPrimalColumnSteepest::partialPricing(CoinIndexedVector *updates,
       if (saveSequence != bestSequence) {
         // dj
         reducedCost[bestSequence] = cost[bestSequence] + duals[bestSequence - numberColumns];
-        bestDj = fabs(reducedCost[bestSequence]);
+        bestDj = CoinAbs(reducedCost[bestSequence]);
         model_->clpMatrix()->setSavedBestSequence(bestSequence);
         model_->clpMatrix()->setSavedBestDj(reducedCost[bestSequence]);
       }
@@ -4423,7 +4423,7 @@ int ClpPrimalColumnSteepest::partialPricing(CoinIndexedVector *updates,
         numberWanted = 0; // give up
       if (saveSequence != bestSequence) {
         // dj
-        bestDj = fabs(model_->clpMatrix()->reducedCost(model_, bestSequence));
+        bestDj = CoinAbs(model_->clpMatrix()->reducedCost(model_, bestSequence));
       }
       if (!numberWanted)
         break;

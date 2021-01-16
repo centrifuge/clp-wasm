@@ -460,7 +460,7 @@ void ClpDynamicExampleMatrix::partialPricing(ClpSimplex *model, FloatT startFrac
       endAll = numberSets_;
     if (bestSequence >= 0) {
       if (bestSequence != savedBestSequence_)
-        bestDj = fabs(reducedCost[bestSequence]); // dj from slacks or permanent
+        bestDj = CoinAbs(reducedCost[bestSequence]); // dj from slacks or permanent
       else
         bestDj = savedBestDj_;
     } else {

@@ -453,8 +453,8 @@ int ClpPdco::pdco(ClpPdcoBase *stuff, Options &options, Info &info, Outfo &outfo
   FloatT *H_elts = H.getElements();
 
   obj /= theta; // Scaled obj.
-  grad = grad * (beta / theta) + (d1 * d1) * x; // grad includes x regularization.
-  H = H * (beta2 / theta) + (d1 * d1); // H    includes x regularization.
+  grad = grad * fd(beta / theta) + fd(d1 * d1) * x; // grad includes x regularization.
+  H = H * fd(beta2 / theta) + fd(d1 * d1); // H    includes x regularization.
 
   /*---------------------------------------------------------------------
      // Compute primal and dual residuals:
@@ -678,8 +678,8 @@ int ClpPdco::pdco(ClpPdcoBase *stuff, Options &options, Info &info, Outfo &outfo
       stepz2 = pdxxxstep(z2, dz2);
     FloatT stepx = CoinMin(stepx1, stepx2);
     FloatT stepz = CoinMin(stepz1, stepz2);
-    stepx = CoinMin(steptol * stepx, 1.0);
-    stepz = CoinMin(steptol * stepz, 1.0);
+    stepx = CoinMin(steptol * stepx, fd(1.0));
+    stepz = CoinMin(steptol * stepz, fd(1.0));
     if (stepSame) { // For NLPs, force same step
       stepx = CoinMin(stepx, stepz); // (true Newton method)
       stepz = stepx;
@@ -711,8 +711,8 @@ int ClpPdco::pdco(ClpPdcoBase *stuff, Options &options, Info &info, Outfo &outfo
       x.scale((1.0 / beta));
 
       obj /= theta;
-      grad = grad * (beta / theta) + d1 * d1 * x;
-      H = H * (beta2 / theta) + d1 * d1;
+      grad = grad * (beta / theta) + (d1 * d1 * x);
+      H = H * fd(beta2 / theta) + fd(d1 * d1);
 
       //      [r1,r2,rL,rU,Pinf,Dinf] = ...
       pdxxxresid1(this, nlow, nupp, nfix, low, upp, fix,

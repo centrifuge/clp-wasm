@@ -61,7 +61,7 @@ void ClpLsqr::do_lsqr(CoinDenseVector< FloatT > &b,
   FloatT alfa = 0;
   FloatT beta = u.twoNorm();
   if (beta > 0) {
-    u = (1 / beta) * u;
+    u = (fd(1) / beta) * u;
     matVecMult(2, v, u);
     if (precon)
       v = v * Pr;
@@ -183,7 +183,7 @@ void ClpLsqr::do_lsqr(CoinDenseVector< FloatT > &b,
     FloatT res1 = phibar * phibar;
     FloatT res2 = res1 + psi * psi;
     rnorm = sqrt(res1 + res2);
-    arnorm = alfa * fabs(tau);
+    arnorm = alfa * CoinAbs(tau);
 
     // Now use these norms to estimate certain other quantities,
     // some of which will be small near a solution.

@@ -160,7 +160,7 @@ const CoinPresolveAction *do_tighten_action::presolve(CoinPresolveMatrix *prob,
           nonFree++;
         }
 
-        PRESOLVEASSERT(fabs(coeff) > ZTOLDP);
+        PRESOLVEASSERT(CoinAbs(coeff) > ZTOLDP);
 
         // see what this particular row says
         // jflag == 1 ==> up is towards feasibility
@@ -417,7 +417,7 @@ void do_tighten_action::postsolve(CoinPostsolveMatrix *prob) const
         //adjust if integer
         if (iflag == -2 || iflag == 2) {
           new_correction += sol[jcol];
-          if (fabs(floor(new_correction + 0.5) - new_correction) > 1.0e-4) {
+          if (CoinAbs(floor(new_correction + 0.5) - new_correction) > 1.0e-4) {
             new_correction = ceil(new_correction) - sol[jcol];
 #ifdef COIN_DEVELOP
             printf("integer postsolve changing correction from %g to %g - flag %d\n",
@@ -433,7 +433,7 @@ void do_tighten_action::postsolve(CoinPostsolveMatrix *prob) const
         //adjust if integer
         if (iflag == -2 || iflag == 2) {
           new_correction += sol[jcol];
-          if (fabs(floor(new_correction + 0.5) - new_correction) > 1.0e-4) {
+          if (CoinAbs(floor(new_correction + 0.5) - new_correction) > 1.0e-4) {
             new_correction = ceil(new_correction) - sol[jcol];
 #ifdef COIN_DEVELOP
             printf("integer postsolve changing correction from %g to %g - flag %d\n",
@@ -470,7 +470,7 @@ void do_tighten_action::postsolve(CoinPostsolveMatrix *prob) const
 	Why do we correct the row status only when the column is made basic?
 	Need to look at preceding code.  -- lh, 110528 --
       */
-      if (fabs(sol[jcol] - clo[jcol]) > ZTOLDP && fabs(sol[jcol] - cup[jcol]) > ZTOLDP) {
+      if (CoinAbs(sol[jcol] - clo[jcol]) > ZTOLDP && CoinAbs(sol[jcol] - cup[jcol]) > ZTOLDP) {
 
         prob->setColumnStatus(jcol, CoinPrePostsolveMatrix::basic);
         if (acts[last_corrected] - rlo[last_corrected] < rup[last_corrected] - acts[last_corrected])

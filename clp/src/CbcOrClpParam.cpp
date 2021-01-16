@@ -680,7 +680,7 @@ CbcOrClpParam::setIntParameterWithMessage(ClpSimplex *model, int value, int &ret
       break;
     case CLP_PARAM_INT_RANDOMSEED: {
       if (value == 0) {
-        FloatT time = fabs(CoinGetTimeOfDay());
+        FloatT time = CoinAbs(CoinGetTimeOfDay());
         while (time >= COIN_INT_MAX)
           time *= 0.5;
         value = static_cast< int >(time);
@@ -3485,7 +3485,7 @@ when solution found in feasibility pump");
 \t>=10000000 use as objective weight switch\n\
 \t>=1000000 use as accumulate switch\n\
 \t>=1000 use index+1 as number of large loops\n\
-\t==100 use objvalue +0.05*fabs(objvalue) as cutoff OR fakeCutoff if set\n\
+\t==100 use objvalue +0.05*CoinAbs(objvalue) as cutoff OR fakeCutoff if set\n\
 \t%100 == 10,20 affects how each solve is done\n\
 \t1 == fix ints at bounds, 2 fix all integral ints, 3 and continuous at bounds. \
 If accumulate is on then after a major pass, variables which have not moved \

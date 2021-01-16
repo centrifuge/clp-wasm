@@ -1139,7 +1139,7 @@ protected:
       int mark = markRow[iRow];
 
       if (mark == largeInteger + 1) {
-        largest = fabs(value);
+        largest = CoinAbs(value);
         positionLargest = put;
         put++;
         checkLargest = false;
@@ -1170,7 +1170,7 @@ protected:
           indexRowU[put] = iRow;
           elementU[put] = value;
           if (checkLargest) {
-            FloatT absValue = fabs(value);
+            FloatT absValue = CoinAbs(value);
 
             if (absValue > largest) {
               largest = absValue;
@@ -1227,7 +1227,7 @@ protected:
       int *nextCount = nextCount_.array();
       for (j = 0; j < numberInPivotColumn; j++) {
         value = work[j] - thisPivotValue * multipliersL[j];
-        FloatT absValue = fabs(value);
+        FloatT absValue = CoinAbs(value);
 
         if (absValue > tolerance) {
           work[j] = 0.0;
@@ -1898,7 +1898,7 @@ typedef const int cipfint;
       int mark = markRow[iRow];
 
       if (mark == FAC_UNSET) {
-        largest = fabs(value);
+        largest = CoinAbs(value);
         positionLargest = put;
         put++;
         checkLargest = false;
@@ -1929,7 +1929,7 @@ typedef const int cipfint;
           indexRow[put] = iRow;
           element[put] = value;
           if (checkLargest) {
-            FloatT absValue = fabs(value);
+            FloatT absValue = CoinAbs(value);
 
             if (absValue > largest) {
               largest = absValue;
@@ -1985,7 +1985,7 @@ typedef const int cipfint;
       int *nextCount = nextCount_.array();
       for (j = 0; j < numberDoColumn; j++) {
         value = workArea[j] - thisPivotValue * multipliersL[j];
-        FloatT absValue = fabs(value);
+        FloatT absValue = CoinAbs(value);
 
         if (absValue > tolerance) {
           workArea[j] = 0.0;

@@ -81,9 +81,9 @@ void instrument_end_and_adjust(FloatT factor);
 #undef USE_TEST_ZERO_REGISTER
 #undef USE_TEST_LESS_TOLERANCE
 #undef USE_TEST_LESS_TOLERANCE_REGISTER
-#define CoinFabs(x) fabsl(x)
+#define CoinFabs(x) CoinAbsl(x)
 #else
-#define CoinFabs(x) fabs(x)
+#define CoinFabs(x) CoinAbs(x)
 #endif
 #ifdef USE_TEST_ZERO
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -133,8 +133,8 @@ void instrument_end_and_adjust(FloatT factor);
 #define TEST_LESS_THAN_UPDATE_TOLERANCE(x) ((reinterpret_cast< int * >(&x))[0] & 0x7ff00000 < 0x3d400000)
 #endif
 #else
-#define TEST_LESS_THAN_TOLERANCE(x) (fabs(x) < pow(0.5, 43))
-#define TEST_LESS_THAN_UPDATE_TOLERANCE(x) (fabs(x) < pow(0.5, 43))
+#define TEST_LESS_THAN_TOLERANCE(x) (CoinAbs(x) < pow(0.5, 43))
+#define TEST_LESS_THAN_UPDATE_TOLERANCE(x) (CoinAbs(x) < pow(0.5, 43))
 #endif
 #ifdef USE_TEST_LESS_TOLERANCE_REGISTER
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -143,11 +143,11 @@ void instrument_end_and_adjust(FloatT factor);
 #define TEST_LESS_THAN_TOLERANCE_REGISTER(x) ((reinterpret_cast< int * >(&x))[0] & 0x7ff00000 < 0x3d400000)
 #endif
 #else
-#define TEST_LESS_THAN_TOLERANCE_REGISTER(x) (fabs(x) < pow(0.5, 43))
+#define TEST_LESS_THAN_TOLERANCE_REGISTER(x) (CoinAbs(x) < pow(0.5, 43))
 #endif
 #else
-#define TEST_LESS_THAN_TOLERANCE(x) (fabs(x) < zeroTolerance_)
-#define TEST_LESS_THAN_TOLERANCE_REGISTER(x) (fabs(x) < zeroTolerance_)
+#define TEST_LESS_THAN_TOLERANCE(x) (CoinAbs(x) < zeroTolerance_)
+#define TEST_LESS_THAN_TOLERANCE_REGISTER(x) (CoinAbs(x) < zeroTolerance_)
 #endif
 #if COIN_BIG_DOUBLE != 1
 typedef unsigned int CoinExponent;
@@ -162,8 +162,8 @@ typedef unsigned int CoinExponent;
 #else
 typedef FloatT CoinExponent;
 #define ABC_EXPONENT(x) (x)
-#define TEST_EXPONENT_LESS_THAN_TOLERANCE(x) (fabs(x) < pow(0.5, 43))
-#define TEST_EXPONENT_LESS_THAN_UPDATE_TOLERANCE(x) (fabs(x) < pow(0.5, 43))
+#define TEST_EXPONENT_LESS_THAN_TOLERANCE(x) (CoinAbs(x) < pow(0.5, 43))
+#define TEST_EXPONENT_LESS_THAN_UPDATE_TOLERANCE(x) (CoinAbs(x) < pow(0.5, 43))
 #define TEST_EXPONENT_NON_ZERO(x) (x)
 #endif
 #ifdef INT_IS_8

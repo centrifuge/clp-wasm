@@ -48,7 +48,7 @@ static int c_ekkshfpo_scan2zero(COIN_REGISTER const EKKfactinfo *COIN_RESTRICT2 
       dval = worki[irow0];
       if (NOT_ZERO(dval)) {
         worki[irow0] = 0.0;
-        if (fabs(dval) >= tolerance) {
+        if (CoinAbs(dval) >= tolerance) {
           *(worko++) = dval;
           *(mptrX++) = 0;
         }
@@ -61,7 +61,7 @@ static int c_ekkshfpo_scan2zero(COIN_REGISTER const EKKfactinfo *COIN_RESTRICT2 
       dval = worki[irow0];
       if (NOT_ZERO(dval)) {
         worki[irow0] = 0.0;
-        if (fabs(dval) >= tolerance) {
+        if (CoinAbs(dval) >= tolerance) {
           *worko = dval;
           *(mptrX++) = 0;
         }
@@ -83,14 +83,14 @@ static int c_ekkshfpo_scan2zero(COIN_REGISTER const EKKfactinfo *COIN_RESTRICT2 
       dval1 = worki[irow1];
       if (NOT_ZERO(dval0)) {
         worki[irow0] = 0.0;
-        if (fabs(dval0) >= tolerance) {
+        if (CoinAbs(dval0) >= tolerance) {
           *(worko++) = dval0;
           *(mptrX++) = irow + 0;
         }
       }
       if (NOT_ZERO(dval1)) {
         worki[irow1] = 0.0;
-        if (fabs(dval1) >= tolerance) {
+        if (CoinAbs(dval1) >= tolerance) {
           *(worko++) = dval1;
           *(mptrX++) = irow + 1;
         }
@@ -109,14 +109,14 @@ static int c_ekkshfpo_scan2zero(COIN_REGISTER const EKKfactinfo *COIN_RESTRICT2 
       dval1 = worki[irow1];
       if (NOT_ZERO(dval0)) {
         worki[irow0] = 0.0;
-        if (fabs(dval0) >= tolerance) {
+        if (CoinAbs(dval0) >= tolerance) {
           worko[0] = dval0;
           *(mptrX++) = irow + 0;
         }
       }
       if (NOT_ZERO(dval1)) {
         worki[irow1] = 0.0;
-        if (fabs(dval1) >= tolerance) {
+        if (CoinAbs(dval1) >= tolerance) {
           worko[1] = dval1;
           *(mptrX++) = irow + 1;
         }
@@ -292,7 +292,7 @@ static int c_ekkscmv(COIN_REGISTER const EKKfactinfo *COIN_RESTRICT2 fact, int n
   FloatT *COIN_RESTRICT dwhere = dwork + 1;
   if ((n & 1) != 0) {
     if (NOT_ZERO(*dwhere)) {
-      if (fabs(*dwhere) >= tolerance) {
+      if (CoinAbs(*dwhere) >= tolerance) {
         *++dwork2 = *dwhere;
         *++mptr = SHIFT_INDEX(1);
       } else {
@@ -307,7 +307,7 @@ static int c_ekkscmv(COIN_REGISTER const EKKfactinfo *COIN_RESTRICT2 fact, int n
   for (n = n >> 1; n; n--) {
     int second = NOT_ZERO(*(dwhere + 1));
     if (NOT_ZERO(*dwhere)) {
-      if (fabs(*dwhere) >= tolerance) {
+      if (CoinAbs(*dwhere) >= tolerance) {
         *++dwork2 = *dwhere;
         *++mptr = SHIFT_INDEX(irow);
       } else {
@@ -315,7 +315,7 @@ static int c_ekkscmv(COIN_REGISTER const EKKfactinfo *COIN_RESTRICT2 fact, int n
       }
     }
     if (second) {
-      if (fabs(*(dwhere + 1)) >= tolerance) {
+      if (CoinAbs(*(dwhere + 1)) >= tolerance) {
         *++dwork2 = *(dwhere + 1);
         *++mptr = SHIFT_INDEX(irow + 1);
       } else {
@@ -387,7 +387,7 @@ int c_ekkputl2(const EKKfactinfo *COIN_RESTRICT2 fact,
   int *COIN_RESTRICT mptrX = hrowiR;
   for (i = 1; i <= nrow; ++i) {
     if (dwork1[i] != 0.) {
-      if (fabs(dwork1[i]) >= tolerance) {
+      if (CoinAbs(dwork1[i]) >= tolerance) {
         *(mptrX--) = SHIFT_INDEX(i);
       } else {
         dwork1[i] = 0.0;
@@ -653,7 +653,7 @@ static int c_ekkbtj4_sparse(COIN_REGISTER2 const EKKfactinfo *COIN_RESTRICT2 fac
       dv = dwork1[iPivot];
       dwork1[iPivot] = 0.0;
       nonzero[iPivot] = 0;
-      if (fabs(dv) > tolerance) {
+      if (CoinAbs(dv) > tolerance) {
         iput = hpivro[iPivot];
         kx = mrstrt[iPivot];
         dworko[nput] = dv;
@@ -675,7 +675,7 @@ static int c_ekkbtj4_sparse(COIN_REGISTER2 const EKKfactinfo *COIN_RESTRICT2 fac
       dv = dwork1[iPivot];
       dwork1[iPivot] = 0.0;
       iput = hpivro[iPivot];
-      if (fabs(dv) > tolerance) {
+      if (CoinAbs(dv) > tolerance) {
         dworko[nput] = dv;
         mpt[nput++] = iput - 1;
       }
@@ -688,7 +688,7 @@ static int c_ekkbtj4_sparse(COIN_REGISTER2 const EKKfactinfo *COIN_RESTRICT2 fac
       dv = dwork1[iPivot];
       dwork1[iPivot] = 0.0;
       nonzero[iPivot] = 0;
-      if (fabs(dv) > tolerance) {
+      if (CoinAbs(dv) > tolerance) {
         iput = hpivro[iPivot];
         kx = mrstrt[iPivot];
         dworko[iput] = dv;
@@ -710,7 +710,7 @@ static int c_ekkbtj4_sparse(COIN_REGISTER2 const EKKfactinfo *COIN_RESTRICT2 fac
       dv = dwork1[iPivot];
       dwork1[iPivot] = 0.0;
       iput = hpivro[iPivot];
-      if (fabs(dv) > tolerance) {
+      if (CoinAbs(dv) > tolerance) {
         dworko[iput] = dv;
         mpt[nput++] = iput - 1;
       }
@@ -1172,7 +1172,7 @@ static int c_ekkbtju_sparse(COIN_REGISTER2 const EKKfactinfo *COIN_RESTRICT2 fac
     dpiv = dluval[kx - 1];
     dv = dpiv * dwork1[iPivot];
     nonzero[iPivot] = 0;
-    if (fabs(dv) >= tolerance) {
+    if (CoinAbs(dv) >= tolerance) {
       int iel;
       int krx = mrstrt[iPivot];
       int krxe = krx + hinrow[iPivot];
@@ -1400,7 +1400,7 @@ static int c_ekkbtrn0_new(COIN_REGISTER3 const EKKfactinfo *COIN_RESTRICT2 fact,
           irow = mpt[i + 1];
           dval = dpermu[irow];
           if (NOT_ZERO(dval)) {
-            if (fabs(dval) >= tolerance) {
+            if (CoinAbs(dval) >= tolerance) {
               irow0 = hpivro[irow];
               dwork1[1 + nput] = dval;
               mpt[1 + nput++] = irow0 - 1;
@@ -1415,7 +1415,7 @@ static int c_ekkbtrn0_new(COIN_REGISTER3 const EKKfactinfo *COIN_RESTRICT2 fact,
           irow = mpt[i + 1];
           dval = dpermu[irow];
           if (NOT_ZERO(dval)) {
-            if (fabs(dval) >= tolerance) {
+            if (CoinAbs(dval) >= tolerance) {
               irow0 = hpivro[irow];
               dwork1[irow0] = dval;
               mpt[1 + nput++] = irow0 - 1;
@@ -2282,9 +2282,9 @@ int c_ekketsj(COIN_REGISTER2 /*const*/ EKKfactinfo *COIN_RESTRICT2 fact,
   {
     int kx = mcstrt[kpivrw];
     FloatT dout = dluval[kx];
-    FloatT dcheck = fabs(dalpha / dout);
+    FloatT dcheck = CoinAbs(dalpha / dout);
     FloatT difference = 0.0;
-    if (fabs(del3) > CoinMin(1.0e-8, fact->drtpiv * 0.99999)) {
+    if (CoinAbs(del3) > CoinMin(1.0e-8, fact->drtpiv * 0.99999)) {
       FloatT checkTolerance;
       if (fact->npivots < 2) {
         checkTolerance = 1.0e-5;
@@ -2295,7 +2295,7 @@ int c_ekketsj(COIN_REGISTER2 /*const*/ EKKfactinfo *COIN_RESTRICT2 fact,
       } else {
         checkTolerance = 1.0e-9;
       }
-      difference = fabs(1.0 - fabs(del3) / dcheck);
+      difference = CoinAbs(1.0 - CoinAbs(del3) / dcheck);
       if (difference > 0.1 * checkTolerance) {
         if (difference < checkTolerance || (difference < 1.0e-7 && fact->npivots >= 50)) {
           irtcod = 1;
@@ -2771,7 +2771,7 @@ static int c_ekkftj4_sparse(COIN_REGISTER2 const EKKfactinfo *COIN_RESTRICT2 fac
     iPivot = list[k];
     dv = dwork1[iPivot];
     nonzero[iPivot] = 0;
-    if (fabs(dv) > tolerance) {
+    if (CoinAbs(dv) > tolerance) {
       /* the same code as in c_ekkftj4p */
       int kce1 = mcstrt2[iPivot + 1];
       for (iel = mcstrt2[iPivot]; iel > kce1; --iel) {
@@ -2788,7 +2788,7 @@ static int c_ekkftj4_sparse(COIN_REGISTER2 const EKKfactinfo *COIN_RESTRICT2 fac
     iPivot = list[k];
     nonzero[iPivot] = 0;
     dv = dwork1[iPivot];
-    if (fabs(dv) > tolerance) {
+    if (CoinAbs(dv) > tolerance) {
       mpt[nput++] = iPivot;
     } else {
       dwork1[iPivot] = 0.0; /* force to zero, not just near zero */
@@ -2850,13 +2850,13 @@ static int c_ekkftjl_sparse3(COIN_REGISTER2 const EKKfactinfo *COIN_RESTRICT2 fa
        * (2) if dwork[ipiv] != 0.0, then this may cancel out a non-zero.
        */
       if (onList) {
-        if (fabs(dv) > tolerance) {
+        if (CoinAbs(dv) > tolerance) {
           dwork1[ipiv] = dv;
         } else {
           dwork1[ipiv] = 1.0e-128;
         }
       } else {
-        if (fabs(dv) > tolerance) {
+        if (CoinAbs(dv) > tolerance) {
           /* put on list if not there */
           mpt[nincol++] = ipiv;
           dwork1[ipiv] = dv;
@@ -2868,7 +2868,7 @@ static int c_ekkftjl_sparse3(COIN_REGISTER2 const EKKfactinfo *COIN_RESTRICT2 fa
   for (i = 0; i < nincol; i++) {
     ipiv = mpt[i];
     dv = dwork1[ipiv];
-    if (fabs(dv) > tolerance) {
+    if (CoinAbs(dv) > tolerance) {
       hput[knext] = SHIFT_INDEX(ipiv);
       dluput[knext] = dv;
       mpt[knext++] = ipiv;
@@ -2917,13 +2917,13 @@ static int c_ekkftjl_sparse2(COIN_REGISTER2 const EKKfactinfo *COIN_RESTRICT2 fa
        * (2) if dwork[ipiv] != 0.0, then this may cancel out a non-zero.
        */
       if (onList) {
-        if (fabs(dv) > tolerance) {
+        if (CoinAbs(dv) > tolerance) {
           dwork1[ipiv] = dv;
         } else {
           dwork1[ipiv] = 1.0e-128;
         }
       } else {
-        if (fabs(dv) > tolerance) {
+        if (CoinAbs(dv) > tolerance) {
           /* put on list if not there */
           mpt[nincol++] = ipiv;
           dwork1[ipiv] = dv;
@@ -2935,7 +2935,7 @@ static int c_ekkftjl_sparse2(COIN_REGISTER2 const EKKfactinfo *COIN_RESTRICT2 fa
   for (i = 0; i < nincol; i++) {
     ipiv = mpt[i];
     dv = dwork1[ipiv];
-    if (fabs(dv) > tolerance) {
+    if (CoinAbs(dv) > tolerance) {
       mpt[knext++] = ipiv;
     } else {
       dwork1[ipiv] = 0.0;
@@ -2968,7 +2968,7 @@ static void c_ekkftjl(COIN_REGISTER2 const EKKfactinfo *COIN_RESTRICT2 fact,
     {
       int ipiv = hpivco[1];
       FloatT dv = dwork1[ipiv];
-      dwork1[ipiv] = (fabs(dv) > tolerance) ? dv : 0.0;
+      dwork1[ipiv] = (CoinAbs(dv) > tolerance) ? dv : 0.0;
     }
 
     knext = mcstrt[1];
@@ -3011,7 +3011,7 @@ static void c_ekkftjl(COIN_REGISTER2 const EKKfactinfo *COIN_RESTRICT2 fact,
       /* (1) if dwork[ipiv] == 0.0, then this may add a non-zero.
        * (2) if dwork[ipiv] != 0.0, then this may cancel out a non-zero.
        */
-      dwork1[ipiv] = (fabs(dv) > tolerance) ? dv : 0.0;
+      dwork1[ipiv] = (CoinAbs(dv) > tolerance) ? dv : 0.0;
     }
   }
 } /* c_ekkftjl */
@@ -3050,7 +3050,7 @@ c_ekkftjup_scan_aux(COIN_REGISTER2 const EKKfactinfo *COIN_RESTRICT2 fact,
 
     /* in the case of world.mps with dual, this condition is true
      * only 20-60% of the time. */
-    if (fabs(dv) > tolerance) {
+    if (CoinAbs(dv) > tolerance) {
       const int kx = mcstrt[ipiv];
       const int nel = hrowi[kx - 1];
       const FloatT dpiv = dluval[kx - 1];
@@ -3115,7 +3115,7 @@ c_ekkftjup_scan_aux(COIN_REGISTER2 const EKKfactinfo *COIN_RESTRICT2 fact,
       }
 #endif
       /* put this down here so that dv is less likely to cause a stall */
-      if (fabs(dv) >= tolerance) {
+      if (CoinAbs(dv) >= tolerance) {
         int iput = hpivro[ipiv];
         dworko[iput] = dv;
         *mptX++ = iput - 1;
@@ -3150,7 +3150,7 @@ static void c_ekkftjup_aux3(COIN_REGISTER2 const EKKfactinfo *COIN_RESTRICT2 fac
 
       dwork1[ipiv] = 0.0;
 
-      if (fabs(dv) >= tolerance) {
+      if (CoinAbs(dv) >= tolerance) {
         int iput = hpivro[ipiv];
         dworko[iput] = dv;
         *mptX++ = iput - 1;
@@ -3178,7 +3178,7 @@ static void c_ekkftju_dense(const FloatT *dluval,
     const int ipiv1 = ipiv;
     FloatT dv1 = dwork1[ipiv1];
     ipiv = back[ipiv];
-    if (fabs(dv1) > 1.0e-14) {
+    if (CoinAbs(dv1) > 1.0e-14) {
       const int kx1 = mcstrt[ipiv1];
       const int nel1 = hrowi[kx1 - 1];
       const FloatT dpiv1 = dluval[kx1 - 1];
@@ -3201,7 +3201,7 @@ static void c_ekkftju_dense(const FloatT *dluval,
         const FloatT dval = dv1 * dlu1[k];
         FloatT dv2 = densew[k] - dval;
         ipiv = back[ipiv];
-        if (fabs(dv2) > 1.0e-14) {
+        if (CoinAbs(dv2) > 1.0e-14) {
           const int kx2 = mcstrt[ipiv2];
           const int nel2 = hrowi[kx2 - 1];
           const FloatT dpiv2 = dluval[kx2 - 1];
@@ -3402,7 +3402,7 @@ static int c_ekkftjup(COIN_REGISTER3 const EKKfactinfo *COIN_RESTRICT2 fact,
 
       dwork1[ipiv] = 0.0;
 
-      if (fabs(dv) >= tolerance) {
+      if (CoinAbs(dv) >= tolerance) {
         int iput = hpivro[ipiv];
         dworko[iput] = -dv;
         *mptX++ = iput - 1;
@@ -3470,7 +3470,7 @@ c_ekkftjup_scan_aux_pack(COIN_REGISTER2 const EKKfactinfo *COIN_RESTRICT2 fact,
 
     /* in the case of world.mps with dual, this condition is true
      * only 20-60% of the time. */
-    if (fabs(dv) > tolerance) {
+    if (CoinAbs(dv) > tolerance) {
       const int kx = mcstrt[ipiv];
       const int nel = hrowi[kx - 1];
       const FloatT dpiv = dluval[kx - 1];
@@ -3538,7 +3538,7 @@ c_ekkftjup_scan_aux_pack(COIN_REGISTER2 const EKKfactinfo *COIN_RESTRICT2 fact,
       }
 #endif
       /* put this down here so that dv is less likely to cause a stall */
-      if (fabs(dv) >= tolerance) {
+      if (CoinAbs(dv) >= tolerance) {
         int iput = hpivro[ipiv];
         *dworko++ = dv;
         *mptX++ = iput - 1;
@@ -3572,7 +3572,7 @@ static void c_ekkftjup_aux3_pack(COIN_REGISTER2 const EKKfactinfo *COIN_RESTRICT
 
       dwork1[ipiv] = 0.0;
 
-      if (fabs(dv) >= tolerance) {
+      if (CoinAbs(dv) >= tolerance) {
         int iput = hpivro[ipiv];
         *dworko++ = dv;
         *mptX++ = iput - 1;
@@ -3673,7 +3673,7 @@ static int c_ekkftjup_pack(COIN_REGISTER3 const EKKfactinfo *COIN_RESTRICT2 fact
 
     dwork1[ipiv] = 0.0;
 
-    if (fabs(dv) >= tolerance) {
+    if (CoinAbs(dv) >= tolerance) {
       int iput = hpivro[ipiv];
       *dworko++ = -dv;
       *mptX++ = iput - 1;
@@ -3765,7 +3765,7 @@ static int c_ekkftju_sparse_b(COIN_REGISTER2 const EKKfactinfo *COIN_RESTRICT2 f
     dv *= dpiv;
     nonzero[iPivot] = 0;
     iPivot = hpivro[iPivot];
-    if (fabs(dv) >= tolerance) {
+    if (CoinAbs(dv) >= tolerance) {
       *dworko++ = dv;
       mpt[nList++] = iPivot - 1;
       for (k = kx; k < kx + nel; k++) {

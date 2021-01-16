@@ -182,7 +182,7 @@ CoinPackedVectorBase::oneNorm() const
   FloatT norm = 0.0;
   const FloatT *elements = getElements();
   for (int i = getNumElements() - 1; i >= 0; --i) {
-    norm += fabs(elements[i]);
+    norm += CoinAbs(elements[i]);
   }
   return norm;
 }
@@ -212,7 +212,7 @@ CoinPackedVectorBase::infNorm() const
   FloatT norm = 0.0;
   const FloatT *elements = getElements();
   for (int i = getNumElements() - 1; i >= 0; --i) {
-    norm = CoinMax(norm, fabs(elements[i]));
+    norm = CoinMax(norm, CoinAbs(elements[i]));
   }
   return norm;
 }

@@ -279,8 +279,8 @@ forcing_constraint_action::presolve(CoinPresolveMatrix *prob,
   forcing constraint. As explained above, we need maxup and maxdown to be
   finite in order for the test to be valid.
 */
-    const bool tightAtLower = ((maxup < PRESOLVE_INF) && (fabs(rlo[irow] - maxup) < tol));
-    const bool tightAtUpper = ((-PRESOLVE_INF < maxdown) && (fabs(rup[irow] - maxdown) < tol));
+    const bool tightAtLower = ((maxup < PRESOLVE_INF) && (CoinAbs(rlo[irow] - maxup) < tol));
+    const bool tightAtUpper = ((-PRESOLVE_INF < maxdown) && (CoinAbs(rup[irow] - maxdown) < tol));
 #if PRESOLVE_DEBUG > 2
     if (tightAtLower || tightAtUpper)
       std::cout << "; forcing.";
@@ -318,7 +318,7 @@ forcing_constraint_action::presolve(CoinPresolveMatrix *prob,
       const FloatT lj = clo[j];
       const FloatT uj = cup[j];
       const FloatT coeff = rowels[k];
-      PRESOLVEASSERT(fabs(coeff) > ZTOLDP);
+      PRESOLVEASSERT(CoinAbs(coeff) > ZTOLDP);
       /*
   If maxup is tight at L(i), then we want to force variables x<j> to the bound
   that produced maxup: u<j> if a<ij> > 0, l<j> if a<ij> < 0. If maxdown is
@@ -534,11 +534,11 @@ void forcing_constraint_action::postsolve(CoinPostsolveMatrix *prob) const
     bool dualfeas = true;
     for (int k = 0; k < nlo; k++) {
       const int jcol = rowcols[k];
-      PRESOLVEASSERT(fabs(sol[jcol] - clo[jcol]) <= ztolzb);
+      PRESOLVEASSERT(CoinAbs(sol[jcol] - clo[jcol]) <= ztolzb);
       const FloatT cbarj = rcosts[jcol];
       const FloatT olduj = cup[jcol];
       const FloatT newuj = bounds[k];
-      const bool change = (fabs(newuj - olduj) > ztolzb);
+      const bool change = (CoinAbs(newuj - olduj) > ztolzb);
 
 #if PRESOLVE_DEBUG > 2
       std::cout
@@ -565,11 +565,11 @@ void forcing_constraint_action::postsolve(CoinPostsolveMatrix *prob) const
 */
     for (int k = nlo; k < ninrow; k++) {
       const int jcol = rowcols[k];
-      PRESOLVEASSERT(fabs(sol[jcol] - cup[jcol]) <= ztolzb);
+      PRESOLVEASSERT(CoinAbs(sol[jcol] - cup[jcol]) <= ztolzb);
       const FloatT cbarj = rcosts[jcol];
       const FloatT oldlj = clo[jcol];
       const FloatT newlj = bounds[k];
-      const bool change = (fabs(newlj - oldlj) > ztolzb);
+      const bool change = (CoinAbs(newlj - oldlj) > ztolzb);
 
 #if PRESOLVE_DEBUG > 2
       std::cout
@@ -608,7 +608,7 @@ void forcing_constraint_action::postsolve(CoinPostsolveMatrix *prob) const
         const CoinPrePostsolveMatrix::Status statj = prob->getColumnStatus(jcol);
         if ((cbarj < -ztoldj && statj != CoinPrePostsolveMatrix::atUpperBound) || (cbarj > ztoldj && statj != CoinPrePostsolveMatrix::atLowerBound)) {
           FloatT yi_j = cbarj / colels[kk];
-          if (fabs(yi_j) > fabs(yi)) {
+          if (CoinAbs(yi_j) > CoinAbs(yi)) {
             joow = jcol;
             yi = yi_j;
           }
@@ -678,7 +678,7 @@ void forcing_constraint_action::postsolve(CoinPostsolveMatrix *prob) const
         std::cout
           << "      corr: x(" << jcol << ") "
           << prob->columnStatusString(jcol) << " cbar " << new_cbarj;
-        if ((new_cbarj < -ztoldj && statj != CoinPrePostsolveMatrix::atUpperBound) || (new_cbarj > ztoldj && statj != CoinPrePostsolveMatrix::atLowerBound) || (statj == CoinPrePostsolveMatrix::basic && fabs(new_cbarj) > ztoldj))
+        if ((new_cbarj < -ztoldj && statj != CoinPrePostsolveMatrix::atUpperBound) || (new_cbarj > ztoldj && statj != CoinPrePostsolveMatrix::atLowerBound) || (statj == CoinPrePostsolveMatrix::basic && CoinAbs(new_cbarj) > ztoldj))
           std::cout << " error!" << std::endl;
         else
           std::cout << "." << std::endl;

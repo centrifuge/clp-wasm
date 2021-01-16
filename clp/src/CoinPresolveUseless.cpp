@@ -100,7 +100,7 @@ const CoinPresolveAction *testRedundant(CoinPresolveMatrix *prob,
 #ifdef USE_SMALL_LARGE
   const FloatT large = 1.0e15;
 #else
-  const FloatT large = 1.0e20;
+  const FloatT large = TOO_BIG_FLOAT;
 #endif
 #ifndef NDEBUG
   const FloatT large2 = 1.0e10 * large;
@@ -220,8 +220,8 @@ const CoinPresolveAction *testRedundant(CoinPresolveMatrix *prob,
         }
       }
       markRow[i] = markActOK;
-      finUpi += 1.0e-8 * fabs(finUpi);
-      finDowni -= 1.0e-8 * fabs(finDowni);
+      finUpi += 1.0e-8 * CoinAbs(finUpi);
+      finDowni -= 1.0e-8 * CoinAbs(finDowni);
       const FloatT maxUpi = finUpi + infUpi * 1.0e31;
       const FloatT maxDowni = finDowni - infLoi * 1.0e31;
       /*
@@ -291,12 +291,12 @@ const CoinPresolveAction *testRedundant(CoinPresolveMatrix *prob,
             if (!infUpi) {
               assert(ut < large2);
               newlt = ut + (rloi - finUpi) / ait;
-              if (fabs(finUpi) > 1.0e8)
-                newlt -= 1.0e-12 * fabs(finUpi);
+              if (CoinAbs(finUpi) > 1.0e8)
+                newlt -= 1.0e-12 * CoinAbs(finUpi);
             } else if (infUpi == 1 && ut >= large) {
               newlt = (rloi - finUpi) / ait;
-              if (fabs(finUpi) > 1.0e8)
-                newlt -= 1.0e-12 * fabs(finUpi);
+              if (CoinAbs(finUpi) > 1.0e8)
+                newlt -= 1.0e-12 * CoinAbs(finUpi);
             } else {
               newlt = -COIN_DBL_MAX;
             }
@@ -338,12 +338,12 @@ const CoinPresolveAction *testRedundant(CoinPresolveMatrix *prob,
             if (!infLoi) {
               assert(lt > -large2);
               newut = lt + (rupi - finDowni) / ait;
-              if (fabs(finDowni) > 1.0e8)
-                newut += 1.0e-12 * fabs(finDowni);
+              if (CoinAbs(finDowni) > 1.0e8)
+                newut += 1.0e-12 * CoinAbs(finDowni);
             } else if (infLoi == 1 && lt <= -large) {
               newut = (rupi - finDowni) / ait;
-              if (fabs(finDowni) > 1.0e8)
-                newut += 1.0e-12 * fabs(finDowni);
+              if (CoinAbs(finDowni) > 1.0e8)
+                newut += 1.0e-12 * CoinAbs(finDowni);
             } else {
               newut = COIN_DBL_MAX;
             }
@@ -380,12 +380,12 @@ const CoinPresolveAction *testRedundant(CoinPresolveMatrix *prob,
             if (!infUpi) {
               assert(lt < large2);
               newut = lt + (rloi - finUpi) / ait;
-              if (fabs(finUpi) > 1.0e8)
-                newut += 1.0e-12 * fabs(finUpi);
+              if (CoinAbs(finUpi) > 1.0e8)
+                newut += 1.0e-12 * CoinAbs(finUpi);
             } else if (infUpi == 1 && lt <= -large) {
               newut = (rloi - finUpi) / ait;
-              if (fabs(finUpi) > 1.0e8)
-                newut += 1.0e-12 * fabs(finUpi);
+              if (CoinAbs(finUpi) > 1.0e8)
+                newut += 1.0e-12 * CoinAbs(finUpi);
             } else {
               newut = COIN_DBL_MAX;
             }
@@ -418,12 +418,12 @@ const CoinPresolveAction *testRedundant(CoinPresolveMatrix *prob,
             if (!infLoi) {
               assert(ut < large2);
               newlt = ut + (rupi - finDowni) / ait;
-              if (fabs(finDowni) > 1.0e8)
-                newlt -= 1.0e-12 * fabs(finDowni);
+              if (CoinAbs(finDowni) > 1.0e8)
+                newlt -= 1.0e-12 * CoinAbs(finDowni);
             } else if (infLoi == 1 && ut >= large) {
               newlt = (rupi - finDowni) / ait;
-              if (fabs(finDowni) > 1.0e8)
-                newlt -= 1.0e-12 * fabs(finDowni);
+              if (CoinAbs(finDowni) > 1.0e8)
+                newlt -= 1.0e-12 * CoinAbs(finDowni);
             } else {
               newlt = -COIN_DBL_MAX;
             }
@@ -515,8 +515,8 @@ const CoinPresolveAction *testRedundant(CoinPresolveMatrix *prob,
             ++infUpi;
         }
       }
-      finUpi += 1.0e-8 * fabs(finUpi);
-      finDowni -= 1.0e-8 * fabs(finDowni);
+      finUpi += 1.0e-8 * CoinAbs(finUpi);
+      finDowni -= 1.0e-8 * CoinAbs(finDowni);
       const FloatT maxUpi = finUpi + infUpi * 1.0e31;
       const FloatT maxDowni = finDowni - infLoi * 1.0e31;
       /*
@@ -564,7 +564,7 @@ const CoinPresolveAction *testRedundant(CoinPresolveMatrix *prob,
         if (upper - lower < 1.0e-8) {
           if (upper - lower < -feasTol)
             numberInfeasible++;
-          if (CoinMin(fabs(upper), fabs(lower)) <= 1.0e-7)
+          if (CoinMin(CoinAbs(upper), CoinAbs(lower)) <= 1.0e-7)
             upper = 0.0;
           fixed[nFixed++] = j;
           prob->addCol(j);

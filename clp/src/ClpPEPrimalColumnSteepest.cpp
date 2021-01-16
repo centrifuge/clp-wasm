@@ -150,7 +150,7 @@ int ClpPEPrimalColumnSteepest::pivotColumn(CoinIndexedVector *updates,
     // would have to have two goes for devex, three for steepest
     anyUpdates = 2;
   } else if (updates->getNumElements()) {
-    if (updates->getIndices()[0] == pivotRow && fabs(updates->denseVector()[0]) > 1.0e-6) {
+    if (updates->getIndices()[0] == pivotRow && CoinAbs(updates->denseVector()[0]) > 1.0e-6) {
       // reasonable size
       anyUpdates = 1;
     } else {
@@ -210,7 +210,7 @@ int ClpPEPrimalColumnSteepest::pivotColumn(CoinIndexedVector *updates,
       break;
     case ClpSimplex::isFree:
     case ClpSimplex::superBasic:
-      if (fabs(value) > FREE_ACCEPT * tolerance) {
+      if (CoinAbs(value) > FREE_ACCEPT * tolerance) {
         // we are going to bias towards free (but only if reasonable)
         value *= FREE_BIAS;
         // store square in list
@@ -250,9 +250,9 @@ int ClpPEPrimalColumnSteepest::pivotColumn(CoinIndexedVector *updates,
 	*/
   // store the number of degenerate pivots on compatible variables and the
   // overall number of degenerate pivots
-  //FloatT progress = fabs(modelPE_->lastObjectiveValue() - model_->objectiveValue());
-  //bool isLastDegenerate = progress <= 1.0e-12*fabs(model_->objectiveValue()) ? true:false;
-  bool isLastDegenerate = fabs(model_->theta()) < 1.01e-7;
+  //FloatT progress = CoinAbs(modelPE_->lastObjectiveValue() - model_->objectiveValue());
+  //bool isLastDegenerate = progress <= 1.0e-12*CoinAbs(model_->objectiveValue()) ? true:false;
+  bool isLastDegenerate = CoinAbs(model_->theta()) < 1.01e-7;
   bool isLastDegenerate2;
   // could fine tune a bit e.g. use 0.0 rather than tolerance
   if (model_->directionOut() < 0) {
@@ -351,9 +351,9 @@ int ClpPEPrimalColumnSteepest::pivotColumn(CoinIndexedVector *updates,
 
       // the checking frequency is modified to reflect what appears to be needed
       if (iCurrent_ == iInterval_)
-        iInterval_ = std::max(50, iInterval_ - 50);
+        iInterval_ = CoinMax(50, iInterval_ - 50);
       else
-        iInterval_ = std::min(300, iInterval_ + 50);
+        iInterval_ = CoinMin(300, iInterval_ + 50);
 
       // reset all the indicators that are used to decide whether the compatible
       // variables must be updated
@@ -465,7 +465,7 @@ int ClpPEPrimalColumnSteepest::pivotColumn(CoinIndexedVector *updates,
     number = 0;
     for (i = 0; i < nLook; i++) {
       if (infeas[i]) {
-        if (fabs(infeas[i]) > COIN_INDEXED_TINY_ELEMENT)
+        if (CoinAbs(infeas[i]) > COIN_INDEXED_TINY_ELEMENT)
           index[number++] = i;
         else
           infeas[i] = 0.0;
@@ -520,7 +520,7 @@ int ClpPEPrimalColumnSteepest::pivotColumn(CoinIndexedVector *updates,
       FloatT value = infeas[iSequence];
       FloatT weight = weights_[iSequence];
       FloatT weightedDj = weight * bestDj;
-      FloatT largestWeightedDj = std::max(psi_ * weightedDj, weight * bestDjComp);
+      FloatT largestWeightedDj = CoinMax(psi_ * weightedDj, weight * bestDjComp);
       if (value > tolerance) {
         if (value > largestWeightedDj) {
           if (model_->flagged(iSequence)) {

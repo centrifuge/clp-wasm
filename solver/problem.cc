@@ -297,18 +297,17 @@ std::string ProblemLoader::runWithClp()
     const auto numElements = static_cast<int>(matrixData.size());
     const CoinPackedMatrix matrix(true, rowIndices.data(), colIndices.data(), matrixData.data(), numElements);
 
-    simplex.setDirectionIn(-1);
     simplex.loadProblem(matrix, collb.data(), colub.data(), objective.data(), rowlb.data(), rowub.data());
     simplex.createStatus();
 
     ClpSolve solveOptions;
 
-    solveOptions.setSpecialOption(3, 0);
-    simplex.initialSolve(solveOptions);
+    // solveOptions.setSpecialOption(3, 0);
+    // simplex.initialSolve(solveOptions);
 
-    //   simplex.primal();
+    simplex.primal();
 
-    simplex.dual();
+    // simplex.dual();
 
     FloatVector solution;
     const auto * p = simplex.getColSolution();

@@ -645,7 +645,7 @@ FloatT CoinLpIO::getInfinity() const
 /************************************************************************/
 void CoinLpIO::setInfinity(const FloatT value)
 {
-  if (value >= 1.0e20) {
+  if (value >= TOO_BIG_FLOAT) {
     infinity_ = value;
   } else {
     char str[8192];
@@ -930,10 +930,10 @@ void CoinLpIO::out_coeff(FILE *fp, const FloatT v, const int print_1) const
   FloatT lp_eps = getEpsilon();
 
   if (!print_1) {
-    if (fabs(v - 1) < lp_eps) {
+    if (CoinAbs(v - 1) < lp_eps) {
       return;
     }
-    if (fabs(v + 1) < lp_eps) {
+    if (CoinAbs(v + 1) < lp_eps) {
       fprintf(fp, " -");
       return;
     }
@@ -1066,7 +1066,7 @@ int CoinLpIO::writeLp(FILE *fp, const bool useRowNames)
       if ((cnt_print > 0) && (objective_[k][j] > lp_eps)) {
         fprintf(fp, " +");
       }
-      if (fabs(objective_[k][j]) > lp_eps) {
+      if (CoinAbs(objective_[k][j]) > lp_eps) {
         out_coeff(fp, objective_[k][j], 0);
         fprintf(fp, " %s", colNames[j]);
         cnt_print++;
@@ -1079,7 +1079,7 @@ int CoinLpIO::writeLp(FILE *fp, const bool useRowNames)
     if ((cnt_print > 0) && (objectiveOffset_[k] > lp_eps)) {
       fprintf(fp, " +");
     }
-    if (fabs(objectiveOffset_[k]) > lp_eps) {
+    if (CoinAbs(objectiveOffset_[k]) > lp_eps) {
       out_coeff(fp, objectiveOffset_[k], 1);
       cnt_print++;
     }
@@ -1105,7 +1105,7 @@ int CoinLpIO::writeLp(FILE *fp, const bool useRowNames)
       if ((cnt_print > 0) && (elements[j] > lp_eps)) {
         fprintf(fp, " +");
       }
-      if (fabs(elements[j]) > lp_eps) {
+      if (CoinAbs(elements[j]) > lp_eps) {
         out_coeff(fp, elements[j], 0);
         fprintf(fp, " %s", colNames[indices[j]]);
         cnt_print++;
@@ -1139,7 +1139,7 @@ int CoinLpIO::writeLp(FILE *fp, const bool useRowNames)
             if ((cnt_print > 0) && (elements[j] > lp_eps)) {
               fprintf(fp, " +");
             }
-            if (fabs(elements[j]) > lp_eps) {
+            if (CoinAbs(elements[j]) > lp_eps) {
               out_coeff(fp, elements[j], 0);
               fprintf(fp, " %s", colNames[indices[j]]);
               cnt_print++;
@@ -1180,7 +1180,7 @@ int CoinLpIO::writeLp(FILE *fp, const bool useRowNames)
       fprintf(fp, "\n");
     }
     if ((collow[j] > -lp_inf) && (colup[j] == lp_inf)) {
-      if (fabs(collow[j]) > lp_eps) {
+      if (CoinAbs(collow[j]) > lp_eps) {
         out_coeff(fp, collow[j], 1);
         fprintf(fp, " <= %s\n", colNames[j]);
       }
@@ -1688,7 +1688,7 @@ int CoinLpIO::read_monom_row(char *start_str,
 
   coeff[cnt_coeff] *= mult;
 #ifdef KILL_ZERO_READLP
-  if (fabs(coeff[cnt_coeff]) > epsilon_)
+  if (CoinAbs(coeff[cnt_coeff]) > epsilon_)
     name[cnt_coeff] = CoinStrdup(loc_name);
   else
     read_sense = -2; // effectively zero
@@ -2101,7 +2101,7 @@ void CoinLpIO::readLp()
               throw CoinError(str, "readLp", "CoinLpIO", __FILE__, __LINE__);
             } else {
               if (read_sense1 == 1) {
-                if (fabs(bnd1 - bnd2) > lp_eps) {
+                if (CoinAbs(bnd1 - bnd2) > lp_eps) {
                   char str[8192];
                   sprintf(str, "### ERROR: Bounds; variable: %s read_sense1: %d  read_sense2: %d  bnd1: %f  bnd2: %f\n",
                     buff, read_sense1, read_sense2, bnd1, bnd2);
@@ -2424,7 +2424,7 @@ void CoinLpIO::readLp()
             CoinSort_2(weights, weights + numberEntries, which);
             FloatT last = weights[0];
             for (int i = 1; i < numberEntries; i++) {
-              if (fabs(last - weights[i]) < 1.0e-12) {
+              if (CoinAbs(last - weights[i]) < 1.0e-12) {
                 setType = 3;
                 break;
               }

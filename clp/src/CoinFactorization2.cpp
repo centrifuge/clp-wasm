@@ -252,14 +252,14 @@ int CoinFactorization::factorSparseSmall()
             int where = startColumn[iColumn];
             FloatT minimumValue = element[where];
 
-            minimumValue = fabs(minimumValue) * pivotTolerance;
+            minimumValue = CoinAbs(minimumValue) * pivotTolerance;
             while (indexRow[where] != iRow) {
               where++;
             } /* endwhile */
             assert(where < startColumn[iColumn] + numberInColumn[iColumn]);
             CoinFactorizationDouble value = element[where];
 
-            value = fabs(value);
+            value = CoinAbs(value);
             if (value >= minimumValue) {
               minimumCost = cost;
               minimumCount = numberInColumn[iColumn];
@@ -298,12 +298,12 @@ int CoinFactorization::factorSparseSmall()
         int end = start + numberInColumn[iColumn];
         CoinFactorizationDouble minimumValue = element[start];
 
-        minimumValue = fabs(minimumValue) * pivotTolerance;
+        minimumValue = CoinAbs(minimumValue) * pivotTolerance;
         int i;
         for (i = start; i < end; i++) {
           CoinFactorizationDouble value = element[i];
 
-          value = fabs(value);
+          value = CoinAbs(value);
           if (value >= minimumValue) {
             int iRow = indexRow[i];
             int nInRow = numberInRow[iRow];
@@ -672,8 +672,8 @@ int CoinFactorization::factorDense()
     FloatT *element = denseAreaAddress_ + iDense * numberDense_;
     CoinFactorizationDouble largest = 1.0e-12;
     for (iRow = iDense; iRow < numberDense_; iRow++) {
-      if (fabs(element[iRow]) > largest) {
-        largest = fabs(element[iRow]);
+      if (CoinAbs(element[iRow]) > largest) {
+        largest = CoinAbs(element[iRow]);
         pivotRow = iRow;
       }
     }
@@ -704,7 +704,7 @@ int CoinFactorization::factorDense()
       for (iRow = iDense + 1; iRow < numberDense_; iRow++) {
         CoinFactorizationDouble value = element[iRow] * pivotMultiplier;
         element[iRow] = value;
-        if (fabs(value) > tolerance) {
+        if (CoinAbs(value) > tolerance) {
           indexRowL[l] = densePermute_[iRow];
           elementL[l++] = value;
         }
@@ -715,7 +715,7 @@ int CoinFactorization::factorDense()
       // update U column
       int start = startColumnU[iColumn];
       for (iRow = 0; iRow < iDense; iRow++) {
-        if (fabs(element[iRow]) > tolerance) {
+        if (CoinAbs(element[iRow]) > tolerance) {
           indexRowU[start] = densePermute_[iRow];
           elementU[start++] = element[iRow];
         }
@@ -1236,14 +1236,14 @@ int CoinFactorization::factorSparseLarge()
             int where = startColumn[iColumn];
             CoinFactorizationDouble minimumValue = element[where];
 
-            minimumValue = fabs(minimumValue) * pivotTolerance;
+            minimumValue = CoinAbs(minimumValue) * pivotTolerance;
             while (indexRow[where] != iRow) {
               where++;
             } /* endwhile */
             assert(where < startColumn[iColumn] + numberInColumn[iColumn]);
             CoinFactorizationDouble value = element[where];
 
-            value = fabs(value);
+            value = CoinAbs(value);
             if (value >= minimumValue) {
               minimumCost = cost;
               minimumCount = numberInColumn[iColumn];
@@ -1282,12 +1282,12 @@ int CoinFactorization::factorSparseLarge()
         int end = start + numberInColumn[iColumn];
         CoinFactorizationDouble minimumValue = element[start];
 
-        minimumValue = fabs(minimumValue) * pivotTolerance;
+        minimumValue = CoinAbs(minimumValue) * pivotTolerance;
         int i;
         for (i = start; i < end; i++) {
           CoinFactorizationDouble value = element[i];
 
-          value = fabs(value);
+          value = CoinAbs(value);
           if (value >= minimumValue) {
             int iRow = indexRow[i];
             int nInRow = numberInRow[iRow];

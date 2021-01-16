@@ -43,7 +43,7 @@
     handled correctly. */
 
 template < class T >
-inline void
+void
 CoinCopyN(const T *from, const CoinBigIndex size, T *to)
 {
   if (size == 0 || from == to)
@@ -120,7 +120,7 @@ CoinCopyN(const T *from, const CoinBigIndex size, T *to)
     the difference down to int.  -- lh, 100823 --
 */
 template < class T >
-inline void
+void
 CoinCopy(const T *first, const T *last, T *to)
 {
   CoinCopyN(first, static_cast< CoinBigIndex >(last - first), to);
@@ -136,7 +136,7 @@ CoinCopy(const T *first, const T *last, T *to)
     Note JJF - the speed claim seems to be false on IA32 so I have added 
     CoinMemcpyN which can be used for atomic data */
 template < class T >
-inline void
+void
 CoinDisjointCopyN(const T *from, const CoinBigIndex size, T *to)
 {
 #ifndef _MSC_VER
@@ -198,7 +198,7 @@ CoinDisjointCopyN(const T *from, const CoinBigIndex size, T *to)
     are copied at a time. The source array is given by its first and "after
     last" entry; the target array is given by its first entry. */
 template < class T >
-inline void
+void
 CoinDisjointCopy(const T *first, const T *last,
   T *to)
 {
@@ -212,7 +212,7 @@ CoinDisjointCopy(const T *first, const T *last,
 */
 
 template < class T >
-inline T *
+T *
 CoinCopyOfArray(const T *array, const CoinBigIndex size)
 {
   if (array) {
@@ -229,7 +229,7 @@ CoinCopyOfArray(const T *array, const CoinBigIndex size)
 */
 
 template < class T >
-inline T *
+T *
 CoinCopyOfArrayPartial(const T *array, const CoinBigIndex size, const CoinBigIndex copySize)
 {
   if (array || size) {
@@ -247,7 +247,7 @@ CoinCopyOfArrayPartial(const T *array, const CoinBigIndex size, const CoinBigInd
 */
 
 template < class T, class U >
-inline T *
+T *
 CoinCopyOfArray(const T *array, const CoinBigIndex size, U value)
 {
   T *arrayNew = new T[size];
@@ -266,7 +266,7 @@ CoinCopyOfArray(const T *array, const CoinBigIndex size, U value)
 */
 
 template < class T >
-inline T *
+T *
 CoinCopyOfArrayOrZero(const T *array, const CoinBigIndex size)
 {
   T *arrayNew = new T[size];
@@ -289,7 +289,7 @@ CoinCopyOfArrayOrZero(const T *array, const CoinBigIndex size)
     alternative coding if USE_MEMCPY defined*/
 #ifndef COIN_USE_RESTRICT
 template < class T >
-inline void
+void
 CoinMemcpyN(const T *from, const CoinBigIndex size, T *to)
 {
 #ifndef _MSC_VER
@@ -386,7 +386,7 @@ CoinMemcpyN(const T *COIN_RESTRICT from, CoinBigIndex size, T *COIN_RESTRICT to)
     are copied at a time. The source array is given by its first and "after
     last" entry; the target array is given by its first entry. */
 template < class T >
-inline void
+void
 CoinMemcpy(const T *first, const T *last,
   T *to)
 {
@@ -402,7 +402,7 @@ CoinMemcpy(const T *first, const T *last,
     Note JJF - the speed claim seems to be false on IA32 so I have added 
     CoinZero to allow for memset. */
 template < class T, class U >
-inline void
+void
 CoinFillN(T *to, const CoinBigIndex size, const U value)
 {
   if (size == 0)
@@ -475,7 +475,7 @@ CoinFillN(T *to, const CoinBigIndex size, const U value)
     entries are filled at a time. The array is given by its first and "after
     last" entry. */
 template < class T >
-inline void
+void
 CoinFill(T *first, T *last, const T value)
 {
   CoinFillN(first, last - first, value);
@@ -490,7 +490,7 @@ CoinFill(T *first, T *last, const T value)
     Note JJF - the speed claim seems to be false on IA32 so I have allowed 
     for memset as an alternative */
 template < class T >
-inline void
+void
 CoinZeroN(T *to, const CoinBigIndex size)
 {
 #ifdef USE_MEMCPY
@@ -603,7 +603,7 @@ CoinCheckIntZero(int *to, const CoinBigIndex size)
     entries are filled at a time. The array is given by its first and "after
     last" entry. */
 template < class T >
-inline void
+void
 CoinZero(T *first, T *last)
 {
   CoinZeroN(first, last - first);
@@ -630,11 +630,17 @@ inline char *CoinStrdup(const char *name)
     This function was introduced because for some reason compiler tend to
     handle the <code>max()</code> function differently. */
 template < class T, class U >
-inline typename std::common_type<T,U>::type
+typename std::common_type<T,U>::type
 CoinMax(const T x1, const U x2)
 {
   return (x1 > x2) ? x1 : x2;
 }
+
+//template <typename T>
+//T CoinMax(const T x1, const U x2)
+//{
+//  return (x1 > x2) ? x1 : x2;
+//}
 
 //-----------------------------------------------------------------------------
 
@@ -642,7 +648,7 @@ CoinMax(const T x1, const U x2)
     This function was introduced because for some reason compiler tend to
     handle the min() function differently. */
 template < class T , class U>
-inline typename std::common_type<T,U>::type
+typename std::common_type<T,U>::type
 CoinMin(const T x1, const U x2)
 {
   return (x1 < x2) ? x1 : x2;
@@ -650,14 +656,19 @@ CoinMin(const T x1, const U x2)
 
 //-----------------------------------------------------------------------------
 
-/** Return the absolute value of the argument. This function was introduced
-    because for some reason compiler tend to handle the abs() function
-    differently. */
-template < class T >
-inline T
-CoinAbs(const T value)
+///** Return the absolute value of the argument. This function was introduced
+//    because for some reason compiler tend to handle the abs() function
+//    differently. */
+inline int
+CoinAbs(const int value)
 {
   return value < 0 ? -value : value;
+}
+
+
+inline FloatT CoinAbs(const FloatT & value)
+{
+return mp::abs(value);
 }
 
 //#############################################################################
@@ -666,7 +677,7 @@ CoinAbs(const T value)
     according to operator<. The array is given by a pointer to its first entry
     and by its size. */
 template < class T >
-inline bool
+bool
 CoinIsSorted(const T *first, const CoinBigIndex size)
 {
   if (size == 0)
@@ -739,7 +750,7 @@ CoinIsSorted(const T *first, const CoinBigIndex size)
     according to operator<. The array is given by its first and "after
     last" entry. */
 template < class T >
-inline bool
+bool
 CoinIsSorted(const T *first, const T *last)
 {
   return CoinIsSorted(first, static_cast< CoinBigIndex >(last - first));
@@ -751,7 +762,7 @@ CoinIsSorted(const T *first, const T *last)
     etc. For speed 8 entries are filled at a time. The array is given by a
     pointer to its first entry and its size. */
 template < class T >
-inline void
+void
 CoinIotaN(T *first, const CoinBigIndex size, T init)
 {
   if (size == 0)
@@ -824,7 +835,7 @@ CoinIotaN(T *first, const CoinBigIndex size, T init)
     etc. For speed 8 entries are filled at a time. The array is given by its
     first and "after last" entry. */
 template < class T >
-inline void
+void
 CoinIota(T *first, const T *last, T init)
 {
   CoinIotaN(first, last - first, init);
@@ -838,7 +849,7 @@ CoinIota(T *first, const T *last, T init)
     integer array specified by the last two arguments (again, first and "after
     last" entry). */
 template < class T >
-inline T *
+T *
 CoinDeleteEntriesFromArray(T *arrayFirst, T *arrayLast,
   const int *firstDelPos, const int *lastDelPos)
 {
@@ -989,7 +1000,7 @@ inline int CoinStrNCaseCmp(const char *s0, const char *s1,
 
 /// Swap the arguments.
 template < class T >
-inline void CoinSwap(T &x, T &y)
+void CoinSwap(T &x, T &y)
 {
   T t = x;
   x = y;
@@ -1003,7 +1014,7 @@ inline void CoinSwap(T &x, T &y)
 */
 
 template < class T >
-inline int
+int
 CoinToFile(const T *array, CoinBigIndex size, FILE *fp)
 {
   CoinBigIndex numberWritten;
@@ -1032,7 +1043,7 @@ CoinToFile(const T *array, CoinBigIndex size, FILE *fp)
 */
 
 template < class T >
-inline int
+int
 CoinFromFile(T *&array, CoinBigIndex size, FILE *fp, CoinBigIndex &newSize)
 {
   CoinBigIndex numberRead;
@@ -1118,17 +1129,17 @@ public:
 
   //@{
   /** Set seed. */
-  inline void setSeed(int seed)
+  void setSeed(int seed)
   {
     seed_ = seed;
   }
   /** Get seed. */
-  inline unsigned int getSeed() const
+  unsigned int getSeed() const
   {
     return seed_;
   }
   /// return a random number
-  inline FloatT randomDouble() const
+  FloatT randomDouble() const
   {
     FloatT retVal;
     seed_ = 1664525 * (seed_) + 1013904223;
@@ -1136,7 +1147,7 @@ public:
     return retVal;
   }
   /// make more random (i.e. for startup)
-  inline void randomize(int n = 0)
+  void randomize(int n = 0)
   {
     if (!n)
       n = seed_ & 255;

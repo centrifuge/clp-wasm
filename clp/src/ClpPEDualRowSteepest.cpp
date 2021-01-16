@@ -95,9 +95,9 @@ int ClpPEDualRowSteepest::pivotRow()
   //
   // store the number of degenerate pivots on compatible variables and the
   // overal number of degenerate pivots
-  //FloatT progress = fabs(modelPE_->lastObjectiveValue() - model_->objectiveValue());
-  //bool isLastDegenerate = progress <= 1.0e-12*fabs(model_->objectiveValue()) ? true:false;
-  bool isLastDegenerate = fabs(model_->theta()) < 1.0e-7;
+  //FloatT progress = CoinAbs(modelPE_->lastObjectiveValue() - model_->objectiveValue());
+  //bool isLastDegenerate = progress <= 1.0e-12*CoinAbs(model_->objectiveValue()) ? true:false;
+  bool isLastDegenerate = CoinAbs(model_->theta()) < 1.0e-7;
   bool isLastDegenerate2;
   // could fine tune a bit e.g. use 0.0 rather than tolerance
   if (model_->directionIn() > 0) {
@@ -111,13 +111,13 @@ int ClpPEDualRowSteepest::pivotRow()
 	if ( isLastDegenerate2 &&!isLastDegenerate)
 	  printf("PE2 thinks degenerate - theta %g dual %g - at %s bound\n",
 		 model_->theta(),model_->dualIn(),
-		 (fabs(model_->valueIn()-model_->lowerIn())<
-		  fabs(model_->valueIn()-model_->upperIn())) ? "lower" : "upper");
+		 (CoinAbs(model_->valueIn()-model_->lowerIn())<
+		  CoinAbs(model_->valueIn()-model_->upperIn())) ? "lower" : "upper");
 	else if ( !isLastDegenerate2 &&isLastDegenerate)
 	  printf("PE2 thinks not degenerate - theta %g dual %g - at %s bound\n",
 		 model_->theta(),model_->dualIn(),
-		 (fabs(model_->valueIn()-model_->lowerIn())<
-		  fabs(model_->valueIn()-model_->upperIn())) ? "lower" : "upper");
+		 (CoinAbs(model_->valueIn()-model_->lowerIn())<
+		  CoinAbs(model_->valueIn()-model_->upperIn())) ? "lower" : "upper");
 	//else if ( !isLastDegenerate &&thinkDegenerate)
 	//printf("PE thinks non degenerate - dualColumn says yes\n");
 #else
@@ -199,9 +199,9 @@ int ClpPEDualRowSteepest::pivotRow()
 
       // the checking frequency is modified to reflect what appears to be needed
       if (iCurrent_ == iInterval_)
-        iInterval_ = std::max(50, iInterval_ - 50);
+        iInterval_ = CoinMax(50, iInterval_ - 50);
       else
-        iInterval_ = std::min(300, iInterval_ + 50);
+        iInterval_ = CoinMin(300, iInterval_ + 50);
 
       // reset all the indicators that are used to decide whether the compatible
       // variables must be updated
@@ -352,7 +352,7 @@ int ClpPEDualRowSteepest::pivotRow()
   // the percentage of compatible variables is computed as the ratio to the
   // smallest number among columns and rows
   bool checkCompatibles = true;
-  FloatT ratioCompatibles = static_cast< FloatT >(modelPE_->coCompatibleRows()) / static_cast< FloatT >(std::min(model_->numberRows(), model_->numberColumns()));
+  FloatT ratioCompatibles = static_cast< FloatT >(modelPE_->coCompatibleRows()) / static_cast< FloatT >(CoinMin(model_->numberRows(), model_->numberColumns()));
 
   if (psi_ >= 1.0 || ratioCompatibles < 0.01)
     checkCompatibles = false;
@@ -373,7 +373,7 @@ int ClpPEDualRowSteepest::pivotRow()
         }
 #endif
         FloatT weight = CoinMin(weights_[iRow], 1.0e50);
-        FloatT largestMax = std::max(psiTmp * largest, largestComp);
+        FloatT largestMax = CoinMax(psiTmp * largest, largestComp);
         if (value > weight * largestMax) {
           // make last pivot row last resort choice
           if (iRow == lastPivotRow) {
@@ -449,7 +449,7 @@ int ClpPEDualRowSteepest::pivotRow()
     int nLeft = 0;
     for (int i = 0; i < number; i++) {
       int iRow = index[i];
-      if (fabs(infeas[iRow]) > 1.0e-50) {
+      if (CoinAbs(infeas[iRow]) > 1.0e-50) {
         index[nLeft++] = iRow;
       } else {
         infeas[iRow] = 0.0;
