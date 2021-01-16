@@ -38,7 +38,7 @@
 #define COIN_COINUTILS_VERBOSITY 0
 
 /* Define to be the name of C-function for Inf check */
-#define COIN_C_FINITE isfinite
+#define COIN_C_FINITE std::isfinite
 
 /* Define to be the name of C-function for NaN check */
 #define COIN_C_ISNAN std::isnan
