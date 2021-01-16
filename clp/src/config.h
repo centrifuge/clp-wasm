@@ -38,7 +38,7 @@
 #define COIN_COINUTILS_VERBOSITY 0
 
 /* Define to be the name of C-function for Inf check */
-#define COIN_C_FINITE finite
+#define COIN_C_FINITE isfinite
 
 /* Define to be the name of C-function for NaN check */
 #define COIN_C_ISNAN std::isnan
@@ -112,7 +112,7 @@
 #define HAVE_DLFCN_H 1
 
 /* Define to 1 if you have the <endian.h> header file. */
-#define HAVE_ENDIAN_H 1
+//#define HAVE_ENDIAN_H 1
 
 /* Define to 1 if you have the <float.h> header file. */
 /* #undef HAVE_FLOAT_H */

@@ -22,7 +22,21 @@ along with C++lex.  If not, see <http://www.gnu.org/licenses/>.
 using namespace pilal;
 using namespace optimization;
 
-int runSolverForFile(const std::string & problemFile)
+#include "problem.h"
+
+int runClpSolverForFile(const std::string & problemFile)
+{
+
+    ProblemLoader loader;
+
+    loader.loadProblem(problemFile);
+
+    loader.runWithClp();
+
+    return 0;
+}
+
+int runCpplexSolverForFile(const std::string & problemFile)
 {
     if (!problemFile.empty())
     {
@@ -74,7 +88,10 @@ int main(int argc, char * argv[])
     for (int k = 1; k < argc; ++k)
     {
         const auto problemFile = std::string(argv[k]);
-        rc = runSolverForFile(problemFile);
+
+      //  rc = runClpSolverForFile(problemFile);
+        rc = runCpplexSolverForFile(problemFile);
+
         if (rc != 0)
             break;
     }

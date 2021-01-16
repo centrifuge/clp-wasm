@@ -4,11 +4,12 @@
 
 #include <sstream>
 
+#include
+
 #include <boost/math/special_functions/round.hpp>
 namespace bm = boost::math;
 
 using namespace optimization;
-
 
 std::string bn_round(std::string number)
 {
@@ -20,11 +21,15 @@ std::string bn_round(std::string number)
     return bm::round(x).str();
 }
 
+std::string solveLinarProblem(std::string problem)
+{
+}
+
 EMSCRIPTEN_BINDINGS(solver)
 {
     using namespace emscripten;
 
-     function("bn_round", &bn_round);
+    function("bn_round", &bn_round);
 
     class_<Simplex>("Simplex")
         .constructor<std::string>()
@@ -33,5 +38,7 @@ EMSCRIPTEN_BINDINGS(solver)
         .function("get_solution", &Simplex::get_solution)
         .function("is_unlimited", &Simplex::is_unlimited)
         .function("has_solutions", &Simplex::has_solutions);
+
+    function("solveLinarProblem", &solveLinarProblem);
 }
 #endif

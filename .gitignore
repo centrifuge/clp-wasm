@@ -1,6 +1,7 @@
 *.o
 *.d
 build_*
-.vs
+.vs/*
+!.vs/launch.vs.json
 build/
 out/

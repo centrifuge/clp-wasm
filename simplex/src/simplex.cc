@@ -196,7 +196,6 @@ void Simplex::load_problem(const std::string & problem_input)
             {
                 switch (current_parsing_block)
                 {
-
                     case PB_METADATA:
                     {
                         if (token == "name")
@@ -666,8 +665,8 @@ void Simplex::solve_with_base(ColumnSet const & initial_base)
 
         if (VERBOSE)
             current_base.log("Columns in base: ");
-          if (VERBOSE)
-        current_out_of_base.log("Out of base: ");
+        if (VERBOSE)
+            current_out_of_base.log("Out of base: ");
         if (VERBOSE)
             base_inverse.log("Base inverse is:");
 
@@ -683,8 +682,8 @@ void Simplex::solve_with_base(ColumnSet const & initial_base)
         // Compute reduced cost
         reduced_cost = costs - (u * coefficients_matrix);
 
-         if (VERBOSE)
-        reduced_cost.log("Current reduced cost is");
+        if (VERBOSE)
+            reduced_cost.log("Current reduced cost is");
 
         optimal = reduced_cost.more_equal_than(0, TOL);
 

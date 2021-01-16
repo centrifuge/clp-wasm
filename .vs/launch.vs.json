@@ -1,0 +1,22 @@
+{
+  "version": "0.2.1",
+  "defaults": {},
+  "configurations": [
+    {
+      "type": "default",
+      "project": "CMakeLists.txt",
+      "projectTarget": "solver.exe",
+      "name": "solver.exe",
+      "currentDir": "${projectDir}",
+      "args": [ "problems/tinlake-test.problem" ]
+    },
+    {
+      "type": "default",
+      "project": "CMakeLists.txt",
+      "projectTarget": "clp.exe",
+      "name": "clp.exe",
+      "currentDir": "${projectDir}",
+      "args": [ "problems/tinlake-test.lp" ]
+    }
+  ]
+}

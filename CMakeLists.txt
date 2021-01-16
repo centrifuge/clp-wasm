@@ -1,9 +1,11 @@
 cmake_minimum_required(VERSION 2.8)
 
 set (CMAKE_CXX_STANDARD 17)
-project(cpplex)
+project(solver)
 
 string(TOLOWER ${CMAKE_BUILD_TYPE} BUILD_CONFIG_LOWER)
+
+add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 
 if(EMSCRIPTEN)
     set(EM_FLAGS "--bind -std=c++17 -s WASM=1 -s ASSERTIONS=2 -s ALLOW_MEMORY_GROWTH=1 -s DISABLE_EXCEPTION_CATCHING=0")
@@ -23,31 +25,34 @@ if(EMSCRIPTEN)
 else()
     message("Not using emscripten!")
 endif()
-
-include_directories($ENV{BOOST_ROOT})
-include_directories(simplex/include)
-
 message(STATUS CMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS})
 
-add_executable(cpplex
-    solver/solver.cc
-    solver/bindings.cc
 
-    simplex/src/columnset.cc 
-    simplex/src/constraint.cc 
-    simplex/src/objectivefunction.cc 
-    simplex/src/simplex.cc 
-    simplex/src/variable.cc
-    simplex/src/matrix.cc
-)
+include_directories($ENV{BOOST_ROOT})
 
+# CLP library
 add_definitions(-DHAVE_CONFIG_H -DCLP_BUILD -DCOINUTILS_BUILD -DCOIN_HAS_CLP)
-
 include_directories(clp/src)
 file(GLOB CLP_CXX_FILES "clp/src/*.cpp")
-add_executable(clp ${CLP_CXX_FILES} )
+add_library(libclp ${CLP_CXX_FILES} )
+target_link_libraries(libclp)
 
-target_link_libraries(clp)
+# CLP application
+add_executable(clp clp/app/ClpMain.cpp )
+target_link_libraries(clp ${Boost_LIBRARIES} libclp)
 
-target_link_libraries(cpplex ${Boost_LIBRARIES} ) 
+# CPPLEX library
+include_directories(simplex/include)
+include_directories(solver)
+file(GLOB CLP_CXX_FILES "simplex/src/*.cc")
+add_library(libcpplex ${CLP_CXX_FILES} )
+
+
+# Solver wrapper
+add_executable(solver
+    solver/solver.cc
+    solver/bindings.cc
+    solver/problem.cc
+)
+target_link_libraries(solver ${Boost_LIBRARIES} libclp libcpplex) 
 
