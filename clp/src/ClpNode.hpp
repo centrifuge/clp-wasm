@@ -40,32 +40,32 @@ public:
   /**@name Gets and sets */
   //@{
   /// Objective value
-  inline double objectiveValue() const
+  inline FloatT objectiveValue() const
   {
     return objectiveValue_;
   }
   /// Set objective value
-  inline void setObjectiveValue(double value)
+  inline void setObjectiveValue(FloatT value)
   {
     objectiveValue_ = value;
   }
   /// Primal solution
-  inline const double *primalSolution() const
+  inline const FloatT *primalSolution() const
   {
     return primalSolution_;
   }
   /// Dual solution
-  inline const double *dualSolution() const
+  inline const FloatT *dualSolution() const
   {
     return dualSolution_;
   }
   /// Initial value of integer variable
-  inline double branchingValue() const
+  inline FloatT branchingValue() const
   {
     return branchingValue_;
   }
   /// Sum infeasibilities
-  inline double sumInfeasibilities() const
+  inline FloatT sumInfeasibilities() const
   {
     return sumInfeasibilities_;
   }
@@ -80,7 +80,7 @@ public:
     return depth_;
   }
   /// Estimated solution value
-  inline double estimatedSolution() const
+  inline FloatT estimatedSolution() const
   {
     return estimatedSolution_;
   }
@@ -138,13 +138,13 @@ protected:
   /**@name Data */
   //@{
   /// Initial value of integer variable
-  double branchingValue_;
+  FloatT branchingValue_;
   /// Value of objective
-  double objectiveValue_;
+  FloatT objectiveValue_;
   /// Sum of infeasibilities
-  double sumInfeasibilities_;
+  FloatT sumInfeasibilities_;
   /// Estimated solution value
-  double estimatedSolution_;
+  FloatT estimatedSolution_;
   /// Factorization
   ClpFactorization *factorization_;
   /// Steepest edge weights
@@ -152,9 +152,9 @@ protected:
   /// Status vector
   unsigned char *status_;
   /// Primal solution
-  double *primalSolution_;
+  FloatT *primalSolution_;
   /// Dual solution
-  double *dualSolution_;
+  FloatT *dualSolution_;
   /// Integer lower bounds (only used in fathomMany)
   int *lower_;
   /// Integer upper bounds (only used in fathomMany)
@@ -209,13 +209,13 @@ public:
   /**@name Fill methods */
   //@{
   /** Fill with pseudocosts */
-  void fillPseudoCosts(const double *down, const double *up,
+  void fillPseudoCosts(const FloatT *down, const FloatT *up,
     const int *priority,
     const int *numberDown, const int *numberUp,
     const int *numberDownInfeasible, const int *numberUpInfeasible,
     int number);
   /// Update pseudo costs
-  void update(int way, int sequence, double change, bool feasible);
+  void update(int way, int sequence, FloatT change, bool feasible);
   /// Return maximum number of nodes
   int maximumNodes() const;
   /// Return maximum space for nodes
@@ -226,15 +226,15 @@ public:
   /**@name Data */
   //@{
   /// Integer tolerance
-  double integerTolerance_;
+  FloatT integerTolerance_;
   /// Integer increment
-  double integerIncrement_;
+  FloatT integerIncrement_;
   /// Small change in branch
-  double smallChange_;
+  FloatT smallChange_;
   /// Down pseudo costs
-  double *downPseudo_;
+  FloatT *downPseudo_;
   /// Up pseudo costs
-  double *upPseudo_;
+  FloatT *upPseudo_;
   /// Priority
   int *priority_;
   /// Number of times down
@@ -246,7 +246,7 @@ public:
   /// Number of times up infeasible
   int *numberUpInfeasible_;
   /// Copy of costs (local)
-  double *saveCosts_;
+  FloatT *saveCosts_;
   /// Array of ClpNodes
   ClpNode **nodeInfo_;
   /// Large model if crunched
@@ -302,9 +302,9 @@ public:
   /**@name Useful methods */
   //@{
   /// Return index or -1 if not found
-  int index(double value) const;
+  int index(FloatT value) const;
   /// Add value to list and return index
-  int addValue(double value);
+  int addValue(FloatT value);
   /// Number of different entries
   inline int numberEntries() const
   {
@@ -333,7 +333,7 @@ private:
   /**@name private stuff */
   //@{
   /** returns hash */
-  int hash(double value) const;
+  int hash(FloatT value) const;
   /// Resizes
   void resize(bool increaseMax);
   //@}
@@ -345,7 +345,7 @@ protected:
   /// Data
   // for hashing
   typedef struct {
-    double value;
+    FloatT value;
     int index, next;
   } CoinHashLink;
   /// Hash table

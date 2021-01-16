@@ -10,7 +10,7 @@
     It could be generalized to more than three but it seems unlikely it would
     help.
 
-    As it is adapted from doubleton icoly is one dropped.
+    As it is adapted from FloatTton icoly is one dropped.
  */
 class tripleton_action : public CoinPresolveAction {
 public:
@@ -20,21 +20,21 @@ public:
     int row;
 
     int icoly;
-    double cloy;
-    double cupy;
-    double costy;
-    double clox;
-    double cupx;
-    double costx;
+    FloatT cloy;
+    FloatT cupy;
+    FloatT costy;
+    FloatT clox;
+    FloatT cupx;
+    FloatT costx;
 
-    double rlo;
-    double rup;
+    FloatT rlo;
+    FloatT rup;
 
-    double coeffx;
-    double coeffy;
-    double coeffz;
+    FloatT coeffx;
+    FloatT coeffy;
+    FloatT coeffz;
 
-    double *colel;
+    FloatT *colel;
 
     int ncolx;
     int ncoly;

@@ -47,8 +47,8 @@ ClpNonLinearCost::ClpNonLinearCost()
 }
 //#define VALIDATE
 #ifdef VALIDATE
-static double *saveLowerV = NULL;
-static double *saveUpperV = NULL;
+static FloatT *saveLowerV = NULL;
+static FloatT *saveUpperV = NULL;
 #ifdef NDEBUG
 Validate sgould not be set if no debug
 #endif
@@ -80,7 +80,7 @@ ClpNonLinearCost::ClpNonLinearCost(ClpSimplex * model, int method)
   changeCost_ = 0.0;
   feasibleCost_ = 0.0;
   infeasibilityWeight_ = -1.0;
-  double *cost = model_->costRegion();
+  FloatT *cost = model_->costRegion();
   // check if all 0
   int iSequence;
   bool allZero = true;
@@ -92,7 +92,7 @@ ClpNonLinearCost::ClpNonLinearCost(ClpSimplex * model, int method)
   }
   if (allZero && model_->clpMatrix()->type() < 15)
     model_->setInfeasibilityCost(1.0);
-  double infeasibilityCost = model_->infeasibilityCost();
+  FloatT infeasibilityCost = model_->infeasibilityCost();
   sumInfeasibilities_ = 0.0;
   averageTheta_ = 0.0;
   largestInfeasibility_ = 0.0;
@@ -107,8 +107,8 @@ ClpNonLinearCost::ClpNonLinearCost(ClpSimplex * model, int method)
   cost_ = NULL;
   infeasible_ = NULL;
 
-  double *upper = model_->upperRegion();
-  double *lower = model_->lowerRegion();
+  FloatT *upper = model_->upperRegion();
+  FloatT *lower = model_->lowerRegion();
 
   // See how we are storing things
   bool always4 = (model_->clpMatrix()->generalExpanded(model_, 10, iSequence) != 0);
@@ -141,8 +141,8 @@ ClpNonLinearCost::ClpNonLinearCost(ClpSimplex * model, int method)
 #ifndef NDEBUG
     int kPut = put;
 #endif
-    lower_ = new double[put];
-    cost_ = new double[put];
+    lower_ = new FloatT[put];
+    cost_ = new FloatT[put];
     infeasible_ = new unsigned int[(put + 31) >> 5];
     memset(infeasible_, 0, ((put + 31) >> 5) * sizeof(unsigned int));
 
@@ -205,8 +205,8 @@ ClpNonLinearCost::ClpNonLinearCost(ClpSimplex * model, int method)
 #endif
   if (CLP_METHOD2) {
     assert(!numberExtra);
-    bound_ = new double[numberTotal];
-    cost2_ = new double[numberTotal];
+    bound_ = new FloatT[numberTotal];
+    cost2_ = new FloatT[numberTotal];
     status_ = new unsigned char[numberTotal];
 #ifdef VALIDATE
     delete[] saveLowerV;
@@ -230,17 +230,17 @@ ClpNonLinearCost::refresh()
      numberInfeasibilities_ = 0;
      sumInfeasibilities_ = 0.0;
      largestInfeasibility_ = 0.0;
-     double infeasibilityCost = model_->infeasibilityCost();
-     double primalTolerance = model_->currentPrimalTolerance();
-     double * cost = model_->costRegion();
-     double * upper = model_->upperRegion();
-     double * lower = model_->lowerRegion();
-     double * solution = model_->solutionRegion();
+     FloatT infeasibilityCost = model_->infeasibilityCost();
+     FloatT primalTolerance = model_->currentPrimalTolerance();
+     FloatT * cost = model_->costRegion();
+     FloatT * upper = model_->upperRegion();
+     FloatT * lower = model_->lowerRegion();
+     FloatT * solution = model_->solutionRegion();
      for (int iSequence = 0; iSequence < numberTotal; iSequence++) {
        cost2_[iSequence] = cost[iSequence];
-       double value = solution[iSequence];
-       double lowerValue = lower[iSequence];
-       double upperValue = upper[iSequence];
+       FloatT value = solution[iSequence];
+       FloatT lowerValue = lower[iSequence];
+       FloatT upperValue = upper[iSequence];
        if (value - upperValue <= primalTolerance) {
 	 if (value - lowerValue >= -primalTolerance) {
 	   // feasible
@@ -248,7 +248,7 @@ ClpNonLinearCost::refresh()
 	   bound_[iSequence] = 0.0;
 	 } else {
 	   // below
-	   double infeasibility = lowerValue - value - primalTolerance;
+	   FloatT infeasibility = lowerValue - value - primalTolerance;
 	   sumInfeasibilities_ += infeasibility;
 	   largestInfeasibility_ = CoinMax(largestInfeasibility_, infeasibility);
 	   cost[iSequence] -= infeasibilityCost;
@@ -260,7 +260,7 @@ ClpNonLinearCost::refresh()
 	 }
        } else {
 	 // above
-	 double infeasibility = value - upperValue - primalTolerance;
+	 FloatT infeasibility = value - upperValue - primalTolerance;
 	 sumInfeasibilities_ += infeasibility;
 	 largestInfeasibility_ = CoinMax(largestInfeasibility_, infeasibility);
 	 cost[iSequence] += infeasibilityCost;
@@ -278,16 +278,16 @@ ClpNonLinearCost::refresh()
 // Refresh one- assuming regions OK
 void ClpNonLinearCost::refresh(int iSequence)
 {
-  double infeasibilityCost = model_->infeasibilityCost();
-  double primalTolerance = model_->currentPrimalTolerance();
-  double *cost = model_->costRegion();
-  double *upper = model_->upperRegion();
-  double *lower = model_->lowerRegion();
-  double *solution = model_->solutionRegion();
+  FloatT infeasibilityCost = model_->infeasibilityCost();
+  FloatT primalTolerance = model_->currentPrimalTolerance();
+  FloatT *cost = model_->costRegion();
+  FloatT *upper = model_->upperRegion();
+  FloatT *lower = model_->lowerRegion();
+  FloatT *solution = model_->solutionRegion();
   cost2_[iSequence] = cost[iSequence];
-  double value = solution[iSequence];
-  double lowerValue = lower[iSequence];
-  double upperValue = upper[iSequence];
+  FloatT value = solution[iSequence];
+  FloatT lowerValue = lower[iSequence];
+  FloatT upperValue = upper[iSequence];
   if (value - upperValue <= primalTolerance) {
     if (value - lowerValue >= -primalTolerance) {
       // feasible
@@ -311,18 +311,18 @@ void ClpNonLinearCost::refresh(int iSequence)
   }
 }
 // Refreshes costs always makes row costs zero
-void ClpNonLinearCost::refreshCosts(const double *columnCosts)
+void ClpNonLinearCost::refreshCosts(const FloatT *columnCosts)
 {
-  double *cost = model_->costRegion();
+  FloatT *cost = model_->costRegion();
   // zero row costs
-  memset(cost + numberColumns_, 0, numberRows_ * sizeof(double));
+  memset(cost + numberColumns_, 0, numberRows_ * sizeof(FloatT));
   // copy column costs
   CoinMemcpyN(columnCosts, numberColumns_, cost);
   if ((method_ & 1) != 0) {
     for (int iSequence = 0; iSequence < numberRows_ + numberColumns_; iSequence++) {
       int start = start_[iSequence];
       int end = start_[iSequence + 1] - 1;
-      double thisFeasibleCost = cost[iSequence];
+      FloatT thisFeasibleCost = cost[iSequence];
       if (infeasible(start)) {
         cost_[start] = thisFeasibleCost - infeasibilityWeight_;
         cost_[start + 1] = thisFeasibleCost;
@@ -341,7 +341,7 @@ void ClpNonLinearCost::refreshCosts(const double *columnCosts)
   }
 }
 ClpNonLinearCost::ClpNonLinearCost(ClpSimplex *model, const int *starts,
-  const double *lowerNon, const double *costNon)
+  const FloatT *lowerNon, const FloatT *costNon)
 {
 #ifndef FAST_CLPNON
   // what about scaling? - only try without it initially
@@ -357,13 +357,13 @@ ClpNonLinearCost::ClpNonLinearCost(ClpSimplex *model, const int *starts,
   offset_ = new int[numberTotal];
   memset(offset_, 0, numberTotal * sizeof(int));
 
-  double whichWay = model_->optimizationDirection();
+  FloatT whichWay = model_->optimizationDirection();
   COIN_DETAIL_PRINT(printf("Direction %g\n", whichWay));
 
   numberInfeasibilities_ = 0;
   changeCost_ = 0.0;
   feasibleCost_ = 0.0;
-  double infeasibilityCost = model_->infeasibilityCost();
+  FloatT infeasibilityCost = model_->infeasibilityCost();
   infeasibilityWeight_ = infeasibilityCost;
   ;
   largestInfeasibility_ = 0.0;
@@ -371,14 +371,14 @@ ClpNonLinearCost::ClpNonLinearCost(ClpSimplex *model, const int *starts,
 
   int iSequence;
   assert(!model_->rowObjective());
-  double *cost = model_->objective();
+  FloatT *cost = model_->objective();
 
   // First see how much space we need
   // Also set up feasible bounds
   int put = starts[numberColumns_];
 
-  double *columnUpper = model_->columnUpper();
-  double *columnLower = model_->columnLower();
+  FloatT *columnUpper = model_->columnUpper();
+  FloatT *columnLower = model_->columnLower();
   for (iSequence = 0; iSequence < numberColumns_; iSequence++) {
     if (columnLower[iSequence] > -1.0e20)
       put++;
@@ -386,8 +386,8 @@ ClpNonLinearCost::ClpNonLinearCost(ClpSimplex *model, const int *starts,
       put++;
   }
 
-  double *rowUpper = model_->rowUpper();
-  double *rowLower = model_->rowLower();
+  FloatT *rowUpper = model_->rowUpper();
+  FloatT *rowLower = model_->rowLower();
   for (iSequence = 0; iSequence < numberRows_; iSequence++) {
     if (rowLower[iSequence] > -1.0e20)
       put++;
@@ -395,8 +395,8 @@ ClpNonLinearCost::ClpNonLinearCost(ClpSimplex *model, const int *starts,
       put++;
     put += 2;
   }
-  lower_ = new double[put];
-  cost_ = new double[put];
+  lower_ = new FloatT[put];
+  cost_ = new FloatT[put];
   infeasible_ = new unsigned int[(put + 31) >> 5];
   memset(infeasible_, 0, ((put + 31) >> 5) * sizeof(unsigned int));
 
@@ -407,9 +407,9 @@ ClpNonLinearCost::ClpNonLinearCost(ClpSimplex *model, const int *starts,
   for (iSequence = 0; iSequence < numberTotal; iSequence++) {
     lower_[put] = -COIN_DBL_MAX;
     whichRange_[iSequence] = put + 1;
-    double thisCost;
-    double lowerValue;
-    double upperValue;
+    FloatT thisCost;
+    FloatT lowerValue;
+    FloatT upperValue;
     if (iSequence >= numberColumns_) {
       // rows
       lowerValue = rowLower[iSequence - numberColumns_];
@@ -520,9 +520,9 @@ ClpNonLinearCost::ClpNonLinearCost(const ClpNonLinearCost &rhs)
       offset_ = new int[numberTotal];
       CoinMemcpyN(rhs.offset_, numberTotal, offset_);
       int numberEntries = start_[numberTotal];
-      lower_ = new double[numberEntries];
+      lower_ = new FloatT[numberEntries];
       CoinMemcpyN(rhs.lower_, numberEntries, lower_);
-      cost_ = new double[numberEntries];
+      cost_ = new FloatT[numberEntries];
       CoinMemcpyN(rhs.cost_, numberEntries, cost_);
       infeasible_ = new unsigned int[(numberEntries + 31) >> 5];
       CoinMemcpyN(rhs.infeasible_, ((numberEntries + 31) >> 5), infeasible_);
@@ -588,9 +588,9 @@ ClpNonLinearCost::operator=(const ClpNonLinearCost &rhs)
         offset_ = new int[numberTotal];
         CoinMemcpyN(rhs.offset_, numberTotal, offset_);
         int numberEntries = start_[numberTotal];
-        lower_ = new double[numberEntries];
+        lower_ = new FloatT[numberEntries];
         CoinMemcpyN(rhs.lower_, numberEntries, lower_);
-        cost_ = new double[numberEntries];
+        cost_ = new FloatT[numberEntries];
         CoinMemcpyN(rhs.cost_, numberEntries, cost_);
         infeasible_ = new unsigned int[(numberEntries + 31) >> 5];
         CoinMemcpyN(rhs.infeasible_, ((numberEntries + 31) >> 5), infeasible_);
@@ -618,19 +618,19 @@ ClpNonLinearCost::operator=(const ClpNonLinearCost &rhs)
 // We will need to re-think objective offsets later
 // We will also need a 2 bit per variable array for some
 // purpose which will come to me later
-void ClpNonLinearCost::checkInfeasibilities(double oldTolerance)
+void ClpNonLinearCost::checkInfeasibilities(FloatT oldTolerance)
 {
   numberInfeasibilities_ = 0;
-  double infeasibilityCost = model_->infeasibilityCost();
+  FloatT infeasibilityCost = model_->infeasibilityCost();
   changeCost_ = 0.0;
   largestInfeasibility_ = 0.0;
   sumInfeasibilities_ = 0.0;
-  double primalTolerance = model_->currentPrimalTolerance();
+  FloatT primalTolerance = model_->currentPrimalTolerance();
   int iSequence;
-  double *solution = model_->solutionRegion();
-  double *upper = model_->upperRegion();
-  double *lower = model_->lowerRegion();
-  double *cost = model_->costRegion();
+  FloatT *solution = model_->solutionRegion();
+  FloatT *upper = model_->upperRegion();
+  FloatT *lower = model_->lowerRegion();
+  FloatT *cost = model_->costRegion();
   bool toNearest = oldTolerance <= 0.0;
   feasibleCost_ = 0.0;
   //bool checkCosts = (infeasibilityWeight_ != infeasibilityCost);
@@ -638,9 +638,9 @@ void ClpNonLinearCost::checkInfeasibilities(double oldTolerance)
   int numberTotal = numberColumns_ + numberRows_;
   //#define NONLIN_DEBUG
 #ifdef NONLIN_DEBUG
-  double *saveSolution = NULL;
-  double *saveLower = NULL;
-  double *saveUpper = NULL;
+  FloatT *saveSolution = NULL;
+  FloatT *saveLower = NULL;
+  FloatT *saveUpper = NULL;
   unsigned char *saveStatus = NULL;
   if (method_ == 3) {
     // Save solution as we will be checking
@@ -655,16 +655,16 @@ void ClpNonLinearCost::checkInfeasibilities(double oldTolerance)
   if (CLP_METHOD1) {
     // nonbasic should be at a valid bound
     for (iSequence = 0; iSequence < numberTotal; iSequence++) {
-      double lowerValue;
-      double upperValue;
-      double value = solution[iSequence];
+      FloatT lowerValue;
+      FloatT upperValue;
+      FloatT value = solution[iSequence];
       int iRange;
       // get correct place
       int start = start_[iSequence];
       int end = start_[iSequence + 1] - 1;
       // correct costs for this infeasibility weight
       // If free then true cost will be first
-      double thisFeasibleCost = cost_[start];
+      FloatT thisFeasibleCost = cost_[start];
       if (infeasible(start)) {
         thisFeasibleCost = cost_[start + 1];
         cost_[start] = thisFeasibleCost - infeasibilityCost;
@@ -775,7 +775,7 @@ void ClpNonLinearCost::checkInfeasibilities(double oldTolerance)
           // Set to nearest and make at upper bound
           int kRange;
           iRange = -1;
-          double nearest = COIN_DBL_MAX;
+          FloatT nearest = COIN_DBL_MAX;
           for (kRange = start; kRange < end; kRange++) {
             if (fabs(lower_[kRange] - value) < nearest) {
               nearest = fabs(lower_[kRange] - value);
@@ -809,7 +809,7 @@ void ClpNonLinearCost::checkInfeasibilities(double oldTolerance)
           // Set to nearest and make at lower bound
           int kRange;
           iRange = -1;
-          double nearest = COIN_DBL_MAX;
+          FloatT nearest = COIN_DBL_MAX;
           for (kRange = start; kRange < end; kRange++) {
             if (fabs(lower_[kRange] - value) < nearest) {
               nearest = fabs(lower_[kRange] - value);
@@ -833,7 +833,7 @@ void ClpNonLinearCost::checkInfeasibilities(double oldTolerance)
             // Set to nearest and make at lower bound
             int kRange;
             iRange = -1;
-            double nearest = COIN_DBL_MAX;
+            FloatT nearest = COIN_DBL_MAX;
             for (kRange = start; kRange < end; kRange++) {
               if (fabs(lower_[kRange] - value) < nearest) {
                 nearest = fabs(lower_[kRange] - value);
@@ -859,13 +859,13 @@ void ClpNonLinearCost::checkInfeasibilities(double oldTolerance)
     }
   }
 #ifdef NONLIN_DEBUG
-  double saveCost = feasibleCost_;
+  FloatT saveCost = feasibleCost_;
   if (method_ == 3) {
     feasibleCost_ = 0.0;
     // Put back solution as we will be checking
     unsigned char *statusA = model_->statusArray();
     for (iSequence = 0; iSequence < numberTotal; iSequence++) {
-      double value = solution[iSequence];
+      FloatT value = solution[iSequence];
       solution[iSequence] = saveSolution[iSequence];
       saveSolution[iSequence] = value;
       value = lower[iSequence];
@@ -890,13 +890,13 @@ void ClpNonLinearCost::checkInfeasibilities(double oldTolerance)
     for (int i = 0; i < numberRows_; i++) {
       int iSequence = pivotVariable[i];
 #endif
-      double value = solution[iSequence];
+      FloatT value = solution[iSequence];
       unsigned char iStatus = status_[iSequence];
       assert(currentStatus(iStatus) == CLP_SAME);
-      double lowerValue = lower[iSequence];
-      double upperValue = upper[iSequence];
-      double costValue = cost2_[iSequence];
-      double trueCost = costValue;
+      FloatT lowerValue = lower[iSequence];
+      FloatT upperValue = upper[iSequence];
+      FloatT costValue = cost2_[iSequence];
+      FloatT trueCost = costValue;
       int iWhere = originalStatus(iStatus);
       if (iWhere == CLP_BELOW_LOWER) {
         lowerValue = upperValue;
@@ -928,7 +928,7 @@ void ClpNonLinearCost::checkInfeasibilities(double oldTolerance)
             // below
             newWhere = CLP_BELOW_LOWER;
             assert(fabs(lowerValue) < 1.0e100);
-            double infeasibility = lowerValue - value - primalTolerance;
+            FloatT infeasibility = lowerValue - value - primalTolerance;
             sumInfeasibilities_ += infeasibility;
             largestInfeasibility_ = CoinMax(largestInfeasibility_, infeasibility);
             costValue = trueCost - infeasibilityCost;
@@ -938,7 +938,7 @@ void ClpNonLinearCost::checkInfeasibilities(double oldTolerance)
         } else {
           // above
           newWhere = CLP_ABOVE_UPPER;
-          double infeasibility = value - upperValue - primalTolerance;
+          FloatT infeasibility = value - upperValue - primalTolerance;
           sumInfeasibilities_ += infeasibility;
           largestInfeasibility_ = CoinMax(largestInfeasibility_, infeasibility);
           costValue = trueCost + infeasibilityCost;
@@ -1038,9 +1038,9 @@ void ClpNonLinearCost::checkInfeasibilities(double oldTolerance)
         break;
       }
 #ifdef NONLIN_DEBUG
-      double lo = saveLower[iSequence];
-      double up = saveUpper[iSequence];
-      double cc = cost[iSequence];
+      FloatT lo = saveLower[iSequence];
+      FloatT up = saveUpper[iSequence];
+      FloatT cc = cost[iSequence];
       unsigned char ss = saveStatus[iSequence];
       unsigned char snow = model_->statusArray()[iSequence];
 #endif
@@ -1092,16 +1092,16 @@ void ClpNonLinearCost::feasibleBounds()
 {
   if (CLP_METHOD2) {
     int iSequence;
-    double *upper = model_->upperRegion();
-    double *lower = model_->lowerRegion();
-    double *cost = model_->costRegion();
+    FloatT *upper = model_->upperRegion();
+    FloatT *lower = model_->lowerRegion();
+    FloatT *cost = model_->costRegion();
     int numberTotal = numberColumns_ + numberRows_;
     for (iSequence = 0; iSequence < numberTotal; iSequence++) {
       unsigned char iStatus = status_[iSequence];
       assert(currentStatus(iStatus) == CLP_SAME);
-      double lowerValue = lower[iSequence];
-      double upperValue = upper[iSequence];
-      double costValue = cost2_[iSequence];
+      FloatT lowerValue = lower[iSequence];
+      FloatT upperValue = upper[iSequence];
+      FloatT costValue = cost2_[iSequence];
       int iWhere = originalStatus(iStatus);
       if (iWhere == CLP_BELOW_LOWER) {
         lowerValue = upperValue;
@@ -1122,9 +1122,9 @@ void ClpNonLinearCost::feasibleBounds()
    If array[i]*multiplier>0 goes down, otherwise up.
    The indices are row indices and need converting to sequences
 */
-void ClpNonLinearCost::goThru(int numberInArray, double multiplier,
-  const int *index, const double *array,
-  double *rhs)
+void ClpNonLinearCost::goThru(int numberInArray, FloatT multiplier,
+  const int *index, const FloatT *array,
+  FloatT *rhs)
 {
   assert(model_ != NULL);
   abort();
@@ -1133,11 +1133,11 @@ void ClpNonLinearCost::goThru(int numberInArray, double multiplier,
     for (int i = 0; i < numberInArray; i++) {
       int iRow = index[i];
       int iSequence = pivotVariable[iRow];
-      double alpha = multiplier * array[iRow];
+      FloatT alpha = multiplier * array[iRow];
       // get where in bound sequence
       int iRange = whichRange_[iSequence];
       iRange += offset_[iSequence]; //add temporary bias
-      double value = model_->solution(iSequence);
+      FloatT value = model_->solution(iSequence);
       if (alpha > 0.0) {
         // down one
         iRange--;
@@ -1153,21 +1153,21 @@ void ClpNonLinearCost::goThru(int numberInArray, double multiplier,
     }
   }
 #ifdef NONLIN_DEBUG
-  double *saveRhs = NULL;
+  FloatT *saveRhs = NULL;
   if (method_ == 3) {
     int numberRows = model_->numberRows();
     saveRhs = CoinCopyOfArray(rhs, numberRows);
   }
 #endif
   if (CLP_METHOD2) {
-    const double *solution = model_->solutionRegion();
-    const double *upper = model_->upperRegion();
-    const double *lower = model_->lowerRegion();
+    const FloatT *solution = model_->solutionRegion();
+    const FloatT *upper = model_->upperRegion();
+    const FloatT *lower = model_->lowerRegion();
     for (int i = 0; i < numberInArray; i++) {
       int iRow = index[i];
       int iSequence = pivotVariable[iRow];
-      double alpha = multiplier * array[iRow];
-      double value = solution[iSequence];
+      FloatT alpha = multiplier * array[iRow];
+      FloatT value = solution[iSequence];
       unsigned char iStatus = status_[iSequence];
       int iWhere = currentStatus(iStatus);
       if (iWhere == CLP_SAME)
@@ -1207,7 +1207,7 @@ void ClpNonLinearCost::goThru(int numberInArray, double multiplier,
 /* Takes off last iteration (i.e. offsets closer to 0)
  */
 void ClpNonLinearCost::goBack(int numberInArray, const int *index,
-  double *rhs)
+  FloatT *rhs)
 {
   assert(model_ != NULL);
   abort();
@@ -1223,7 +1223,7 @@ void ClpNonLinearCost::goBack(int numberInArray, const int *index,
         offset_[iSequence]--;
         assert(offset_[iSequence] >= 0);
         iRange += offset_[iSequence]; //add temporary bias
-        double value = model_->solution(iSequence);
+        FloatT value = model_->solution(iSequence);
         // up one
         assert(iRange < start_[iSequence + 1] - 1);
         rhs[iRow] = lower_[iRange + 1] - value; // was earlier lower_[iRange]
@@ -1231,7 +1231,7 @@ void ClpNonLinearCost::goBack(int numberInArray, const int *index,
         offset_[iSequence]++;
         assert(offset_[iSequence] <= 0);
         iRange += offset_[iSequence]; //add temporary bias
-        double value = model_->solution(iSequence);
+        FloatT value = model_->solution(iSequence);
         // down one
         assert(iRange >= start_[iSequence]);
         rhs[iRow] = value - lower_[iRange]; // was earlier lower_[iRange+1]
@@ -1239,20 +1239,20 @@ void ClpNonLinearCost::goBack(int numberInArray, const int *index,
     }
   }
 #ifdef NONLIN_DEBUG
-  double *saveRhs = NULL;
+  FloatT *saveRhs = NULL;
   if (method_ == 3) {
     int numberRows = model_->numberRows();
     saveRhs = CoinCopyOfArray(rhs, numberRows);
   }
 #endif
   if (CLP_METHOD2) {
-    const double *solution = model_->solutionRegion();
-    const double *upper = model_->upperRegion();
-    const double *lower = model_->lowerRegion();
+    const FloatT *solution = model_->solutionRegion();
+    const FloatT *upper = model_->upperRegion();
+    const FloatT *lower = model_->lowerRegion();
     for (int i = 0; i < numberInArray; i++) {
       int iRow = index[i];
       int iSequence = pivotVariable[iRow];
-      double value = solution[iSequence];
+      FloatT value = solution[iSequence];
       unsigned char iStatus = status_[iSequence];
       int iWhere = currentStatus(iStatus);
       int original = originalStatus(iStatus);
@@ -1315,7 +1315,7 @@ void ClpNonLinearCost::goBackAll(const CoinIndexedVector *update)
 void ClpNonLinearCost::checkInfeasibilities(int numberInArray, const int *index)
 {
   assert(model_ != NULL);
-  double primalTolerance = model_->currentPrimalTolerance();
+  FloatT primalTolerance = model_->currentPrimalTolerance();
   const int *pivotVariable = model_->pivotVariable();
   if (CLP_METHOD1) {
     for (int i = 0; i < numberInArray; i++) {
@@ -1324,7 +1324,7 @@ void ClpNonLinearCost::checkInfeasibilities(int numberInArray, const int *index)
       // get where in bound sequence
       int iRange;
       int currentRange = whichRange_[iSequence];
-      double value = model_->solution(iSequence);
+      FloatT value = model_->solution(iSequence);
       int start = start_[iSequence];
       int end = start_[iSequence + 1] - 1;
       for (iRange = start; iRange < end; iRange++) {
@@ -1337,9 +1337,9 @@ void ClpNonLinearCost::checkInfeasibilities(int numberInArray, const int *index)
       }
       assert(iRange < end);
       assert(model_->getStatus(iSequence) == ClpSimplex::basic);
-      double &lower = model_->lowerAddress(iSequence);
-      double &upper = model_->upperAddress(iSequence);
-      double &cost = model_->costAddress(iSequence);
+      FloatT &lower = model_->lowerAddress(iSequence);
+      FloatT &upper = model_->upperAddress(iSequence);
+      FloatT &cost = model_->costAddress(iSequence);
       whichRange_[iSequence] = iRange;
       if (iRange != currentRange) {
         if (infeasible(iRange))
@@ -1353,19 +1353,19 @@ void ClpNonLinearCost::checkInfeasibilities(int numberInArray, const int *index)
     }
   }
   if (CLP_METHOD2) {
-    double *solution = model_->solutionRegion();
-    double *upper = model_->upperRegion();
-    double *lower = model_->lowerRegion();
-    double *cost = model_->costRegion();
+    FloatT *solution = model_->solutionRegion();
+    FloatT *upper = model_->upperRegion();
+    FloatT *lower = model_->lowerRegion();
+    FloatT *cost = model_->costRegion();
     for (int i = 0; i < numberInArray; i++) {
       int iRow = index[i];
       int iSequence = pivotVariable[iRow];
-      double value = solution[iSequence];
+      FloatT value = solution[iSequence];
       unsigned char iStatus = status_[iSequence];
       assert(currentStatus(iStatus) == CLP_SAME);
-      double lowerValue = lower[iSequence];
-      double upperValue = upper[iSequence];
-      double costValue = cost2_[iSequence];
+      FloatT lowerValue = lower[iSequence];
+      FloatT upperValue = upper[iSequence];
+      FloatT costValue = cost2_[iSequence];
       int iWhere = originalStatus(iStatus);
       if (iWhere == CLP_BELOW_LOWER) {
         lowerValue = upperValue;
@@ -1423,18 +1423,18 @@ void ClpNonLinearCost::checkInfeasibilities(int numberInArray, const int *index)
 void ClpNonLinearCost::checkChanged(int numberInArray, CoinIndexedVector *update)
 {
   assert(model_ != NULL);
-  double primalTolerance = model_->currentPrimalTolerance();
+  FloatT primalTolerance = model_->currentPrimalTolerance();
   const int *pivotVariable = model_->pivotVariable();
   int number = 0;
   int *index = update->getIndices();
-  double *work = update->denseVector();
+  FloatT *work = update->denseVector();
   if (CLP_METHOD1) {
     for (int i = 0; i < numberInArray; i++) {
       int iRow = index[i];
       int iSequence = pivotVariable[iRow];
       // get where in bound sequence
       int iRange;
-      double value = model_->solution(iSequence);
+      FloatT value = model_->solution(iSequence);
       int start = start_[iSequence];
       int end = start_[iSequence + 1] - 1;
       for (iRange = start; iRange < end; iRange++) {
@@ -1452,9 +1452,9 @@ void ClpNonLinearCost::checkChanged(int numberInArray, CoinIndexedVector *update
         // changed
         work[iRow] = cost_[jRange] - cost_[iRange];
         index[number++] = iRow;
-        double &lower = model_->lowerAddress(iSequence);
-        double &upper = model_->upperAddress(iSequence);
-        double &cost = model_->costAddress(iSequence);
+        FloatT &lower = model_->lowerAddress(iSequence);
+        FloatT &upper = model_->upperAddress(iSequence);
+        FloatT &cost = model_->costAddress(iSequence);
         whichRange_[iSequence] = iRange;
         if (infeasible(iRange))
           numberInfeasibilities_++;
@@ -1467,19 +1467,19 @@ void ClpNonLinearCost::checkChanged(int numberInArray, CoinIndexedVector *update
     }
   }
   if (CLP_METHOD2) {
-    double *solution = model_->solutionRegion();
-    double *upper = model_->upperRegion();
-    double *lower = model_->lowerRegion();
-    double *cost = model_->costRegion();
+    FloatT *solution = model_->solutionRegion();
+    FloatT *upper = model_->upperRegion();
+    FloatT *lower = model_->lowerRegion();
+    FloatT *cost = model_->costRegion();
     for (int i = 0; i < numberInArray; i++) {
       int iRow = index[i];
       int iSequence = pivotVariable[iRow];
-      double value = solution[iSequence];
+      FloatT value = solution[iSequence];
       unsigned char iStatus = status_[iSequence];
       assert(currentStatus(iStatus) == CLP_SAME);
-      double lowerValue = lower[iSequence];
-      double upperValue = upper[iSequence];
-      double costValue = cost2_[iSequence];
+      FloatT lowerValue = lower[iSequence];
+      FloatT upperValue = upper[iSequence];
+      FloatT costValue = cost2_[iSequence];
       int iWhere = originalStatus(iStatus);
       if (iWhere == CLP_BELOW_LOWER) {
         lowerValue = upperValue;
@@ -1532,13 +1532,13 @@ void ClpNonLinearCost::checkChanged(int numberInArray, CoinIndexedVector *update
   update->setNumElements(number);
 }
 /* Sets bounds and cost for one variable - returns change in cost*/
-double
-ClpNonLinearCost::setOne(int iSequence, double value)
+FloatT
+ClpNonLinearCost::setOne(int iSequence, FloatT value)
 {
   assert(model_ != NULL);
-  double primalTolerance = model_->currentPrimalTolerance();
+  FloatT primalTolerance = model_->currentPrimalTolerance();
   // difference in cost
-  double difference = 0.0;
+  FloatT difference = 0.0;
   if (CLP_METHOD1) {
     // get where in bound sequence
     int iRange;
@@ -1581,9 +1581,9 @@ ClpNonLinearCost::setOne(int iSequence, double value)
       if (infeasible(currentRange))
         numberInfeasibilities_--;
     }
-    double &lower = model_->lowerAddress(iSequence);
-    double &upper = model_->upperAddress(iSequence);
-    double &cost = model_->costAddress(iSequence);
+    FloatT &lower = model_->lowerAddress(iSequence);
+    FloatT &upper = model_->upperAddress(iSequence);
+    FloatT &cost = model_->costAddress(iSequence);
     lower = lower_[iRange];
     upper = lower_[iRange + 1];
     ClpSimplex::Status status = model_->getStatus(iSequence);
@@ -1617,14 +1617,14 @@ ClpNonLinearCost::setOne(int iSequence, double value)
     cost = cost_[iRange];
   }
   if (CLP_METHOD2) {
-    double *upper = model_->upperRegion();
-    double *lower = model_->lowerRegion();
-    double *cost = model_->costRegion();
+    FloatT *upper = model_->upperRegion();
+    FloatT *lower = model_->lowerRegion();
+    FloatT *cost = model_->costRegion();
     unsigned char iStatus = status_[iSequence];
     assert(currentStatus(iStatus) == CLP_SAME);
-    double lowerValue = lower[iSequence];
-    double upperValue = upper[iSequence];
-    double costValue = cost2_[iSequence];
+    FloatT lowerValue = lower[iSequence];
+    FloatT upperValue = upper[iSequence];
+    FloatT costValue = cost2_[iSequence];
     int iWhere = originalStatus(iStatus);
 #undef CLP_USER_DRIVEN
 #ifdef CLP_USER_DRIVEN
@@ -1721,19 +1721,19 @@ ClpNonLinearCost::setOne(int iSequence, double value)
 }
 /* Sets bounds and infeasible cost and true cost for one variable
    This is for gub and column generation etc */
-void ClpNonLinearCost::setOne(int sequence, double solutionValue, double lowerValue, double upperValue,
-  double costValue)
+void ClpNonLinearCost::setOne(int sequence, FloatT solutionValue, FloatT lowerValue, FloatT upperValue,
+  FloatT costValue)
 {
   if (CLP_METHOD1) {
     int iRange = -1;
     int start = start_[sequence];
-    double infeasibilityCost = model_->infeasibilityCost();
+    FloatT infeasibilityCost = model_->infeasibilityCost();
     cost_[start] = costValue - infeasibilityCost;
     lower_[start + 1] = lowerValue;
     cost_[start + 1] = costValue;
     lower_[start + 2] = upperValue;
     cost_[start + 2] = costValue + infeasibilityCost;
-    double primalTolerance = model_->currentPrimalTolerance();
+    FloatT primalTolerance = model_->currentPrimalTolerance();
     if (solutionValue - lowerValue >= -primalTolerance) {
       if (solutionValue - upperValue <= primalTolerance) {
         iRange = start + 1;
@@ -1755,17 +1755,17 @@ void ClpNonLinearCost::setOne(int sequence, double solutionValue, double lowerVa
 /* Sets bounds and cost for outgoing variable
    may change value
    Returns direction */
-int ClpNonLinearCost::setOneOutgoing(int iSequence, double &value)
+int ClpNonLinearCost::setOneOutgoing(int iSequence, FloatT &value)
 {
   assert(model_ != NULL);
-  double primalTolerance = model_->currentPrimalTolerance();
+  FloatT primalTolerance = model_->currentPrimalTolerance();
   // difference in cost
-  double difference = 0.0;
+  FloatT difference = 0.0;
   int direction = 0;
 #ifdef CLP_USER_DRIVEN
-  double saveLower = model_->lowerRegion()[iSequence];
-  double saveUpper = model_->upperRegion()[iSequence];
-  double saveCost = model_->costRegion()[iSequence];
+  FloatT saveLower = model_->lowerRegion()[iSequence];
+  FloatT saveUpper = model_->upperRegion()[iSequence];
+  FloatT saveCost = model_->costRegion()[iSequence];
 #endif
   if (CLP_METHOD1) {
     // get where in bound sequence
@@ -1815,9 +1815,9 @@ int ClpNonLinearCost::setOneOutgoing(int iSequence, double &value)
       if (infeasible(currentRange))
         numberInfeasibilities_--;
     }
-    double &lower = model_->lowerAddress(iSequence);
-    double &upper = model_->upperAddress(iSequence);
-    double &cost = model_->costAddress(iSequence);
+    FloatT &lower = model_->lowerAddress(iSequence);
+    FloatT &upper = model_->upperAddress(iSequence);
+    FloatT &cost = model_->costAddress(iSequence);
     lower = lower_[iRange];
     upper = lower_[iRange + 1];
     if (upper == lower) {
@@ -1841,14 +1841,14 @@ int ClpNonLinearCost::setOneOutgoing(int iSequence, double &value)
     cost = cost_[iRange];
   }
   if (CLP_METHOD2) {
-    double *upper = model_->upperRegion();
-    double *lower = model_->lowerRegion();
-    double *cost = model_->costRegion();
+    FloatT *upper = model_->upperRegion();
+    FloatT *lower = model_->lowerRegion();
+    FloatT *cost = model_->costRegion();
     unsigned char iStatus = status_[iSequence];
     assert(currentStatus(iStatus) == CLP_SAME);
-    double lowerValue = lower[iSequence];
-    double upperValue = upper[iSequence];
-    double costValue = cost2_[iSequence];
+    FloatT lowerValue = lower[iSequence];
+    FloatT upperValue = upper[iSequence];
+    FloatT costValue = cost2_[iSequence];
     // Set perceived direction out
     if (value <= lowerValue + 1.001 * primalTolerance) {
       direction = 1;
@@ -1937,11 +1937,11 @@ int ClpNonLinearCost::setOneOutgoing(int iSequence, double &value)
   return direction;
 }
 // Returns nearest bound
-double
-ClpNonLinearCost::nearest(int iSequence, double solutionValue)
+FloatT
+ClpNonLinearCost::nearest(int iSequence, FloatT solutionValue)
 {
   assert(model_ != NULL);
-  double nearest = 0.0;
+  FloatT nearest = 0.0;
   if (CLP_METHOD1) {
     // get where in bound sequence
     int iRange;
@@ -1959,10 +1959,10 @@ ClpNonLinearCost::nearest(int iSequence, double solutionValue)
     nearest = lower_[jRange];
   }
   if (CLP_METHOD2) {
-    const double *upper = model_->upperRegion();
-    const double *lower = model_->lowerRegion();
-    double lowerValue = lower[iSequence];
-    double upperValue = upper[iSequence];
+    const FloatT *upper = model_->upperRegion();
+    const FloatT *lower = model_->lowerRegion();
+    FloatT lowerValue = lower[iSequence];
+    FloatT upperValue = upper[iSequence];
     int iWhere = originalStatus(status_[iSequence]);
     if (iWhere == CLP_BELOW_LOWER) {
       lowerValue = upperValue;
@@ -1980,10 +1980,10 @@ ClpNonLinearCost::nearest(int iSequence, double solutionValue)
   return nearest;
 }
 /// Feasible cost with offset and direction (i.e. for reporting)
-double
+FloatT
 ClpNonLinearCost::feasibleReportCost() const
 {
-  double value;
+  FloatT value;
   model_->getDblParam(ClpObjOffset, value);
   return (feasibleCost_ + model_->objectiveAsObject()->nonlinearOffset()) * model_->optimizationDirection() / (model_->objectiveScale() * model_->rhsScale()) - value;
 }
@@ -1991,12 +1991,12 @@ ClpNonLinearCost::feasibleReportCost() const
 void ClpNonLinearCost::zapCosts()
 {
   int iSequence;
-  double infeasibilityCost = model_->infeasibilityCost();
+  FloatT infeasibilityCost = model_->infeasibilityCost();
   // zero out all costs
   int numberTotal = numberColumns_ + numberRows_;
   if (CLP_METHOD1) {
     int n = start_[numberTotal];
-    memset(cost_, 0, n * sizeof(double));
+    memset(cost_, 0, n * sizeof(FloatT));
     for (iSequence = 0; iSequence < numberTotal; iSequence++) {
       int start = start_[iSequence];
       int end = start_[iSequence + 1] - 1;
@@ -2016,24 +2016,24 @@ void ClpNonLinearCost::zapCosts()
 // For debug
 void ClpNonLinearCost::validate()
 {
-  double primalTolerance = model_->currentPrimalTolerance();
+  FloatT primalTolerance = model_->currentPrimalTolerance();
   int iSequence;
-  const double *solution = model_->solutionRegion();
-  const double *upper = model_->upperRegion();
-  const double *lower = model_->lowerRegion();
-  const double *cost = model_->costRegion();
-  double infeasibilityCost = model_->infeasibilityCost();
+  const FloatT *solution = model_->solutionRegion();
+  const FloatT *upper = model_->upperRegion();
+  const FloatT *lower = model_->lowerRegion();
+  const FloatT *cost = model_->costRegion();
+  FloatT infeasibilityCost = model_->infeasibilityCost();
   int numberTotal = numberRows_ + numberColumns_;
   int numberInfeasibilities = 0;
-  double sumInfeasibilities = 0.0;
+  FloatT sumInfeasibilities = 0.0;
 
   for (iSequence = 0; iSequence < numberTotal; iSequence++) {
-    double value = solution[iSequence];
+    FloatT value = solution[iSequence];
     int iStatus = status_[iSequence];
     assert(currentStatus(iStatus) == CLP_SAME);
-    double lowerValue = lower[iSequence];
-    double upperValue = upper[iSequence];
-    double costValue = cost2_[iSequence];
+    FloatT lowerValue = lower[iSequence];
+    FloatT upperValue = upper[iSequence];
+    FloatT costValue = cost2_[iSequence];
     int iWhere = originalStatus(iStatus);
     if (iWhere == CLP_BELOW_LOWER) {
       lowerValue = upperValue;

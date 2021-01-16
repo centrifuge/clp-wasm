@@ -30,7 +30,7 @@ public:
   /// Get indices of elements
   virtual const int *getIndices() const = 0;
   /// Get element values
-  virtual const double *getElements() const = 0;
+  virtual const FloatT *getElements() const = 0;
   //@}
 
   /**@name Methods related to whether duplicate-index checking is performed.
@@ -76,7 +76,7 @@ public:
        <strong>NOTE</strong>: The user needs to <code>delete[]</code> this
        pointer after it's not needed anymore.
    */
-  double *denseVector(int denseSize) const;
+  FloatT *denseVector(int denseSize) const;
   /** Access the i'th element of the full storage vector.
        If the i'th is not stored, then zero is returned. The initial use of
        this method has some computational and storage overhead associated with
@@ -84,7 +84,7 @@ public:
        <strong>NOTE</strong>: This is <em>very</em> expensive. It is probably
        much better to use <code>denseVector()</code>.
    */
-  double operator[](int i) const;
+  FloatT operator[](int i) const;
   //@}
 
   /**@name Index methods */
@@ -149,24 +149,24 @@ public:
     duplicateIndex("equivalent", "CoinPackedVector");
     rhs.duplicateIndex("equivalent", "CoinPackedVector");
 
-    std::map< int, double > mv;
+    std::map< int, FloatT > mv;
     const int *inds = getIndices();
-    const double *elems = getElements();
+    const FloatT *elems = getElements();
     int i;
     for (i = getNumElements() - 1; i >= 0; --i) {
       mv.insert(std::make_pair(inds[i], elems[i]));
     }
 
-    std::map< int, double > mvRhs;
+    std::map< int, FloatT > mvRhs;
     inds = rhs.getIndices();
     elems = rhs.getElements();
     for (i = getNumElements() - 1; i >= 0; --i) {
       mvRhs.insert(std::make_pair(inds[i], elems[i]));
     }
 
-    std::map< int, double >::const_iterator mvI = mv.begin();
-    std::map< int, double >::const_iterator mvIlast = mv.end();
-    std::map< int, double >::const_iterator mvIrhs = mvRhs.begin();
+    std::map< int, FloatT >::const_iterator mvI = mv.begin();
+    std::map< int, FloatT >::const_iterator mvIlast = mv.end();
+    std::map< int, FloatT >::const_iterator mvIrhs = mvRhs.begin();
     while (mvI != mvIlast) {
       if (mvI->first != mvIrhs->first || !eq(mvI->second, mvIrhs->second))
         return false;
@@ -182,22 +182,22 @@ public:
   /**@name Arithmetic operators. */
   //@{
   /// Create the dot product with a full vector
-  double dotProduct(const double *dense) const;
+  FloatT dotProduct(const FloatT *dense) const;
 
   /// Return the 1-norm of the vector
-  double oneNorm() const;
+  FloatT oneNorm() const;
 
   /// Return the square of the 2-norm of the vector
-  double normSquare() const;
+  FloatT normSquare() const;
 
   /// Return the 2-norm of the vector
-  double twoNorm() const;
+  FloatT twoNorm() const;
 
   /// Return the infinity-norm of the vector
-  double infNorm() const;
+  FloatT infNorm() const;
 
   /// Sum elements of vector.
-  double sum() const;
+  FloatT sum() const;
   //@}
 
 protected:

@@ -51,7 +51,7 @@ ClpDualRowSteepest::ClpDualRowSteepest(const ClpDualRowSteepest &rhs)
       infeasible_ = NULL;
     }
     if (rhs.weights_) {
-      weights_ = new double[number];
+      weights_ = new FloatT[number];
       ClpDisjointCopyN(rhs.weights_, number, weights_);
     } else {
       weights_ = NULL;
@@ -122,7 +122,7 @@ ClpDualRowSteepest::operator=(const ClpDualRowSteepest &rhs)
       infeasible_ = NULL;
     }
     if (rhs.weights_ != NULL) {
-      weights_ = new double[number];
+      weights_ = new FloatT[number];
       ClpDisjointCopyN(rhs.weights_, number, weights_);
     } else {
       weights_ = NULL;
@@ -171,7 +171,7 @@ void ClpDualRowSteepest::fill(const ClpDualRowSteepest &rhs)
   }
   if (rhs.weights_ != NULL) {
     if (!weights_)
-      weights_ = new double[number];
+      weights_ = new FloatT[number];
     ClpDisjointCopyN(rhs.weights_, number, weights_);
   } else {
     delete[] weights_;
@@ -211,27 +211,27 @@ int ClpDualRowSteepest::pivotRow()
 {
   assert(model_);
   int i, iRow;
-  double *infeas = infeasible_->denseVector();
-  double largest = 0.0;
+  FloatT *infeas = infeasible_->denseVector();
+  FloatT largest = 0.0;
   int *index = infeasible_->getIndices();
   int number = infeasible_->getNumElements();
   const int *pivotVariable = model_->pivotVariable();
   int chosenRow = -1;
   int lastPivotRow = model_->pivotRow();
   assert(lastPivotRow < model_->numberRows());
-  double tolerance = model_->currentPrimalTolerance();
+  FloatT tolerance = model_->currentPrimalTolerance();
   // we can't really trust infeasibilities if there is primal error
   // this coding has to mimic coding in checkPrimalSolution
-  double error = CoinMin(1.0e-2, model_->largestPrimalError());
+  FloatT error = CoinMin(1.0e-2, model_->largestPrimalError());
   // allow tolerance at least slightly bigger than standard
   tolerance = tolerance + error;
   // But cap
   tolerance = CoinMin(1000.0, tolerance);
   tolerance *= tolerance; // as we are using squares
   bool toleranceChanged = false;
-  double *solution = model_->solutionRegion();
-  double *lower = model_->lowerRegion();
-  double *upper = model_->upperRegion();
+  FloatT *solution = model_->solutionRegion();
+  FloatT *lower = model_->lowerRegion();
+  FloatT *upper = model_->upperRegion();
   // do last pivot row one here
   //#define CLP_DUAL_FIXED_COLUMN_MULTIPLIER 10.0
   if (lastPivotRow >= 0 && lastPivotRow < model_->numberRows()) {
@@ -239,9 +239,9 @@ int ClpDualRowSteepest::pivotRow()
     int numberColumns = model_->numberColumns();
 #endif
     int iPivot = pivotVariable[lastPivotRow];
-    double value = solution[iPivot];
-    double lower = model_->lower(iPivot);
-    double upper = model_->upper(iPivot);
+    FloatT value = solution[iPivot];
+    FloatT lower = model_->lower(iPivot);
+    FloatT upper = model_->upper(iPivot);
     if (value > upper + tolerance) {
       value -= upper;
       value *= value;
@@ -287,7 +287,7 @@ int ClpDualRowSteepest::pivotRow()
     numberWanted = CoinMax(2000, number / 8);
   } else {
     int numberElements = model_->factorization()->numberElements();
-    double ratio = static_cast< double >(numberElements) / static_cast< double >(model_->numberRows());
+    FloatT ratio = static_cast< FloatT >(numberElements) / static_cast< FloatT >(model_->numberRows());
     numberWanted = CoinMax(2000, number / 8);
     if (ratio < 1.0) {
       numberWanted = CoinMax(2000, number / 20);
@@ -306,16 +306,16 @@ int ClpDualRowSteepest::pivotRow()
   int start[4];
   start[1] = number;
   start[2] = 0;
-  double dstart = static_cast< double >(number) * model_->randomNumberGenerator()->randomDouble();
+  FloatT dstart = static_cast< FloatT >(number) * model_->randomNumberGenerator()->randomDouble();
   start[0] = static_cast< int >(dstart);
   start[3] = start[0];
-  //double largestWeight=0.0;
-  //double smallestWeight=1.0e100;
+  //FloatT largestWeight=0.0;
+  //FloatT smallestWeight=1.0e100;
   for (iPass = 0; iPass < 2; iPass++) {
     int end = start[2 * iPass + 1];
     for (i = start[2 * iPass]; i < end; i++) {
       iRow = index[i];
-      double value = infeas[iRow];
+      FloatT value = infeas[iRow];
       if (value > tolerance) {
         //#define OUT_EQ
 #ifdef OUT_EQ
@@ -325,10 +325,10 @@ int ClpDualRowSteepest::pivotRow()
             value *= 2.0;
         }
 #endif
-        double weight = CoinMin(weights_[iRow], 1.0e50);
+        FloatT weight = CoinMin(weights_[iRow], 1.0e50);
         //largestWeight = CoinMax(largestWeight,weight);
         //smallestWeight = CoinMin(smallestWeight,weight);
-        //double dubious = dubiousWeights_[iRow];
+        //FloatT dubious = dubiousWeights_[iRow];
         //weight *= dubious;
         //if (value>2.0*largest*weight||(value>0.5*largest*weight&&value*largestWeight>dubious*largest*weight)) {
         if (value > largest * weight) {
@@ -343,7 +343,7 @@ int ClpDualRowSteepest::pivotRow()
           if (!model_->flagged(iSequence)) {
             //#define CLP_DEBUG 3
 #ifdef CLP_DEBUG
-            double value2 = 0.0;
+            FloatT value2 = 0.0;
             if (solution[iSequence] > upper[iSequence] + tolerance)
               value2 = solution[iSequence] - upper[iSequence];
             else if (solution[iSequence] < lower[iSequence] - tolerance)
@@ -371,7 +371,7 @@ int ClpDualRowSteepest::pivotRow()
   //printf("smallest %g largest %g\n",smallestWeight,largestWeight);
   if (chosenRow < 0 && toleranceChanged) {
     // won't line up with checkPrimalSolution - do again
-    double saveError = model_->largestDualError();
+    FloatT saveError = model_->largestDualError();
     model_->setLargestDualError(0.0);
     // can't loop
     chosenRow = pivotRow();
@@ -393,15 +393,15 @@ int ClpDualRowSteepest::pivotRow()
   return chosenRow;
 }
 #if 0
-static double ft_count = 0.0;
-static double up_count = 0.0;
-static double ft_count_in = 0.0;
-static double up_count_in = 0.0;
+static FloatT ft_count = 0.0;
+static FloatT up_count = 0.0;
+static FloatT ft_count_in = 0.0;
+static FloatT up_count_in = 0.0;
 static int xx_count = 0;
 #endif
 /* Updates weights and returns pivot alpha.
    Also does FT update */
-double
+FloatT
 ClpDualRowSteepest::updateWeights(CoinIndexedVector *input,
   CoinIndexedVector *spare,
   CoinIndexedVector *spare2,
@@ -414,12 +414,12 @@ ClpDualRowSteepest::updateWeights(CoinIndexedVector *input,
     int numberRows = model_->numberRows();
     CoinIndexedVector *temp = new CoinIndexedVector();
     temp->reserve(numberRows + model_->factorization()->maximumPivots());
-    double *array = alternateWeights_->denseVector();
+    FloatT *array = alternateWeights_->denseVector();
     int *which = alternateWeights_->getIndices();
     alternateWeights_->clear();
     int i;
     for (i = 0; i < numberRows; i++) {
-      double value = 0.0;
+      FloatT value = 0.0;
       array[i] = 1.0;
       which[0] = i;
       alternateWeights_->setNumElements(1);
@@ -433,7 +433,7 @@ ClpDualRowSteepest::updateWeights(CoinIndexedVector *input,
         array[iRow] = 0.0;
       }
       alternateWeights_->setNumElements(0);
-      double w = CoinMax(weights_[i], value) * .1;
+      FloatT w = CoinMax(weights_[i], value) * .1;
       if (fabs(weights_[i] - value) > w) {
         printf("%d old %g, true %g\n", i, weights_[i], value);
         weights_[i] = value; // to reduce printout
@@ -452,27 +452,27 @@ ClpDualRowSteepest::updateWeights(CoinIndexedVector *input,
 #endif
     return 0.0;
   }
-  double alpha = 0.0;
+  FloatT alpha = 0.0;
   if (!model_->factorization()->networkBasis()) {
     // clear other region
     alternateWeights_->clear();
-    double norm = 0.0;
+    FloatT norm = 0.0;
     int i;
-    double *work = input->denseVector();
+    FloatT *work = input->denseVector();
     int numberNonZero = input->getNumElements();
     int *which = input->getIndices();
-    double *work2 = spare->denseVector();
+    FloatT *work2 = spare->denseVector();
     int *which2 = spare->getIndices();
     // ftran
     //permute and move indices into index array
     //also compute norm
     //int *regionIndex = alternateWeights_->getIndices (  );
     const int *permute = model_->factorization()->permute();
-    //double * region = alternateWeights_->denseVector();
+    //FloatT * region = alternateWeights_->denseVector();
     if (permute) {
       for (i = 0; i < numberNonZero; i++) {
         int iRow = which[i];
-        double value = work[i];
+        FloatT value = work[i];
         norm += value * value;
         iRow = permute[iRow];
         work2[iRow] = value;
@@ -481,7 +481,7 @@ ClpDualRowSteepest::updateWeights(CoinIndexedVector *input,
     } else {
       for (i = 0; i < numberNonZero; i++) {
         int iRow = which[i];
-        double value = work[i];
+        FloatT value = work[i];
         norm += value * value;
         //iRow = permute[iRow];
         work2[iRow] = value;
@@ -533,27 +533,27 @@ ClpDualRowSteepest::updateWeights(CoinIndexedVector *input,
     assert(norm);
     // pivot element
     alpha = 0.0;
-    double multiplier = 2.0 / model_->alpha();
+    FloatT multiplier = 2.0 / model_->alpha();
     // look at updated column
     work = updatedColumn->denseVector();
     numberNonZero = updatedColumn->getNumElements();
     which = updatedColumn->getIndices();
 
     int nSave = 0;
-    double *work3 = alternateWeights_->denseVector();
+    FloatT *work3 = alternateWeights_->denseVector();
     int *which3 = alternateWeights_->getIndices();
     const int *pivotColumn = model_->factorization()->pivotColumn();
     for (i = 0; i < numberNonZero; i++) {
       int iRow = which[i];
-      double theta = work[i];
+      FloatT theta = work[i];
       if (iRow == pivotRow)
         alpha = theta;
-      double devex = weights_[iRow];
+      FloatT devex = weights_[iRow];
       work3[nSave] = devex; // save old
       which3[nSave++] = iRow;
       // transform to match spare
       int jRow = permute ? pivotColumn[iRow] : iRow;
-      double value = work2[jRow];
+      FloatT value = work2[jRow];
       devex += theta * (theta * norm + value * multiplier);
       if (devex < DEVEX_TRY_NORM)
         devex = DEVEX_TRY_NORM;
@@ -575,16 +575,16 @@ ClpDualRowSteepest::updateWeights(CoinIndexedVector *input,
     model_->factorization()->updateColumnFT(spare, updatedColumn);
     // clear other region
     alternateWeights_->clear();
-    double norm = 0.0;
+    FloatT norm = 0.0;
     int i;
-    double *work = input->denseVector();
+    FloatT *work = input->denseVector();
     int number = input->getNumElements();
     int *which = input->getIndices();
-    double *work2 = spare->denseVector();
+    FloatT *work2 = spare->denseVector();
     int *which2 = spare->getIndices();
     for (i = 0; i < number; i++) {
       int iRow = which[i];
-      double value = work[i];
+      FloatT value = work[i];
       norm += value * value;
       work2[iRow] = value;
       which2[i] = iRow;
@@ -613,24 +613,24 @@ ClpDualRowSteepest::updateWeights(CoinIndexedVector *input,
     //norm = DEVEX_TRY_NORM;
     // pivot element
     alpha = 0.0;
-    double multiplier = 2.0 / model_->alpha();
+    FloatT multiplier = 2.0 / model_->alpha();
     // look at updated column
     work = updatedColumn->denseVector();
     number = updatedColumn->getNumElements();
     which = updatedColumn->getIndices();
 
     int nSave = 0;
-    double *work3 = alternateWeights_->denseVector();
+    FloatT *work3 = alternateWeights_->denseVector();
     int *which3 = alternateWeights_->getIndices();
     for (i = 0; i < number; i++) {
       int iRow = which[i];
-      double theta = work[i];
+      FloatT theta = work[i];
       if (iRow == pivotRow)
         alpha = theta;
-      double devex = weights_[iRow];
+      FloatT devex = weights_[iRow];
       work3[nSave] = devex; // save old
       which3[nSave++] = iRow;
-      double value = work2[iRow];
+      FloatT value = work2[iRow];
       devex += theta * (theta * norm + value * multiplier);
       if (devex < DEVEX_TRY_NORM)
         devex = DEVEX_TRY_NORM;
@@ -659,21 +659,21 @@ ClpDualRowSteepest::updateWeights(CoinIndexedVector *input,
 */
 void ClpDualRowSteepest::updatePrimalSolution(
   CoinIndexedVector *primalUpdate,
-  double primalRatio,
-  double &objectiveChange)
+  FloatT primalRatio,
+  FloatT &objectiveChange)
 {
-  double *COIN_RESTRICT work = primalUpdate->denseVector();
+  FloatT *COIN_RESTRICT work = primalUpdate->denseVector();
   int number = primalUpdate->getNumElements();
   int *COIN_RESTRICT which = primalUpdate->getIndices();
   int i;
-  double changeObj = 0.0;
-  double tolerance = model_->currentPrimalTolerance();
+  FloatT changeObj = 0.0;
+  FloatT tolerance = model_->currentPrimalTolerance();
   const int *COIN_RESTRICT pivotVariable = model_->pivotVariable();
-  double *COIN_RESTRICT infeas = infeasible_->denseVector();
-  double *COIN_RESTRICT solution = model_->solutionRegion();
-  const double *COIN_RESTRICT costModel = model_->costRegion();
-  const double *COIN_RESTRICT lowerModel = model_->lowerRegion();
-  const double *COIN_RESTRICT upperModel = model_->upperRegion();
+  FloatT *COIN_RESTRICT infeas = infeasible_->denseVector();
+  FloatT *COIN_RESTRICT solution = model_->solutionRegion();
+  const FloatT *COIN_RESTRICT costModel = model_->costRegion();
+  const FloatT *COIN_RESTRICT lowerModel = model_->lowerRegion();
+  const FloatT *COIN_RESTRICT upperModel = model_->upperRegion();
 #ifdef CLP_DUAL_COLUMN_MULTIPLIER
   int numberColumns = model_->numberColumns();
 #endif
@@ -681,14 +681,14 @@ void ClpDualRowSteepest::updatePrimalSolution(
     for (i = 0; i < number; i++) {
       int iRow = which[i];
       int iPivot = pivotVariable[iRow];
-      double value = solution[iPivot];
-      double cost = costModel[iPivot];
-      double change = primalRatio * work[i];
+      FloatT value = solution[iPivot];
+      FloatT cost = costModel[iPivot];
+      FloatT change = primalRatio * work[i];
       work[i] = 0.0;
       value -= change;
       changeObj -= change * cost;
-      double lower = lowerModel[iPivot];
-      double upper = upperModel[iPivot];
+      FloatT lower = lowerModel[iPivot];
+      FloatT upper = upperModel[iPivot];
       solution[iPivot] = value;
       if (value < lower - tolerance) {
         value -= lower;
@@ -732,13 +732,13 @@ void ClpDualRowSteepest::updatePrimalSolution(
     for (i = 0; i < number; i++) {
       int iRow = which[i];
       int iPivot = pivotVariable[iRow];
-      double value = solution[iPivot];
-      double cost = costModel[iPivot];
-      double change = primalRatio * work[iRow];
+      FloatT value = solution[iPivot];
+      FloatT cost = costModel[iPivot];
+      FloatT change = primalRatio * work[iRow];
       value -= change;
       changeObj -= change * cost;
-      double lower = lowerModel[iPivot];
-      double upper = upperModel[iPivot];
+      FloatT lower = lowerModel[iPivot];
+      FloatT upper = upperModel[iPivot];
       solution[iPivot] = value;
       if (value < lower - tolerance) {
         value -= lower;
@@ -847,7 +847,7 @@ void ClpDualRowSteepest::saveWeights(ClpSimplex *model, int mode)
       // initialize weights
       delete[] weights_;
       delete alternateWeights_;
-      weights_ = new double[numberRows];
+      weights_ = new FloatT[numberRows];
       // initialize to 1.0 (can we do better?)
       for (i = 0; i < numberRows; i++) {
         weights_[i] = 1.0;
@@ -859,7 +859,7 @@ void ClpDualRowSteepest::saveWeights(ClpSimplex *model, int mode)
       } else {
         CoinIndexedVector *temp = new CoinIndexedVector();
         temp->reserve(numberRows + model_->factorization()->maximumPivots());
-        double *array = alternateWeights_->denseVector();
+        FloatT *array = alternateWeights_->denseVector();
         int *which = alternateWeights_->getIndices();
         int firstRow = 0;
         int lastRow = numberRows;
@@ -869,7 +869,7 @@ void ClpDualRowSteepest::saveWeights(ClpSimplex *model, int mode)
           lastRow = model->spareIntArray_[1];
         }
         for (i = firstRow; i < lastRow; i++) {
-          double value = 0.0;
+          FloatT value = 0.0;
           array[0] = 1.0;
           which[0] = i;
           alternateWeights_->setNumElements(1);
@@ -893,7 +893,7 @@ void ClpDualRowSteepest::saveWeights(ClpSimplex *model, int mode)
       for (int i = 0; i < model_->numberRows(); i++)
         savedWeights_->denseVector()[i] = 1.0;
 
-      double *array = savedWeights_->denseVector();
+      FloatT *array = savedWeights_->denseVector();
       int *which = savedWeights_->getIndices();
       for (int i = 0; i < numberRows; i++) {
         array[i] = weights_[i];
@@ -920,11 +920,11 @@ void ClpDualRowSteepest::saveWeights(ClpSimplex *model, int mode)
         //memcpy(which,savedWeights_->getIndices(),
         //     numberRows*sizeof(int));
         //memcpy(weights_,savedWeights_->denseVector(),
-        //     numberRows*sizeof(double));
+        //     numberRows*sizeof(FloatT));
         which = savedWeights_->getIndices();
       }
       // restore (a bit slow - but only every re-factorization)
-      double *array = savedWeights_->denseVector();
+      FloatT *array = savedWeights_->denseVector();
       for (i = 0; i < numberRows; i++) {
         int iSeq = which[i];
         back[iSeq] = i;
@@ -959,8 +959,8 @@ void ClpDualRowSteepest::saveWeights(ClpSimplex *model, int mode)
 #endif
     } else {
       // mode 6 - scale back weights as primal errors
-      double primalError = model_->largestPrimalError();
-      double allowed;
+      FloatT primalError = model_->largestPrimalError();
+      FloatT allowed;
       if (primalError > 1.0e3)
         allowed = 10.0;
       else if (primalError > 1.0e2)
@@ -969,9 +969,9 @@ void ClpDualRowSteepest::saveWeights(ClpSimplex *model, int mode)
         allowed = 100.0;
       else
         allowed = 1000.0;
-      double allowedInv = 1.0 / allowed;
+      FloatT allowedInv = 1.0 / allowed;
       for (i = 0; i < numberRows; i++) {
-        double value = weights_[i];
+        FloatT value = weights_[i];
         if (value < allowedInv)
           value = allowedInv;
         else if (value > allowed)
@@ -994,12 +994,12 @@ void ClpDualRowSteepest::saveWeights(ClpSimplex *model, int mode)
     infeasible_->clear();
     int iRow;
     const int *pivotVariable = model_->pivotVariable();
-    double tolerance = model_->currentPrimalTolerance();
+    FloatT tolerance = model_->currentPrimalTolerance();
     for (iRow = 0; iRow < numberRows; iRow++) {
       int iPivot = pivotVariable[iRow];
-      double value = model_->solution(iPivot);
-      double lower = model_->lower(iPivot);
-      double upper = model_->upper(iPivot);
+      FloatT value = model_->solution(iPivot);
+      FloatT lower = model_->lower(iPivot);
+      FloatT upper = model_->upper(iPivot);
       if (value < lower - tolerance) {
         value -= lower;
         value *= value;
@@ -1056,7 +1056,7 @@ void ClpDualRowSteepest::passInSavedWeights(const CoinIndexedVector *saved)
 // Gets rid of last update
 void ClpDualRowSteepest::unrollWeights()
 {
-  double *saved = alternateWeights_->denseVector();
+  FloatT *saved = alternateWeights_->denseVector();
   int number = alternateWeights_->getNumElements();
   int *which = alternateWeights_->getIndices();
   int i;
@@ -1108,10 +1108,10 @@ bool ClpDualRowSteepest::looksOptimal() const
 {
   int iRow;
   const int *pivotVariable = model_->pivotVariable();
-  double tolerance = model_->currentPrimalTolerance();
+  FloatT tolerance = model_->currentPrimalTolerance();
   // we can't really trust infeasibilities if there is primal error
   // this coding has to mimic coding in checkPrimalSolution
-  double error = CoinMin(1.0e-2, model_->largestPrimalError());
+  FloatT error = CoinMin(1.0e-2, model_->largestPrimalError());
   // allow tolerance at least slightly bigger than standard
   tolerance = tolerance + error;
   // But cap
@@ -1120,9 +1120,9 @@ bool ClpDualRowSteepest::looksOptimal() const
   int numberInfeasible = 0;
   for (iRow = 0; iRow < numberRows; iRow++) {
     int iPivot = pivotVariable[iRow];
-    double value = model_->solution(iPivot);
-    double lower = model_->lower(iPivot);
-    double upper = model_->upper(iPivot);
+    FloatT value = model_->solution(iPivot);
+    FloatT lower = model_->lower(iPivot);
+    FloatT upper = model_->upper(iPivot);
     if (value < lower - tolerance) {
       numberInfeasible++;
     } else if (value > upper + tolerance) {

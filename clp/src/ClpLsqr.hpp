@@ -88,9 +88,9 @@ public:
   /// Pointer to Model object for this instance
   ClpInterior *model_;
   /// Diagonal array 1
-  double *diag1_;
+  FloatT *diag1_;
   /// Constant diagonal 2
-  double diag2_;
+  FloatT diag2_;
   //@}
 
   /**@name Constructors and destructors */
@@ -112,16 +112,16 @@ public:
   /// Set an int parameter
   bool setParam(char *parmName, int parmValue);
   /// Call the Lsqr algorithm
-  void do_lsqr(CoinDenseVector< double > &b,
-    double damp, double atol, double btol, double conlim, int itnlim,
-    bool show, Info info, CoinDenseVector< double > &x, int *istop,
-    int *itn, Outfo *outfo, bool precon, CoinDenseVector< double > &Pr);
+  void do_lsqr(CoinDenseVector< FloatT > &b,
+    FloatT damp, FloatT atol, FloatT btol, FloatT conlim, int itnlim,
+    bool show, Info info, CoinDenseVector< FloatT > &x, int *istop,
+    int *itn, Outfo *outfo, bool precon, CoinDenseVector< FloatT > &Pr);
   /// Matrix-vector multiply - implemented by user
-  void matVecMult(int, CoinDenseVector< double > *, CoinDenseVector< double > *);
+  void matVecMult(int, CoinDenseVector< FloatT > *, CoinDenseVector< FloatT > *);
 
-  void matVecMult(int, CoinDenseVector< double > &, CoinDenseVector< double > &);
-  /// diag1 - we just borrow as it is part of a CoinDenseVector<double>
-  void borrowDiag1(double *array)
+  void matVecMult(int, CoinDenseVector< FloatT > &, CoinDenseVector< FloatT > &);
+  /// diag1 - we just borrow as it is part of a CoinDenseVector<FloatT>
+  void borrowDiag1(FloatT *array)
   {
     diag1_ = array;
   };

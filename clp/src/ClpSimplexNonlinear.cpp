@@ -59,7 +59,7 @@ int ClpSimplexNonlinear::primal()
       objective_ = new ClpQuadraticObjective(*quadraticObj, 1);
     }
   }
-  double bestObjectiveWhenFlagged = COIN_DBL_MAX;
+  FloatT bestObjectiveWhenFlagged = COIN_DBL_MAX;
   int pivotMode = 15;
   //pivotMode=20;
 
@@ -205,7 +205,7 @@ int ClpSimplexNonlinear::primal()
 void ClpSimplexNonlinear::statusOfProblemInPrimal(int &lastCleaned, int type,
   ClpSimplexProgress *progress,
   bool doFactorization,
-  double &bestObjectiveWhenFlagged)
+  FloatT &bestObjectiveWhenFlagged)
 {
   int dummy; // for use in generalExpanded
   if (type == 2) {
@@ -352,10 +352,10 @@ void ClpSimplexNonlinear::statusOfProblemInPrimal(int &lastCleaned, int type,
     gutsOfSolution(NULL, NULL, true);
     nonLinearCost_->checkInfeasibilities(primalTolerance_);
   }
-  double trueInfeasibility = nonLinearCost_->sumInfeasibilities();
+  FloatT trueInfeasibility = nonLinearCost_->sumInfeasibilities();
   if (trueInfeasibility > 1.0) {
     // If infeasibility going up may change weights
-    double testValue = trueInfeasibility - 1.0e-4 * (10.0 + trueInfeasibility);
+    FloatT testValue = trueInfeasibility - 1.0e-4 * (10.0 + trueInfeasibility);
     if (progress->lastInfeasibility() < testValue) {
       if (infeasibilityCost_ < 1.0e14) {
         infeasibilityCost_ *= 1.5;
@@ -383,7 +383,7 @@ void ClpSimplexNonlinear::statusOfProblemInPrimal(int &lastCleaned, int type,
       //may need infeasiblity cost changed
       // we can see if we can construct a ray
       // make up a new objective
-      double saveWeight = infeasibilityCost_;
+      FloatT saveWeight = infeasibilityCost_;
       // save nonlinear cost as we are going to switch off costs
       ClpNonLinearCost *nonLinear = nonLinearCost_;
       // do twice to make sure Primal solution has settled
@@ -397,7 +397,7 @@ void ClpSimplexNonlinear::statusOfProblemInPrimal(int &lastCleaned, int type,
       // put back original costs
       createRim(4);
       nonLinearCost_->checkInfeasibilities(primalTolerance_);
-      // may have fixed infeasibilities - double check
+      // may have fixed infeasibilities - FloatT check
       if (nonLinearCost_->numberInfeasibilities() == 0) {
         // carry on
         problemStatus_ = -1;
@@ -425,7 +425,7 @@ void ClpSimplexNonlinear::statusOfProblemInPrimal(int &lastCleaned, int type,
         if (infeasibilityCost_ >= 1.0e20 || numberDualInfeasibilities_ == 0) {
           // we are infeasible - use as ray
           delete[] ray_;
-          ray_ = new double[numberRows_];
+          ray_ = new FloatT[numberRows_];
           CoinMemcpyN(dual_, numberRows_, ray_);
           // and get feasible duals
           infeasibilityCost_ = 0.0;
@@ -468,7 +468,7 @@ void ClpSimplexNonlinear::statusOfProblemInPrimal(int &lastCleaned, int type,
         handler_->message(CLP_PRIMAL_OPTIMAL, messages_)
           << primalTolerance_
           << CoinMessageEol;
-        double current = nonLinearCost_->feasibleReportCost();
+        FloatT current = nonLinearCost_->feasibleReportCost();
         if (numberTimesOptimal_ < 4) {
           if (bestObjectiveWhenFlagged <= current) {
             numberTimesOptimal_++;
@@ -489,7 +489,7 @@ void ClpSimplexNonlinear::statusOfProblemInPrimal(int &lastCleaned, int type,
           if (primalTolerance_ != dblParam_[ClpPrimalTolerance])
             handler_->message(CLP_PRIMAL_ORIGINAL, messages_)
               << CoinMessageEol;
-          double oldTolerance = primalTolerance_;
+          FloatT oldTolerance = primalTolerance_;
           primalTolerance_ = dblParam_[ClpPrimalTolerance];
           // put back original costs and then check
           createRim(4);
@@ -561,7 +561,7 @@ void ClpSimplexNonlinear::statusOfProblemInPrimal(int &lastCleaned, int type,
       delete[] saveStatus_;
       delete[] savedSolution_;
       saveStatus_ = new unsigned char[numberRows_ + numberColumns_];
-      savedSolution_ = new double[numberRows_ + numberColumns_];
+      savedSolution_ = new FloatT[numberRows_ + numberColumns_];
     }
     // save arrays
     CoinMemcpyN(status_, (numberColumns_ + numberRows_), saveStatus_);
@@ -612,8 +612,8 @@ int ClpSimplexNonlinear::whileIterating(int &pivotMode)
   int nextUnflag = 10;
   int nextUnflagIteration = numberIterations_ + 10;
   // get two arrays
-  double *array1 = new double[2 * (numberRows_ + numberColumns_)];
-  double solutionError = -1.0;
+  FloatT *array1 = new FloatT[2 * (numberRows_ + numberColumns_)];
+  FloatT solutionError = -1.0;
   while (problemStatus_ == -1) {
     int result;
     rowArray_[1]->clear();
@@ -655,9 +655,9 @@ int ClpSimplexNonlinear::whileIterating(int &pivotMode)
     if (result) {
       if (result == 2 && sequenceIn_ < 0) {
         // does not look good
-        double currentObj;
-        double thetaObj;
-        double predictedObj;
+        FloatT currentObj;
+        FloatT thetaObj;
+        FloatT predictedObj;
         objective_->stepLength(this, solution_, solution_, 0.0,
           currentObj, thetaObj, predictedObj);
         if (currentObj == predictedObj) {
@@ -674,9 +674,9 @@ int ClpSimplexNonlinear::whileIterating(int &pivotMode)
         break; // null vector not accurate
 #ifdef CLP_DEBUG
       if (handler_->logLevel() & 32) {
-        double currentObj;
-        double thetaObj;
-        double predictedObj;
+        FloatT currentObj;
+        FloatT thetaObj;
+        FloatT predictedObj;
         objective_->stepLength(this, solution_, solution_, 0.0,
           currentObj, thetaObj, predictedObj);
         printf("obj %g after interior move\n", currentObj);
@@ -772,7 +772,7 @@ int ClpSimplexNonlinear::whileIterating(int &pivotMode)
 void ClpSimplexNonlinear::directionVector(CoinIndexedVector *vectorArray,
   CoinIndexedVector *spare1, CoinIndexedVector *spare2,
   int pivotMode2,
-  double &normFlagged, double &normUnflagged,
+  FloatT &normFlagged, FloatT &normUnflagged,
   int &numberNonBasic)
 {
 #if CLP_DEBUG > 1
@@ -780,22 +780,22 @@ void ClpSimplexNonlinear::directionVector(CoinIndexedVector *vectorArray,
   spare1->checkClear();
   spare2->checkClear();
 #endif
-  double *array = vectorArray->denseVector();
+  FloatT *array = vectorArray->denseVector();
   int *index = vectorArray->getIndices();
   int number = 0;
   sequenceIn_ = -1;
   normFlagged = 0.0;
   normUnflagged = 1.0;
-  double dualTolerance2 = CoinMin(1.0e-8, 1.0e-2 * dualTolerance_);
-  double dualTolerance3 = CoinMin(1.0e-2, 1.0e3 * dualTolerance_);
+  FloatT dualTolerance2 = CoinMin(1.0e-8, 1.0e-2 * dualTolerance_);
+  FloatT dualTolerance3 = CoinMin(1.0e-2, 1.0e3 * dualTolerance_);
   if (!numberNonBasic) {
     //if (nonLinearCost_->sumInfeasibilities()>1.0e-4)
     //printf("infeasible\n");
     if (!pivotMode2 || pivotMode2 >= 10) {
       normUnflagged = 0.0;
-      double bestDj = 0.0;
-      double bestSuper = 0.0;
-      double sumSuper = 0.0;
+      FloatT bestDj = 0.0;
+      FloatT bestSuper = 0.0;
+      FloatT sumSuper = 0.0;
       sequenceIn_ = -1;
       int nSuper = 0;
       for (int iSequence = 0; iSequence < numberColumns_ + numberRows_; iSequence++) {
@@ -926,8 +926,8 @@ void ClpSimplexNonlinear::directionVector(CoinIndexedVector *vectorArray,
       }
 #endif
     } else {
-      double bestDj = 0.0;
-      double saveDj = 0.0;
+      FloatT bestDj = 0.0;
+      FloatT saveDj = 0.0;
       if (sequenceOut_ >= 0) {
         saveDj = dj_[sequenceOut_];
         dj_[sequenceOut_] = 0.0;
@@ -990,8 +990,8 @@ void ClpSimplexNonlinear::directionVector(CoinIndexedVector *vectorArray,
           break;
         case atUpperBound:
           if (dj_[iSequence] > dualTolerance_) {
-            double distance = CoinMin(1.0e-2, solution_[iSequence] - lower_[iSequence]);
-            double merit = distance * dj_[iSequence];
+            FloatT distance = CoinMin(1.0e-2, solution_[iSequence] - lower_[iSequence]);
+            FloatT merit = distance * dj_[iSequence];
             if (pivotMode2 == 1)
               merit *= 1.0e-20; // discourage
             if (pivotMode2 == 3)
@@ -1004,8 +1004,8 @@ void ClpSimplexNonlinear::directionVector(CoinIndexedVector *vectorArray,
           break;
         case atLowerBound:
           if (dj_[iSequence] < -dualTolerance_) {
-            double distance = CoinMin(1.0e-2, upper_[iSequence] - solution_[iSequence]);
-            double merit = -distance * dj_[iSequence];
+            FloatT distance = CoinMin(1.0e-2, upper_[iSequence] - solution_[iSequence]);
+            FloatT merit = -distance * dj_[iSequence];
             if (pivotMode2 == 1)
               merit *= 1.0e-20; // discourage
             if (pivotMode2 == 3)
@@ -1019,10 +1019,10 @@ void ClpSimplexNonlinear::directionVector(CoinIndexedVector *vectorArray,
         case isFree:
         case superBasic:
           if (dj_[iSequence] > dualTolerance_) {
-            double distance = CoinMin(1.0e-2, solution_[iSequence] - lower_[iSequence]);
+            FloatT distance = CoinMin(1.0e-2, solution_[iSequence] - lower_[iSequence]);
             distance = CoinMin(solution_[iSequence] - lower_[iSequence],
               upper_[iSequence] - solution_[iSequence]);
-            double merit = distance * dj_[iSequence];
+            FloatT merit = distance * dj_[iSequence];
             if (pivotMode2 == 1)
               merit = distance;
             if (pivotMode2 == 3)
@@ -1032,10 +1032,10 @@ void ClpSimplexNonlinear::directionVector(CoinIndexedVector *vectorArray,
               bestDj = merit;
             }
           } else if (dj_[iSequence] < -dualTolerance_) {
-            double distance = CoinMin(1.0e-2, upper_[iSequence] - solution_[iSequence]);
+            FloatT distance = CoinMin(1.0e-2, upper_[iSequence] - solution_[iSequence]);
             distance = CoinMin(solution_[iSequence] - lower_[iSequence],
               upper_[iSequence] - solution_[iSequence]);
-            double merit = -distance * dj_[iSequence];
+            FloatT merit = -distance * dj_[iSequence];
             if (pivotMode2 == 1)
               merit = distance;
             if (pivotMode2 == 3)
@@ -1137,7 +1137,7 @@ void ClpSimplexNonlinear::directionVector(CoinIndexedVector *vectorArray,
     int iRow;
     for (iRow = 0; iRow < numberRows_; iRow++) {
       int iPivot = pivotVariable_[iRow];
-      double value = 0.0;
+      FloatT value = 0.0;
       if (solution_[iPivot] > upper_[iPivot]) {
         value = upper_[iPivot] - solution_[iPivot];
       } else if (solution_[iPivot] < lower_[iPivot]) {
@@ -1153,13 +1153,13 @@ void ClpSimplexNonlinear::directionVector(CoinIndexedVector *vectorArray,
         index[number++] = iPivot;
       }
     }
-    double *array2 = spare1->denseVector();
+    FloatT *array2 = spare1->denseVector();
     int *index2 = spare1->getIndices();
     int number2 = 0;
     times(-1.0, array, array2);
     array = array + numberColumns_;
     for (iRow = 0; iRow < numberRows_; iRow++) {
-      double value = array2[iRow] + array[iRow];
+      FloatT value = array2[iRow] + array[iRow];
       if (value) {
         array2[iRow] = value;
         index2[number2++] = iRow;
@@ -1174,11 +1174,11 @@ void ClpSimplexNonlinear::directionVector(CoinIndexedVector *vectorArray,
     number2 = spare1->getNumElements();
     for (j = 0; j < number2; j++) {
       int iSequence = index2[j];
-      double value = array2[iSequence];
+      FloatT value = array2[iSequence];
       array2[iSequence] = 0.0;
       if (value) {
         int iPivot = pivotVariable_[iSequence];
-        double oldValue = array[iPivot];
+        FloatT oldValue = array[iPivot];
         if (!oldValue) {
           array[iPivot] = value;
           index[number++] = iPivot;
@@ -1194,11 +1194,11 @@ void ClpSimplexNonlinear::directionVector(CoinIndexedVector *vectorArray,
 }
 #define MINTYPE 1
 #if MINTYPE == 2
-static double
-innerProductIndexed(const double *region1, int size, const double *region2, const int *which)
+static FloatT
+innerProductIndexed(const FloatT *region1, int size, const FloatT *region2, const int *which)
 {
   int i;
-  double value = 0.0;
+  FloatT value = 0.0;
   for (i = 0; i < size; i++) {
     int j = which[i];
     value += region1[j] * region2[j];
@@ -1216,64 +1216,64 @@ int ClpSimplexNonlinear::pivotColumn(CoinIndexedVector *longArray,
   CoinIndexedVector *columnArray,
   CoinIndexedVector *spare,
   int &pivotMode,
-  double &solutionError,
-  double *dArray)
+  FloatT &solutionError,
+  FloatT *dArray)
 {
   // say not optimal
   primalColumnPivot_->setLooksOptimal(false);
-  double acceptablePivot = 1.0e-10;
+  FloatT acceptablePivot = 1.0e-10;
   int lastSequenceIn = -1;
   if (pivotMode && pivotMode < 10) {
     acceptablePivot = 1.0e-6;
     if (factorization_->pivots())
       acceptablePivot = 1.0e-5; // if we have iterated be more strict
   }
-  double acceptableBasic = 1.0e-7;
+  FloatT acceptableBasic = 1.0e-7;
 
   int number = longArray->getNumElements();
   int numberTotal = numberRows_ + numberColumns_;
   int bestSequence = -1;
   int bestBasicSequence = -1;
-  double eps = 1.0e-1;
+  FloatT eps = 1.0e-1;
   eps = 1.0e-6;
-  double basicTheta = 1.0e30;
-  double objTheta = 0.0;
+  FloatT basicTheta = 1.0e30;
+  FloatT objTheta = 0.0;
   bool finished = false;
   sequenceIn_ = -1;
   int nPasses = 0;
   int nTotalPasses = 0;
   int nBigPasses = 0;
-  double djNorm0 = 0.0;
-  double djNorm = 0.0;
-  double normFlagged = 0.0;
-  double normUnflagged = 0.0;
+  FloatT djNorm0 = 0.0;
+  FloatT djNorm = 0.0;
+  FloatT normFlagged = 0.0;
+  FloatT normUnflagged = 0.0;
   int localPivotMode = pivotMode;
   bool allFinished = false;
   bool justOne = false;
   int returnCode = 1;
-  double currentObj;
-  double predictedObj;
-  double thetaObj;
+  FloatT currentObj;
+  FloatT predictedObj;
+  FloatT thetaObj;
   objective_->stepLength(this, solution_, solution_, 0.0,
     currentObj, predictedObj, thetaObj);
-  double saveObj = currentObj;
+  FloatT saveObj = currentObj;
 #if MINTYPE == 2
   // try Shanno's method
   //would be memory leak
-  //double * saveY=new double[numberTotal];
-  //double * saveS=new double[numberTotal];
-  //double * saveY2=new double[numberTotal];
-  //double * saveS2=new double[numberTotal];
-  double saveY[100];
-  double saveS[100];
-  double saveY2[100];
-  double saveS2[100];
-  double zz[10000];
+  //FloatT * saveY=new FloatT[numberTotal];
+  //FloatT * saveS=new FloatT[numberTotal];
+  //FloatT * saveY2=new FloatT[numberTotal];
+  //FloatT * saveS2=new FloatT[numberTotal];
+  FloatT saveY[100];
+  FloatT saveS[100];
+  FloatT saveY2[100];
+  FloatT saveS2[100];
+  FloatT zz[10000];
 #endif
-  double *dArray2 = dArray + numberTotal;
+  FloatT *dArray2 = dArray + numberTotal;
   // big big loop
   while (!allFinished) {
-    double *work = longArray->denseVector();
+    FloatT *work = longArray->denseVector();
     int *which = longArray->getIndices();
     allFinished = true;
     // CONJUGATE 0 - never, 1 as pivotMode, 2 as localPivotMode, 3 always
@@ -1300,7 +1300,7 @@ int ClpSimplexNonlinear::pivotColumn(CoinIndexedVector *longArray,
     int numberNonBasic = 0;
     int startLocalMode = -1;
     while (!finished) {
-      double simpleObjective = COIN_DBL_MAX;
+      FloatT simpleObjective = COIN_DBL_MAX;
       returnCode = 1;
       int iSequence;
       objective_->reducedGradient(this, dj_, false);
@@ -1335,19 +1335,19 @@ int ClpSimplexNonlinear::pivotColumn(CoinIndexedVector *longArray,
         normFlagged, normUnflagged, numberNonBasic);
       {
         // check null vector
-        double *rhs = spare->denseVector();
+        FloatT *rhs = spare->denseVector();
 #if CLP_DEBUG > 1
         spare->checkClear();
 #endif
         int iRow;
         multiplyAdd(solution_ + numberColumns_, numberRows_, -1.0, rhs, 0.0);
         matrix_->times(1.0, solution_, rhs, rowScale_, columnScale_);
-        double largest = 0.0;
+        FloatT largest = 0.0;
 #if CLP_DEBUG > 0
         int iLargest = -1;
 #endif
         for (iRow = 0; iRow < numberRows_; iRow++) {
-          double value = fabs(rhs[iRow]);
+          FloatT value = fabs(rhs[iRow]);
           rhs[iRow] = 0.0;
           if (value > largest) {
             largest = value;
@@ -1372,13 +1372,13 @@ int ClpSimplexNonlinear::pivotColumn(CoinIndexedVector *longArray,
       if (sequenceIn_ >= 0)
         lastSequenceIn = sequenceIn_;
 #if MINTYPE != 2
-      double djNormSave = djNorm;
+      FloatT djNormSave = djNorm;
 #endif
       djNorm = 0.0;
       int iIndex;
       for (iIndex = 0; iIndex < numberNonBasic; iIndex++) {
         int iSequence = which[iIndex];
-        double alpha = work[iSequence];
+        FloatT alpha = work[iSequence];
         djNorm += alpha * alpha;
       }
       // go to conjugate gradient if necessary
@@ -1396,7 +1396,7 @@ int ClpSimplexNonlinear::pivotColumn(CoinIndexedVector *longArray,
         //printf("numberNon %d\n",numberNonBasic);
 #if MINTYPE == 2
         assert(numberNonBasic < 100);
-        memset(zz, 0, numberNonBasic * numberNonBasic * sizeof(double));
+        memset(zz, 0, numberNonBasic * numberNonBasic * sizeof(FloatT));
         int put = 0;
         for (int iVariable = 0; iVariable < numberNonBasic; iVariable++) {
           zz[put] = 1.0;
@@ -1408,7 +1408,7 @@ int ClpSimplexNonlinear::pivotColumn(CoinIndexedVector *longArray,
         CoinMemcpyN(work, numberTotal, dArray2);
         if (sequenceIn_ >= 0 && numberNonBasic == 1) {
           // see if simple move
-          double objTheta2 = objective_->stepLength(this, solution_, work, 1.0e30,
+          FloatT objTheta2 = objective_->stepLength(this, solution_, work, 1.0e30,
             currentObj, predictedObj, thetaObj);
           rowArray->clear();
 
@@ -1416,26 +1416,26 @@ int ClpSimplexNonlinear::pivotColumn(CoinIndexedVector *longArray,
           unpackPacked(rowArray);
           factorization_->updateColumnFT(spare, rowArray);
           theta_ = 0.0;
-          double *work2 = rowArray->denseVector();
+          FloatT *work2 = rowArray->denseVector();
           int number = rowArray->getNumElements();
           int *which2 = rowArray->getIndices();
           int iIndex;
           bool easyMove = false;
-          double way;
+          FloatT way;
           if (dj_[sequenceIn_] > 0.0)
             way = -1.0;
           else
             way = 1.0;
-          double largest = COIN_DBL_MAX;
+          FloatT largest = COIN_DBL_MAX;
 #ifdef CLP_DEBUG
           int kPivot = -1;
 #endif
           for (iIndex = 0; iIndex < number; iIndex++) {
             int iRow = which2[iIndex];
-            double alpha = way * work2[iIndex];
+            FloatT alpha = way * work2[iIndex];
             int iPivot = pivotVariable_[iRow];
             if (alpha < -1.0e-5) {
-              double distance = upper_[iPivot] - solution_[iPivot];
+              FloatT distance = upper_[iPivot] - solution_[iPivot];
               if (distance < -largest * alpha) {
 #ifdef CLP_DEBUG
                 kPivot = iPivot;
@@ -1447,7 +1447,7 @@ int ClpSimplexNonlinear::pivotColumn(CoinIndexedVector *longArray,
                 break;
               }
             } else if (alpha > 1.0e-5) {
-              double distance = solution_[iPivot] - lower_[iPivot];
+              FloatT distance = solution_[iPivot] - lower_[iPivot];
               if (distance < largest * alpha) {
 #ifdef CLP_DEBUG
                 kPivot = iPivot;
@@ -1466,11 +1466,11 @@ int ClpSimplexNonlinear::pivotColumn(CoinIndexedVector *longArray,
           if (largest < objTheta2) {
             easyMove = true;
           } else if (!easyMove) {
-            double objDrop = currentObj - predictedObj;
-            double th = objective_->stepLength(this, solution_, work, largest,
+            FloatT objDrop = currentObj - predictedObj;
+            FloatT th = objective_->stepLength(this, solution_, work, largest,
               currentObj, predictedObj, simpleObjective);
             simpleObjective = CoinMax(simpleObjective, predictedObj);
-            double easyDrop = currentObj - simpleObjective;
+            FloatT easyDrop = currentObj - simpleObjective;
             if (easyDrop > 1.0e-8 && easyDrop > 0.5 * objDrop) {
               easyMove = true;
 #ifdef CLP_DEBUG
@@ -1510,21 +1510,21 @@ int ClpSimplexNonlinear::pivotColumn(CoinIndexedVector *longArray,
       } else {
 #if MINTYPE == 1
         if (conjugate) {
-          double djNorm2 = djNorm;
+          FloatT djNorm2 = djNorm;
           if (numberNonBasic && false) {
             int iIndex;
             djNorm2 = 0.0;
             for (iIndex = 0; iIndex < numberNonBasic; iIndex++) {
               int iSequence = which[iIndex];
-              double alpha = work[iSequence];
+              FloatT alpha = work[iSequence];
               //djNorm2 += alpha*alpha;
-              double alpha2 = work[iSequence] - dArray2[iSequence];
+              FloatT alpha2 = work[iSequence] - dArray2[iSequence];
               djNorm2 += alpha * alpha2;
             }
             //printf("a %.18g b %.18g\n",djNorm,djNorm2);
           }
           djNorm = djNorm2;
-          double beta = djNorm2 / djNormSave;
+          FloatT beta = djNorm2 / djNormSave;
           // reset beta every so often
           //if (numberNonBasic&&nPasses>numberNonBasic&&(nPasses%(3*numberNonBasic))==1)
           //beta=0.0;
@@ -1547,29 +1547,29 @@ int ClpSimplexNonlinear::pivotColumn(CoinIndexedVector *longArray,
             int j = which[iSequence];
             assert(j > jLast);
             jLast = j;
-            double value = work[j];
+            FloatT value = work[j];
             dArray[iSequence] = -value;
           }
           // see whether to restart
           // check signs - gradient
-          double g1 = innerProduct(dArray, number2, dArray);
-          double g2 = innerProduct(dArray, number2, saveY2);
+          FloatT g1 = innerProduct(dArray, number2, dArray);
+          FloatT g2 = innerProduct(dArray, number2, saveY2);
           // Get differences
           for (iSequence = 0; iSequence < numberNonBasic; iSequence++) {
             saveY2[iSequence] = dArray[iSequence] - saveY2[iSequence];
             saveS2[iSequence] = solution_[iSequence] - saveS2[iSequence];
           }
-          double g3 = innerProduct(saveS2, number2, saveY2);
+          FloatT g3 = innerProduct(saveS2, number2, saveY2);
           printf("inner %g\n", g3);
           //assert(g3>0);
-          double zzz[10000];
+          FloatT zzz[10000];
           int iVariable;
           g2 = 1.0e50; // temp
           if (fabs(g2) >= 0.2 * fabs(g1)) {
             // restart
-            double delta = innerProduct(saveY2, number2, saveS2) / innerProduct(saveY2, number2, saveY2);
+            FloatT delta = innerProduct(saveY2, number2, saveS2) / innerProduct(saveY2, number2, saveY2);
             delta = 1.0; //temp
-            memset(zz, 0, number2 * sizeof(double));
+            memset(zz, 0, number2 * sizeof(FloatT));
             int put = 0;
             for (iVariable = 0; iVariable < number2; iVariable++) {
               zz[put] = delta;
@@ -1578,36 +1578,36 @@ int ClpSimplexNonlinear::pivotColumn(CoinIndexedVector *longArray,
           } else {
           }
           CoinMemcpyN(zz, number2 * number2, zzz);
-          double ww[100];
+          FloatT ww[100];
           // get sk -Hkyk
           for (iVariable = 0; iVariable < number2; iVariable++) {
-            double value = 0.0;
+            FloatT value = 0.0;
             for (int jVariable = 0; jVariable < number2; jVariable++) {
               value += saveY2[jVariable] * zzz[iVariable + number2 * jVariable];
             }
             ww[iVariable] = saveS2[iVariable] - value;
           }
-          double ys = innerProduct(saveY2, number2, saveS2);
-          double multiplier1 = 1.0 / ys;
-          double multiplier2 = innerProduct(saveY2, number2, ww) / (ys * ys);
+          FloatT ys = innerProduct(saveY2, number2, saveS2);
+          FloatT multiplier1 = 1.0 / ys;
+          FloatT multiplier2 = innerProduct(saveY2, number2, ww) / (ys * ys);
 #if 1
           // and second way
           // Hy
-          double h[100];
+          FloatT h[100];
           for (iVariable = 0; iVariable < number2; iVariable++) {
-            double value = 0.0;
+            FloatT value = 0.0;
             for (int jVariable = 0; jVariable < number2; jVariable++) {
               value += saveY2[jVariable] * zzz[iVariable + number2 * jVariable];
             }
             h[iVariable] = value;
           }
-          double hh[10000];
-          double yhy1 = innerProduct(h, number2, saveY2) * multiplier1 + 1.0;
+          FloatT hh[10000];
+          FloatT yhy1 = innerProduct(h, number2, saveY2) * multiplier1 + 1.0;
           yhy1 *= multiplier1;
           for (iVariable = 0; iVariable < number2; iVariable++) {
             for (int jVariable = 0; jVariable < number2; jVariable++) {
               int put = iVariable + number2 * jVariable;
-              double value = zzz[put];
+              FloatT value = zzz[put];
               value += yhy1 * saveS2[iVariable] * saveS2[jVariable];
               hh[put] = value;
             }
@@ -1615,7 +1615,7 @@ int ClpSimplexNonlinear::pivotColumn(CoinIndexedVector *longArray,
           for (iVariable = 0; iVariable < number2; iVariable++) {
             for (int jVariable = 0; jVariable < number2; jVariable++) {
               int put = iVariable + number2 * jVariable;
-              double value = hh[put];
+              FloatT value = hh[put];
               value -= multiplier1 * (saveS2[iVariable] * h[jVariable]);
               value -= multiplier1 * (saveS2[jVariable] * h[iVariable]);
               hh[put] = value;
@@ -1626,17 +1626,17 @@ int ClpSimplexNonlinear::pivotColumn(CoinIndexedVector *longArray,
           for (iVariable = 0; iVariable < number2; iVariable++) {
             for (int jVariable = 0; jVariable < number2; jVariable++) {
               int put = iVariable + number2 * jVariable;
-              double value = zzz[put];
+              FloatT value = zzz[put];
               value += multiplier1 * (ww[iVariable] * saveS2[jVariable] + ww[jVariable] * saveS2[iVariable]);
               value -= multiplier2 * saveS2[iVariable] * saveS2[jVariable];
               zzz[put] = value;
             }
           }
-          //memcpy(zzz,hh,size*sizeof(double));
+          //memcpy(zzz,hh,size*sizeof(FloatT));
           // do search direction
-          memset(dArray, 0, numberTotal * sizeof(double));
+          memset(dArray, 0, numberTotal * sizeof(FloatT));
           for (iVariable = 0; iVariable < numberNonBasic; iVariable++) {
-            double value = 0.0;
+            FloatT value = 0.0;
             for (int jVariable = 0; jVariable < number2; jVariable++) {
               int k = which[jVariable];
               value += work[k] * zzz[iVariable + number2 * jVariable];
@@ -1655,13 +1655,13 @@ int ClpSimplexNonlinear::pivotColumn(CoinIndexedVector *longArray,
             spare1->checkClear();
             spare2->checkClear();
 #endif
-            double *array2 = spare1->denseVector();
+            FloatT *array2 = spare1->denseVector();
             int *index2 = spare1->getIndices();
             int number2 = 0;
             times(-1.0, dArray, array2);
             dArray = dArray + numberColumns_;
             for (iRow = 0; iRow < numberRows_; iRow++) {
-              double value = array2[iRow] + dArray[iRow];
+              FloatT value = array2[iRow] + dArray[iRow];
               if (value) {
                 array2[iRow] = value;
                 index2[number2++] = iRow;
@@ -1676,11 +1676,11 @@ int ClpSimplexNonlinear::pivotColumn(CoinIndexedVector *longArray,
             number2 = spare1->getNumElements();
             for (j = 0; j < number2; j++) {
               int iSequence = index2[j];
-              double value = array2[iSequence];
+              FloatT value = array2[iSequence];
               array2[iSequence] = 0.0;
               if (value) {
                 int iPivot = pivotVariable_[iSequence];
-                double oldValue = dArray[iPivot];
+                FloatT oldValue = dArray[iPivot];
                 dArray[iPivot] = value + oldValue;
               }
             }
@@ -1695,14 +1695,14 @@ int ClpSimplexNonlinear::pivotColumn(CoinIndexedVector *longArray,
           {
             // check null vector
             int iRow;
-            double qq[10];
-            memset(qq, 0, numberRows_ * sizeof(double));
+            FloatT qq[10];
+            memset(qq, 0, numberRows_ * sizeof(FloatT));
             multiplyAdd(dArray + numberColumns_, numberRows_, -1.0, qq, 0.0);
             matrix_->times(1.0, dArray, qq, rowScale_, columnScale_);
-            double largest = 0.0;
+            FloatT largest = 0.0;
             int iLargest = -1;
             for (iRow = 0; iRow < numberRows_; iRow++) {
-              double value = fabs(qq[iRow]);
+              FloatT value = fabs(qq[iRow]);
               if (value > largest) {
                 largest = value;
                 iLargest = iRow;
@@ -1853,21 +1853,21 @@ int ClpSimplexNonlinear::pivotColumn(CoinIndexedVector *longArray,
       nPasses++;
       if (nPasses > 2000)
         finished = true;
-      double theta = 1.0e30;
+      FloatT theta = 1.0e30;
       basicTheta = 1.0e30;
       theta_ = 1.0e30;
-      double basicTolerance = 1.0e-4 * primalTolerance_;
+      FloatT basicTolerance = 1.0e-4 * primalTolerance_;
       for (iSequence = 0; iSequence < numberTotal; iSequence++) {
         //if (flagged(iSequence)
         //  continue;
-        double alpha = dArray[iSequence];
+        FloatT alpha = dArray[iSequence];
         Status thisStatus = getStatus(iSequence);
-        double oldValue = solution_[iSequence];
+        FloatT oldValue = solution_[iSequence];
         if (thisStatus != basic) {
           if (fabs(alpha) >= acceptablePivot) {
             if (alpha < 0.0) {
               // variable going towards lower bound
-              double bound = lower_[iSequence];
+              FloatT bound = lower_[iSequence];
               oldValue -= bound;
               if (oldValue + theta * alpha < 0.0) {
                 bestSequence = iSequence;
@@ -1875,7 +1875,7 @@ int ClpSimplexNonlinear::pivotColumn(CoinIndexedVector *longArray,
               }
             } else {
               // variable going towards upper bound
-              double bound = upper_[iSequence];
+              FloatT bound = upper_[iSequence];
               oldValue = bound - oldValue;
               if (oldValue - theta * alpha < 0.0) {
                 bestSequence = iSequence;
@@ -1887,7 +1887,7 @@ int ClpSimplexNonlinear::pivotColumn(CoinIndexedVector *longArray,
           if (fabs(alpha) >= acceptableBasic) {
             if (alpha < 0.0) {
               // variable going towards lower bound
-              double bound = lower_[iSequence];
+              FloatT bound = lower_[iSequence];
               oldValue -= bound;
               if (oldValue + basicTheta * alpha < -basicTolerance) {
                 bestBasicSequence = iSequence;
@@ -1895,7 +1895,7 @@ int ClpSimplexNonlinear::pivotColumn(CoinIndexedVector *longArray,
               }
             } else {
               // variable going towards upper bound
-              double bound = upper_[iSequence];
+              FloatT bound = upper_[iSequence];
               oldValue = bound - oldValue;
               if (oldValue - basicTheta * alpha < -basicTolerance) {
                 bestBasicSequence = iSequence;
@@ -1907,7 +1907,7 @@ int ClpSimplexNonlinear::pivotColumn(CoinIndexedVector *longArray,
       }
       theta_ = CoinMin(theta, basicTheta);
       // Now find minimum of function
-      double objTheta2 = objective_->stepLength(this, solution_, dArray, CoinMin(theta, basicTheta),
+      FloatT objTheta2 = objective_->stepLength(this, solution_, dArray, CoinMin(theta, basicTheta),
         currentObj, predictedObj, thetaObj);
 #ifdef CLP_DEBUG
       if (handler_->logLevel() & 32)
@@ -1916,21 +1916,21 @@ int ClpSimplexNonlinear::pivotColumn(CoinIndexedVector *longArray,
       objTheta2 = CoinMin(objTheta2, 1.0e29);
 #if MINTYPE == 1
       if (conjugate) {
-        double offset;
-        const double *gradient = objective_->gradient(this,
+        FloatT offset;
+        const FloatT *gradient = objective_->gradient(this,
           dArray, offset,
           true, 0);
-        double product = 0.0;
+        FloatT product = 0.0;
         for (iSequence = 0; iSequence < numberColumns_; iSequence++) {
-          double alpha = dArray[iSequence];
-          double value = alpha * gradient[iSequence];
+          FloatT alpha = dArray[iSequence];
+          FloatT value = alpha * gradient[iSequence];
           product += value;
         }
         //#define INCLUDESLACK
 #ifdef INCLUDESLACK
         for (; iSequence < numberColumns_ + numberRows_; iSequence++) {
-          double alpha = dArray[iSequence];
-          double value = alpha * cost_[iSequence];
+          FloatT alpha = dArray[iSequence];
+          FloatT value = alpha * cost_[iSequence];
           product += value;
         }
 #endif
@@ -2017,9 +2017,9 @@ int ClpSimplexNonlinear::pivotColumn(CoinIndexedVector *longArray,
         //for (iIndex=0;iIndex<number;iIndex++) {
 
         //int iSequence = which[iIndex];
-        double alpha = dArray[iSequence];
+        FloatT alpha = dArray[iSequence];
         if (alpha) {
-          double value = solution_[iSequence] + theta_ * alpha;
+          FloatT value = solution_[iSequence] + theta_ * alpha;
           solution_[iSequence] = value;
           switch (getStatus(iSequence)) {
 
@@ -2116,13 +2116,13 @@ int ClpSimplexNonlinear::pivotColumn(CoinIndexedVector *longArray,
         }
         assert(pivotRow_ >= 0);
         // Get good size for pivot
-        double acceptablePivot = 1.0e-7;
+        FloatT acceptablePivot = 1.0e-7;
         if (factorization_->pivots() > 10)
           acceptablePivot = 1.0e-5; // if we have iterated be more strict
         else if (factorization_->pivots() > 5)
           acceptablePivot = 1.0e-6; // if we have iterated be slightly more strict
         // should be dArray but seems better this way!
-        double direction = work[bestBasicSequence] > 0.0 ? -1.0 : 1.0;
+        FloatT direction = work[bestBasicSequence] > 0.0 ? -1.0 : 1.0;
         // create as packed
         rowArray->createPacked(1, &pivotRow_, &direction);
         factorization_->updateColumnTranspose(spare, rowArray);
@@ -2132,22 +2132,22 @@ int ClpSimplexNonlinear::pivotColumn(CoinIndexedVector *longArray,
         // choose one futhest away from bound which has reasonable pivot
         // If increasing we want negative alpha
 
-        double *work2;
+        FloatT *work2;
         int iSection;
 
         sequenceIn_ = -1;
-        double bestValue = -1.0;
-        double bestDirection = 0.0;
+        FloatT bestValue = -1.0;
+        FloatT bestDirection = 0.0;
         // First pass we take correct direction and large pivots
         // then correct direction
         // then any
-        double check[] = { 1.0e-8, -1.0e-12, -1.0e30 };
-        double mult[] = { 100.0, 1.0, 1.0 };
+        FloatT check[] = { 1.0e-8, -1.0e-12, -1.0e30 };
+        FloatT mult[] = { 100.0, 1.0, 1.0 };
         for (int iPass = 0; iPass < 3; iPass++) {
           //if (!bestValue&&iPass==2)
           //bestValue=-1.0;
-          double acceptable = acceptablePivot * mult[iPass];
-          double checkValue = check[iPass];
+          FloatT acceptable = acceptablePivot * mult[iPass];
+          FloatT checkValue = check[iPass];
           for (iSection = 0; iSection < 2; iSection++) {
 
             int addSequence;
@@ -2169,13 +2169,13 @@ int ClpSimplexNonlinear::pivotColumn(CoinIndexedVector *longArray,
               int iSequence = which[i] + addSequence;
               if (flagged(iSequence))
                 continue;
-              //double distance = CoinMin(solution_[iSequence]-lower_[iSequence],
+              //FloatT distance = CoinMin(solution_[iSequence]-lower_[iSequence],
               //		  upper_[iSequence]-solution_[iSequence]);
-              double alpha = work2[i];
+              FloatT alpha = work2[i];
               // should be dArray but seems better this way!
-              double change = work[iSequence];
+              FloatT change = work[iSequence];
               Status thisStatus = getStatus(iSequence);
-              double direction = 0;
+              FloatT direction = 0;
               ;
               switch (thisStatus) {
 
@@ -2366,7 +2366,7 @@ int ClpSimplexNonlinear::pivotColumn(CoinIndexedVector *longArray,
   }
   if (saveObj - currentObj < 1.0e-5 && nTotalPasses > 2000) {
     normUnflagged = 0.0;
-    double dualTolerance3 = CoinMin(1.0e-2, 1.0e3 * dualTolerance_);
+    FloatT dualTolerance3 = CoinMin(1.0e-2, 1.0e3 * dualTolerance_);
     for (int iSequence = 0; iSequence < numberColumns_ + numberRows_; iSequence++) {
       switch (getStatus(iSequence)) {
 
@@ -2423,11 +2423,11 @@ int ClpSimplexNonlinear::pivotNonlinearResult()
   unpackPacked(rowArray_[1]);
   factorization_->updateColumnFT(rowArray_[2], rowArray_[1]);
   theta_ = 0.0;
-  double *work = rowArray_[1]->denseVector();
+  FloatT *work = rowArray_[1]->denseVector();
   int number = rowArray_[1]->getNumElements();
   int *which = rowArray_[1]->getIndices();
   bool keepValue = false;
-  double saveValue = 0.0;
+  FloatT saveValue = 0.0;
   if (pivotRow_ >= 0) {
     sequenceOut_ = pivotVariable_[pivotRow_];
     ;
@@ -2447,13 +2447,13 @@ int ClpSimplexNonlinear::pivotNonlinearResult()
     }
   } else {
     int iIndex;
-    double smallest = COIN_DBL_MAX;
+    FloatT smallest = COIN_DBL_MAX;
     for (iIndex = 0; iIndex < number; iIndex++) {
       int iRow = which[iIndex];
-      double alpha = work[iIndex];
+      FloatT alpha = work[iIndex];
       if (fabs(alpha) > 1.0e-6) {
         int iPivot = pivotVariable_[iRow];
-        double distance = CoinMin(upper_[iPivot] - solution_[iPivot],
+        FloatT distance = CoinMin(upper_[iPivot] - solution_[iPivot],
           solution_[iPivot] - lower_[iPivot]);
         if (distance < smallest) {
           pivotRow_ = iRow;
@@ -2466,9 +2466,9 @@ int ClpSimplexNonlinear::pivotNonlinearResult()
       smallest = COIN_DBL_MAX;
       for (iIndex = 0; iIndex < number; iIndex++) {
         int iRow = which[iIndex];
-        double alpha = work[iIndex];
+        FloatT alpha = work[iIndex];
         if (fabs(alpha) > 1.0e-6) {
-          double distance = randomNumberGenerator_.randomDouble();
+          FloatT distance = randomNumberGenerator_.randomDouble();
           if (distance < smallest) {
             pivotRow_ = iRow;
             alpha_ = alpha;
@@ -2484,7 +2484,7 @@ int ClpSimplexNonlinear::pivotNonlinearResult()
     lowerOut_ = lower_[sequenceOut_];
     upperOut_ = upper_[sequenceOut_];
   }
-  double newValue = valueOut_ - theta_ * alpha_;
+  FloatT newValue = valueOut_ - theta_ * alpha_;
   bool isSuperBasic = false;
   if (valueOut_ >= upperOut_ - primalTolerance_) {
     directionOut_ = -1; // to upper bound
@@ -2559,12 +2559,12 @@ int ClpSimplexNonlinear::pivotNonlinearResult()
 
   // update primal solution
 
-  double objectiveChange = 0.0;
+  FloatT objectiveChange = 0.0;
   // after this rowArray_[1] is not empty - used to update djs
   // If pivot row >= numberRows then may be gub
   updatePrimalsInPrimal(rowArray_[1], theta_, objectiveChange, 1);
 
-  double oldValue = valueIn_;
+  FloatT oldValue = valueIn_;
   if (directionIn_ == -1) {
     // as if from upper bound
     if (sequenceIn_ != sequenceOut_) {
@@ -2652,7 +2652,7 @@ int ClpSimplexNonlinear::primalDualCuts(char *rowsIn, int startUp, int algorithm
     int smallNumberRows = 2 * numberColumns_;
     smallNumberRows = CoinMin(smallNumberRows, numberRows_ / 20);
     // We will need arrays to choose rows to add
-    double *weight = new double[numberRows_];
+    FloatT *weight = new FloatT[numberRows_];
     int *sort = new int[numberRows_ + numberColumns_];
     int *whichColumns = sort + numberRows_;
     int numberSort = 0;
@@ -2667,11 +2667,11 @@ int ClpSimplexNonlinear::primalDualCuts(char *rowsIn, int startUp, int algorithm
       int numberBinding = 0;
       numberPrimalInfeasibilities_ = 0;
       sumPrimalInfeasibilities_ = 0.0;
-      memset(rowActivity_, 0, numberRows_ * sizeof(double));
+      memset(rowActivity_, 0, numberRows_ * sizeof(FloatT));
       times(1.0, columnActivity_, rowActivity_);
       for (int i = 0; i < numberRows_; i++) {
-        double lowerDifference = rowActivity_[i] - rowLower_[i];
-        double upperDifference = rowActivity_[i] - rowUpper_[i];
+        FloatT lowerDifference = rowActivity_[i] - rowLower_[i];
+        FloatT upperDifference = rowActivity_[i] - rowUpper_[i];
         if (lowerDifference < -10 * primalTolerance_ || upperDifference > 10.0 * primalTolerance_) {
           numberPrimalInfeasibilities_++;
           if (lowerDifference < 0.0)
@@ -2699,7 +2699,7 @@ int ClpSimplexNonlinear::primalDualCuts(char *rowsIn, int startUp, int algorithm
         }
         numberSort /= 2;
         // and pad out with random rows
-        double ratio = ((double)(smallNumberRows - numberSort)) / ((double)numberRows_);
+        FloatT ratio = ((FloatT)(smallNumberRows - numberSort)) / ((FloatT)numberRows_);
         for (int iRow = 0; iRow < numberRows_; iRow++) {
           if (weight[iRow] == 1.123e50 && CoinDrand48() < ratio)
             sort[numberSort++] = iRow;
@@ -2714,11 +2714,11 @@ int ClpSimplexNonlinear::primalDualCuts(char *rowsIn, int startUp, int algorithm
     }
     // see if feasible
     numberPrimalInfeasibilities_ = 0;
-    memset(rowActivity_, 0, numberRows_ * sizeof(double));
+    memset(rowActivity_, 0, numberRows_ * sizeof(FloatT));
     times(1.0, columnActivity_, rowActivity_);
     for (int i = 0; i < numberRows_; i++) {
-      double lowerDifference = rowActivity_[i] - rowLower_[i];
-      double upperDifference = rowActivity_[i] - rowUpper_[i];
+      FloatT lowerDifference = rowActivity_[i] - rowLower_[i];
+      FloatT upperDifference = rowActivity_[i] - rowUpper_[i];
       if (lowerDifference < -10 * primalTolerance_ || upperDifference > 10.0 * primalTolerance_) {
         if (lowerDifference < 0.0)
           sumPrimalInfeasibilities_ -= lowerDifference;
@@ -2813,7 +2813,7 @@ int ClpSimplexNonlinear::primalDualCuts(char *rowsIn, int startUp, int algorithm
       }
       bool dualInfeasible = (small.status() == 2);
       // move solution back
-      const double *smallSolution = small.primalColumnSolution();
+      const FloatT *smallSolution = small.primalColumnSolution();
       for (int j = 0; j < numberSmallColumns; j++) {
         int iColumn = whichColumns[j];
         columnActivity_[iColumn] = smallSolution[j];
@@ -2824,7 +2824,7 @@ int ClpSimplexNonlinear::primalDualCuts(char *rowsIn, int startUp, int algorithm
         this->setRowStatus(kRow, small.getRowStatus(iRow));
       }
       // compute full solution
-      memset(rowActivity_, 0, numberRows_ * sizeof(double));
+      memset(rowActivity_, 0, numberRows_ * sizeof(FloatT));
       times(1.0, columnActivity_, rowActivity_);
       if (iPass != maxPass - 1) {
         // Mark row as not looked at
@@ -2844,7 +2844,7 @@ int ClpSimplexNonlinear::primalDualCuts(char *rowsIn, int startUp, int algorithm
           if (getRowStatus(iRow) == ClpSimplex::basic) {
             // Basic - we can get rid of if early on
             if (iPass < takeOutPass && !dualInfeasible) {
-              double infeasibility = CoinMax(rowActivity_[iRow] - rowUpper_[iRow],
+              FloatT infeasibility = CoinMax(rowActivity_[iRow] - rowUpper_[iRow],
                 rowLower_[iRow] - rowActivity_[iRow]);
               weight[iRow] = -infeasibility;
               if (infeasibility > primalTolerance_ && !allFeasible) {
@@ -2871,7 +2871,7 @@ int ClpSimplexNonlinear::primalDualCuts(char *rowsIn, int startUp, int algorithm
           sort[iRow] = iRow;
           if (weight[iRow] == 1.123e50) {
             // not looked at yet
-            double infeasibility = CoinMax(rowActivity_[iRow] - rowUpper_[iRow],
+            FloatT infeasibility = CoinMax(rowActivity_[iRow] - rowUpper_[iRow],
               rowLower_[iRow] - rowActivity_[iRow]);
             weight[iRow] = -infeasibility;
             if (infeasibility > primalTolerance_) {
@@ -2916,11 +2916,11 @@ int ClpSimplexNonlinear::primalDualCuts(char *rowsIn, int startUp, int algorithm
   }
 }
 // A sequential LP method
-int ClpSimplexNonlinear::primalSLP(int numberPasses, double deltaTolerance,
+int ClpSimplexNonlinear::primalSLP(int numberPasses, FloatT deltaTolerance,
   int otherOptions)
 {
   // Are we minimizing or maximizing
-  double whichWay = optimizationDirection();
+  FloatT whichWay = optimizationDirection();
   if (whichWay < 0.0)
     whichWay = -1.0;
   else if (whichWay > 0.0)
@@ -2928,9 +2928,9 @@ int ClpSimplexNonlinear::primalSLP(int numberPasses, double deltaTolerance,
 
   int numberColumns = this->numberColumns();
   int numberRows = this->numberRows();
-  double *columnLower = this->columnLower();
-  double *columnUpper = this->columnUpper();
-  double *solution = this->primalColumnSolution();
+  FloatT *columnLower = this->columnLower();
+  FloatT *columnUpper = this->columnUpper();
+  FloatT *solution = this->primalColumnSolution();
 
   if (objective_->type() < 2) {
     // no nonlinear part
@@ -2956,7 +2956,7 @@ int ClpSimplexNonlinear::primalSLP(int numberPasses, double deltaTolerance,
   // Replace objective
   ClpObjective *trueObjective = objective_;
   objective_ = new ClpLinearObjective(NULL, numberColumns);
-  double *objective = this->objective();
+  FloatT *objective = this->objective();
   // See if user wants to use cuts
   char *rowsIn = NULL;
   if ((otherOptions & 1) != 0 || numberPasses < 0) {
@@ -2976,9 +2976,9 @@ int ClpSimplexNonlinear::primalSLP(int numberPasses, double deltaTolerance,
   int jNon;
   int *last[3];
 
-  double *trust = new double[numberNonLinearColumns];
-  double *trueLower = new double[numberNonLinearColumns];
-  double *trueUpper = new double[numberNonLinearColumns];
+  FloatT *trust = new FloatT[numberNonLinearColumns];
+  FloatT *trueLower = new FloatT[numberNonLinearColumns];
+  FloatT *trueUpper = new FloatT[numberNonLinearColumns];
   for (jNon = 0; jNon < numberNonLinearColumns; jNon++) {
     iColumn = listNonLinearColumn[jNon];
     trust[jNon] = 0.5;
@@ -2991,25 +2991,25 @@ int ClpSimplexNonlinear::primalSLP(int numberPasses, double deltaTolerance,
   }
   int saveLogLevel = logLevel();
   int iPass;
-  double lastObjective = 1.0e31;
-  double *saveSolution = new double[numberColumns];
-  double *saveRowSolution = new double[numberRows];
-  memset(saveRowSolution, 0, numberRows * sizeof(double));
-  double *savePi = new double[numberRows];
-  double *safeSolution = new double[numberColumns];
+  FloatT lastObjective = 1.0e31;
+  FloatT *saveSolution = new FloatT[numberColumns];
+  FloatT *saveRowSolution = new FloatT[numberRows];
+  memset(saveRowSolution, 0, numberRows * sizeof(FloatT));
+  FloatT *savePi = new FloatT[numberRows];
+  FloatT *safeSolution = new FloatT[numberColumns];
   unsigned char *saveStatus = new unsigned char[numberRows + numberColumns];
 #define MULTIPLE 0
 #if MULTIPLE > 2
   // Duplication but doesn't really matter
-     double * saveSolutionM[MULTIPLE
+     FloatT * saveSolutionM[MULTIPLE
 };
 for (jNon = 0; jNon < MULTIPLE; jNon++) {
-  saveSolutionM[jNon] = new double[numberColumns];
+  saveSolutionM[jNon] = new FloatT[numberColumns];
   CoinMemcpyN(solution, numberColumns, saveSolutionM);
 }
 #endif
-double targetDrop = 1.0e31;
-double objectiveOffset;
+FloatT targetDrop = 1.0e31;
+FloatT objectiveOffset;
 getDblParam(ClpObjOffset, objectiveOffset);
 // 1 bound up, 2 up, -1 bound down, -2 down, 0 no change
 for (iPass = 0; iPass < 3; iPass++) {
@@ -3020,9 +3020,9 @@ for (iPass = 0; iPass < 3; iPass++) {
 // goodMove +1 yes, 0 no, -1 last was bad - just halve gaps, -2 do nothing
 int goodMove = -2;
 char *statusCheck = new char[numberColumns];
-double *changeRegion = new double[numberColumns];
-double offset = 0.0;
-double objValue = 0.0;
+FloatT *changeRegion = new FloatT[numberColumns];
+FloatT offset = 0.0;
+FloatT objValue = 0.0;
 int exitPass = 2 * numberPasses + 10;
 for (iPass = 0; iPass < numberPasses; iPass++) {
   exitPass--;
@@ -3031,27 +3031,27 @@ for (iPass = 0; iPass < numberPasses; iPass++) {
   objValue = -objectiveOffset;
   // make sure x updated
   trueObjective->newXValues();
-  double theta = -1.0;
-  double maxTheta = COIN_DBL_MAX;
+  FloatT theta = -1.0;
+  FloatT maxTheta = COIN_DBL_MAX;
   //maxTheta=1.0;
   if (iPass) {
     int jNon = 0;
     for (iColumn = 0; iColumn < numberColumns; iColumn++) {
       changeRegion[iColumn] = solution[iColumn] - saveSolution[iColumn];
-      double alpha = changeRegion[iColumn];
-      double oldValue = saveSolution[iColumn];
+      FloatT alpha = changeRegion[iColumn];
+      FloatT oldValue = saveSolution[iColumn];
       if (markNonlinear[iColumn] == 0) {
         // linear
         if (alpha < -1.0e-15) {
           // variable going towards lower bound
-          double bound = columnLower[iColumn];
+          FloatT bound = columnLower[iColumn];
           oldValue -= bound;
           if (oldValue + maxTheta * alpha < 0.0) {
             maxTheta = CoinMax(0.0, oldValue / (-alpha));
           }
         } else if (alpha > 1.0e-15) {
           // variable going towards upper bound
-          double bound = columnUpper[iColumn];
+          FloatT bound = columnUpper[iColumn];
           oldValue = bound - oldValue;
           if (oldValue - maxTheta * alpha < 0.0) {
             maxTheta = CoinMax(0.0, oldValue / alpha);
@@ -3061,14 +3061,14 @@ for (iPass = 0; iPass < numberPasses; iPass++) {
         // nonlinear
         if (alpha < -1.0e-15) {
           // variable going towards lower bound
-          double bound = trueLower[jNon];
+          FloatT bound = trueLower[jNon];
           oldValue -= bound;
           if (oldValue + maxTheta * alpha < 0.0) {
             maxTheta = CoinMax(0.0, oldValue / (-alpha));
           }
         } else if (alpha > 1.0e-15) {
           // variable going towards upper bound
-          double bound = trueUpper[jNon];
+          FloatT bound = trueUpper[jNon];
           oldValue = bound - oldValue;
           if (oldValue - maxTheta * alpha < 0.0) {
             maxTheta = CoinMax(0.0, oldValue / alpha);
@@ -3078,23 +3078,23 @@ for (iPass = 0; iPass < numberPasses; iPass++) {
       }
     }
     // make sure both accurate
-    memset(rowActivity_, 0, numberRows_ * sizeof(double));
+    memset(rowActivity_, 0, numberRows_ * sizeof(FloatT));
     times(1.0, solution, rowActivity_);
-    memset(saveRowSolution, 0, numberRows_ * sizeof(double));
+    memset(saveRowSolution, 0, numberRows_ * sizeof(FloatT));
     times(1.0, saveSolution, saveRowSolution);
     for (int iRow = 0; iRow < numberRows; iRow++) {
-      double alpha = rowActivity_[iRow] - saveRowSolution[iRow];
-      double oldValue = saveRowSolution[iRow];
+      FloatT alpha = rowActivity_[iRow] - saveRowSolution[iRow];
+      FloatT oldValue = saveRowSolution[iRow];
       if (alpha < -1.0e-15) {
         // variable going towards lower bound
-        double bound = rowLower_[iRow];
+        FloatT bound = rowLower_[iRow];
         oldValue -= bound;
         if (oldValue + maxTheta * alpha < 0.0) {
           maxTheta = CoinMax(0.0, oldValue / (-alpha));
         }
       } else if (alpha > 1.0e-15) {
         // variable going towards upper bound
-        double bound = rowUpper_[iRow];
+        FloatT bound = rowUpper_[iRow];
         oldValue = bound - oldValue;
         if (oldValue - maxTheta * alpha < 0.0) {
           maxTheta = CoinMax(0.0, oldValue / alpha);
@@ -3109,9 +3109,9 @@ for (iPass = 0; iPass < numberPasses; iPass++) {
     CoinMemcpyN(rowActivity_, numberRows, saveRowSolution);
   }
   // get current value anyway
-  double predictedObj, thetaObj;
-  double maxTheta2 = 2.0; // to work out a b c
-  double theta2 = trueObjective->stepLength(this, saveSolution, changeRegion, maxTheta2,
+  FloatT predictedObj, thetaObj;
+  FloatT maxTheta2 = 2.0; // to work out a b c
+  FloatT theta2 = trueObjective->stepLength(this, saveSolution, changeRegion, maxTheta2,
     objValue, predictedObj, thetaObj);
   int lastMoveStatus = goodMove;
   if (goodMove >= 0) {
@@ -3123,11 +3123,11 @@ for (iPass = 0; iPass < numberPasses; iPass++) {
 #endif
     if (theta > 0.0 && theta <= 1.0) {
       // update solution
-      double lambda = 1.0 - theta;
+      FloatT lambda = 1.0 - theta;
       for (iColumn = 0; iColumn < numberColumns; iColumn++)
         solution[iColumn] = lambda * saveSolution[iColumn]
           + theta * solution[iColumn];
-      memset(rowActivity_, 0, numberRows_ * sizeof(double));
+      memset(rowActivity_, 0, numberRows_ * sizeof(FloatT));
       times(1.0, solution, rowActivity_);
       if (lambda > 0.999) {
         CoinMemcpyN(savePi, numberRows, this->dualRowSolution());
@@ -3154,14 +3154,14 @@ for (iPass = 0; iPass < numberPasses; iPass++) {
         CoinIndexedVector *rowArray = rowArray_[0];
         //CoinIndexedVector * columnArray = columnArray_[0];
         CoinIndexedVector *spare = rowArray_[1];
-        double *work = longArray->denseVector();
+        FloatT *work = longArray->denseVector();
         int *which = longArray->getIndices();
         int nPass = 100;
         //bool conjugate=false;
         // Put back true bounds
         for (jNon = 0; jNon < numberNonLinearColumns; jNon++) {
           int iColumn = listNonLinearColumn[jNon];
-          double value;
+          FloatT value;
           value = trueLower[jNon];
           trueLower[jNon] = lower_[iColumn];
           lower_[iColumn] = value;
@@ -3197,8 +3197,8 @@ for (iPass = 0; iPass < numberPasses; iPass++) {
           trueObjective->reducedGradient(this, dj_, true);
           // get direction vector in longArray
           longArray->clear();
-          double normFlagged = 0.0;
-          double normUnflagged = 0.0;
+          FloatT normFlagged = 0.0;
+          FloatT normUnflagged = 0.0;
           int numberNonBasic = 0;
           directionVector(longArray, spare, rowArray, 0,
             normFlagged, normUnflagged, numberNonBasic);
@@ -3206,11 +3206,11 @@ for (iPass = 0; iPass < numberPasses; iPass++) {
             absolutelyOptimal = true;
             break; //looks optimal
           }
-          double djNorm = 0.0;
+          FloatT djNorm = 0.0;
           int iIndex;
           for (iIndex = 0; iIndex < numberNonBasic; iIndex++) {
             int iSequence = which[iIndex];
-            double alpha = work[iSequence];
+            FloatT alpha = work[iSequence];
             djNorm += alpha * alpha;
           }
           //if (!jPass)
@@ -3221,21 +3221,21 @@ for (iPass = 0; iPass < numberPasses; iPass++) {
             absolutelyOptimal = true;
             break;
           }
-          double theta = 1.0e30;
+          FloatT theta = 1.0e30;
           int iSequence;
           for (iSequence = 0; iSequence < numberTotal; iSequence++) {
-            double alpha = work[iSequence];
-            double oldValue = solution_[iSequence];
+            FloatT alpha = work[iSequence];
+            FloatT oldValue = solution_[iSequence];
             if (alpha < -1.0e-15) {
               // variable going towards lower bound
-              double bound = lower_[iSequence];
+              FloatT bound = lower_[iSequence];
               oldValue -= bound;
               if (oldValue + theta * alpha < 0.0) {
                 theta = CoinMax(0.0, oldValue / (-alpha));
               }
             } else if (alpha > 1.0e-15) {
               // variable going towards upper bound
-              double bound = upper_[iSequence];
+              FloatT bound = upper_[iSequence];
               oldValue = bound - oldValue;
               if (oldValue - theta * alpha < 0.0) {
                 theta = CoinMax(0.0, oldValue / alpha);
@@ -3243,13 +3243,13 @@ for (iPass = 0; iPass < numberPasses; iPass++) {
             }
           }
           // Now find minimum of function
-          double currentObj;
-          double predictedObj;
-          double thetaObj;
+          FloatT currentObj;
+          FloatT predictedObj;
+          FloatT thetaObj;
           // need to use true objective
-          double *saveCost = cost_;
+          FloatT *saveCost = cost_;
           cost_ = NULL;
-          double objTheta = trueObjective->stepLength(this, solution_, work, theta,
+          FloatT objTheta = trueObjective->stepLength(this, solution_, work, theta,
             currentObj, predictedObj, thetaObj);
           cost_ = saveCost;
 #ifdef CLP_DEBUG
@@ -3267,9 +3267,9 @@ for (iPass = 0; iPass < numberPasses; iPass++) {
           if (theta > 1.0e-9 && (currentObj - thetaObj < -CoinMax(1.0e-8, 1.0e-15 * fabs(currentObj)) || jPass < 5)) {
             // Update solution
             for (iSequence = 0; iSequence < numberTotal; iSequence++) {
-              double alpha = work[iSequence];
+              FloatT alpha = work[iSequence];
               if (alpha) {
-                double value = solution_[iSequence] + theta * alpha;
+                FloatT value = solution_[iSequence] + theta * alpha;
                 solution_[iSequence] = value;
                 switch (getStatus(iSequence)) {
 
@@ -3304,7 +3304,7 @@ for (iPass = 0; iPass < numberPasses; iPass++) {
         // Put back fake bounds
         for (jNon = 0; jNon < numberNonLinearColumns; jNon++) {
           int iColumn = listNonLinearColumn[jNon];
-          double value;
+          FloatT value;
           value = trueLower[jNon];
           trueLower[jNon] = lower_[iColumn];
           lower_[iColumn] = value;
@@ -3320,18 +3320,18 @@ for (iPass = 0; iPass < numberPasses; iPass++) {
       setLogLevel(saveLogLevel);
 #endif
       // redo rowActivity
-      memset(rowActivity_, 0, numberRows_ * sizeof(double));
+      memset(rowActivity_, 0, numberRows_ * sizeof(FloatT));
       times(1.0, solution, rowActivity_);
       if (theta > 0.99999 && theta2 < 1.9 && !absolutelyOptimal) {
         // If big changes then tighten
         /*  thetaObj is objvalue + a*2*2 +b*2
                         predictedObj is objvalue + a*theta2*theta2 +b*theta2
                     */
-        double rhs1 = thetaObj - objValue;
-        double rhs2 = predictedObj - objValue;
-        double subtractB = theta2 * 0.5;
-        double a = (rhs2 - subtractB * rhs1) / (theta2 * theta2 - 4.0 * subtractB);
-        double b = 0.5 * (rhs1 - 4.0 * a);
+        FloatT rhs1 = thetaObj - objValue;
+        FloatT rhs2 = predictedObj - objValue;
+        FloatT subtractB = theta2 * 0.5;
+        FloatT a = (rhs2 - subtractB * rhs1) / (theta2 * theta2 - 4.0 * subtractB);
+        FloatT b = 0.5 * (rhs1 - 4.0 * a);
         if (fabs(a + b) > 1.0e-2) {
           // tighten all
           goodMove = -1;
@@ -3355,7 +3355,7 @@ for (iPass = 0; iPass < numberPasses; iPass++) {
   last[0] = temp;
   for (jNon = 0; jNon < numberNonLinearColumns; jNon++) {
     iColumn = listNonLinearColumn[jNon];
-    double change = solution[iColumn] - saveSolution[iColumn];
+    FloatT change = solution[iColumn] - saveSolution[iColumn];
     if (change < -1.0e-5) {
       if (fabs(change + trust[jNon]) < 1.0e-5)
         temp[jNon] = -1;
@@ -3371,7 +3371,7 @@ for (iPass = 0; iPass < numberPasses; iPass++) {
     }
   }
   // goodMove +1 yes, 0 no, -1 last was bad - just halve gaps, -2 do nothing
-  double maxDelta = 0.0;
+  FloatT maxDelta = 0.0;
   if (goodMove >= 0) {
     if (objValue - lastObjective <= 1.0e-15 * fabs(lastObjective))
       goodMove = 1;
@@ -3380,7 +3380,7 @@ for (iPass = 0; iPass < numberPasses; iPass++) {
   } else {
     maxDelta = 1.0e10;
   }
-  double maxGap = 0.0;
+  FloatT maxGap = 0.0;
   int numberSmaller = 0;
   int numberSmaller2 = 0;
   int numberLarger = 0;
@@ -3418,7 +3418,7 @@ for (iPass = 0; iPass < numberPasses; iPass++) {
   if (lastMoveStatus == -1 && goodMove == -1)
     goodMove = 1; // to force solve
   if (goodMove > 0) {
-    double drop = lastObjective - objValue;
+    FloatT drop = lastObjective - objValue;
     handler_->message(CLP_SLP_ITER, messages_)
       << iPass << objValue - objectiveOffset
       << drop << maxDelta
@@ -3438,7 +3438,7 @@ for (iPass = 0; iPass < numberPasses; iPass++) {
   if (!iPass)
     goodMove = 1;
   targetDrop = 0.0;
-  double *r = this->dualColumnSolution();
+  FloatT *r = this->dualColumnSolution();
   for (jNon = 0; jNon < numberNonLinearColumns; jNon++) {
     iColumn = listNonLinearColumn[jNon];
     columnLower[iColumn] = CoinMax(solution[iColumn]
@@ -3454,7 +3454,7 @@ for (iPass = 0; iPass < numberPasses; iPass++) {
       this->dualColumnSolution());
     for (jNon = 0; jNon < numberNonLinearColumns; jNon++) {
       iColumn = listNonLinearColumn[jNon];
-      double dj = objective[iColumn] - r[iColumn];
+      FloatT dj = objective[iColumn] - r[iColumn];
       r[iColumn] = dj;
       if (dj < -dualTolerance_)
         targetDrop -= dj * (columnUpper[iColumn] - solution[iColumn]);
@@ -3462,7 +3462,7 @@ for (iPass = 0; iPass < numberPasses; iPass++) {
         targetDrop -= dj * (columnLower[iColumn] - solution[iColumn]);
     }
   } else {
-    memset(r, 0, numberColumns * sizeof(double));
+    memset(r, 0, numberColumns * sizeof(FloatT));
   }
 #if 0
      for (jNon = 0; jNon < numberNonLinearColumns; jNon++) {
@@ -3495,7 +3495,7 @@ for (iPass = 0; iPass < numberPasses; iPass++) {
     CoinMemcpyN(this->dualRowSolution(), numberRows, savePi);
     CoinMemcpyN(status_, numberRows + numberColumns, saveStatus);
 #if MULTIPLE > 2
-    double *tempSol = saveSolutionM[0];
+    FloatT *tempSol = saveSolutionM[0];
     for (jNon = 0; jNon < MULTIPLE - 1; jNon++) {
       saveSolutionM[jNon] = saveSolutionM[jNon + 1];
     }
@@ -3518,7 +3518,7 @@ for (iPass = 0; iPass < numberPasses; iPass++) {
     }
 #ifdef CLP_DEBUG
     {
-      double *r = this->dualColumnSolution();
+      FloatT *r = this->dualColumnSolution();
       for (jNon = 0; jNon < numberNonLinearColumns; jNon++) {
         iColumn = listNonLinearColumn[jNon];
         if (handler_->logLevel() & 32)
@@ -3546,7 +3546,7 @@ for (iPass = 0; iPass < numberPasses; iPass++) {
       // use safe solution
       CoinMemcpyN(safeSolution, numberColumns, solution);
       CoinMemcpyN(solution, numberColumns, saveSolution);
-      memset(rowActivity_, 0, numberRows_ * sizeof(double));
+      memset(rowActivity_, 0, numberRows_ * sizeof(FloatT));
       times(1.0, solution, rowActivity_);
       CoinMemcpyN(rowActivity_, numberRows, saveRowSolution);
       CoinMemcpyN(savePi, numberRows, this->dualRowSolution());
@@ -3637,14 +3637,14 @@ return 0;
 
 */
 int ClpSimplexNonlinear::primalSLP(int numberConstraints, ClpConstraint **constraints,
-  int numberPasses, double deltaTolerance)
+  int numberPasses, FloatT deltaTolerance)
 {
   if (!numberConstraints) {
     // no nonlinear constraints - may be nonlinear objective
     return primalSLP(numberPasses, deltaTolerance);
   }
   // Are we minimizing or maximizing
-  double whichWay = optimizationDirection();
+  FloatT whichWay = optimizationDirection();
   if (whichWay < 0.0)
     whichWay = -1.0;
   else if (whichWay > 0.0)
@@ -3660,16 +3660,16 @@ int ClpSimplexNonlinear::primalSLP(int numberConstraints, ClpConstraint **constr
   //const int * column = copy.getIndices();
   //const CoinBigIndex * rowStart = copy.getVectorStarts();
   const int *rowLength = copy.getVectorLengths();
-  //const double * elementByRow = copy.getElements();
+  //const FloatT * elementByRow = copy.getElements();
   int numberArtificials = 0;
   // We could use nonlinearcost to do segments - maybe later
 #define SEGMENTS 3
   // Penalties may be adjusted by duals
   // Both these should be modified depending on problem
   // Possibly start with big bounds
-  //double penalties[]={1.0e-3,1.0e7,1.0e9};
-  double penalties[] = { 1.0e7, 1.0e8, 1.0e9 };
-  double bounds[] = { 1.0e-2, 1.0e2, COIN_DBL_MAX };
+  //FloatT penalties[]={1.0e-3,1.0e7,1.0e9};
+  FloatT penalties[] = { 1.0e7, 1.0e8, 1.0e9 };
+  FloatT bounds[] = { 1.0e-2, 1.0e2, COIN_DBL_MAX };
   // see how many extra we need
   CoinBigIndex numberExtra = 0;
   for (iConstraint = 0; iConstraint < numberConstraints; iConstraint++) {
@@ -3709,10 +3709,10 @@ int ClpSimplexNonlinear::primalSLP(int numberConstraints, ClpConstraint **constr
     numberColumns2 += numberArtificials;
     CoinBigIndex *addStarts = new CoinBigIndex[numberArtificials + 1];
     int *addRow = new int[numberArtificials];
-    double *addElement = new double[numberArtificials];
-    double *addUpper = new double[numberArtificials];
+    FloatT *addElement = new FloatT[numberArtificials];
+    FloatT *addUpper = new FloatT[numberArtificials];
     addStarts[0] = 0;
-    double *addCost = new double[numberArtificials];
+    FloatT *addCost = new FloatT[numberArtificials];
     numberArtificials = 0;
     for (iConstraint = 0; iConstraint < numberConstraints; iConstraint++) {
       ClpConstraint *constraint = constraints[iConstraint];
@@ -3775,11 +3775,11 @@ int ClpSimplexNonlinear::primalSLP(int numberConstraints, ClpConstraint **constr
   const int *column = copy.getIndices();
   const CoinBigIndex *rowStart = copy.getVectorStarts();
   rowLength = copy.getVectorLengths();
-  const double *elementByRow = copy.getElements();
+  const FloatT *elementByRow = copy.getElements();
   numberExtra += copy.getNumElements();
   CoinBigIndex *newStarts = new CoinBigIndex[numberRows_ + 1];
   int *newColumn = new int[numberExtra];
-  double *newElement = new double[numberExtra];
+  FloatT *newElement = new FloatT[numberExtra];
   newStarts[0] = 0;
   int *backRow = new int[numberRows_];
   int iRow;
@@ -3846,7 +3846,7 @@ int ClpSimplexNonlinear::primalSLP(int numberConstraints, ClpConstraint **constr
   // get feasible
   if (whichWay < 0.0) {
     newModel.setOptimizationDirection(1.0);
-    double *objective = newModel.objective();
+    FloatT *objective = newModel.objective();
     for (int iColumn = 0; iColumn < numberColumns_; iColumn++)
       objective[iColumn] = -objective[iColumn];
   }
@@ -3857,8 +3857,8 @@ int ClpSimplexNonlinear::primalSLP(int numberConstraints, ClpConstraint **constr
     return 0;
   } else if (newModel.problemStatus() == 2) {
     // unbounded - add bounds
-    double *columnLower = newModel.columnLower();
-    double *columnUpper = newModel.columnUpper();
+    FloatT *columnLower = newModel.columnLower();
+    FloatT *columnUpper = newModel.columnUpper();
     for (int i = 0; i < numberColumns_; i++) {
       columnLower[i] = CoinMax(-1.0e8, columnLower[i]);
       columnUpper[i] = CoinMin(1.0e8, columnUpper[i]);
@@ -3866,32 +3866,32 @@ int ClpSimplexNonlinear::primalSLP(int numberConstraints, ClpConstraint **constr
     newModel.primal(1);
   }
   int numberRows = newModel.numberRows();
-  double *columnLower = newModel.columnLower();
-  double *columnUpper = newModel.columnUpper();
-  double *objective = newModel.objective();
-  double *rowLower = newModel.rowLower();
-  double *rowUpper = newModel.rowUpper();
-  double *solution = newModel.primalColumnSolution();
+  FloatT *columnLower = newModel.columnLower();
+  FloatT *columnUpper = newModel.columnUpper();
+  FloatT *objective = newModel.objective();
+  FloatT *rowLower = newModel.rowLower();
+  FloatT *rowUpper = newModel.rowUpper();
+  FloatT *solution = newModel.primalColumnSolution();
   int jNon;
   int *last[3];
 
-  double *trust = new double[numberNonLinearColumns];
-  double *trueLower = new double[numberNonLinearColumns];
-  double *trueUpper = new double[numberNonLinearColumns];
-  double objectiveOffset;
-  double objectiveOffset2;
+  FloatT *trust = new FloatT[numberNonLinearColumns];
+  FloatT *trueLower = new FloatT[numberNonLinearColumns];
+  FloatT *trueUpper = new FloatT[numberNonLinearColumns];
+  FloatT objectiveOffset;
+  FloatT objectiveOffset2;
   getDblParam(ClpObjOffset, objectiveOffset);
   objectiveOffset *= whichWay;
   for (jNon = 0; jNon < numberNonLinearColumns; jNon++) {
     iColumn = listNonLinearColumn[jNon];
-    double upper = columnUpper[iColumn];
-    double lower = columnLower[iColumn];
+    FloatT upper = columnUpper[iColumn];
+    FloatT lower = columnLower[iColumn];
     if (solution[iColumn] < lower)
       solution[iColumn] = lower;
     else if (solution[iColumn] > upper)
       solution[iColumn] = upper;
 #if 0
-          double large = CoinMax(1000.0, 10.0 * fabs(solution[iColumn]));
+          FloatT large = CoinMax(1000.0, 10.0 * fabs(solution[iColumn]));
           if (upper > 1.0e10)
                upper = solution[iColumn] + large;
           if (lower < -1.0e10)
@@ -3908,12 +3908,12 @@ int ClpSimplexNonlinear::primalSLP(int numberConstraints, ClpConstraint **constr
   }
   bool tryFix = false;
   int iPass;
-  double lastObjective = 1.0e31;
-  double lastGoodObjective = 1.0e31;
-  double *bestSolution = NULL;
-  double *saveSolution = new double[numberColumns2 + numberRows];
+  FloatT lastObjective = 1.0e31;
+  FloatT lastGoodObjective = 1.0e31;
+  FloatT *bestSolution = NULL;
+  FloatT *saveSolution = new FloatT[numberColumns2 + numberRows];
   char *saveStatus = new char[numberColumns2 + numberRows];
-  double targetDrop = 1.0e31;
+  FloatT targetDrop = 1.0e31;
   // 1 bound up, 2 up, -1 bound down, -2 down, 0 no change
   for (iPass = 0; iPass < 3; iPass++) {
     last[iPass] = new int[numberNonLinearColumns];
@@ -3922,11 +3922,11 @@ int ClpSimplexNonlinear::primalSLP(int numberConstraints, ClpConstraint **constr
   }
   int numberZeroPasses = 0;
   bool zeroTargetDrop = false;
-  double *gradient = new double[numberColumns_];
+  FloatT *gradient = new FloatT[numberColumns_];
   bool goneFeasible = false;
   // keep sum of artificials
 #define KEEP_SUM 5
-  double sumArt[KEEP_SUM];
+  FloatT sumArt[KEEP_SUM];
   for (jNon = 0; jNon < KEEP_SUM; jNon++)
     sumArt[jNon] = COIN_DBL_MAX;
 #define SMALL_FIX 0.0
@@ -3957,7 +3957,7 @@ int ClpSimplexNonlinear::primalSLP(int numberConstraints, ClpConstraint **constr
       }
     }
     // redo matrix
-    double offset;
+    FloatT offset;
     CoinPackedMatrix newMatrix(saveMatrix);
     // get matrix data pointers
     column = newMatrix.getIndices();
@@ -3968,7 +3968,7 @@ int ClpSimplexNonlinear::primalSLP(int numberConstraints, ClpConstraint **constr
       constraints[0]->newXValues();
     else
       trueObjective->newXValues();
-    double *changeableElement = newMatrix.getMutableElements();
+    FloatT *changeableElement = newMatrix.getMutableElements();
     if (trueObjective) {
       CoinMemcpyN(trueObjective->gradient(this, solution, offset, true, 2), numberColumns_,
         objective);
@@ -3983,13 +3983,13 @@ int ClpSimplexNonlinear::primalSLP(int numberConstraints, ClpConstraint **constr
     for (iConstraint = 0; iConstraint < numberConstraints; iConstraint++) {
       ClpConstraint *constraint = constraints[iConstraint];
       int iRow = constraint->rowNumber();
-      double functionValue;
+      FloatT functionValue;
 #ifndef NDEBUG
       int numberErrors =
 #endif
         constraint->gradient(&newModel, solution, gradient, functionValue, offset);
       assert(!numberErrors);
-      // double dualValue = newModel.dualRowSolution()[iRow];
+      // FloatT dualValue = newModel.dualRowSolution()[iRow];
       int numberCoefficients = constraint->numberCoefficients();
       for (CoinBigIndex j = rowStart[iRow]; j < rowStart[iRow] + numberCoefficients; j++) {
         int iColumn = column[j];
@@ -4019,7 +4019,7 @@ int ClpSimplexNonlinear::primalSLP(int numberConstraints, ClpConstraint **constr
       newModel.writeMps("infeas.mps");
       assert(!newModel.status());
     }
-    double sumInfeas = 0.0;
+    FloatT sumInfeas = 0.0;
     int numberInfeas = 0;
     for (iColumn = numberColumns_; iColumn < numberColumns2; iColumn++) {
       if (solution[iColumn] > 1.0e-8) {
@@ -4053,8 +4053,8 @@ int ClpSimplexNonlinear::primalSLP(int numberConstraints, ClpConstraint **constr
       penalties[1] = 1.0e6;
       printf("Got feasible\n");
     }
-    double infValue = 0.0;
-    double objValue = 0.0;
+    FloatT infValue = 0.0;
+    FloatT objValue = 0.0;
     // make sure x updated
     if (numberConstraints)
       constraints[0]->newXValues();
@@ -4069,41 +4069,41 @@ int ClpSimplexNonlinear::primalSLP(int numberConstraints, ClpConstraint **constr
       objValue = objective_->objectiveValue(this, solution);
     }
     objValue *= whichWay;
-    double infPenalty = 0.0;
+    FloatT infPenalty = 0.0;
     // This penalty is for target drop
-    double infPenalty2 = 0.0;
+    FloatT infPenalty2 = 0.0;
     //const int * row = columnCopy->getIndices();
     //const CoinBigIndex * columnStart = columnCopy->getVectorStarts();
     //const int * columnLength = columnCopy->getVectorLengths();
-    //const double * element = columnCopy->getElements();
-    double *cost = newModel.objective();
+    //const FloatT * element = columnCopy->getElements();
+    FloatT *cost = newModel.objective();
     column = newMatrix.getIndices();
     rowStart = newMatrix.getVectorStarts();
     rowLength = newMatrix.getVectorLengths();
     elementByRow = newMatrix.getElements();
     int jColumn = numberColumns_;
-    double objectiveAdjustment = 0.0;
+    FloatT objectiveAdjustment = 0.0;
     for (iConstraint = 0; iConstraint < numberConstraints; iConstraint++) {
       ClpConstraint *constraint = constraints[iConstraint];
       int iRow = constraint->rowNumber();
-      double functionValue = constraint->functionValue(this, solution);
-      double dualValue = newModel.dualRowSolution()[iRow];
+      FloatT functionValue = constraint->functionValue(this, solution);
+      FloatT dualValue = newModel.dualRowSolution()[iRow];
       if (numberConstraints < -50)
         printf("For row %d current value is %g (row activity %g) , dual is %g\n", iRow, functionValue,
           newModel.primalRowSolution()[iRow],
           dualValue);
-      double movement = newModel.primalRowSolution()[iRow] + constraint->offset();
+      FloatT movement = newModel.primalRowSolution()[iRow] + constraint->offset();
       movement = fabs((movement - functionValue) * dualValue);
       infPenalty2 += movement;
-      double sumOfActivities = 0.0;
+      FloatT sumOfActivities = 0.0;
       for (CoinBigIndex j = rowStart[iRow]; j < rowStart[iRow] + rowLength[iRow]; j++) {
         int iColumn = column[j];
         sumOfActivities += fabs(solution[iColumn] * elementByRow[j]);
       }
       if (rowLower_[iRow] > -1.0e20) {
         if (functionValue < rowLower_[iRow] - 1.0e-5) {
-          double infeasibility = rowLower_[iRow] - functionValue;
-          double thisPenalty = 0.0;
+          FloatT infeasibility = rowLower_[iRow] - functionValue;
+          FloatT thisPenalty = 0.0;
           infValue += infeasibility;
           int k;
           assert(dualValue >= -1.0e-5);
@@ -4111,14 +4111,14 @@ int ClpSimplexNonlinear::primalSLP(int numberConstraints, ClpConstraint **constr
           for (k = 0; k < SEGMENTS; k++) {
             if (infeasibility <= 0)
               break;
-            double thisPart = CoinMin(infeasibility, bounds[k]);
+            FloatT thisPart = CoinMin(infeasibility, bounds[k]);
             thisPenalty += thisPart * cost[jColumn + k];
             infeasibility -= thisPart;
           }
           infeasibility = functionValue - rowUpper_[iRow];
-          double newPenalty = 0.0;
+          FloatT newPenalty = 0.0;
           for (k = 0; k < SEGMENTS; k++) {
-            double thisPart = CoinMin(infeasibility, bounds[k]);
+            FloatT thisPart = CoinMin(infeasibility, bounds[k]);
             cost[jColumn + k] = CoinMax(penalties[k], dualValue + 1.0e-3);
             newPenalty += thisPart * cost[jColumn + k];
             infeasibility -= thisPart;
@@ -4130,8 +4130,8 @@ int ClpSimplexNonlinear::primalSLP(int numberConstraints, ClpConstraint **constr
       }
       if (rowUpper_[iRow] < 1.0e20) {
         if (functionValue > rowUpper_[iRow] + 1.0e-5) {
-          double infeasibility = functionValue - rowUpper_[iRow];
-          double thisPenalty = 0.0;
+          FloatT infeasibility = functionValue - rowUpper_[iRow];
+          FloatT thisPenalty = 0.0;
           infValue += infeasibility;
           int k;
           dualValue = -dualValue;
@@ -4140,14 +4140,14 @@ int ClpSimplexNonlinear::primalSLP(int numberConstraints, ClpConstraint **constr
           for (k = 0; k < SEGMENTS; k++) {
             if (infeasibility <= 0)
               break;
-            double thisPart = CoinMin(infeasibility, bounds[k]);
+            FloatT thisPart = CoinMin(infeasibility, bounds[k]);
             thisPenalty += thisPart * cost[jColumn + k];
             infeasibility -= thisPart;
           }
           infeasibility = functionValue - rowUpper_[iRow];
-          double newPenalty = 0.0;
+          FloatT newPenalty = 0.0;
           for (k = 0; k < SEGMENTS; k++) {
-            double thisPart = CoinMin(infeasibility, bounds[k]);
+            FloatT thisPart = CoinMin(infeasibility, bounds[k]);
             cost[jColumn + k] = CoinMax(penalties[k], dualValue + 1.0e-3);
             newPenalty += thisPart * cost[jColumn + k];
             infeasibility -= thisPart;
@@ -4167,11 +4167,11 @@ int ClpSimplexNonlinear::primalSLP(int numberConstraints, ClpConstraint **constr
     objValue -= objectiveOffset2;
     printf("True objective %g or maybe %g (with penalty %g) -pen2 %g %g\n", objValue,
       objValue + objectiveOffset2, objValue + objectiveOffset2 + infPenalty, infPenalty2, penalties[1]);
-    double useObjValue = objValue + objectiveOffset2 + infPenalty;
+    FloatT useObjValue = objValue + objectiveOffset2 + infPenalty;
     objValue += infPenalty + infPenalty2;
     objValue = useObjValue;
     if (iPass) {
-      double drop = lastObjective - objValue;
+      FloatT drop = lastObjective - objValue;
       std::cout << "True drop was " << drop << std::endl;
       if (drop < -0.05 * fabs(objValue) - 1.0e-4) {
         // pretty bad - go back and halve
@@ -4200,7 +4200,7 @@ int ClpSimplexNonlinear::primalSLP(int numberConstraints, ClpConstraint **constr
       last[0] = temp;
       for (jNon = 0; jNon < numberNonLinearColumns; jNon++) {
         iColumn = listNonLinearColumn[jNon];
-        double change = solution[iColumn] - saveSolution[iColumn];
+        FloatT change = solution[iColumn] - saveSolution[iColumn];
         if (change < -1.0e-5) {
           if (fabs(change + trust[jNon]) < 1.0e-5)
             temp[jNon] = -1;
@@ -4215,20 +4215,20 @@ int ClpSimplexNonlinear::primalSLP(int numberConstraints, ClpConstraint **constr
           temp[jNon] = 0;
         }
       }
-      double maxDelta = 0.0;
-      double smallestTrust = 1.0e31;
-      double smallestNonLinearGap = 1.0e31;
-      double smallestGap = 1.0e31;
+      FloatT maxDelta = 0.0;
+      FloatT smallestTrust = 1.0e31;
+      FloatT smallestNonLinearGap = 1.0e31;
+      FloatT smallestGap = 1.0e31;
       bool increasing = false;
       for (iColumn = 0; iColumn < numberColumns_; iColumn++) {
-        double gap = columnUpper[iColumn] - columnLower[iColumn];
+        FloatT gap = columnUpper[iColumn] - columnLower[iColumn];
         assert(gap >= 0.0);
         if (gap)
           smallestGap = CoinMin(smallestGap, gap);
       }
       for (jNon = 0; jNon < numberNonLinearColumns; jNon++) {
         iColumn = listNonLinearColumn[jNon];
-        double gap = columnUpper[iColumn] - columnLower[iColumn];
+        FloatT gap = columnUpper[iColumn] - columnLower[iColumn];
         assert(gap >= 0.0);
         if (gap) {
           smallestNonLinearGap = CoinMin(smallestNonLinearGap, gap);
@@ -4263,14 +4263,14 @@ int ClpSimplexNonlinear::primalSLP(int numberConstraints, ClpConstraint **constr
                 << ", smallest nonlinear gap is " << smallestNonLinearGap
                 << std::endl;
       if (iPass > 200) {
-        //double useObjValue = objValue+objectiveOffset2+infPenalty;
+        //FloatT useObjValue = objValue+objectiveOffset2+infPenalty;
         if (useObjValue + 1.0e-4 > lastGoodObjective && iPass > 250) {
           std::cout << "Exiting as objective not changing much" << std::endl;
           break;
         } else if (useObjValue < lastGoodObjective) {
           lastGoodObjective = useObjValue;
           if (!bestSolution)
-            bestSolution = new double[numberColumns2];
+            bestSolution = new FloatT[numberColumns2];
           CoinMemcpyN(solution, numberColumns2, bestSolution);
         }
       }
@@ -4301,19 +4301,19 @@ int ClpSimplexNonlinear::primalSLP(int numberConstraints, ClpConstraint **constr
     targetDrop = infPenalty + infPenalty2;
     if (iPass) {
       // get reduced costs
-      const double *pi = newModel.dualRowSolution();
+      const FloatT *pi = newModel.dualRowSolution();
       newModel.matrix()->transposeTimes(pi,
         newModel.dualColumnSolution());
-      double *r = newModel.dualColumnSolution();
+      FloatT *r = newModel.dualColumnSolution();
       for (iColumn = 0; iColumn < numberColumns_; iColumn++)
         r[iColumn] = objective[iColumn] - r[iColumn];
       for (jNon = 0; jNon < numberNonLinearColumns; jNon++) {
         iColumn = listNonLinearColumn[jNon];
-        double dj = r[iColumn];
+        FloatT dj = r[iColumn];
         if (dj < -1.0e-6) {
-          double drop = -dj * (columnUpper[iColumn] - solution[iColumn]);
-          //double upper = CoinMin(trueUpper[jNon],solution[iColumn]+0.1);
-          //double drop2 = -dj*(upper-solution[iColumn]);
+          FloatT drop = -dj * (columnUpper[iColumn] - solution[iColumn]);
+          //FloatT upper = CoinMin(trueUpper[jNon],solution[iColumn]+0.1);
+          //FloatT drop2 = -dj*(upper-solution[iColumn]);
 #if 0
                          if (drop > 1.0e8 || drop2 > 100.0 * drop || (drop > 1.0e-2 && iPass > 100))
                               printf("Big drop %d %g %g %g %g T %g\n",
@@ -4328,9 +4328,9 @@ int ClpSimplexNonlinear::primalSLP(int numberConstraints, ClpConstraint **constr
             //     iColumn,trust[jNon]);
           }
         } else if (dj > 1.0e-6) {
-          double drop = -dj * (columnLower[iColumn] - solution[iColumn]);
-          //double lower = CoinMax(trueLower[jNon],solution[iColumn]-0.1);
-          //double drop2 = -dj*(lower-solution[iColumn]);
+          FloatT drop = -dj * (columnLower[iColumn] - solution[iColumn]);
+          //FloatT lower = CoinMax(trueLower[jNon],solution[iColumn]-0.1);
+          //FloatT drop2 = -dj*(lower-solution[iColumn]);
 #if 0
                          if (drop > 1.0e8 || drop2 > 100.0 * drop || (drop > 1.0e-2))
                               printf("Big drop %d %g %g %g %g T %g\n",
@@ -4392,9 +4392,9 @@ int ClpSimplexNonlinear::primalSLP(int numberConstraints, ClpConstraint **constr
     objectiveValue_ = lastGoodObjective;
   }
   // Simplest way to get true row activity ?
-  double *rowActivity = newModel.primalRowSolution();
+  FloatT *rowActivity = newModel.primalRowSolution();
   for (iRow = 0; iRow < numberRows; iRow++) {
-    double difference;
+    FloatT difference;
     if (fabs(rowLower_[iRow]) < fabs(rowUpper_[iRow]))
       difference = rowLower_[iRow] - rowLower[iRow];
     else

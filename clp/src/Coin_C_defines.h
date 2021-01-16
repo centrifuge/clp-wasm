@@ -63,16 +63,16 @@ typedef void Clp_Simplex;
 /** typedef for user call back.
  The cvec are constructed so don't need to be const*/
 #if COIN_BIG_INDEX == 0
-typedef void(COINLINKAGE_CB *clp_callback)(Clp_Simplex *model, int msgno, int ndouble,
-  const double *dvec, int nint, const int *ivec,
+typedef void(COINLINKAGE_CB *clp_callback)(Clp_Simplex *model, int msgno, int nFloatT,
+  const FloatT *dvec, int nint, const int *ivec,
   int nchar, char **cvec);
 #elif COIN_BIG_INDEX == 1
-typedef void(COINLINKAGE_CB *clp_callback)(Clp_Simplex *model, int msgno, int ndouble,
-  const double *dvec, int nint, const long *ivec,
+typedef void(COINLINKAGE_CB *clp_callback)(Clp_Simplex *model, int msgno, int nFloatT,
+  const FloatT *dvec, int nint, const long *ivec,
   int nchar, char **cvec);
 #else
-typedef void(COINLINKAGE_CB *clp_callback)(Clp_Simplex *model, int msgno, int ndouble,
-  const double *dvec, int nint, const long long *ivec,
+typedef void(COINLINKAGE_CB *clp_callback)(Clp_Simplex *model, int msgno, int nFloatT,
+  const FloatT *dvec, int nint, const long long *ivec,
   int nchar, char **cvec);
 #endif
 #endif
@@ -107,9 +107,9 @@ typedef struct {
   int *cNameStart;
   char *cInt;
   char *cNames;
-  double *cLB;
-  double *cUB;
-  double *cObj;
+  FloatT *cLB;
+  FloatT *cUB;
+  FloatT *cObj;
 } Cbc_Model;
 #else
 typedef void Cbc_Model;
@@ -117,12 +117,12 @@ typedef void Cbc_Model;
 #ifndef COIN_NO_SBB
 /** typedef for user call back.
  The cvec are constructed so don't need to be const*/
-typedef void(COINLINKAGE_CB *sbb_callback)(Sbb_Model *model, int msgno, int ndouble,
-  const double *dvec, int nint, const int *ivec,
+typedef void(COINLINKAGE_CB *sbb_callback)(Sbb_Model *model, int msgno, int nFloatT,
+  const FloatT *dvec, int nint, const int *ivec,
   int nchar, char **cvec);
 
-typedef void(COINLINKAGE_CB *cbc_callback)(Cbc_Model *model, int msgno, int ndouble,
-  const double *dvec, int nint, const int *ivec,
+typedef void(COINLINKAGE_CB *cbc_callback)(Cbc_Model *model, int msgno, int nFloatT,
+  const FloatT *dvec, int nint, const int *ivec,
   int nchar, char **cvec);
 
 /** typedef for cbc cut callback osiSolver needs to be an OsiSolverInterface object,

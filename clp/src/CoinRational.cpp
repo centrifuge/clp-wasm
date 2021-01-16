@@ -13,6 +13,8 @@
 
 #include "CoinRational.hpp"
 
+#include "CoinHelperFunctions.hpp"
+
 // Based on Python code from
 // http://www.johndcook.com/blog/2010/10/20/best-rational-approximation/
 // (with permission).
@@ -20,10 +22,10 @@
 // Returns closest (or almost, anyway) rational to val with denominator less
 // than or equal to maxdnom.  Return value is true if within tolerance, false
 // otherwise.
-bool CoinRational::nearestRational_(double val, double maxdelta, long maxdnom)
+bool CoinRational::nearestRational_(FloatT val, FloatT maxdelta, long maxdnom)
 {
-  double intpart;
-  double fracpart = fabs(modf(val, &intpart));
+  FloatT intpart;
+  FloatT fracpart = fabs(modf(val, &intpart));
   // Consider using remainder() instead?
 
   long a = 0, b = 1, c = 1, d = 1;
@@ -32,7 +34,7 @@ bool CoinRational::nearestRational_(double val, double maxdelta, long maxdnom)
   bool shouldBeOK = false;
 #endif
   while (b <= maxdnom && d <= maxdnom) {
-    double mediant = (a + c) / (double(b + d));
+    FloatT mediant = (a + c) / (FloatT(b + d));
 
     if (fabs(fracpart - mediant) < maxdelta) {
 #if DEBUG_X
@@ -69,20 +71,20 @@ bool CoinRational::nearestRational_(double val, double maxdelta, long maxdnom)
 
 #if DEBUG_X
   if (shouldBeOK) {
-    double inaccuracy = fabs(fracpart - numerator_ / double(denominator_));
+    FloatT inaccuracy = CoinAbs(fracpart - numerator_ / FloatT(denominator_));
     assert(inaccuracy <= maxdelta);
   }
 #endif
-  numerator_ += std::abs(intpart) * denominator_;
+  numerator_ += (long)( CoinAbs(intpart) * fd(denominator_));
   if (val < 0)
     numerator_ *= -1;
 #if DEBUG_X > 1
   if (shouldBeOK) {
     printf("val %g is %ld/%ld to accuracy %g\n", val, numerator_, denominator_,
-      fabs(val - numerator_ / double(denominator_)));
+      fabs(val - numerator_ / FloatT(denominator_)));
   }
 #endif
-  return fabs(val - numerator_ / double(denominator_)) <= maxdelta;
+  return CoinAbs(val - numerator_ / FloatT(denominator_)) <= maxdelta;
 }
 
 /* vi: softtabstop=2 shiftwidth=2 expandtab tabstop=2

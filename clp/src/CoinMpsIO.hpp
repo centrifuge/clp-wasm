@@ -159,7 +159,7 @@ public:
     return columnName_;
   }
   /// Returns value in current field
-  inline double value() const
+  inline FloatT value() const
   {
     return value_;
   }
@@ -210,7 +210,7 @@ protected:
   /**@name data */
   //@{
   /// Current value
-  double value_;
+  FloatT value_;
   /// Current card image
   char card_[MAX_CARD_LENGTH];
   /// Current position within card image
@@ -250,13 +250,13 @@ public:
   /**@name methods */
   //@{
   /// type - 0 normal, 1 INTEL IEEE, 2 other IEEE
-  double osi_strtod(char *ptr, char **output, int type);
+  FloatT osi_strtod(char *ptr, char **output, int type);
   /// remove blanks
   static void strcpyAndCompress(char *to, const char *from);
   ///
   static char *nextBlankOr(char *image);
   /// For strings
-  double osi_strtod(char *ptr, char **output);
+  FloatT osi_strtod(char *ptr, char **output);
   //@}
 };
 
@@ -314,7 +314,7 @@ public:
     return which_;
   }
   /// Returns weights
-  inline const double *weights() const
+  inline const FloatT *weights() const
   {
     return weights_;
   }
@@ -324,7 +324,7 @@ public:
     return which_;
   }
   /// Returns modifiable weights
-  inline double *modifiableWeights() const
+  inline FloatT *modifiableWeights() const
   {
     return weights_;
   }
@@ -352,7 +352,7 @@ protected:
   /// Which variables are in set
   int *which_;
   /// Weights
-  double *weights_;
+  FloatT *weights_;
   //@}
 };
 
@@ -364,7 +364,7 @@ public:
   /**@name Constructor and destructor */
   //@{
   /// Constructor
-  CoinSosSet(int numberEntries, const int *which, const double *weights, int type);
+  CoinSosSet(int numberEntries, const int *which, const FloatT *weights, int type);
 
   /// Destructor
   virtual ~CoinSosSet();
@@ -423,10 +423,10 @@ public:
   CoinBigIndex getNumElements() const;
 
   /// Get pointer to array[getNumCols()] of column lower bounds
-  const double *getColLower() const;
+  const FloatT *getColLower() const;
 
   /// Get pointer to array[getNumCols()] of column upper bounds
-  const double *getColUpper() const;
+  const FloatT *getColUpper() const;
 
   /** Get pointer to array[getNumRows()] of constraint senses.
 	<ul>
@@ -450,7 +450,7 @@ public:
 	  <li> if rowsense()[i] == 'N' then rhs()[i] == 0.0
 	</ul>
     */
-  const double *getRightHandSide() const;
+  const FloatT *getRightHandSide() const;
 
   /** Get pointer to array[getNumRows()] of row ranges.
 
@@ -465,16 +465,16 @@ public:
 	Put another way, only range constraints have a nontrivial value for
 	rowrange.
     */
-  const double *getRowRange() const;
+  const FloatT *getRowRange() const;
 
   /// Get pointer to array[getNumRows()] of row lower bounds
-  const double *getRowLower() const;
+  const FloatT *getRowLower() const;
 
   /// Get pointer to array[getNumRows()] of row upper bounds
-  const double *getRowUpper() const;
+  const FloatT *getRowUpper() const;
 
   /// Get pointer to array[getNumCols()] of objective function coefficients
-  const double *getObjCoefficients() const;
+  const FloatT *getObjCoefficients() const;
 
   /// Get pointer to row-wise copy of the coefficient matrix
   const CoinPackedMatrix *getMatrixByRow() const;
@@ -536,9 +536,9 @@ public:
     
 	This is the RHS entry for the objective row
     */
-  double objectiveOffset() const;
+  FloatT objectiveOffset() const;
   /// Set objective offset
-  inline void setObjectiveOffset(double value)
+  inline void setObjectiveOffset(FloatT value)
   {
     objectiveOffset_ = value;
   }
@@ -576,30 +576,30 @@ public:
   //@{
 
   /// Set the problem data
-  void setMpsData(const CoinPackedMatrix &m, const double infinity,
-    const double *collb, const double *colub,
-    const double *obj, const char *integrality,
-    const double *rowlb, const double *rowub,
+  void setMpsData(const CoinPackedMatrix &m, const FloatT infinity,
+    const FloatT *collb, const FloatT *colub,
+    const FloatT *obj, const char *integrality,
+    const FloatT *rowlb, const FloatT *rowub,
     char const *const *const colnames,
     char const *const *const rownames);
-  void setMpsData(const CoinPackedMatrix &m, const double infinity,
-    const double *collb, const double *colub,
-    const double *obj, const char *integrality,
-    const double *rowlb, const double *rowub,
+  void setMpsData(const CoinPackedMatrix &m, const FloatT infinity,
+    const FloatT *collb, const FloatT *colub,
+    const FloatT *obj, const char *integrality,
+    const FloatT *rowlb, const FloatT *rowub,
     const std::vector< std::string > &colnames,
     const std::vector< std::string > &rownames);
-  void setMpsData(const CoinPackedMatrix &m, const double infinity,
-    const double *collb, const double *colub,
-    const double *obj, const char *integrality,
-    const char *rowsen, const double *rowrhs,
-    const double *rowrng,
+  void setMpsData(const CoinPackedMatrix &m, const FloatT infinity,
+    const FloatT *collb, const FloatT *colub,
+    const FloatT *obj, const char *integrality,
+    const char *rowsen, const FloatT *rowrhs,
+    const FloatT *rowrng,
     char const *const *const colnames,
     char const *const *const rownames);
-  void setMpsData(const CoinPackedMatrix &m, const double infinity,
-    const double *collb, const double *colub,
-    const double *obj, const char *integrality,
-    const char *rowsen, const double *rowrhs,
-    const double *rowrng,
+  void setMpsData(const CoinPackedMatrix &m, const FloatT infinity,
+    const FloatT *collb, const FloatT *colub,
+    const FloatT *obj, const char *integrality,
+    const char *rowsen, const FloatT *rowrhs,
+    const FloatT *rowrng,
     const std::vector< std::string > &colnames,
     const std::vector< std::string > &rownames);
 
@@ -625,10 +625,10 @@ public:
 
   //@{
   /// Set infinity
-  void setInfinity(double value);
+  void setInfinity(FloatT value);
 
   /// Get infinity
-  double getInfinity() const;
+  FloatT getInfinity() const;
 
   /// Set default upper bound for integer variables
   void setDefaultBound(int value);
@@ -647,11 +647,11 @@ public:
   }
   /** Small element value - elements less than this set to zero on input
         default is 1.0e-14 */
-  inline double getSmallElementValue() const
+  inline FloatT getSmallElementValue() const
   {
     return smallElement_;
   }
-  inline void setSmallElementValue(double value)
+  inline void setSmallElementValue(FloatT value)
   {
     smallElement_ = value;
   }
@@ -718,7 +718,7 @@ public:
       If sizes of names incorrect - read without names
     */
   int readBasis(const char *filename, const char *extension,
-    double *solution, unsigned char *rowStatus, unsigned char *columnStatus,
+    FloatT *solution, unsigned char *rowStatus, unsigned char *columnStatus,
     const std::vector< std::string > &colnames, int numberColumns,
     const std::vector< std::string > &rownames, int numberRows);
 
@@ -814,7 +814,7 @@ public:
       columnStart is numberColumns+1 long, others numberNonZeros
     */
   int readQuadraticMps(const char *filename,
-    CoinBigIndex *&columnStart, int *&column, double *&elements,
+    CoinBigIndex *&columnStart, int *&column, FloatT *&elements,
     int checkSymmetry);
 
   /** Read in a list of cones from the given filename.  
@@ -924,10 +924,10 @@ protected:
   /// Utility method used several times to implement public methods
   void
   setMpsDataWithoutRowAndColNames(
-    const CoinPackedMatrix &m, const double infinity,
-    const double *collb, const double *colub,
-    const double *obj, const char *integrality,
-    const double *rowlb, const double *rowub);
+    const CoinPackedMatrix &m, const FloatT infinity,
+    const FloatT *collb, const FloatT *colub,
+    const FloatT *obj, const char *integrality,
+    const FloatT *rowlb, const FloatT *rowub);
   void
   setMpsDataColAndRowNames(
     const std::vector< std::string > &colnames,
@@ -949,14 +949,14 @@ protected:
   /** A quick inlined function to convert from lb/ub style constraint
 	definition to sense/rhs/range style */
   inline void
-  convertBoundToSense(const double lower, const double upper,
-    char &sense, double &right, double &range) const;
+  convertBoundToSense(const FloatT lower, const FloatT upper,
+    char &sense, FloatT &right, FloatT &range) const;
   /** A quick inlined function to convert from sense/rhs/range stryle
 	constraint definition to lb/ub style */
   inline void
-  convertSenseToBound(const char sense, const double right,
-    const double range,
-    double &lower, double &upper) const;
+  convertSenseToBound(const char sense, const FloatT right,
+    const FloatT range,
+    FloatT &lower, FloatT &upper) const;
 
   /** Deal with a filename
   
@@ -1028,12 +1028,12 @@ protected:
   mutable char *rowsense_;
 
   /// Pointer to dense vector of row right-hand side values
-  mutable double *rhs_;
+  mutable FloatT *rhs_;
 
   /** Pointer to dense vector of slack variable upper bounds for range 
           constraints (undefined for non-range rows)
       */
-  mutable double *rowrange_;
+  mutable FloatT *rowrange_;
 
   /// Pointer to row-wise copy of problem matrix coefficients.
   mutable CoinPackedMatrix *matrixByRow_;
@@ -1042,22 +1042,22 @@ protected:
   CoinPackedMatrix *matrixByColumn_;
 
   /// Pointer to dense vector of row lower bounds
-  double *rowlower_;
+  FloatT *rowlower_;
 
   /// Pointer to dense vector of row upper bounds
-  double *rowupper_;
+  FloatT *rowupper_;
 
   /// Pointer to dense vector of column lower bounds
-  double *collower_;
+  FloatT *collower_;
 
   /// Pointer to dense vector of column upper bounds
-  double *colupper_;
+  FloatT *colupper_;
 
   /// Pointer to dense vector of objective coefficients
-  double *objective_;
+  FloatT *objective_;
 
   /// Constant offset for objective value (i.e., RHS value for OBJ row)
-  double objectiveOffset_;
+  FloatT objectiveOffset_;
 
   /** Pointer to dense vector specifying if a variable is continuous
 	  (0) or integer (1).
@@ -1088,9 +1088,9 @@ protected:
   int defaultBound_;
 
   /// Value to use for infinity
-  double infinity_;
+  FloatT infinity_;
   /// Small element value
-  double smallElement_;
+  FloatT smallElement_;
 
   /// Message handler
   CoinMessageHandler *handler_;
@@ -1134,7 +1134,7 @@ void CoinMpsIOUnitTest(const std::string &mpsDir);
    2 - IEEE hex - INTEL
    3 - IEEE hex - not INTEL
 */
-void CoinConvertDouble(int section, int formatType, double value, char outputValue[24]);
+void CoinConvertDouble(int section, int formatType, FloatT value, char outputValue[24]);
 
 #endif
 

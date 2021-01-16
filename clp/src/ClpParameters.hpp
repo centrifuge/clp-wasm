@@ -86,18 +86,18 @@ ClpDisjointCopyN(const T *array, const CoinBigIndex size, T *newArray)
   memcpy(reinterpret_cast< void * >(newArray), array, size * sizeof(T));
 }
 /// And set
-template < class T >
+template < class T, class U >
 inline void
-ClpFillN(T *array, const CoinBigIndex size, T value)
+ClpFillN(T *array, const CoinBigIndex size, U value)
 {
   CoinBigIndex i;
   for (i = 0; i < size; i++)
     array[i] = value;
 }
 /// This returns a non const array filled with input from scalar or actual array
-template < class T >
+template < class T,  class U >
 inline T *
-ClpCopyOfArray(const T *array, const CoinBigIndex size, T value)
+ClpCopyOfArray(const T *array, const CoinBigIndex size, U value)
 {
   T *arrayNew = new T[size];
   if (array)

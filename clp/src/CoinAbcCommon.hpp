@@ -18,7 +18,7 @@
 #include "AbcCommon.hpp"
 #include "CoinHelperFunctions.hpp"
 //#include "config.h"
-typedef double CoinSimplexDouble;
+typedef FloatT CoinSimplexDouble;
 typedef int CoinSimplexInt;
 typedef unsigned int CoinSimplexUnsignedInt;
 //#define MOVE_REPLACE_PART1A
@@ -65,9 +65,9 @@ typedef unsigned int CoinSimplexUnsignedInt;
 #else
 void instrument_start(const char *type, int numberRowsEtc);
 void instrument_add(int count);
-void instrument_do(const char *type, double count);
+void instrument_do(const char *type, FloatT count);
 void instrument_end();
-void instrument_end_and_adjust(double factor);
+void instrument_end_and_adjust(FloatT factor);
 #endif
 #ifndef __BYTE_ORDER
 #include <endian.h>
@@ -160,7 +160,7 @@ typedef unsigned int CoinExponent;
 #define TEST_EXPONENT_LESS_THAN_UPDATE_TOLERANCE(x) (x < 0x3d400000)
 #define TEST_EXPONENT_NON_ZERO(x) (x)
 #else
-typedef long double CoinExponent;
+typedef FloatT CoinExponent;
 #define ABC_EXPONENT(x) (x)
 #define TEST_EXPONENT_LESS_THAN_TOLERANCE(x) (fabs(x) < pow(0.5, 43))
 #define TEST_EXPONENT_LESS_THAN_UPDATE_TOLERANCE(x) (fabs(x) < pow(0.5, 43))
@@ -206,10 +206,10 @@ void F77_FUNC(dgetrf, DGETRF)(ipfint *m, ipfint *n,
   CoinSimplexDouble *A, ipfint *ldA,
   ipfint *ipiv, ipfint *info);
 int clapack_dgetrf(const enum CBLAS_ORDER Order, const int M, const int N,
-  double *A, const int lda, int *ipiv);
+  FloatT *A, const int lda, int *ipiv);
 int clapack_dgetrs(const enum CBLAS_ORDER Order, const enum CBLAS_TRANSPOSE Trans,
-  const int N, const int NRHS, const double *A, const int lda,
-  const int *ipiv, double *B, const int ldb);
+  const int N, const int NRHS, const FloatT *A, const int lda,
+  const int *ipiv, FloatT *B, const int ldb);
 }
 #else // use home grown
 /* Dense coding
@@ -279,21 +279,21 @@ public:
   ///@name Public member data
   //@{
   /// Zero tolerance
-  double zeroTolerance_;
+  FloatT zeroTolerance_;
   /// Primal tolerance needed to make dual feasible (<largeTolerance)
-  double primalToleranceToGetOptimal_;
+  FloatT primalToleranceToGetOptimal_;
   /// Large bound value (for complementarity etc)
-  double largeValue_;
+  FloatT largeValue_;
   /// For computing whether to re-factorize
-  double alphaAccuracy_;
+  FloatT alphaAccuracy_;
   /// Dual bound
-  double dualBound_;
+  FloatT dualBound_;
   /// Current dual tolerance for algorithm
-  double dualTolerance_;
+  FloatT dualTolerance_;
   /// Current primal tolerance for algorithm
-  double primalTolerance_;
+  FloatT primalTolerance_;
   /// Weight assigned to being infeasible in primal
-  double infeasibilityCost_;
+  FloatT infeasibilityCost_;
   /** For advanced use.  When doing iterative solves things can get
       nasty so on values pass if incoming solution has largest
       infeasibility < incomingInfeasibility throw out variables
@@ -303,8 +303,8 @@ public:
       
       Defaults are 1.0,10.0
   */
-  double incomingInfeasibility_;
-  double allowedInfeasibility_;
+  FloatT incomingInfeasibility_;
+  FloatT allowedInfeasibility_;
   /// Iteration when we entered dual or primal
   int baseIteration_;
   /// How many iterative refinements to do

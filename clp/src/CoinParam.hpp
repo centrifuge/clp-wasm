@@ -2,6 +2,7 @@
 #ifndef CoinParam_H
 #define CoinParam_H
 
+#include "floatdef.h"
 /*
   Copyright (C) 2002, International Business Machines
   Corporation and others.  All Rights Reserved.
@@ -48,7 +49,7 @@
   All utility routines are declared in the #CoinParamUtils namespace.
 
   The base class recognises five types of parameters: actions (which require
-  no value); numeric parameters with integer or real (double) values; keyword
+  no value); numeric parameters with integer or real (FloatT) values; keyword
   parameters, where the value is one of a defined set of value-keywords;
   and string parameters (where the value is a string).
   The base class supports the definition of a valid range, a default value,
@@ -61,7 +62,7 @@
   of the derived class.
 
   When specified as command line parameters, the expected syntax is `-keyword
-  value' or `-keyword=value'. You can also use the Gnu double-dash style,
+  value' or `-keyword=value'. You can also use the Gnu FloatT-dash style,
   `--keyword'. Spaces around the `=' will \e not work.
 
   The keyword (name) for a parameter can be defined with an `!' to mark the
@@ -83,7 +84,7 @@ public:
     CoinParam provides support for several types of parameters:
     <ul>
       <li> Action parameters, which require no value.
-      <li> Integer and double numeric parameters, with upper and lower bounds.
+      <li> Integer and FloatT numeric parameters, with upper and lower bounds.
       <li> String parameters that take an arbitrary string value.
       <li> Keyword parameters that take a defined set of string (value-keyword)
 	   values. Value-keywords are associated with integers in the order in
@@ -119,14 +120,14 @@ public:
 
   CoinParam();
 
-  /*! \brief Constructor for a parameter with a double value
+  /*! \brief Constructor for a parameter with a FloatT value
   
     The default value is 0.0. Be careful to clearly indicate that \p lower and
-    \p upper are real (double) values to distinguish this constructor from the
+    \p upper are real (FloatT) values to distinguish this constructor from the
     constructor for an integer parameter.
   */
   CoinParam(std::string name, std::string help,
-    double lower, double upper, double dflt = 0.0,
+    FloatT lower, FloatT upper, FloatT dflt = 0.0,
     bool display = true);
 
   /*! \brief Constructor for a parameter with an integer value
@@ -235,13 +236,13 @@ public:
 
   std::string strVal() const;
 
-  /*! \brief Set the value of a double parameter */
+  /*! \brief Set the value of a FloatT parameter */
 
-  void setDblVal(double value);
+  void setDblVal(FloatT value);
 
-  /*! \brief Get the value of a double parameter */
+  /*! \brief Get the value of a FloatT parameter */
 
-  double dblVal() const;
+  FloatT dblVal() const;
 
   /*! \brief Set the value of a integer parameter */
 
@@ -377,14 +378,14 @@ private:
   */
   size_t lengthMatch_;
 
-  /// Lower bound on value for a double parameter
-  double lowerDblValue_;
+  /// Lower bound on value for a FloatT parameter
+  FloatT lowerDblValue_;
 
-  /// Upper bound on value for a double parameter
-  double upperDblValue_;
+  /// Upper bound on value for a FloatT parameter
+  FloatT upperDblValue_;
 
   /// Double parameter - current value
-  double dblValue_;
+  FloatT dblValue_;
 
   /// Lower bound on value for an integer parameter
   int lowerIntValue_;
@@ -480,13 +481,13 @@ std::string getStringField(int argc, const char *argv[], int *valid);
 int getIntField(int argc, const char *argv[], int *valid);
 
 /*! \relatesalso CoinParam
-      \brief Attempt to read a real (double) from the input.
+      \brief Attempt to read a real (FloatT) from the input.
       
       \p argc and \p argv are used only if isCommandLine() would return true.
       If \p valid is supplied, it will be set to 0 if a real number is parsed
       without error, 1 if there's a parse error, and 2 if no field is present.
   */
-double getDoubleField(int argc, const char *argv[], int *valid);
+FloatT getDoubleField(int argc, const char *argv[], int *valid);
 
 /*! \relatesalso CoinParam
       \brief Scan a parameter vector for parameters whose keyword (name) string

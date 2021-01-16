@@ -30,7 +30,7 @@ Here is a sample usage:
 @verbatim
    const int ne = 4; 
    int inx[ne] =   {  1,   4,  0,   2 }; 
-   double el[ne] = { 10., 40., 1., 50. }; 
+   FloatT el[ne] = { 10., 40., 1., 50. }; 
  
    // Create vector and set its value 
    CoinShallowPackedVector r(ne,inx,el); 
@@ -82,7 +82,7 @@ public:
   /// Get indices of elements
   virtual const int *getIndices() const { return indices_; }
   /// Get element values
-  virtual const double *getElements() const { return elements_; }
+  virtual const FloatT *getElements() const { return elements_; }
   //@}
 
   /**@name Set methods */
@@ -94,7 +94,7 @@ public:
   /** Assignment operator from a CoinPackedVectorBase. */
   CoinShallowPackedVector &operator=(const CoinPackedVectorBase &x);
   /** just like the explicit constructor */
-  void setVector(int size, const int *indices, const double *elements,
+  void setVector(int size, const int *indices, const FloatT *elements,
     bool testForDuplicateIndex = true);
   //@}
 
@@ -111,7 +111,7 @@ public:
        advance that there are no duplicate indices.
    */
   CoinShallowPackedVector(int size,
-    const int *indices, const double *elements,
+    const int *indices, const FloatT *elements,
     bool testForDuplicateIndex = true);
   /** Copy constructor from the base class. */
   CoinShallowPackedVector(const CoinPackedVectorBase &);
@@ -129,7 +129,7 @@ private:
   /// Vector indices
   const int *indices_;
   ///Vector elements
-  const double *elements_;
+  const FloatT *elements_;
   /// Size of indices and elements vectors
   int nElements_;
   //@}

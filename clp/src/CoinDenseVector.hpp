@@ -31,16 +31,16 @@ void CoinDenseVectorUnitTest(T dummy);
 Stores a dense (or expanded) vector of floating point values.
 Type of vector elements is controlled by templating.
 (Some working quantities such as accumulated sums
-are explicitly declared of type double). This allows the 
-components of the vector integer, single or double precision.
+are explicitly declared of type FloatT). This allows the 
+components of the vector integer, single or FloatT precision.
 
 Here is a sample usage:
 @verbatim
     const int ne = 4;
-    double el[ne] = { 10., 40., 1., 50. }
+    FloatT el[ne] = { 10., 40., 1., 50. }
 
     // Create vector and set its value
-    CoinDenseVector<double> r(ne,el);
+    CoinDenseVector<FloatT> r(ne,el);
 
     // access each element
     assert( r.getElements()[0]==10. );
@@ -49,13 +49,13 @@ Here is a sample usage:
     assert( r.getElements()[3]==50. );
 
     // Test for equality
-    CoinDenseVector<double> r1;
+    CoinDenseVector<FloatT> r1;
     r1=r;
 
     // Add dense vectors.
     // Similarly for subtraction, multiplication,
     // and division.
-    CoinDenseVector<double> add = r + r1;
+    CoinDenseVector<FloatT> add = r + r1;
     assert( add[0] == 10.+10. );
     assert( add[1] == 40.+40. );
     assert( add[2] ==  1.+ 1. );
@@ -132,9 +132,9 @@ public:
     return norm;
   }
   /// 2-norm of vector
-  inline double twoNorm() const
+  inline FloatT twoNorm() const
   {
-    double norm = 0.;
+    FloatT norm = 0.;
     for (int i = 0; i < nElements_; i++)
       norm += elements_[i] * elements_[i];
     // std namespace removed because it was causing a compile
@@ -290,7 +290,7 @@ inline CoinDenseVector< T > operator+(const CoinDenseVector< T > &op1, T value)
   CoinDenseVector< T > op3(size);
   const T *elements1 = op1.getElements();
   T *elements3 = op3.getElements();
-  double dvalue = value;
+  FloatT dvalue = value;
   for (int i = 0; i < size; i++)
     elements3[i] = elements1[i] + dvalue;
   return op3;
@@ -304,7 +304,7 @@ inline CoinDenseVector< T > operator-(const CoinDenseVector< T > &op1, T value)
   CoinDenseVector< T > op3(size);
   const T *elements1 = op1.getElements();
   T *elements3 = op3.getElements();
-  double dvalue = value;
+  FloatT dvalue = value;
   for (int i = 0; i < size; i++)
     elements3[i] = elements1[i] - dvalue;
   return op3;
@@ -318,7 +318,7 @@ inline CoinDenseVector< T > operator*(const CoinDenseVector< T > &op1, T value)
   CoinDenseVector< T > op3(size);
   const T *elements1 = op1.getElements();
   T *elements3 = op3.getElements();
-  double dvalue = value;
+  FloatT dvalue = value;
   for (int i = 0; i < size; i++)
     elements3[i] = elements1[i] * dvalue;
   return op3;
@@ -332,7 +332,7 @@ inline CoinDenseVector< T > operator/(const CoinDenseVector< T > &op1, T value)
   CoinDenseVector< T > op3(size);
   const T *elements1 = op1.getElements();
   T *elements3 = op3.getElements();
-  double dvalue = value;
+  FloatT dvalue = value;
   for (int i = 0; i < size; i++)
     elements3[i] = elements1[i] / dvalue;
   return op3;
@@ -346,7 +346,7 @@ inline CoinDenseVector< T > operator+(T value, const CoinDenseVector< T > &op1)
   CoinDenseVector< T > op3(size);
   const T *elements1 = op1.getElements();
   T *elements3 = op3.getElements();
-  double dvalue = value;
+  FloatT dvalue = value;
   for (int i = 0; i < size; i++)
     elements3[i] = elements1[i] + dvalue;
   return op3;
@@ -360,7 +360,7 @@ inline CoinDenseVector< T > operator-(T value, const CoinDenseVector< T > &op1)
   CoinDenseVector< T > op3(size);
   const T *elements1 = op1.getElements();
   T *elements3 = op3.getElements();
-  double dvalue = value;
+  FloatT dvalue = value;
   for (int i = 0; i < size; i++)
     elements3[i] = dvalue - elements1[i];
   return op3;
@@ -374,7 +374,7 @@ inline CoinDenseVector< T > operator*(T value, const CoinDenseVector< T > &op1)
   CoinDenseVector< T > op3(size);
   const T *elements1 = op1.getElements();
   T *elements3 = op3.getElements();
-  double dvalue = value;
+  FloatT dvalue = value;
   for (int i = 0; i < size; i++)
     elements3[i] = elements1[i] * dvalue;
   return op3;
@@ -388,7 +388,7 @@ inline CoinDenseVector< T > operator/(T value, const CoinDenseVector< T > &op1)
   CoinDenseVector< T > op3(size);
   const T *elements1 = op1.getElements();
   T *elements3 = op3.getElements();
-  double dvalue = value;
+  FloatT dvalue = value;
   for (int i = 0; i < size; i++)
     elements3[i] = dvalue / elements1[i];
   return op3;

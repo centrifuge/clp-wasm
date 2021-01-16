@@ -159,7 +159,7 @@ CoinStructuredModel::operator=(const CoinStructuredModel &rhs)
   }
   return *this;
 }
-static bool sameValues(const double *a, const double *b, int n)
+static bool sameValues(const FloatT *a, const FloatT *b, int n)
 {
   int i;
   for (i = 0; i < n; i++) {
@@ -305,11 +305,11 @@ CoinStructuredModel::coinModelBlock(CoinModelBlockInfo &info)
   int numberElementBlocks = this->numberElementBlocks();
   CoinBigIndex numberElements = this->numberElements();
   // See what is needed
-  double *rowLower = NULL;
-  double *rowUpper = NULL;
-  double *columnLower = NULL;
-  double *columnUpper = NULL;
-  double *objective = NULL;
+  FloatT *rowLower = NULL;
+  FloatT *rowUpper = NULL;
+  FloatT *columnLower = NULL;
+  FloatT *columnUpper = NULL;
+  FloatT *objective = NULL;
   int *integerType = NULL;
   info = CoinModelBlockInfo();
   CoinModel **blocks = new CoinModel *[numberElementBlocks];
@@ -329,16 +329,16 @@ CoinStructuredModel::coinModelBlock(CoinModelBlockInfo &info)
     blocks[iBlock] = thisBlock;
     if (thisInfo.rhs && !info.rhs) {
       info.rhs = 1;
-      rowLower = new double[numberRows];
-      rowUpper = new double[numberRows];
+      rowLower = new FloatT[numberRows];
+      rowUpper = new FloatT[numberRows];
       CoinFillN(rowLower, numberRows, -COIN_DBL_MAX);
       CoinFillN(rowUpper, numberRows, COIN_DBL_MAX);
     }
     if (thisInfo.bounds && !info.bounds) {
       info.bounds = 1;
-      columnLower = new double[numberColumns];
-      columnUpper = new double[numberColumns];
-      objective = new double[numberColumns];
+      columnLower = new FloatT[numberColumns];
+      columnUpper = new FloatT[numberColumns];
+      objective = new FloatT[numberColumns];
       CoinFillN(columnLower, numberColumns, 0.0);
       CoinFillN(columnUpper, numberColumns, COIN_DBL_MAX);
       CoinFillN(objective, numberColumns, 0.0);
@@ -358,7 +358,7 @@ CoinStructuredModel::coinModelBlock(CoinModelBlockInfo &info)
   // Space for elements
   int *row = new int[numberElements];
   int *column = new int[numberElements];
-  double *element = new double[numberElements];
+  FloatT *element = new FloatT[numberElements];
   numberElements = 0;
   // Bases for blocks
   int *rowBase = new int[numberRowBlocks];
@@ -408,9 +408,9 @@ CoinStructuredModel::coinModelBlock(CoinModelBlockInfo &info)
       assert(!rowBlockInfo[iRowBlock].rhs);
       rowBlockInfo[iRowBlock].rhs = 1;
       memcpy(rowLower + iRowBase, thisBlock->rowLowerArray(),
-        nRows * sizeof(double));
+        nRows * sizeof(FloatT));
       memcpy(rowUpper + iRowBase, thisBlock->rowUpperArray(),
-        nRows * sizeof(double));
+        nRows * sizeof(FloatT));
     }
     int iColumnBlock = columnBlock(blocks[iBlock]->getColumnBlock());
     int iColumnBase = columnBase[iColumnBlock];
@@ -419,11 +419,11 @@ CoinStructuredModel::coinModelBlock(CoinModelBlockInfo &info)
       assert(!columnBlockInfo[iColumnBlock].bounds);
       columnBlockInfo[iColumnBlock].bounds = 1;
       memcpy(columnLower + iColumnBase, thisBlock->columnLowerArray(),
-        nColumns * sizeof(double));
+        nColumns * sizeof(FloatT));
       memcpy(columnUpper + iColumnBase, thisBlock->columnUpperArray(),
-        nColumns * sizeof(double));
+        nColumns * sizeof(FloatT));
       memcpy(objective + iColumnBase, thisBlock->objectiveArray(),
-        nColumns * sizeof(double));
+        nColumns * sizeof(FloatT));
     }
     if (thisInfo.integer) {
       assert(!columnBlockInfo[iColumnBlock].integer);
@@ -435,7 +435,7 @@ CoinStructuredModel::coinModelBlock(CoinModelBlockInfo &info)
     // get matrix data pointers
     const int *row2 = elementBlock->getIndices();
     const CoinBigIndex *columnStart = elementBlock->getVectorStarts();
-    const double *elementByColumn = elementBlock->getElements();
+    const FloatT *elementByColumn = elementBlock->getElements();
     const int *columnLength = elementBlock->getVectorLengths();
     int n = elementBlock->getNumCols();
     assert(elementBlock->isColOrdered());
@@ -567,8 +567,8 @@ int CoinStructuredModel::fillInfo(CoinModelBlockInfo &info,
           iRhs = i;
         } else {
           // check
-          const double *a = static_cast< CoinModel * >(blocks_[iRhs])->rowLowerArray();
-          const double *b = static_cast< CoinModel * >(blocks_[i])->rowLowerArray();
+          const FloatT *a = static_cast< CoinModel * >(blocks_[iRhs])->rowLowerArray();
+          const FloatT *b = static_cast< CoinModel * >(blocks_[i])->rowLowerArray();
           if (!sameValues(a, b, numberRows))
             numberErrors++;
           a = static_cast< CoinModel * >(blocks_[iRhs])->rowUpperArray();
@@ -596,8 +596,8 @@ int CoinStructuredModel::fillInfo(CoinModelBlockInfo &info,
           iBounds = i;
         } else {
           // check
-          const double *a = static_cast< CoinModel * >(blocks_[iBounds])->columnLowerArray();
-          const double *b = static_cast< CoinModel * >(blocks_[i])->columnLowerArray();
+          const FloatT *a = static_cast< CoinModel * >(blocks_[iBounds])->columnLowerArray();
+          const FloatT *b = static_cast< CoinModel * >(blocks_[i])->columnLowerArray();
           if (!sameValues(a, b, numberColumns))
             numberErrors++;
           a = static_cast< CoinModel * >(blocks_[iBounds])->columnUpperArray();
@@ -661,9 +661,9 @@ int CoinStructuredModel::addBlock(const std::string &rowBlock,
 int CoinStructuredModel::addBlock(const std::string &rowBlock,
   const std::string &columnBlock,
   const CoinPackedMatrix &matrix,
-  const double *rowLower, const double *rowUpper,
-  const double *columnLower, const double *columnUpper,
-  const double *objective)
+  const FloatT *rowLower, const FloatT *rowUpper,
+  const FloatT *columnLower, const FloatT *columnUpper,
+  const FloatT *objective)
 {
   CoinModel *block = new CoinModel();
   block->loadBlock(matrix, columnLower, columnUpper, objective,
@@ -729,10 +729,10 @@ int CoinStructuredModel::addBlock(const CoinBaseModel &block)
    Returns number of blocks or zero if no structure
 */
 int CoinStructuredModel::decompose(const CoinPackedMatrix &matrix,
-  const double *rowLower, const double *rowUpper,
-  const double *columnLower, const double *columnUpper,
-  const double *objective, int type, int maxBlocks,
-  int *starts, double objectiveOffset)
+  const FloatT *rowLower, const FloatT *rowUpper,
+  const FloatT *columnLower, const FloatT *columnUpper,
+  const FloatT *objective, int type, int maxBlocks,
+  int *starts, FloatT objectiveOffset)
 {
   setObjectiveOffset(objectiveOffset);
   int numberBlocks = 0;
@@ -747,11 +747,11 @@ int CoinStructuredModel::decompose(const CoinPackedMatrix &matrix,
     const int *row = matrix.getIndices();
     const int *columnLength = matrix.getVectorLengths();
     const CoinBigIndex *columnStart = matrix.getVectorStarts();
-    //const double * elementByColumn = matrix.getElements();
+    //const FloatT * elementByColumn = matrix.getElements();
     const int *column = rowCopy.getIndices();
     const int *rowLength = rowCopy.getVectorLengths();
     const CoinBigIndex *rowStart = rowCopy.getVectorStarts();
-    //const double * elementByRow = rowCopy.getElements();
+    //const FloatT * elementByRow = rowCopy.getElements();
     int numberRows = matrix.getNumRows();
     int *rowBlock = new int[numberRows + 1];
     int iRow;
@@ -778,8 +778,8 @@ int CoinStructuredModel::decompose(const CoinPackedMatrix &matrix,
     int *whichColumn = new int[numberColumns];
     int *stack = new int[numberRows];
     if (newWay && !starts) {
-      //double best2[3]={COIN_DBL_MAX,COIN_DBL_MAX,COIN_DBL_MAX};
-      double best2[3] = { 0.0, 0.0, 0.0 };
+      //FloatT best2[3]={COIN_DBL_MAX,COIN_DBL_MAX,COIN_DBL_MAX};
+      FloatT best2[3] = { 0.0, 0.0, 0.0 };
       int row2[3] = { -1, -1, -1 };
       // try forward and backward and sorted
       for (int iWay = 0; iWay < 3; iWay++) {
@@ -812,10 +812,10 @@ int CoinStructuredModel::decompose(const CoinPackedMatrix &matrix,
         int checkAfterRows = (5 * numberRows) / 10 + 1;
 #define OSL_WAY
 #ifdef OSL_WAY
-        double best = COIN_DBL_MAX;
+        FloatT best = COIN_DBL_MAX;
         int bestRowsDone = -1;
 #else
-        double best = 0.0; //COIN_DBL_MAX;
+        FloatT best = 0.0; //COIN_DBL_MAX;
 #endif
         int numberGoodBlocks = 0;
 
@@ -921,20 +921,20 @@ int CoinStructuredModel::decompose(const CoinPackedMatrix &matrix,
             maximumInBlock = CoinMax(maximumInBlock, rowBlock[iBlock]);
           if (rowsDone >= checkAfterRows) {
             assert(numberGoodBlocks > 0);
-            double averageSize = static_cast< double >(numberMarkedColumns) / static_cast< double >(numberGoodBlocks);
+            FloatT averageSize = static_cast< FloatT >(numberMarkedColumns) / static_cast< FloatT >(numberGoodBlocks);
 #ifndef OSL_WAY
-            double notionalBlocks = static_cast< double >(numberMarkedColumns) / averageSize;
+            FloatT notionalBlocks = static_cast< FloatT >(numberMarkedColumns) / averageSize;
             if (maximumInBlock < 3 * averageSize && numberGoodBlocks > 2) {
               if (best * (numberRows - rowsDone) < notionalBlocks) {
-                best = notionalBlocks / static_cast< double >(numberRows - rowsDone);
+                best = notionalBlocks / static_cast< FloatT >(numberRows - rowsDone);
                 bestRow = kRow;
               }
             }
 #else
             if (maximumInBlock * 10 < numberColumns * 11 && numberGoodBlocks > 1) {
-              double test = maximumInBlock + 0.0 * averageSize;
-              if (best * static_cast< double >(rowsDone) > test) {
-                best = test / static_cast< double >(rowsDone);
+              FloatT test = maximumInBlock + 0.0 * averageSize;
+              if (best * static_cast< FloatT >(rowsDone) > test) {
+                best = test / static_cast< FloatT >(rowsDone);
                 bestRow = kRow;
                 bestRowsDone = rowsDone;
               }
@@ -1151,11 +1151,11 @@ int CoinStructuredModel::decompose(const CoinPackedMatrix &matrix,
     // make up problems
     // Create all sub problems
     // Space for creating
-    double *obj = new double[numberColumns];
-    double *columnLo = new double[numberColumns];
-    double *columnUp = new double[numberColumns];
-    double *rowLo = new double[numberRows];
-    double *rowUp = new double[numberRows];
+    FloatT *obj = new FloatT[numberColumns];
+    FloatT *columnLo = new FloatT[numberColumns];
+    FloatT *columnUp = new FloatT[numberColumns];
+    FloatT *rowLo = new FloatT[numberRows];
+    FloatT *rowUp = new FloatT[numberRows];
     // Counts
     int *rowCount = reinterpret_cast< int * >(rowLo);
     CoinZeroN(rowCount, numberBlocks);
@@ -1321,11 +1321,11 @@ int CoinStructuredModel::decompose(const CoinPackedMatrix &matrix,
     const int *row = matrix.getIndices();
     const int *columnLength = matrix.getVectorLengths();
     const CoinBigIndex *columnStart = matrix.getVectorStarts();
-    //const double * elementByColumn = matrix.getElements();
+    //const FloatT * elementByColumn = matrix.getElements();
     const int *column = rowCopy.getIndices();
     const int *rowLength = rowCopy.getVectorLengths();
     const CoinBigIndex *rowStart = rowCopy.getVectorStarts();
-    //const double * elementByRow = rowCopy.getElements();
+    //const FloatT * elementByRow = rowCopy.getElements();
     int numberColumns = matrix.getNumCols();
     int *columnBlock = new int[numberColumns + 1];
     int iColumn;
@@ -1356,8 +1356,8 @@ int CoinStructuredModel::decompose(const CoinPackedMatrix &matrix,
     int *whichColumn = new int[numberColumns];
     int *stack = new int[numberColumns];
     if (newWay) {
-      //double best2[3]={COIN_DBL_MAX,COIN_DBL_MAX,COIN_DBL_MAX};
-      double best2[3] = { 0.0, 0.0, 0.0 };
+      //FloatT best2[3]={COIN_DBL_MAX,COIN_DBL_MAX,COIN_DBL_MAX};
+      FloatT best2[3] = { 0.0, 0.0, 0.0 };
       int column2[3] = { -1, -1, -1 };
       // try forward and backward and sorted
       for (int iWay = 0; iWay < 3; iWay++) {
@@ -1389,10 +1389,10 @@ int CoinStructuredModel::decompose(const CoinPackedMatrix &matrix,
         int columnsDone = 0;
         int checkAfterColumns = (5 * numberColumns) / 10 + 1;
 #ifdef OSL_WAY
-        double best = COIN_DBL_MAX;
+        FloatT best = COIN_DBL_MAX;
         int bestColumnsDone = -1;
 #else
-        double best = 0.0; //COIN_DBL_MAX;
+        FloatT best = 0.0; //COIN_DBL_MAX;
 #endif
         int numberGoodBlocks = 0;
 
@@ -1469,20 +1469,20 @@ int CoinStructuredModel::decompose(const CoinPackedMatrix &matrix,
             maximumInBlock = CoinMax(maximumInBlock, columnBlock[iBlock]);
           if (columnsDone >= checkAfterColumns) {
             assert(numberGoodBlocks > 0);
-            double averageSize = static_cast< double >(numberMarkedRows) / static_cast< double >(numberGoodBlocks);
+            FloatT averageSize = static_cast< FloatT >(numberMarkedRows) / static_cast< FloatT >(numberGoodBlocks);
 #ifndef OSL_WAY
-            double notionalBlocks = static_cast< double >(numberMarkedRows) / averageSize;
+            FloatT notionalBlocks = static_cast< FloatT >(numberMarkedRows) / averageSize;
             if (maximumInBlock < 3 * averageSize && numberGoodBlocks > 2) {
               if (best * (numberColumns - columnsDone) < notionalBlocks) {
-                best = notionalBlocks / static_cast< double >(numberColumns - columnsDone);
+                best = notionalBlocks / static_cast< FloatT >(numberColumns - columnsDone);
                 bestColumn = kColumn;
               }
             }
 #else
             if (maximumInBlock * 10 < numberRows * 11 && numberGoodBlocks > 1) {
-              double test = maximumInBlock + 0.0 * averageSize;
-              if (best * static_cast< double >(columnsDone) > test) {
-                best = test / static_cast< double >(columnsDone);
+              FloatT test = maximumInBlock + 0.0 * averageSize;
+              if (best * static_cast< FloatT >(columnsDone) > test) {
+                best = test / static_cast< FloatT >(columnsDone);
                 bestColumn = kColumn;
                 bestColumnsDone = columnsDone;
               }
@@ -1680,11 +1680,11 @@ int CoinStructuredModel::decompose(const CoinPackedMatrix &matrix,
     // make up problems
     // Create all sub problems
     // Space for creating
-    double *obj = new double[numberColumns];
-    double *rowLo = new double[numberRows];
-    double *rowUp = new double[numberRows];
-    double *columnLo = new double[numberColumns];
-    double *columnUp = new double[numberColumns];
+    FloatT *obj = new FloatT[numberColumns];
+    FloatT *rowLo = new FloatT[numberRows];
+    FloatT *rowUp = new FloatT[numberRows];
+    FloatT *columnLo = new FloatT[numberColumns];
+    FloatT *columnUp = new FloatT[numberColumns];
     // Counts
     int *columnCount = reinterpret_cast< int * >(columnLo);
     CoinZeroN(columnCount, numberBlocks);
@@ -1860,11 +1860,11 @@ int CoinStructuredModel::decompose(const CoinModel &coinModel, int type,
   const CoinPackedMatrix *matrix = coinModel.packedMatrix();
   assert(matrix != NULL);
   // Arrays
-  const double *objective = coinModel.objectiveArray();
-  const double *columnLower = coinModel.columnLowerArray();
-  const double *columnUpper = coinModel.columnUpperArray();
-  const double *rowLower = coinModel.rowLowerArray();
-  const double *rowUpper = coinModel.rowUpperArray();
+  const FloatT *objective = coinModel.objectiveArray();
+  const FloatT *columnLower = coinModel.columnLowerArray();
+  const FloatT *columnUpper = coinModel.columnUpperArray();
+  const FloatT *rowLower = coinModel.rowLowerArray();
+  const FloatT *rowUpper = coinModel.rowUpperArray();
   int *blockStarts = NULL;
   char generalPrint[200];
   bool wantDecomposition = maxBlocks > 1; // flag to say we really want it decomposed
@@ -2021,9 +2021,9 @@ CoinStructuredModel::coinBlock(int row, int column) const
    False if any missing */
 CoinModelBlockInfo
 CoinStructuredModel::block(int row, int column,
-  const double *&rowLower, const double *&rowUpper,
-  const double *&columnLower, const double *&columnUpper,
-  const double *&objective) const
+  const FloatT *&rowLower, const FloatT *&rowUpper,
+  const FloatT *&columnLower, const FloatT *&columnUpper,
+  const FloatT *&objective) const
 {
   CoinModelBlockInfo info;
   //memset(&info,0,sizeof(info));

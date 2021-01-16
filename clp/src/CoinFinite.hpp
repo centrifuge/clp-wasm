@@ -8,28 +8,30 @@
 #ifndef CoinFinite_H
 #define CoinFinite_H
 
+#include "floatdef.h"
+
 #include <limits>
 
 //=============================================================================
-// Smallest positive double value and Plus infinity (double and int)
+// Smallest positive FloatT value and Plus infinity (FloatT and int)
 
 #if 1
-const double COIN_DBL_MIN = (std::numeric_limits< double >::min)();
-const double COIN_DBL_MAX = (std::numeric_limits< double >::max)();
+const FloatT COIN_DBL_MIN = (std::numeric_limits< FloatT >::min)();
+const FloatT COIN_DBL_MAX = (std::numeric_limits< FloatT >::max)();
 const int COIN_INT_MAX = (std::numeric_limits< int >::max)();
-const double COIN_INT_MAX_AS_DOUBLE = (std::numeric_limits< int >::max)();
+const FloatT COIN_INT_MAX_AS_DOUBLE = (std::numeric_limits< int >::max)();
 #else
-#define COIN_DBL_MIN (std::numeric_limits< double >::min())
-#define COIN_DBL_MAX (std::numeric_limits< double >::max())
+#define COIN_DBL_MIN (std::numeric_limits< FloatT >::min())
+#define COIN_DBL_MAX (std::numeric_limits< FloatT >::max())
 #define COIN_INT_MAX (std::numeric_limits< int >::max())
 #define COIN_INT_MAX_AS_DOUBLE (std::numeric_limits< int >::max())
 #endif
 
-/** checks if a double value is finite (not infinity and not NaN) */
-extern bool CoinFinite(double val);
+/** checks if a FloatT value is finite (not infinity and not NaN) */
+extern bool CoinFinite(FloatT val);
 
-/** checks if a double value is not a number */
-extern bool CoinIsnan(double val);
+/** checks if a FloatT value is not a number */
+extern bool CoinIsnan(FloatT val);
 
 #endif
 

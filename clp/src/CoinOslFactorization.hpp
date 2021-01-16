@@ -29,11 +29,11 @@ typedef struct {
   int suc, pre;
 } EKKHlink;
 typedef struct _EKKfactinfo {
-  double drtpiv;
-  double demark;
-  double zpivlu;
-  double zeroTolerance;
-  double areaFactor;
+  FloatT drtpiv;
+  FloatT demark;
+  FloatT zpivlu;
+  FloatT zeroTolerance;
+  FloatT areaFactor;
   int *xrsadr;
   int *xcsadr;
   int *xrnadr;
@@ -44,21 +44,21 @@ typedef struct _EKKfactinfo {
   int *bitArray;
   int *back;
   char *nonzero;
-  double *trueStart;
-  mutable double *kadrpm;
+  FloatT *trueStart;
+  mutable FloatT *kadrpm;
   int *R_etas_index;
   int *R_etas_start;
-  double *R_etas_element;
+  FloatT *R_etas_element;
 
   int *xecadr;
   int *xeradr;
-  double *xeeadr;
-  double *xe2adr;
+  FloatT *xeeadr;
+  FloatT *xe2adr;
   EKKHlink *kp1adr;
   EKKHlink *kp2adr;
-  double *kw1adr;
-  double *kw2adr;
-  double *kw3adr;
+  FloatT *kw1adr;
+  FloatT *kw2adr;
+  FloatT *kw3adr;
   int *hpivcoR;
   int nrow;
   int nrowmx;
@@ -153,7 +153,7 @@ public:
   returns 0 -okay, -1 singular, -2 too many in basis, -99 memory */
   int factorize(const CoinPackedMatrix &matrix,
     int rowIsBasic[], int columnIsBasic[],
-    double areaFactor = 0.0);
+    FloatT areaFactor = 0.0);
   //@}
 
   /**@name general stuff such as number of elements */
@@ -190,9 +190,9 @@ public:
   virtual void maximumPivots(int value);
 
   /// Returns maximum absolute value in factorization
-  double maximumCoefficient() const;
+  FloatT maximumCoefficient() const;
   /// Condition number - product of pivots after factorization
-  double conditionNumber() const;
+  FloatT conditionNumber() const;
   /// Get rid of all memory
   virtual void clearArrays();
   //@}
@@ -209,9 +209,9 @@ public:
    partial update already in U */
   virtual int replaceColumn(CoinIndexedVector *regionSparse,
     int pivotRow,
-    double pivotCheck,
+    FloatT pivotCheck,
     bool checkBeforeModifying = false,
-    double acceptablePivot = 1.0e-8);
+    FloatT acceptablePivot = 1.0e-8);
   //@}
 
   /**@name various uses of factorization (return code number elements) 
@@ -272,7 +272,7 @@ public:
 protected:
   /** Returns accuracy status of replaceColumn
       returns 0=OK, 1=Probably OK, 2=singular */
-  int checkPivot(double saveFromU, double oldPivot) const;
+  int checkPivot(FloatT saveFromU, FloatT oldPivot) const;
   ////////////////// data //////////////////
 protected:
   /**@name data */

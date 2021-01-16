@@ -8,7 +8,7 @@
 
 #define DOUBLETON 5
 
-/*! \class doubleton_action
+/*! \class FloatTton_action
     \brief Solve ax+by=c for y and substitute y out of the problem.
 
   This moves the bounds information for y onto x, making y free and allowing
@@ -23,22 +23,22 @@
 	   b/-a < 0 ==> (b u2 - c) / -a <= x <= (b l2 - c) / -a
   \endverbatim
 */
-class doubleton_action : public CoinPresolveAction {
+class FloatTton_action : public CoinPresolveAction {
 public:
   struct action {
 
-    double clox;
-    double cupx;
-    double costx;
+    FloatT clox;
+    FloatT cupx;
+    FloatT costx;
 
-    double costy;
+    FloatT costy;
 
-    double rlo;
+    FloatT rlo;
 
-    double coeffx;
-    double coeffy;
+    FloatT coeffx;
+    FloatT coeffy;
 
-    double *colel;
+    FloatT *colel;
 
     int icolx;
     int icoly;
@@ -51,7 +51,7 @@ public:
   const action *const actions_;
 
 private:
-  doubleton_action(int nactions,
+  FloatTton_action(int nactions,
     const action *actions,
     const CoinPresolveAction *next)
     : CoinPresolveAction(next)
@@ -61,14 +61,14 @@ private:
   }
 
 public:
-  const char *name() const { return ("doubleton_action"); }
+  const char *name() const { return ("FloatTton_action"); }
 
   static const CoinPresolveAction *presolve(CoinPresolveMatrix *,
     const CoinPresolveAction *next);
 
   void postsolve(CoinPostsolveMatrix *prob) const;
 
-  virtual ~doubleton_action();
+  virtual ~FloatTton_action();
 };
 #endif
 

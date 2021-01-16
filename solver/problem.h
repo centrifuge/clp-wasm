@@ -1,19 +1,18 @@
 #pragma once
-
+#include "config.h"
 #include <string>
 #include <vector>
 
-using FloatType = double;
-constexpr auto MinusInf = std::numeric_limits<FloatType>::min();
-constexpr auto PlusInf = std::numeric_limits<FloatType>::max();
+inline auto MinusInf = std::numeric_limits<FloatT>::min();
+inline auto PlusInf = std::numeric_limits<FloatT>::max();
 
-using FloatVector = std::vector<FloatType>;
+using FloatVector = std::vector<FloatT>;
 using IntVector = std::vector<int>;
 
 struct Bound
 {
-    FloatType lowerBound { MinusInf };
-    FloatType upperBound { PlusInf };
+    FloatT lowerBound { MinusInf };
+    FloatT upperBound { PlusInf };
     std::string name {};
 
     bool valid() const
@@ -24,7 +23,7 @@ struct Bound
 
 struct RowConstraint : Bound
 {
-    std::vector<FloatType> row;
+    std::vector<FloatT> row;
 };
 
 struct VariableDefinition : Bound

@@ -56,7 +56,7 @@ ClpNetworkBasis::ClpNetworkBasis(const ClpSimplex *model,
   pivot_ = new int[numberRows_ + 1];
   rightSibling_ = new int[numberRows_ + 1];
   leftSibling_ = new int[numberRows_ + 1];
-  sign_ = new double[numberRows_ + 1];
+  sign_ = new FloatT[numberRows_ + 1];
   stack_ = new int[numberRows_ + 1];
   stack2_ = new int[numberRows_ + 1];
   depth_ = new int[numberRows_ + 1];
@@ -85,7 +85,7 @@ ClpNetworkBasis::ClpNetworkBasis(const ClpSimplex *model,
   // a known root is given by permuteBack[numberRows_-1]
   for (i = 0; i < numberRows_; i++) {
     int iPivot = permuteBack[i];
-    double sign;
+    FloatT sign;
     if (pivotRegion[i] > 0.0)
       sign = 1.0;
     else
@@ -172,7 +172,7 @@ ClpNetworkBasis::ClpNetworkBasis(const ClpNetworkBasis &rhs)
     leftSibling_ = NULL;
   }
   if (rhs.sign_) {
-    sign_ = new double[numberRows_ + 1];
+    sign_ = new FloatT[numberRows_ + 1];
     CoinMemcpyN(rhs.sign_, (numberRows_ + 1), sign_);
   } else {
     sign_ = NULL;
@@ -290,7 +290,7 @@ ClpNetworkBasis::operator=(const ClpNetworkBasis &rhs)
       leftSibling_ = NULL;
     }
     if (rhs.sign_) {
-      sign_ = new double[numberRows_ + 1];
+      sign_ = new FloatT[numberRows_ + 1];
       CoinMemcpyN(rhs.sign_, (numberRows_ + 1), sign_);
     } else {
       sign_ = NULL;
@@ -385,7 +385,7 @@ int ClpNetworkBasis::replaceColumn(CoinIndexedVector *regionSparse,
     iRow1 = indices[1];
   else
     iRow1 = numberRows_;
-  double sign = -regionSparse->denseVector()[iRow0];
+  FloatT sign = -regionSparse->denseVector()[iRow0];
   regionSparse->clear();
   // and outgoing
   model_->unpack(regionSparse, model_->pivotVariable()[pivotRow]);
@@ -561,14 +561,14 @@ int ClpNetworkBasis::replaceColumn(CoinIndexedVector *regionSparse,
 }
 
 /* Updates one column (FTRAN) from region2 */
-double
+FloatT
 ClpNetworkBasis::updateColumn(CoinIndexedVector *regionSparse,
   CoinIndexedVector *regionSparse2,
   int pivotRow)
 {
   regionSparse->clear();
-  double *region = regionSparse->denseVector();
-  double *region2 = regionSparse2->denseVector();
+  FloatT *region = regionSparse->denseVector();
+  FloatT *region2 = regionSparse2->denseVector();
   int *regionIndex2 = regionSparse2->getIndices();
   int numberNonZero = regionSparse2->getNumElements();
   int *regionIndex = regionSparse->getIndices();
@@ -580,7 +580,7 @@ ClpNetworkBasis::updateColumn(CoinIndexedVector *regionSparse,
     i0 = regionIndex2[0];
     i1 = regionIndex2[1];
   }
-  double returnValue = 0.0;
+  FloatT returnValue = 0.0;
   bool packed = regionSparse2->packedMode();
   if (packed) {
     if (doTwo && region2[0] * region2[1] < 0.0) {
@@ -601,7 +601,7 @@ ClpNetworkBasis::updateColumn(CoinIndexedVector *regionSparse,
       numberNonZero = 0;
       if (pivotRow < 0) {
         while (iDepth0 > iDepth1) {
-          double pivotValue = region[i0];
+          FloatT pivotValue = region[i0];
           // put back now ?
           int iBack = permuteBack_[i0];
           region2[numberNonZero] = pivotValue * sign_[i0];
@@ -613,7 +613,7 @@ ClpNetworkBasis::updateColumn(CoinIndexedVector *regionSparse,
           i0 = otherRow;
         }
         while (i0 != i1) {
-          double pivotValue = region[i0];
+          FloatT pivotValue = region[i0];
           // put back now ?
           int iBack = permuteBack_[i0];
           region2[numberNonZero] = pivotValue * sign_[i0];
@@ -622,7 +622,7 @@ ClpNetworkBasis::updateColumn(CoinIndexedVector *regionSparse,
           region[i0] = 0.0;
           region[otherRow] += pivotValue;
           i0 = otherRow;
-          double pivotValue1 = region[i1];
+          FloatT pivotValue1 = region[i1];
           // put back now ?
           int iBack1 = permuteBack_[i1];
           region2[numberNonZero] = pivotValue1 * sign_[i1];
@@ -634,10 +634,10 @@ ClpNetworkBasis::updateColumn(CoinIndexedVector *regionSparse,
         }
       } else {
         while (iDepth0 > iDepth1) {
-          double pivotValue = region[i0];
+          FloatT pivotValue = region[i0];
           // put back now ?
           int iBack = permuteBack_[i0];
-          double value = pivotValue * sign_[i0];
+          FloatT value = pivotValue * sign_[i0];
           region2[numberNonZero] = value;
           regionIndex2[numberNonZero++] = iBack;
           if (iBack == pivotRow)
@@ -649,10 +649,10 @@ ClpNetworkBasis::updateColumn(CoinIndexedVector *regionSparse,
           i0 = otherRow;
         }
         while (i0 != i1) {
-          double pivotValue = region[i0];
+          FloatT pivotValue = region[i0];
           // put back now ?
           int iBack = permuteBack_[i0];
-          double value = pivotValue * sign_[i0];
+          FloatT value = pivotValue * sign_[i0];
           region2[numberNonZero] = value;
           regionIndex2[numberNonZero++] = iBack;
           if (iBack == pivotRow)
@@ -661,7 +661,7 @@ ClpNetworkBasis::updateColumn(CoinIndexedVector *regionSparse,
           region[i0] = 0.0;
           region[otherRow] += pivotValue;
           i0 = otherRow;
-          double pivotValue1 = region[i1];
+          FloatT pivotValue1 = region[i1];
           // put back now ?
           int iBack1 = permuteBack_[i1];
           value = pivotValue1 * sign_[i1];
@@ -682,7 +682,7 @@ ClpNetworkBasis::updateColumn(CoinIndexedVector *regionSparse,
       //mark_[numberRows_]=1;
       for (i = 0; i < numberNonZero; i++) {
         int j = regionIndex2[i];
-        double value = region2[i];
+        FloatT value = region2[i];
         region2[i] = 0.0;
         region[j] = value;
         regionIndex[i] = j;
@@ -706,7 +706,7 @@ ClpNetworkBasis::updateColumn(CoinIndexedVector *regionSparse,
           stack2_[greatestDepth] = -1;
           while (iPivot >= 0) {
             mark_[iPivot] = 0;
-            double pivotValue = region[iPivot];
+            FloatT pivotValue = region[iPivot];
             if (pivotValue) {
               // put back now ?
               int iBack = permuteBack_[iPivot];
@@ -725,11 +725,11 @@ ClpNetworkBasis::updateColumn(CoinIndexedVector *regionSparse,
           stack2_[greatestDepth] = -1;
           while (iPivot >= 0) {
             mark_[iPivot] = 0;
-            double pivotValue = region[iPivot];
+            FloatT pivotValue = region[iPivot];
             if (pivotValue) {
               // put back now ?
               int iBack = permuteBack_[iPivot];
-              double value = pivotValue * sign_[iPivot];
+              FloatT value = pivotValue * sign_[iPivot];
               region2[numberNonZero] = value;
               regionIndex2[numberNonZero++] = iBack;
               if (iBack == pivotRow)
@@ -762,7 +762,7 @@ ClpNetworkBasis::updateColumn(CoinIndexedVector *regionSparse,
       }
       numberNonZero = 0;
       while (iDepth0 > iDepth1) {
-        double pivotValue = region[i0];
+        FloatT pivotValue = region[i0];
         // put back now ?
         int iBack = permuteBack_[i0];
         regionIndex2[numberNonZero++] = iBack;
@@ -774,7 +774,7 @@ ClpNetworkBasis::updateColumn(CoinIndexedVector *regionSparse,
         i0 = otherRow;
       }
       while (i0 != i1) {
-        double pivotValue = region[i0];
+        FloatT pivotValue = region[i0];
         // put back now ?
         int iBack = permuteBack_[i0];
         regionIndex2[numberNonZero++] = iBack;
@@ -783,7 +783,7 @@ ClpNetworkBasis::updateColumn(CoinIndexedVector *regionSparse,
         region[i0] = 0.0;
         region[otherRow] += pivotValue;
         i0 = otherRow;
-        double pivotValue1 = region[i1];
+        FloatT pivotValue1 = region[i1];
         // put back now ?
         int iBack1 = permuteBack_[i1];
         regionIndex2[numberNonZero++] = iBack1;
@@ -800,7 +800,7 @@ ClpNetworkBasis::updateColumn(CoinIndexedVector *regionSparse,
       //mark_[numberRows_]=1;
       for (i = 0; i < numberNonZero; i++) {
         int j = regionIndex2[i];
-        double value = region2[j];
+        FloatT value = region2[j];
         region2[j] = 0.0;
         region[j] = value;
         regionIndex[i] = j;
@@ -823,7 +823,7 @@ ClpNetworkBasis::updateColumn(CoinIndexedVector *regionSparse,
         stack2_[greatestDepth] = -1;
         while (iPivot >= 0) {
           mark_[iPivot] = 0;
-          double pivotValue = region[iPivot];
+          FloatT pivotValue = region[iPivot];
           if (pivotValue) {
             // put back now ?
             int iBack = permuteBack_[iPivot];
@@ -859,10 +859,10 @@ ClpNetworkBasis::updateColumn(CoinIndexedVector *regionSparse,
    have got code working using this simple method - thank you!
    (the only exception is if you know input is dense e.g. rhs) */
 int ClpNetworkBasis::updateColumn(CoinIndexedVector *regionSparse,
-  double region2[]) const
+  FloatT region2[]) const
 {
   regionSparse->clear();
-  double *region = regionSparse->denseVector();
+  FloatT *region = regionSparse->denseVector();
   int numberNonZero = 0;
   int *regionIndex = regionSparse->getIndices();
   int i;
@@ -870,7 +870,7 @@ int ClpNetworkBasis::updateColumn(CoinIndexedVector *regionSparse,
   // stack2 is start, stack is next
   int greatestDepth = -1;
   for (i = 0; i < numberRows_; i++) {
-    double value = region2[i];
+    FloatT value = region2[i];
     if (value) {
       region2[i] = 0.0;
       region[i] = value;
@@ -896,7 +896,7 @@ int ClpNetworkBasis::updateColumn(CoinIndexedVector *regionSparse,
     stack2_[greatestDepth] = -1;
     while (iPivot >= 0) {
       mark_[iPivot] = 0;
-      double pivotValue = region[iPivot];
+      FloatT pivotValue = region[iPivot];
       if (pivotValue) {
         // put back now ?
         int iBack = permuteBack_[iPivot];
@@ -919,17 +919,17 @@ int ClpNetworkBasis::updateColumn(CoinIndexedVector *regionSparse,
    (the only exception is if you know input is dense e.g. dense objective)
    returns number of nonzeros */
 int ClpNetworkBasis::updateColumnTranspose(CoinIndexedVector *regionSparse,
-  double region2[]) const
+  FloatT region2[]) const
 {
   // permute in after copying
   // so will end up in right place
-  double *region = regionSparse->denseVector();
+  FloatT *region = regionSparse->denseVector();
   int *regionIndex = regionSparse->getIndices();
   int i;
   int numberNonZero = 0;
   CoinMemcpyN(region2, numberRows_, region);
   for (i = 0; i < numberRows_; i++) {
-    double value = region[i];
+    FloatT value = region[i];
     if (value) {
       int k = permute_[i];
       region[i] = 0.0;
@@ -970,9 +970,9 @@ int ClpNetworkBasis::updateColumnTranspose(CoinIndexedVector *regionSparse,
     stack2_[iDepth] = -1;
     while (iPivot >= 0) {
       mark_[iPivot] = 0;
-      double pivotValue = region2[iPivot];
+      FloatT pivotValue = region2[iPivot];
       int otherRow = parent_[iPivot];
-      double otherValue = region2[otherRow];
+      FloatT otherValue = region2[otherRow];
       pivotValue = sign_[iPivot] * pivotValue + otherValue;
       region2[iPivot] = pivotValue;
       if (pivotValue)
@@ -989,8 +989,8 @@ int ClpNetworkBasis::updateColumnTranspose(CoinIndexedVector *regionSparse,
   // permute in - presume small number so copy back
   // so will end up in right place
   regionSparse->clear();
-  double *region = regionSparse->denseVector();
-  double *region2 = regionSparse2->denseVector();
+  FloatT *region = regionSparse->denseVector();
+  FloatT *region2 = regionSparse2->denseVector();
   int *regionIndex2 = regionSparse2->getIndices();
   int numberNonZero2 = regionSparse2->getNumElements();
   int *regionIndex = regionSparse->getIndices();
@@ -1001,7 +1001,7 @@ int ClpNetworkBasis::updateColumnTranspose(CoinIndexedVector *regionSparse,
     for (i = 0; i < numberNonZero2; i++) {
       int k = regionIndex2[i];
       int j = permute_[k];
-      double value = region2[i];
+      FloatT value = region2[i];
       region2[i] = 0.0;
       region[j] = value;
       mark_[j] = 1;
@@ -1059,9 +1059,9 @@ int ClpNetworkBasis::updateColumnTranspose(CoinIndexedVector *regionSparse,
       stack2_[iDepth] = -1;
       while (iPivot >= 0) {
         mark_[iPivot] = 0;
-        double pivotValue = region[iPivot];
+        FloatT pivotValue = region[iPivot];
         int otherRow = parent_[iPivot];
-        double otherValue = region[otherRow];
+        FloatT otherValue = region[otherRow];
         pivotValue = sign_[iPivot] * pivotValue + otherValue;
         region[iPivot] = pivotValue;
         if (pivotValue) {
@@ -1080,7 +1080,7 @@ int ClpNetworkBasis::updateColumnTranspose(CoinIndexedVector *regionSparse,
     for (i = 0; i < numberNonZero2; i++) {
       int k = regionIndex2[i];
       int j = permute_[k];
-      double value = region2[k];
+      FloatT value = region2[k];
       region2[k] = 0.0;
       region[j] = value;
       mark_[j] = 1;
@@ -1094,7 +1094,7 @@ int ClpNetworkBasis::updateColumnTranspose(CoinIndexedVector *regionSparse,
     //mark_[numberRows_]=1;
     for (i = 0; i < numberNonZero2; i++) {
       int j = regionIndex[i];
-      double value = region[j];
+      FloatT value = region[j];
       region[j] = 0.0;
       region2[j] = value;
       regionIndex2[i] = j;
@@ -1142,9 +1142,9 @@ int ClpNetworkBasis::updateColumnTranspose(CoinIndexedVector *regionSparse,
       stack2_[iDepth] = -1;
       while (iPivot >= 0) {
         mark_[iPivot] = 0;
-        double pivotValue = region2[iPivot];
+        FloatT pivotValue = region2[iPivot];
         int otherRow = parent_[iPivot];
-        double otherValue = region2[otherRow];
+        FloatT otherValue = region2[otherRow];
         pivotValue = sign_[iPivot] * pivotValue + otherValue;
         region2[iPivot] = pivotValue;
         if (pivotValue)

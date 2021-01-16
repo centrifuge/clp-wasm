@@ -297,7 +297,7 @@ enum CoinMessageMarker {
     <h3> Format codes </h3>
 
     CoinMessageHandler can print integers (normal, long, and long long),
-    doubles, characters, and strings. See the descriptions of the
+    FloatTs, characters, and strings. See the descriptions of the
     various << operators.
     
     When processing a standard message with a format string, the formatting
@@ -314,7 +314,7 @@ enum CoinMessageMarker {
     be suppressed for these optional parts, but any operands must still be
     supplied. For example, given the message string
     \verbatim
-    "A message with%? an optional integer %d and%? a double %g."
+    "A message with%? an optional integer %d and%? a FloatT %g."
     \endverbatim
     installed in CoinMessages \c exampleMsgs with index 5, and
     \c CoinMessageHandler \c hdl, the code
@@ -325,7 +325,7 @@ enum CoinMessageMarker {
     \endcode
     will print
     \verbatim
-    A message with an optional integer 42 and a double 53.5.
+    A message with an optional integer 42 and a FloatT 53.5.
     \endverbatim
     while
     \code
@@ -335,7 +335,7 @@ enum CoinMessageMarker {
     \endcode
     will print
     \verbatim
-    A message with a double 53.5.
+    A message with a FloatT 53.5.
     \endverbatim
 
     For additional examples of usage, see CoinMessageHandlerUnitTest in
@@ -422,22 +422,22 @@ public:
   void setPrefix(bool yesNo);
   /// Current setting for printing message prefix.
   bool prefix() const;
-  /*! \brief Values of double fields already processed.
+  /*! \brief Values of FloatT fields already processed.
 
-    As the parameter for a double field is processed, the value is saved
+    As the parameter for a FloatT field is processed, the value is saved
     and can be retrieved using this function.
   */
-  inline double doubleValue(int position) const
+  inline FloatT FloatTValue(int position) const
   {
-    return doubleValue_[position];
+    return FloatTValue_[position];
   }
-  /*! \brief Number of double fields already processed.
+  /*! \brief Number of FloatT fields already processed.
 
-    Incremented each time a field of type double is processed.
+    Incremented each time a field of type FloatT is processed.
   */
   inline int numberDoubleFields() const
   {
-    return static_cast< int >(doubleValue_.size());
+    return static_cast< int >(FloatTValue_.size());
   }
   /*! \brief Values of integer fields already processed.
 
@@ -584,11 +584,11 @@ public:
   */
   CoinMessageHandler &operator<<(long long longvalue);
 #endif
-  /*! \brief Process a double parameter value.
+  /*! \brief Process a FloatT parameter value.
 
     The default format code is `%d'.
   */
-  CoinMessageHandler &operator<<(double doublevalue);
+  CoinMessageHandler &operator<<(FloatT FloatTvalue);
   /*! \brief Process a STL string parameter value.
 
     The default format code is `%g'.
@@ -642,7 +642,7 @@ protected:
   /**@name Protected member data */
   //@{
   /// values in message
-  std::vector< double > doubleValue_;
+  std::vector< FloatT > FloatTValue_;
   std::vector< CoinBigIndex > longValue_;
   std::vector< char > charValue_;
   std::vector< std::string > stringValue_;

@@ -27,14 +27,14 @@ public:
          Uses model for scaling
          includeLinear 0 - no, 1 as is, 2 as feasible
      */
-  virtual double *gradient(const ClpSimplex *model,
-    const double *solution,
-    double &offset, bool refresh,
+  virtual FloatT *gradient(const ClpSimplex *model,
+    const FloatT *solution,
+    FloatT &offset, bool refresh,
     int includeLinear = 2)
     = 0;
   /** Returns reduced gradient.Returns an offset (to be added to current one).
      */
-  virtual double reducedGradient(ClpSimplex *model, double *region,
+  virtual FloatT reducedGradient(ClpSimplex *model, FloatT *region,
     bool useFeasibleCosts)
     = 0;
   /** Returns step length which gives minimum of objective for
@@ -43,22 +43,22 @@ public:
          arrays are numberColumns+numberRows
          Also sets current objective, predicted  and at maximumTheta
      */
-  virtual double stepLength(ClpSimplex *model,
-    const double *solution,
-    const double *change,
-    double maximumTheta,
-    double &currentObj,
-    double &predictedObj,
-    double &thetaObj)
+  virtual FloatT stepLength(ClpSimplex *model,
+    const FloatT *solution,
+    const FloatT *change,
+    FloatT maximumTheta,
+    FloatT &currentObj,
+    FloatT &predictedObj,
+    FloatT &thetaObj)
     = 0;
   /// Return objective value (without any ClpModel offset) (model may be NULL)
-  virtual double objectiveValue(const ClpSimplex *model, const double *solution) const = 0;
+  virtual FloatT objectiveValue(const ClpSimplex *model, const FloatT *solution) const = 0;
   /// Resize objective
   virtual void resize(int newNumberColumns) = 0;
   /// Delete columns in  objective
   virtual void deleteSome(int numberToDelete, const int *which) = 0;
   /// Scale objective
-  virtual void reallyScale(const double *columnScale) = 0;
+  virtual void reallyScale(const FloatT *columnScale) = 0;
   /** Given a zeroed array sets nonlinear columns to 1.
          Returns number of nonlinear columns
       */
@@ -116,7 +116,7 @@ public:
   }
 
   /// Objective offset
-  inline double nonlinearOffset() const
+  inline FloatT nonlinearOffset() const
   {
     return offset_;
   }
@@ -128,7 +128,7 @@ protected:
   ///@name Protected member data
   //@{
   /// Value of non-linear part of objective
-  double offset_;
+  FloatT offset_;
   /// Type of objective - linear is 1
   int type_;
   /// Whether activated

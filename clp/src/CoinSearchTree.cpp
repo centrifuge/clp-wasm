@@ -68,12 +68,12 @@ bool operator<(const BitVector128 &b0, const BitVector128 &b1)
   return (b0.bits_[0] < b1.bits_[0]);
 }
 
-void CoinSearchTreeManager::newSolution(double solValue)
+void CoinSearchTreeManager::newSolution(FloatT solValue)
 {
   ++numSolution;
   hasUB_ = true;
   CoinTreeNode *top = candidates_->top();
-  const double q = top ? top->getQuality() : solValue;
+  const FloatT q = top ? top->getQuality() : solValue;
   const bool switchToDFS = fabs(q) < 1e-3 ? (fabs(solValue) < 0.005) : ((solValue - q) / fabs(q) < 0.005);
   if (switchToDFS && dynamic_cast< CoinSearchTree< CoinSearchTreeCompareDepth > * >(candidates_) == NULL) {
     CoinSearchTree< CoinSearchTreeCompareDepth > *cands = new CoinSearchTree< CoinSearchTreeCompareDepth >(*candidates_);

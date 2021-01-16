@@ -30,7 +30,7 @@
 #endif
 #endif
 
-bool CoinFinite(double val)
+bool CoinFinite(FloatT val)
 {
 #ifdef COIN_C_FINITE
   return COIN_C_FINITE(val) != 0;
@@ -39,7 +39,7 @@ bool CoinFinite(double val)
 #endif
 }
 
-bool CoinIsnan(double val)
+bool CoinIsnan(FloatT val)
 {
 #ifdef COIN_C_ISNAN
   return COIN_C_ISNAN(val) != 0;

@@ -101,7 +101,7 @@ void ClpPresolve::destroyPresolve()
 */
 ClpSimplex *
 ClpPresolve::presolvedModel(ClpSimplex &si,
-  double feasibilityTolerance,
+  FloatT feasibilityTolerance,
   bool keepIntegers,
   int numberPasses,
   bool dropNames,
@@ -125,7 +125,7 @@ ClpPresolve::presolvedModel(ClpSimplex &si,
    model and saves original data to file.  Returns non-zero if infeasible
 */
 int ClpPresolve::presolvedModelToFile(ClpSimplex &si, std::string fileName,
-  double feasibilityTolerance,
+  FloatT feasibilityTolerance,
   bool keepIntegers,
   int numberPasses,
   bool dropNames,
@@ -196,8 +196,8 @@ void ClpPresolve::postsolve(bool updateStatus)
   int ncols = presolvedModel_->getNumCols();
   int nrows = presolvedModel_->getNumRows();
 
-  double *acts = NULL;
-  double *sol = NULL;
+  FloatT *acts = NULL;
+  FloatT *sol = NULL;
   unsigned char *rowstat = NULL;
   unsigned char *colstat = NULL;
 #ifndef CLP_NO_STD
@@ -228,8 +228,8 @@ void ClpPresolve::postsolve(bool updateStatus)
 #ifndef CLP_NO_STD
   } else {
     // from file
-    acts = new double[nrows0];
-    sol = new double[ncols0];
+    acts = new FloatT[nrows0];
+    sol = new FloatT[ncols0];
     CoinZeroN(acts, nrows0);
     CoinZeroN(sol, ncols0);
     if (updateStatus) {
@@ -283,23 +283,23 @@ void ClpPresolve::postsolve(bool updateStatus)
 #endif
   // put back duals
   CoinMemcpyN(prob.rowduals_, nrows_, originalModel_->dualRowSolution());
-  double maxmin = originalModel_->getObjSense();
+  FloatT maxmin = originalModel_->getObjSense();
   if (maxmin < 0.0) {
     // swap signs
     int i;
-    double *pi = originalModel_->dualRowSolution();
+    FloatT *pi = originalModel_->dualRowSolution();
     for (i = 0; i < nrows_; i++)
       pi[i] = -pi[i];
   }
   // Now check solution
-  double offset;
+  FloatT offset;
   CoinMemcpyN(originalModel_->objectiveAsObject()->gradient(originalModel_,
                 originalModel_->primalColumnSolution(), offset, true),
     ncols_, originalModel_->dualColumnSolution());
   originalModel_->clpMatrix()->transposeTimes(-1.0,
     originalModel_->dualRowSolution(),
     originalModel_->dualColumnSolution());
-  memset(originalModel_->primalRowSolution(), 0, nrows_ * sizeof(double));
+  memset(originalModel_->primalRowSolution(), 0, nrows_ * sizeof(FloatT));
   originalModel_->clpMatrix()->times(1.0,
     originalModel_->primalColumnSolution(),
     originalModel_->primalRowSolution());
@@ -390,36 +390,36 @@ static int ATOI(const char *name)
 #endif
 //#define PRESOLVE_CHECK_SOL 1
 #if PRESOLVE_CHECK_SOL
-void check_sol(CoinPresolveMatrix *prob, double tol)
+void check_sol(CoinPresolveMatrix *prob, FloatT tol)
 {
-  double *colels = prob->colels_;
+  FloatT *colels = prob->colels_;
   int *hrow = prob->hrow_;
   int *mcstrt = prob->mcstrt_;
   int *hincol = prob->hincol_;
   int *hinrow = prob->hinrow_;
   int ncols = prob->ncols_;
 
-  double *csol = prob->sol_;
-  double *acts = prob->acts_;
-  double *clo = prob->clo_;
-  double *cup = prob->cup_;
+  FloatT *csol = prob->sol_;
+  FloatT *acts = prob->acts_;
+  FloatT *clo = prob->clo_;
+  FloatT *cup = prob->cup_;
   int nrows = prob->nrows_;
-  double *rlo = prob->rlo_;
-  double *rup = prob->rup_;
+  FloatT *rlo = prob->rlo_;
+  FloatT *rup = prob->rup_;
 
   int colx;
 
-  double *rsol = new double[nrows];
-  memset(rsol, 0, nrows * sizeof(double));
+  FloatT *rsol = new FloatT[nrows];
+  memset(rsol, 0, nrows * sizeof(FloatT));
 
   for (colx = 0; colx < ncols; ++colx) {
     if (1) {
       CoinBigIndex k = mcstrt[colx];
       int nx = hincol[colx];
-      double solutionValue = csol[colx];
+      FloatT solutionValue = csol[colx];
       for (int i = 0; i < nx; ++i) {
         int row = hrow[k];
-        double coeff = colels[k];
+        FloatT coeff = colels[k];
         k++;
         rsol[row] += solutionValue * coeff;
       }
@@ -457,33 +457,33 @@ static int tightenDoubletons2(CoinPresolveMatrix *prob)
   const CoinBigIndex *const mcstrt = prob->mcstrt_;
   const int *const hincol = prob->hincol_;
   const int *const hrow = prob->hrow_;
-  double *colels = prob->colels_;
-  double *cost = prob->cost_;
+  FloatT *colels = prob->colels_;
+  FloatT *cost = prob->cost_;
 
   // column type, bounds, solution, and status
   const unsigned char *const integerType = prob->integerType_;
-  double *clo = prob->clo_;
-  double *cup = prob->cup_;
+  FloatT *clo = prob->clo_;
+  FloatT *cup = prob->cup_;
   // row-major representation
   //const int nrows = prob->nrows_ ;
   const CoinBigIndex *const mrstrt = prob->mrstrt_;
   const int *const hinrow = prob->hinrow_;
   const int *const hcol = prob->hcol_;
-  double *rowels = prob->rowels_;
+  FloatT *rowels = prob->rowels_;
 
   // row bounds
-  double *const rlo = prob->rlo_;
-  double *const rup = prob->rup_;
+  FloatT *const rlo = prob->rlo_;
+  FloatT *const rup = prob->rup_;
 
   // tolerances
-  //const double ekkinf2 = PRESOLVE_SMALL_INF ;
-  //const double ekkinf = ekkinf2*1.0e8 ;
-  //const double ztolcbarj = prob->ztoldj_ ;
+  //const FloatT ekkinf2 = PRESOLVE_SMALL_INF ;
+  //const FloatT ekkinf = ekkinf2*1.0e8 ;
+  //const FloatT ztolcbarj = prob->ztoldj_ ;
   //const CoinRelFltEq relEq(prob->ztolzb_) ;
   int numberChanged = 0;
-  double bound[2];
-  double alpha[2] = { 0.0, 0.0 };
-  double offset = 0.0;
+  FloatT bound[2];
+  FloatT alpha[2] = { 0.0, 0.0 };
+  FloatT offset = 0.0;
 
   for (int icol = 0; icol < ncols; icol++) {
     if (hincol[icol] == 2) {
@@ -494,8 +494,8 @@ static int tightenDoubletons2(CoinPresolveMatrix *prob)
       int row1 = hrow[start + 1];
       if (hinrow[row1] != 2)
         continue;
-      double element0 = colels[start];
-      double rowUpper0 = rup[row0];
+      FloatT element0 = colels[start];
+      FloatT rowUpper0 = rup[row0];
       bool swapSigns0 = false;
       if (rlo[row0] > -1.0e30) {
         if (rup[row0] > 1.0e30) {
@@ -523,8 +523,8 @@ static int tightenDoubletons2(CoinPresolveMatrix *prob)
 	continue;
       }
 #endif
-      double element1 = colels[start + 1];
-      double rowUpper1 = rup[row1];
+      FloatT element1 = colels[start + 1];
+      FloatT rowUpper1 = rup[row1];
       bool swapSigns1 = false;
       if (rlo[row1] > -1.0e30) {
         if (rup[row1] > 1.0e30) {
@@ -539,8 +539,8 @@ static int tightenDoubletons2(CoinPresolveMatrix *prob)
         // free
         continue;
       }
-      double lowerX = clo[icol];
-      double upperX = cup[icol];
+      FloatT lowerX = clo[icol];
+      FloatT upperX = cup[icol];
       int otherCol = -1;
       CoinBigIndex startRow = mrstrt[row0];
       for (CoinBigIndex j = startRow; j < startRow + 2; j++) {
@@ -575,18 +575,18 @@ static int tightenDoubletons2(CoinPresolveMatrix *prob)
         }
         bound[0] = clo[otherCol];
         bound[1] = cup[otherCol];
-        double lowestLowest = COIN_DBL_MAX;
-        double highestLowest = -COIN_DBL_MAX;
-        double lowestHighest = COIN_DBL_MAX;
-        double highestHighest = -COIN_DBL_MAX;
+        FloatT lowestLowest = COIN_DBL_MAX;
+        FloatT highestLowest = -COIN_DBL_MAX;
+        FloatT lowestHighest = COIN_DBL_MAX;
+        FloatT highestHighest = -COIN_DBL_MAX;
         int binding0 = 0;
         int binding1 = 0;
         for (int k = 0; k < 2; k++) {
           bool infLow0 = false;
           bool infLow1 = false;
-          double sum0 = 0.0;
-          double sum1 = 0.0;
-          double value = bound[k];
+          FloatT sum0 = 0.0;
+          FloatT sum1 = 0.0;
+          FloatT value = bound[k];
           if (fabs(value) < 1.0e30) {
             sum0 += alpha[0] * value;
             sum1 += alpha[1] * value;
@@ -608,8 +608,8 @@ static int tightenDoubletons2(CoinPresolveMatrix *prob)
           }
           /* Got sums
 	   */
-          double thisLowest0 = -COIN_DBL_MAX;
-          double thisHighest0 = COIN_DBL_MAX;
+          FloatT thisLowest0 = -COIN_DBL_MAX;
+          FloatT thisHighest0 = COIN_DBL_MAX;
           if (element0 > 0.0) {
             // upper bound unless inf&2 !=0
             if (!infLow0)
@@ -619,8 +619,8 @@ static int tightenDoubletons2(CoinPresolveMatrix *prob)
             if (!infLow0)
               thisLowest0 = (rowUpper0 - sum0) / element0;
           }
-          double thisLowest1 = -COIN_DBL_MAX;
-          double thisHighest1 = COIN_DBL_MAX;
+          FloatT thisLowest1 = -COIN_DBL_MAX;
+          FloatT thisHighest1 = COIN_DBL_MAX;
           if (element1 > 0.0) {
             // upper bound unless inf&2 !=0
             if (!infLow1)
@@ -696,17 +696,17 @@ static int tightenDoubletons2(CoinPresolveMatrix *prob)
           }
 #endif
           // see if we can move costs
-          double xValue;
-          double yValue0;
-          double yValue1;
-          double newLower = COIN_DBL_MAX;
-          double newUpper = -COIN_DBL_MAX;
+          FloatT xValue;
+          FloatT yValue0;
+          FloatT yValue1;
+          FloatT newLower = COIN_DBL_MAX;
+          FloatT newUpper = -COIN_DBL_MAX;
 #ifdef PRINT_VALUES
-          double ranges0[2];
-          double ranges1[2];
+          FloatT ranges0[2];
+          FloatT ranges1[2];
 #endif
-          double costEqual;
-          double slope[2];
+          FloatT costEqual;
+          FloatT slope[2];
           assert(binding0 + binding1 == 3);
           // get where equal
           xValue = (rowUpper0 * element1 - rowUpper1 * element0) / (alpha[0] * element1 - alpha[1] * element0);
@@ -714,8 +714,8 @@ static int tightenDoubletons2(CoinPresolveMatrix *prob)
           yValue1 = (rowUpper1 - xValue * alpha[1]) / element1;
           newLower = CoinMin(newLower, CoinMax(yValue0, yValue1));
           newUpper = CoinMax(newUpper, CoinMax(yValue0, yValue1));
-          double xValueEqual = xValue;
-          double yValueEqual = yValue0;
+          FloatT xValueEqual = xValue;
+          FloatT yValueEqual = yValue0;
           costEqual = xValue * cost[otherCol] + yValueEqual * cost[icol];
           if (binding0 == 1) {
 #ifdef PRINT_VALUES
@@ -725,9 +725,9 @@ static int tightenDoubletons2(CoinPresolveMatrix *prob)
             ranges1[1] = bound[1];
 #endif
             // take x 1.0 down
-            double x = xValue - 1.0;
-            double y = (rowUpper0 - x * alpha[0]) / element0;
-            double costTotal = x * cost[otherCol] + y * cost[icol];
+            FloatT x = xValue - 1.0;
+            FloatT y = (rowUpper0 - x * alpha[0]) / element0;
+            FloatT costTotal = x * cost[otherCol] + y * cost[icol];
             slope[0] = costEqual - costTotal;
             // take x 1.0 up
             x = xValue + 1.0;
@@ -742,9 +742,9 @@ static int tightenDoubletons2(CoinPresolveMatrix *prob)
             ranges0[1] = bound[1];
 #endif
             // take x 1.0 down
-            double x = xValue - 1.0;
-            double y = (rowUpper1 - x * alpha[1]) / element0;
-            double costTotal = x * cost[otherCol] + y * cost[icol];
+            FloatT x = xValue - 1.0;
+            FloatT y = (rowUpper1 - x * alpha[1]) / element0;
+            FloatT costTotal = x * cost[otherCol] + y * cost[icol];
             slope[1] = costEqual - costTotal;
             // take x 1.0 up
             x = xValue + 1.0;
@@ -767,7 +767,7 @@ static int tightenDoubletons2(CoinPresolveMatrix *prob)
 #endif
           newLower = CoinMin(newLower, CoinMax(yValue0, yValue1));
           // cost>0 so will be at lower
-          //double yValueAtBound0=newLower;
+          //FloatT yValueAtBound0=newLower;
           newUpper = CoinMax(newUpper, CoinMax(yValue0, yValue1));
           xValue = bound[1];
           yValue0 = (rowUpper0 - xValue * alpha[0]) / element0;
@@ -778,7 +778,7 @@ static int tightenDoubletons2(CoinPresolveMatrix *prob)
 #endif
           newLower = CoinMin(newLower, CoinMax(yValue0, yValue1));
           // cost>0 so will be at lower
-          //double yValueAtBound1=newLower;
+          //FloatT yValueAtBound1=newLower;
           newUpper = CoinMax(newUpper, CoinMax(yValue0, yValue1));
           lowerX = CoinMax(lowerX, newLower - 1.0e-12 * fabs(newLower));
           upperX = CoinMin(upperX, newUpper + 1.0e-12 * fabs(newUpper));
@@ -789,11 +789,11 @@ static int tightenDoubletons2(CoinPresolveMatrix *prob)
             xValueEqual - 1.0, xValueEqual, xValueEqual + 1.0,
             costEqual - slope[0], costEqual, costEqual + slope[1]);
 #endif
-          double costOther = cost[otherCol] + slope[1];
-          double costThis = cost[icol] + slope[1] * (element0 / alpha[0]);
+          FloatT costOther = cost[otherCol] + slope[1];
+          FloatT costThis = cost[icol] + slope[1] * (element0 / alpha[0]);
           xValue = xValueEqual;
           yValue0 = CoinMax((rowUpper0 - xValue * alpha[0]) / element0, lowerX);
-          double thisOffset = costEqual - (costOther * xValue + costThis * yValue0);
+          FloatT thisOffset = costEqual - (costOther * xValue + costThis * yValue0);
           offset += thisOffset;
 #ifdef PRINT_VALUES
           printf("new cost at equal %g\n", costOther * xValue + costThis * yValue0 + thisOffset);
@@ -822,7 +822,7 @@ static int tightenDoubletons2(CoinPresolveMatrix *prob)
           endCol[0] = startCol[0] + 2;
           startCol[1] = mcstrt[otherCol];
           endCol[1] = startCol[1] + hincol[otherCol];
-          double values[2] = { 0.0, 0.0 };
+          FloatT values[2] = { 0.0, 0.0 };
           for (int k = 0; k < 2; k++) {
             for (CoinBigIndex i = startCol[k]; i < endCol[k]; i++) {
               if (hrow[i] == row0)
@@ -946,7 +946,7 @@ const CoinPresolveAction *ClpPresolve::presolve(CoinPresolveMatrix *prob)
     bool slackSingleton = doSingletonColumn();
     slackSingleton = true;
     const bool slackd = doSingleton();
-    const bool doubleton = doDoubleton();
+    const bool FloatTton = doDoubleton();
     const bool tripleton = doTripleton();
     //#define NO_FORCING
 #ifndef NO_FORCING
@@ -1009,12 +1009,12 @@ const CoinPresolveAction *ClpPresolve::presolve(CoinPresolveMatrix *prob)
       if (doTwoxTwo()) {
         int nTightened = tightenDoubletons2(prob);
         if (nTightened)
-          PRESOLVE_DETAIL_PRINT(printf("%d doubletons tightened\n",
+          PRESOLVE_DETAIL_PRINT(printf("%d FloatTtons tightened\n",
             nTightened));
       }
       paction_ = duprow_action::presolve(prob, paction_);
       printProgress('D', 0);
-      //paction_ = doubleton_action::presolve(prob, paction_);
+      //paction_ = FloatTton_action::presolve(prob, paction_);
       //printProgress('d',0);
       //if (doDependency()) {
       //paction_ = duprow3_action::presolve(prob, paction_);
@@ -1097,7 +1097,7 @@ const CoinPresolveAction *ClpPresolve::presolve(CoinPresolveMatrix *prob)
           bool notFinished = true;
           while (notFinished) {
             possibleBreak;
-            paction_ = slack_doubleton_action::presolve(prob, paction_,
+            paction_ = slack_FloatTton_action::presolve(prob, paction_,
               notFinished);
           }
           printProgress('F', iLoop + 1);
@@ -1120,9 +1120,9 @@ const CoinPresolveAction *ClpPresolve::presolve(CoinPresolveMatrix *prob)
           printProgress('G', iLoop + 1);
         }
 
-        if (doubleton) {
+        if (FloatTton) {
           possibleBreak;
-          paction_ = doubleton_action::presolve(prob, paction_);
+          paction_ = FloatTton_action::presolve(prob, paction_);
           if (prob->status_)
             break;
           printProgress('H', iLoop + 1);
@@ -1351,8 +1351,8 @@ const CoinPresolveAction *ClpPresolve::presolve(CoinPresolveMatrix *prob)
 #ifndef CLP_MOVE_COSTS
           paction_ = slack_singleton_action::presolve(prob, paction_, rowObjective_);
 #else
-          double *fakeRowObjective = new double[prob->nrows_];
-          memset(fakeRowObjective, 0, prob->nrows_ * sizeof(double));
+          FloatT *fakeRowObjective = new FloatT[prob->nrows_];
+          memset(fakeRowObjective, 0, prob->nrows_ * sizeof(FloatT));
           paction_ = slack_singleton_action::presolve(prob, paction_, fakeRowObjective);
           delete[] fakeRowObjective;
 #endif
@@ -1439,7 +1439,7 @@ void ClpPresolve::postsolve(CoinPostsolveMatrix &prob)
 {
   {
     // Check activities
-    double *colels = prob.colels_;
+    FloatT *colels = prob.colels_;
     int *hrow = prob.hrow_;
     CoinBigIndex *mcstrt = prob.mcstrt_;
     int *hincol = prob.hincol_;
@@ -1448,22 +1448,22 @@ void ClpPresolve::postsolve(CoinPostsolveMatrix &prob)
 
     char *cdone = prob.cdone_;
 
-    double *csol = prob.sol_;
+    FloatT *csol = prob.sol_;
     int nrows = prob.nrows_;
 
     int colx;
 
-    double *rsol = prob.acts_;
-    memset(rsol, 0, nrows * sizeof(double));
+    FloatT *rsol = prob.acts_;
+    memset(rsol, 0, nrows * sizeof(FloatT));
 
     for (colx = 0; colx < ncols; ++colx) {
       if (cdone[colx]) {
         CoinBigIndex k = mcstrt[colx];
         int nx = hincol[colx];
-        double solutionValue = csol[colx];
+        FloatT solutionValue = csol[colx];
         for (int i = 0; i < nx; ++i) {
           int row = hrow[k];
-          double coeff = colels[k];
+          FloatT coeff = colels[k];
           k = link[k];
           assert(k != NO_LINK || i == nx - 1);
           rsol[row] += solutionValue * coeff;
@@ -1601,9 +1601,9 @@ void ClpPresolve::postsolve(CoinPostsolveMatrix &prob)
 #endif
 }
 
-static inline double getTolerance(const ClpSimplex *si, ClpDblParam key)
+static inline FloatT getTolerance(const ClpSimplex *si, ClpDblParam key)
 {
-  double tol;
+  FloatT tol;
   if (!si->getDblParam(key, tol)) {
     CoinPresolveAction::throwCoinError("getDblParam failed",
       "CoinPrePostsolveMatrix::CoinPrePostsolveMatrix");
@@ -1625,7 +1625,7 @@ CoinPrePostsolveMatrix::CoinPrePostsolveMatrix(const ClpSimplex *si,
   int ncols_in,
   int nrows_in,
   CoinBigIndex nelems_in,
-  double bulkRatio)
+  FloatT bulkRatio)
   : ncols_(si->getNumCols())
   , nrows_(si->getNumRows())
   , nelems_(si->getNumElements())
@@ -1634,11 +1634,11 @@ CoinPrePostsolveMatrix::CoinPrePostsolveMatrix(const ClpSimplex *si,
   , bulkRatio_(bulkRatio)
   , mcstrt_(new CoinBigIndex[ncols_in + 1])
   , hincol_(new int[ncols_in + 1])
-  , cost_(new double[ncols_in])
-  , clo_(new double[ncols_in])
-  , cup_(new double[ncols_in])
-  , rlo_(new double[nrows_in])
-  , rup_(new double[nrows_in])
+  , cost_(new FloatT[ncols_in])
+  , clo_(new FloatT[ncols_in])
+  , cup_(new FloatT[ncols_in])
+  , rlo_(new FloatT[nrows_in])
+  , rup_(new FloatT[nrows_in])
   , originalColumn_(new int[ncols_in])
   , originalRow_(new int[nrows_in])
   , ztolzb_(getTolerance(si, ClpPrimalTolerance))
@@ -1659,7 +1659,7 @@ CoinPrePostsolveMatrix::CoinPrePostsolveMatrix(const ClpSimplex *si,
     + ncols_in);
   // allow for temporary overflow
   hrow_ = new int[bulk0_ + ncols_in];
-  colels_ = new double[bulk0_ + ncols_in];
+  colels_ = new FloatT[bulk0_ + ncols_in];
   si->getDblParam(ClpObjOffset, originalOffset_);
   int ncols = si->getNumCols();
   int nrows = si->getNumRows();
@@ -1669,7 +1669,7 @@ CoinPrePostsolveMatrix::CoinPrePostsolveMatrix(const ClpSimplex *si,
   ClpDisjointCopyN(si->getColLower(), ncols, clo_);
   ClpDisjointCopyN(si->getColUpper(), ncols, cup_);
   //ClpDisjointCopyN(si->getObjCoefficients(), ncols, cost_);
-  double offset;
+  FloatT offset;
   ClpDisjointCopyN(si->objectiveAsObject()->gradient(si, si->getColSolution(), offset, true), ncols, cost_);
   ClpDisjointCopyN(si->getRowLower(), nrows, rlo_);
   ClpDisjointCopyN(si->getRowUpper(), nrows, rup_);
@@ -1707,7 +1707,7 @@ static bool isGapFree(const CoinPackedMatrix &matrix)
   }
 }
 #if PRESOLVE_DEBUG
-static void matrix_bounds_ok(const double *lo, const double *up, int n)
+static void matrix_bounds_ok(const FloatT *lo, const FloatT *up, int n)
 {
   int i;
   for (i = 0; i < n; i++) {
@@ -1718,7 +1718,7 @@ static void matrix_bounds_ok(const double *lo, const double *up, int n)
 }
 #endif
 CoinPresolveMatrix::CoinPresolveMatrix(int ncols0_in,
-  double /*maxmin*/,
+  FloatT /*maxmin*/,
   // end prepost members
 
   ClpSimplex *si,
@@ -1727,8 +1727,8 @@ CoinPresolveMatrix::CoinPresolveMatrix(int ncols0_in,
   int nrows_in,
   CoinBigIndex nelems_in,
   bool doStatus,
-  double nonLinearValue,
-  double bulkRatio)
+  FloatT nonLinearValue,
+  FloatT bulkRatio)
   :
 
   CoinPrePostsolveMatrix(si,
@@ -1774,7 +1774,7 @@ CoinPresolveMatrix::CoinPresolveMatrix(int ncols0_in,
 
   const CoinBigIndex *start = m->getVectorStarts();
   const int *row = m->getIndices();
-  const double *element = m->getElements();
+  const FloatT *element = m->getElements();
   int icol, nel = 0;
   mcstrt_[0] = 0;
   ClpDisjointCopyN(m->getVectorLengths(), ncols_, hincol_);
@@ -1805,12 +1805,12 @@ CoinPresolveMatrix::CoinPresolveMatrix(int ncols0_in,
   // Now get rid of matrix
   si->createEmptyMatrix();
 
-  double *el = mRow->getMutableElements();
+  FloatT *el = mRow->getMutableElements();
   int *ind = mRow->getMutableIndices();
   CoinBigIndex *strt = mRow->getMutableVectorStarts();
   int *len = mRow->getMutableVectorLengths();
   // Do carefully to save memory
-  rowels_ = new double[bulk0_];
+  rowels_ = new FloatT[bulk0_];
   ClpDisjointCopyN(el, nelems_, rowels_);
   mRow->nullElementArray();
   delete[] el;
@@ -1883,7 +1883,7 @@ CoinPresolveMatrix::CoinPresolveMatrix(int ncols0_in,
     //const int * columnQuadratic = quadratic->getIndices();
     //const CoinBigIndex * columnQuadraticStart = quadratic->getVectorStarts();
     const int *columnQuadraticLength = quadratic->getVectorLengths();
-    //double * quadraticElement = quadratic->getMutableElements();
+    //FloatT * quadraticElement = quadratic->getMutableElements();
     int numberColumns = quadratic->getNumCols();
     anyProhibited_ = true;
     for (int iColumn = 0; iColumn < numberColumns; iColumn++) {
@@ -1899,10 +1899,10 @@ CoinPresolveMatrix::CoinPresolveMatrix(int ncols0_in,
 
   if (doStatus) {
     // allow for status and solution
-    sol_ = new double[ncols_];
+    sol_ = new FloatT[ncols_];
     CoinMemcpyN(si->primalColumnSolution(), ncols_, sol_);
     ;
-    acts_ = new double[nrows_];
+    acts_ = new FloatT[nrows_];
     CoinMemcpyN(si->primalRowSolution(), nrows_, acts_);
     if (!si->statusArray())
       si->createStatus();
@@ -1996,11 +1996,11 @@ CoinPostsolveMatrix::CoinPostsolveMatrix(ClpSimplex *si,
   int nrows0_in,
   CoinBigIndex nelems0,
 
-  double maxmin,
+  FloatT maxmin,
   // end prepost members
 
-  double *sol_in,
-  double *acts_in,
+  FloatT *sol_in,
+  FloatT *acts_in,
 
   unsigned char *colstat_in,
   unsigned char *rowstat_in)
@@ -2082,10 +2082,10 @@ CoinPostsolveMatrix::CoinPostsolveMatrix(ClpSimplex *si,
   memset(cdone_, -1, ncols0_);
   memset(rdone_, -1, nrows0_);
 
-  rowduals_ = new double[nrows0_];
+  rowduals_ = new FloatT[nrows0_];
   ClpDisjointCopyN(si->getRowPrice(), nrows1, rowduals_);
 
-  rcosts_ = new double[ncols0_];
+  rcosts_ = new FloatT[ncols0_];
   ClpDisjointCopyN(si->getReducedCost(), ncols1, rcosts_);
   if (maxmin < 0.0) {
     // change so will look as if minimize
@@ -2142,7 +2142,7 @@ CoinPostsolveMatrix::CoinPostsolveMatrix(ClpSimplex *si,
 /* This is main part of Presolve */
 ClpSimplex *
 ClpPresolve::gutsOfPresolvedModel(ClpSimplex *originalModel,
-  double feasibilityTolerance,
+  FloatT feasibilityTolerance,
   bool keepIntegers,
   int numberPasses,
   bool dropNames,
@@ -2155,7 +2155,7 @@ ClpPresolve::gutsOfPresolvedModel(ClpSimplex *originalModel,
   nelems_ = originalModel->getNumElements();
   numberPasses_ = numberPasses;
 
-  double maxmin = originalModel->getObjSense();
+  FloatT maxmin = originalModel->getObjSense();
   originalModel_ = originalModel;
   delete[] originalColumn_;
   originalColumn_ = new int[ncols_];
@@ -2169,8 +2169,8 @@ ClpPresolve::gutsOfPresolvedModel(ClpSimplex *originalModel,
     originalRow_[i] = i;
   delete[] rowObjective_;
   if (doRowObjective) {
-    rowObjective_ = new double[nrows_];
-    memset(rowObjective_, 0, nrows_ * sizeof(double));
+    rowObjective_ = new FloatT[nrows_];
+    memset(rowObjective_, 0, nrows_ * sizeof(FloatT));
   } else {
     rowObjective_ = NULL;
   }
@@ -2212,7 +2212,7 @@ ClpPresolve::gutsOfPresolvedModel(ClpSimplex *originalModel,
       presolvedModel_->deleteIntegerInformation();
     totalPasses--;
 
-    double ratio = 2.0;
+    FloatT ratio = 2.0;
     if (substitution_ > 3)
       ratio = sqrt((substitution_ - 3) + 5.0);
     else if (substitution_ == 2)
@@ -2237,7 +2237,7 @@ ClpPresolve::gutsOfPresolvedModel(ClpSimplex *originalModel,
     }
     prob.setMaximumSubstitutionLevel(substitution_);
     if (doRowObjective)
-      memset(rowObjective_, 0, nrows_ * sizeof(double));
+      memset(rowObjective_, 0, nrows_ * sizeof(FloatT));
     // See if we want statistics
     if ((presolveActions_ & 0x80000000) != 0)
       prob.statistics();
@@ -2245,25 +2245,25 @@ ClpPresolve::gutsOfPresolvedModel(ClpSimplex *originalModel,
       transferCosts(&prob);
     // make sure row solution correct
     {
-      double *colels = prob.colels_;
+      FloatT *colels = prob.colels_;
       int *hrow = prob.hrow_;
       CoinBigIndex *mcstrt = prob.mcstrt_;
       int *hincol = prob.hincol_;
       int ncols = prob.ncols_;
 
-      double *csol = prob.sol_;
-      double *acts = prob.acts_;
+      FloatT *csol = prob.sol_;
+      FloatT *acts = prob.acts_;
       int nrows = prob.nrows_;
 
       int colx;
 
-      memset(acts, 0, nrows * sizeof(double));
+      memset(acts, 0, nrows * sizeof(FloatT));
 
       for (colx = 0; colx < ncols; ++colx) {
-        double solutionValue = csol[colx];
+        FloatT solutionValue = csol[colx];
         for (CoinBigIndex i = mcstrt[colx]; i < mcstrt[colx] + hincol[colx]; ++i) {
           int row = hrow[i];
-          double coeff = colels[i];
+          FloatT coeff = colels[i];
           acts[row] += solutionValue * coeff;
         }
       }
@@ -2282,10 +2282,10 @@ ClpPresolve::gutsOfPresolvedModel(ClpSimplex *originalModel,
     bool fixInfeasibility = (prob.presolveOptions_ & 16384) != 0;
     bool hasSolution = (prob.presolveOptions_ & 32768) != 0;
     if (prob.status_ == 0 && paction_ && (!hasSolution || !fixInfeasibility)) {
-      // Looks feasible but double check to see if anything slipped through
+      // Looks feasible but FloatT check to see if anything slipped through
       int n = prob.ncols_;
-      double *lo = prob.clo_;
-      double *up = prob.cup_;
+      FloatT *lo = prob.clo_;
+      FloatT *up = prob.cup_;
       int i;
 
       for (i = 0; i < n; i++) {
@@ -2324,17 +2324,17 @@ ClpPresolve::gutsOfPresolvedModel(ClpSimplex *originalModel,
       CoinMemcpyN(prob.colstat_, prob.ncols_, presolvedModel_->statusArray());
       CoinMemcpyN(prob.rowstat_, prob.nrows_, presolvedModel_->statusArray() + prob.ncols_);
       if (fixInfeasibility && hasSolution) {
-        // Looks feasible but double check to see if anything slipped through
+        // Looks feasible but FloatT check to see if anything slipped through
         int n = prob.ncols_;
-        double *lo = prob.clo_;
-        double *up = prob.cup_;
-        double *rsol = prob.acts_;
-        //memset(prob.acts_,0,prob.nrows_*sizeof(double));
+        FloatT *lo = prob.clo_;
+        FloatT *up = prob.cup_;
+        FloatT *rsol = prob.acts_;
+        //memset(prob.acts_,0,prob.nrows_*sizeof(FloatT));
         presolvedModel_->matrix()->times(prob.sol_, rsol);
         int i;
 
         for (i = 0; i < n; i++) {
-          double gap = up[i] - lo[i];
+          FloatT gap = up[i] - lo[i];
           if (rsol[i] < lo[i] - feasibilityTolerance && fabs(rsol[i] - lo[i]) < 1.0e-3) {
             lo[i] = rsol[i];
             if (gap < 1.0e5)
@@ -2351,8 +2351,8 @@ ClpPresolve::gutsOfPresolvedModel(ClpSimplex *originalModel,
       }
 
       int n = prob.nrows_;
-      double *lo = prob.rlo_;
-      double *up = prob.rup_;
+      FloatT *lo = prob.rlo_;
+      FloatT *up = prob.rup_;
 
       for (i = 0; i < n; i++) {
         if (up[i] < lo[i]) {
@@ -2389,13 +2389,13 @@ ClpPresolve::gutsOfPresolvedModel(ClpSimplex *originalModel,
         //const int * columnQuadratic = quadratic->getIndices();
         //const CoinBigIndex * columnQuadraticStart = quadratic->getVectorStarts();
         const int *columnQuadraticLength = quadratic->getVectorLengths();
-        //double * quadraticElement = quadratic->getMutableElements();
+        //FloatT * quadraticElement = quadratic->getMutableElements();
         int numberColumns = quadratic->getNumCols();
         ClpQuadraticObjective *newObj = new ClpQuadraticObjective(*quadraticObj,
           ncolsNow,
           originalColumn_);
         // and modify linear and check
-        double *linear = newObj->linearObjective();
+        FloatT *linear = newObj->linearObjective();
         CoinMemcpyN(presolvedModel_->objective(), ncolsNow, linear);
         int iColumn;
         for (iColumn = 0; iColumn < numberColumns; iColumn++) {
@@ -2475,18 +2475,18 @@ ClpPresolve::gutsOfPresolvedModel(ClpSimplex *originalModel,
       const char *information = presolvedModel_->integerInformation();
       if ((prob.presolveOptions_ & 0x80000000) == 0 && information) {
         int numberChanges = 0;
-        double *lower0 = originalModel_->columnLower();
-        double *upper0 = originalModel_->columnUpper();
-        double *lower = presolvedModel_->columnLower();
-        double *upper = presolvedModel_->columnUpper();
+        FloatT *lower0 = originalModel_->columnLower();
+        FloatT *upper0 = originalModel_->columnUpper();
+        FloatT *lower = presolvedModel_->columnLower();
+        FloatT *upper = presolvedModel_->columnUpper();
         for (i = 0; i < ncolsNow; i++) {
           if (!information[i])
             continue;
           int iOriginal = originalColumn_[i];
-          double lowerValue0 = lower0[iOriginal];
-          double upperValue0 = upper0[iOriginal];
-          double lowerValue = ceil(lower[i] - 1.0e-5);
-          double upperValue = floor(upper[i] + 1.0e-5);
+          FloatT lowerValue0 = lower0[iOriginal];
+          FloatT upperValue0 = upper0[iOriginal];
+          FloatT lowerValue = ceil(lower[i] - 1.0e-5);
+          FloatT upperValue = floor(upper[i] + 1.0e-5);
           lower[i] = lowerValue;
           upper[i] = upperValue;
           if (lowerValue > upperValue) {

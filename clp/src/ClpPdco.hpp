@@ -42,29 +42,29 @@ public:
   /// LSQR
   void lsqr();
 
-  void matVecMult(int, double *, double *);
+  void matVecMult(int, FloatT *, FloatT *);
 
-  void matVecMult(int, CoinDenseVector< double > &, double *);
+  void matVecMult(int, CoinDenseVector< FloatT > &, FloatT *);
 
-  void matVecMult(int, CoinDenseVector< double > &, CoinDenseVector< double > &);
+  void matVecMult(int, CoinDenseVector< FloatT > &, CoinDenseVector< FloatT > &);
 
-  void matVecMult(int, CoinDenseVector< double > *, CoinDenseVector< double > *);
+  void matVecMult(int, CoinDenseVector< FloatT > *, CoinDenseVector< FloatT > *);
 
   void getBoundTypes(int *, int *, int *, int **);
 
-  void getGrad(CoinDenseVector< double > &x, CoinDenseVector< double > &grad);
+  void getGrad(CoinDenseVector< FloatT > &x, CoinDenseVector< FloatT > &grad);
 
-  void getHessian(CoinDenseVector< double > &x, CoinDenseVector< double > &H);
+  void getHessian(CoinDenseVector< FloatT > &x, CoinDenseVector< FloatT > &H);
 
-  double getObj(CoinDenseVector< double > &x);
+  FloatT getObj(CoinDenseVector< FloatT > &x);
 
-  void matPrecon(double, double *, double *);
+  void matPrecon(FloatT, FloatT *, FloatT *);
 
-  void matPrecon(double, CoinDenseVector< double > &, double *);
+  void matPrecon(FloatT, CoinDenseVector< FloatT > &, FloatT *);
 
-  void matPrecon(double, CoinDenseVector< double > &, CoinDenseVector< double > &);
+  void matPrecon(FloatT, CoinDenseVector< FloatT > &, CoinDenseVector< FloatT > &);
 
-  void matPrecon(double, CoinDenseVector< double > *, CoinDenseVector< double > *);
+  void matPrecon(FloatT, CoinDenseVector< FloatT > *, CoinDenseVector< FloatT > *);
   //@}
 };
 #endif

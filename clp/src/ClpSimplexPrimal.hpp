@@ -168,8 +168,8 @@ public:
          After rowArray will have cost changes for use next iteration
      */
   int updatePrimalsInPrimal(CoinIndexedVector *rowArray,
-    double theta,
-    double &objectiveChange,
+    FloatT theta,
+    FloatT &objectiveChange,
     int valuesPass);
   /**
          Row array has pivot column
@@ -199,7 +199,7 @@ public:
   /** Checks if tentative optimal actually means unbounded in primal
          Returns -3 if not, 2 if is unbounded */
   int checkUnbounded(CoinIndexedVector *ray, CoinIndexedVector *spare,
-    double changeCost);
+    FloatT changeCost);
   /**  Refactorizes if necessary
           Checks if finished.  Updates status.
           lastCleaned refers to iteration at which some objective/feasibility

@@ -59,8 +59,8 @@ public:
 private:
   /// Postsolve (bound restore) instruction
   struct action {
-    double rlo_; ///< restored row lower bound
-    double rup_; ///< restored row upper bound
+    FloatT rlo_; ///< restored row lower bound
+    FloatT rup_; ///< restored row upper bound
     int ndx_; ///< row index
   };
 

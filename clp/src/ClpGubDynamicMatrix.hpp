@@ -22,7 +22,7 @@ public:
   /**@name Main functions provided */
   //@{
   /// Partial pricing
-  virtual void partialPricing(ClpSimplex *model, double start, double end,
+  virtual void partialPricing(ClpSimplex *model, FloatT start, FloatT end,
     int &bestSequence, int &numberWanted);
   /** This is local to Gub to allow synchronization:
          mode=0 when status of basis is good
@@ -40,25 +40,25 @@ public:
   /**
         update information for a pivot (and effective rhs)
      */
-  virtual int updatePivot(ClpSimplex *model, double oldInValue, double oldOutValue);
+  virtual int updatePivot(ClpSimplex *model, FloatT oldInValue, FloatT oldOutValue);
   /// Add a new variable to a set
   void insertNonBasic(int sequence, int iSet);
   /** Returns effective RHS offset if it is being used.  This is used for long problems
          or big gub or anywhere where going through full columns is
          expensive.  This may re-compute */
-  virtual double *rhsOffset(ClpSimplex *model, bool forceRefresh = false,
+  virtual FloatT *rhsOffset(ClpSimplex *model, bool forceRefresh = false,
     bool check = false);
 
   using ClpPackedMatrix::times;
   /** Return <code>y + A * scalar *x</code> in <code>y</code>.
          @pre <code>x</code> must be of size <code>numColumns()</code>
          @pre <code>y</code> must be of size <code>numRows()</code> */
-  virtual void times(double scalar,
-    const double *x, double *y) const;
+  virtual void times(FloatT scalar,
+    const FloatT *x, FloatT *y) const;
   /** Just for debug
          Returns sum and number of primal infeasibilities. Recomputes keys
      */
-  virtual int checkFeasible(ClpSimplex *model, double &sum) const;
+  virtual int checkFeasible(ClpSimplex *model, FloatT &sum) const;
   /// Cleans data after setWarmStart
   void cleanData(ClpSimplex *model);
   //@}
@@ -81,10 +81,10 @@ public:
       */
   ClpGubDynamicMatrix(ClpSimplex *model, int numberSets,
     int numberColumns, const int *starts,
-    const double *lower, const double *upper,
+    const FloatT *lower, const FloatT *upper,
     const CoinBigIndex *startColumn, const int *row,
-    const double *element, const double *cost,
-    const double *lowerColumn = NULL, const double *upperColumn = NULL,
+    const FloatT *element, const FloatT *cost,
+    const FloatT *lowerColumn = NULL, const FloatT *upperColumn = NULL,
     const unsigned char *status = NULL);
 
   ClpGubDynamicMatrix &operator=(const ClpGubDynamicMatrix &);
@@ -123,7 +123,7 @@ public:
     return static_cast< DynamicStatus >(dynamicStatus_[sequence] & 7);
   }
   /// Saved value of objective offset
-  inline double objectiveOffset() const
+  inline FloatT objectiveOffset() const
   {
     return objectiveOffset_;
   }
@@ -138,12 +138,12 @@ public:
     return row_;
   }
   /// elements
-  inline double *element() const
+  inline FloatT *element() const
   {
     return element_;
   }
   /// costs
-  inline double *cost() const
+  inline FloatT *cost() const
   {
     return cost_;
   }
@@ -158,22 +158,22 @@ public:
     return id_;
   }
   /// Optional lower bounds on columns
-  inline double *lowerColumn() const
+  inline FloatT *lowerColumn() const
   {
     return lowerColumn_;
   }
   /// Optional upper bounds on columns
-  inline double *upperColumn() const
+  inline FloatT *upperColumn() const
   {
     return upperColumn_;
   }
   /// Optional true lower bounds on sets
-  inline double *lowerSet() const
+  inline FloatT *lowerSet() const
   {
     return lowerSet_;
   }
   /// Optional true upper bounds on sets
-  inline double *upperSet() const
+  inline FloatT *upperSet() const
   {
     return upperSet_;
   }
@@ -226,15 +226,15 @@ protected:
         The data members are protected to allow access for derived classes. */
   //@{
   /// Saved value of objective offset
-  double objectiveOffset_;
+  FloatT objectiveOffset_;
   /// Starts of each column
   CoinBigIndex *startColumn_;
   /// rows
   int *row_;
   /// elements
-  double *element_;
+  FloatT *element_;
   /// costs
-  double *cost_;
+  FloatT *cost_;
   /// full starts
   int *fullStart_;
   /// ids of active columns (just index here)
@@ -242,13 +242,13 @@ protected:
   /// for status and which bound
   unsigned char *dynamicStatus_;
   /// Optional lower bounds on columns
-  double *lowerColumn_;
+  FloatT *lowerColumn_;
   /// Optional upper bounds on columns
-  double *upperColumn_;
+  FloatT *upperColumn_;
   /// Optional true lower bounds on sets
-  double *lowerSet_;
+  FloatT *lowerSet_;
   /// Optional true upper bounds on sets
-  double *upperSet_;
+  FloatT *upperSet_;
   /// size
   int numberGubColumns_;
   /// first free

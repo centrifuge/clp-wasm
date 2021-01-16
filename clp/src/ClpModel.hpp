@@ -79,25 +79,25 @@ public:
          </ul>
      */
   void loadProblem(const ClpMatrixBase &matrix,
-    const double *collb, const double *colub,
-    const double *obj,
-    const double *rowlb, const double *rowub,
-    const double *rowObjective = NULL);
+    const FloatT *collb, const FloatT *colub,
+    const FloatT *obj,
+    const FloatT *rowlb, const FloatT *rowub,
+    const FloatT *rowObjective = NULL);
   void loadProblem(const CoinPackedMatrix &matrix,
-    const double *collb, const double *colub,
-    const double *obj,
-    const double *rowlb, const double *rowub,
-    const double *rowObjective = NULL);
+    const FloatT *collb, const FloatT *colub,
+    const FloatT *obj,
+    const FloatT *rowlb, const FloatT *rowub,
+    const FloatT *rowObjective = NULL);
 
   /** Just like the other loadProblem() method except that the matrix is
        given in a standard column major ordered format (without gaps). */
   void loadProblem(const int numcols, const int numrows,
     const CoinBigIndex *start, const int *index,
-    const double *value,
-    const double *collb, const double *colub,
-    const double *obj,
-    const double *rowlb, const double *rowub,
-    const double *rowObjective = NULL);
+    const FloatT *value,
+    const FloatT *collb, const FloatT *colub,
+    const FloatT *obj,
+    const FloatT *rowlb, const FloatT *rowub,
+    const FloatT *rowObjective = NULL);
   /** This loads a model from a coinModel object - returns number of errors.
 
          modelObject not const as may be changed as part of process
@@ -107,20 +107,20 @@ public:
   /// This one is for after presolve to save memory
   void loadProblem(const int numcols, const int numrows,
     const CoinBigIndex *start, const int *index,
-    const double *value, const int *length,
-    const double *collb, const double *colub,
-    const double *obj,
-    const double *rowlb, const double *rowub,
-    const double *rowObjective = NULL);
+    const FloatT *value, const int *length,
+    const FloatT *collb, const FloatT *colub,
+    const FloatT *obj,
+    const FloatT *rowlb, const FloatT *rowub,
+    const FloatT *rowObjective = NULL);
   /** Load up quadratic objective.  This is stored as a CoinPackedMatrix */
   void loadQuadraticObjective(const int numberColumns,
     const CoinBigIndex *start,
-    const int *column, const double *element);
+    const int *column, const FloatT *element);
   void loadQuadraticObjective(const CoinPackedMatrix &matrix);
   /// Get rid of quadratic objective
   void deleteQuadraticObjective();
   /// This just loads up a row objective
-  void setRowObjective(const double *rowObjective);
+  void setRowObjective(const FloatT *rowObjective);
   /// Read an mps file from the given filename
   int readMps(const char *filename,
     bool keepNames = false,
@@ -144,22 +144,22 @@ public:
   void deleteRows(int number, const int *which);
   /// Add one row
   void addRow(int numberInRow, const int *columns,
-    const double *elements, double rowLower = -COIN_DBL_MAX,
-    double rowUpper = COIN_DBL_MAX);
+    const FloatT *elements, FloatT rowLower = -COIN_DBL_MAX,
+    FloatT rowUpper = COIN_DBL_MAX);
   /// Add rows
-  void addRows(int number, const double *rowLower,
-    const double *rowUpper,
+  void addRows(int number, const FloatT *rowLower,
+    const FloatT *rowUpper,
     const CoinBigIndex *rowStarts, const int *columns,
-    const double *elements);
+    const FloatT *elements);
   /// Add rows
-  void addRows(int number, const double *rowLower,
-    const double *rowUpper,
+  void addRows(int number, const FloatT *rowLower,
+    const FloatT *rowUpper,
     const CoinBigIndex *rowStarts, const int *rowLengths,
     const int *columns,
-    const double *elements);
+    const FloatT *elements);
 #ifndef CLP_NO_VECTOR
-  void addRows(int number, const double *rowLower,
-    const double *rowUpper,
+  void addRows(int number, const FloatT *rowLower,
+    const FloatT *rowUpper,
     const CoinPackedVectorBase *const *rows);
 #endif
   /** Add rows from a build object.
@@ -188,26 +188,26 @@ public:
   /// Add one column
   void addColumn(int numberInColumn,
     const int *rows,
-    const double *elements,
-    double columnLower = 0.0,
-    double columnUpper = COIN_DBL_MAX,
-    double objective = 0.0);
+    const FloatT *elements,
+    FloatT columnLower = 0.0,
+    FloatT columnUpper = COIN_DBL_MAX,
+    FloatT objective = 0.0);
   /// Add columns
-  void addColumns(int number, const double *columnLower,
-    const double *columnUpper,
-    const double *objective,
+  void addColumns(int number, const FloatT *columnLower,
+    const FloatT *columnUpper,
+    const FloatT *objective,
     const CoinBigIndex *columnStarts, const int *rows,
-    const double *elements);
-  void addColumns(int number, const double *columnLower,
-    const double *columnUpper,
-    const double *objective,
+    const FloatT *elements);
+  void addColumns(int number, const FloatT *columnLower,
+    const FloatT *columnUpper,
+    const FloatT *objective,
     const CoinBigIndex *columnStarts, const int *columnLengths,
     const int *rows,
-    const double *elements);
+    const FloatT *elements);
 #ifndef CLP_NO_VECTOR
-  void addColumns(int number, const double *columnLower,
-    const double *columnUpper,
-    const double *objective,
+  void addColumns(int number, const FloatT *columnLower,
+    const FloatT *columnUpper,
+    const FloatT *objective,
     const CoinPackedVectorBase *const *columns);
 #endif
   /** Add columns from a build object
@@ -227,21 +227,21 @@ public:
   int addColumns(CoinModel &modelObject, bool tryPlusMinusOne = false,
     bool checkDuplicates = true);
   /// Modify one element of a matrix
-  inline void modifyCoefficient(int row, int column, double newElement,
+  inline void modifyCoefficient(int row, int column, FloatT newElement,
     bool keepZero = false)
   {
     matrix_->modifyCoefficient(row, column, newElement, keepZero);
   }
   /** Change row lower bounds */
-  void chgRowLower(const double *rowLower);
+  void chgRowLower(const FloatT *rowLower);
   /** Change row upper bounds */
-  void chgRowUpper(const double *rowUpper);
+  void chgRowUpper(const FloatT *rowUpper);
   /** Change column lower bounds */
-  void chgColumnLower(const double *columnLower);
+  void chgColumnLower(const FloatT *columnLower);
   /** Change column upper bounds */
-  void chgColumnUpper(const double *columnUpper);
+  void chgColumnUpper(const FloatT *columnUpper);
   /** Change objective coefficients */
-  void chgObjCoefficients(const double *objIn);
+  void chgObjCoefficients(const FloatT *objIn);
   /** Borrow model.  This is so we don't have to copy large amounts
          of data around.  It assumes a derived class wants to overwrite
          an empty model with a real one - while it does an algorithm */
@@ -259,7 +259,7 @@ public:
          d) orders elements
          returns number of elements eliminated or -1 if not ClpPackedMatrix
      */
-  CoinBigIndex cleanMatrix(double threshold = 1.0e-20);
+  CoinBigIndex cleanMatrix(FloatT threshold = 1.0e-20);
   /// Copy contents - resizing if necessary - otherwise re-use memory
   void copy(const ClpMatrixBase *from, ClpMatrixBase *&to);
 #ifndef CLP_NO_STD
@@ -288,7 +288,7 @@ public:
           1 in network with signs swapped
          Returns number of network rows
      */
-  int findNetwork(char *rotate, double fractionNeeded = 0.75);
+  int findNetwork(char *rotate, FloatT fractionNeeded = 0.75);
   /** This creates a coinModel object
      */
   CoinModel *createCoinModel() const;
@@ -307,7 +307,7 @@ public:
      */
   int writeMps(const char *filename,
     int formatType = 0, int numberAcross = 2,
-    double objSense = 0.0) const;
+    FloatT objSense = 0.0) const;
   //@}
   /**@name gets and sets */
   //@{
@@ -330,37 +330,37 @@ public:
     return numberColumns_;
   }
   /// Primal tolerance to use
-  inline double primalTolerance() const
+  inline FloatT primalTolerance() const
   {
     return dblParam_[ClpPrimalTolerance];
   }
-  void setPrimalTolerance(double value);
+  void setPrimalTolerance(FloatT value);
   /// Dual tolerance to use
-  inline double dualTolerance() const
+  inline FloatT dualTolerance() const
   {
     return dblParam_[ClpDualTolerance];
   }
-  void setDualTolerance(double value);
+  void setDualTolerance(FloatT value);
   /// Primal objective limit
-  inline double primalObjectiveLimit() const
+  inline FloatT primalObjectiveLimit() const
   {
     return dblParam_[ClpPrimalObjectiveLimit];
   }
-  void setPrimalObjectiveLimit(double value);
+  void setPrimalObjectiveLimit(FloatT value);
   /// Dual objective limit
-  inline double dualObjectiveLimit() const
+  inline FloatT dualObjectiveLimit() const
   {
     return dblParam_[ClpDualObjectiveLimit];
   }
-  void setDualObjectiveLimit(double value);
+  void setDualObjectiveLimit(FloatT value);
   /// Objective offset
-  inline double objectiveOffset() const
+  inline FloatT objectiveOffset() const
   {
     return dblParam_[ClpObjOffset];
   }
-  void setObjectiveOffset(double value);
+  void setObjectiveOffset(FloatT value);
   /// Presolve tolerance to use
-  inline double presolveTolerance() const
+  inline FloatT presolveTolerance() const
   {
     return dblParam_[ClpPresolveTolerance];
   }
@@ -399,12 +399,12 @@ public:
   }
   void setMaximumIterations(int value);
   /// Maximum time in seconds (from when set called)
-  inline double maximumSeconds() const
+  inline FloatT maximumSeconds() const
   {
     return dblParam_[ClpMaxSeconds];
   }
-  void setMaximumSeconds(double value);
-  void setMaximumWallSeconds(double value);
+  void setMaximumSeconds(FloatT value);
+  void setMaximumWallSeconds(FloatT value);
   /// Returns true if hit maximum iterations (or time)
   bool hitMaximumIterations() const;
   /** Status of problem:
@@ -482,70 +482,70 @@ public:
     return problemStatus_ == 3;
   }
   /// Direction of optimization (1 - minimize, -1 - maximize, 0 - ignore
-  inline double optimizationDirection() const
+  inline FloatT optimizationDirection() const
   {
     return optimizationDirection_;
   }
-  inline double getObjSense() const
+  inline FloatT getObjSense() const
   {
     return optimizationDirection_;
   }
-  void setOptimizationDirection(double value);
+  void setOptimizationDirection(FloatT value);
   /// Primal row solution
-  inline double *primalRowSolution() const
+  inline FloatT *primalRowSolution() const
   {
     return rowActivity_;
   }
-  inline const double *getRowActivity() const
+  inline const FloatT *getRowActivity() const
   {
     return rowActivity_;
   }
   /// Primal column solution
-  inline double *primalColumnSolution() const
+  inline FloatT *primalColumnSolution() const
   {
     return columnActivity_;
   }
-  inline const double *getColSolution() const
+  inline const FloatT *getColSolution() const
   {
     return columnActivity_;
   }
-  inline void setColSolution(const double *input)
+  inline void setColSolution(const FloatT *input)
   {
-    memcpy(columnActivity_, input, numberColumns_ * sizeof(double));
+    memcpy(columnActivity_, input, numberColumns_ * sizeof(FloatT));
   }
   /// Dual row solution
-  inline double *dualRowSolution() const
+  inline FloatT *dualRowSolution() const
   {
     return dual_;
   }
-  inline const double *getRowPrice() const
+  inline const FloatT *getRowPrice() const
   {
     return dual_;
   }
   /// Reduced costs
-  inline double *dualColumnSolution() const
+  inline FloatT *dualColumnSolution() const
   {
     return reducedCost_;
   }
-  inline const double *getReducedCost() const
+  inline const FloatT *getReducedCost() const
   {
     return reducedCost_;
   }
   /// Row lower
-  inline double *rowLower() const
+  inline FloatT *rowLower() const
   {
     return rowLower_;
   }
-  inline const double *getRowLower() const
+  inline const FloatT *getRowLower() const
   {
     return rowLower_;
   }
   /// Row upper
-  inline double *rowUpper() const
+  inline FloatT *rowUpper() const
   {
     return rowUpper_;
   }
-  inline const double *getRowUpper() const
+  inline const FloatT *getRowUpper() const
   {
     return rowUpper_;
   }
@@ -553,24 +553,24 @@ public:
   /**@name Changing bounds on variables and constraints */
   //@{
   /** Set an objective function coefficient */
-  void setObjectiveCoefficient(int elementIndex, double elementValue);
+  void setObjectiveCoefficient(int elementIndex, FloatT elementValue);
   /** Set an objective function coefficient */
-  inline void setObjCoeff(int elementIndex, double elementValue)
+  inline void setObjCoeff(int elementIndex, FloatT elementValue)
   {
     setObjectiveCoefficient(elementIndex, elementValue);
   }
 
   /** Set a single column lower bound<br>
          Use -DBL_MAX for -infinity. */
-  void setColumnLower(int elementIndex, double elementValue);
+  void setColumnLower(int elementIndex, FloatT elementValue);
 
   /** Set a single column upper bound<br>
          Use DBL_MAX for infinity. */
-  void setColumnUpper(int elementIndex, double elementValue);
+  void setColumnUpper(int elementIndex, FloatT elementValue);
 
   /** Set a single column lower and upper bound */
   void setColumnBounds(int elementIndex,
-    double lower, double upper);
+    FloatT lower, FloatT upper);
 
   /** Set the bounds on a number of columns simultaneously<br>
          The default implementation just invokes setColLower() and
@@ -582,24 +582,24 @@ public:
      */
   void setColumnSetBounds(const int *indexFirst,
     const int *indexLast,
-    const double *boundList);
+    const FloatT *boundList);
 
   /** Set a single column lower bound<br>
          Use -DBL_MAX for -infinity. */
-  inline void setColLower(int elementIndex, double elementValue)
+  inline void setColLower(int elementIndex, FloatT elementValue)
   {
     setColumnLower(elementIndex, elementValue);
   }
   /** Set a single column upper bound<br>
          Use DBL_MAX for infinity. */
-  inline void setColUpper(int elementIndex, double elementValue)
+  inline void setColUpper(int elementIndex, FloatT elementValue)
   {
     setColumnUpper(elementIndex, elementValue);
   }
 
   /** Set a single column lower and upper bound */
   inline void setColBounds(int elementIndex,
-    double lower, double upper)
+    FloatT lower, FloatT upper)
   {
     setColumnBounds(elementIndex, lower, upper);
   }
@@ -612,22 +612,22 @@ public:
      */
   inline void setColSetBounds(const int *indexFirst,
     const int *indexLast,
-    const double *boundList)
+    const FloatT *boundList)
   {
     setColumnSetBounds(indexFirst, indexLast, boundList);
   }
 
   /** Set a single row lower bound<br>
          Use -DBL_MAX for -infinity. */
-  void setRowLower(int elementIndex, double elementValue);
+  void setRowLower(int elementIndex, FloatT elementValue);
 
   /** Set a single row upper bound<br>
          Use DBL_MAX for infinity. */
-  void setRowUpper(int elementIndex, double elementValue);
+  void setRowUpper(int elementIndex, FloatT elementValue);
 
   /** Set a single row lower and upper bound */
   void setRowBounds(int elementIndex,
-    double lower, double upper);
+    FloatT lower, FloatT upper);
 
   /** Set the bounds on a number of rows simultaneously<br>
          @param indexFirst,indexLast pointers to the beginning and after the
@@ -637,65 +637,65 @@ public:
      */
   void setRowSetBounds(const int *indexFirst,
     const int *indexLast,
-    const double *boundList);
+    const FloatT *boundList);
 
   //@}
   /// Scaling
-  inline const double *rowScale() const
+  inline const FloatT *rowScale() const
   {
     return rowScale_;
   }
-  inline const double *columnScale() const
+  inline const FloatT *columnScale() const
   {
     return columnScale_;
   }
-  inline const double *inverseRowScale() const
+  inline const FloatT *inverseRowScale() const
   {
     return inverseRowScale_;
   }
-  inline const double *inverseColumnScale() const
+  inline const FloatT *inverseColumnScale() const
   {
     return inverseColumnScale_;
   }
-  inline double *mutableRowScale() const
+  inline FloatT *mutableRowScale() const
   {
     return rowScale_;
   }
-  inline double *mutableColumnScale() const
+  inline FloatT *mutableColumnScale() const
   {
     return columnScale_;
   }
-  inline double *mutableInverseRowScale() const
+  inline FloatT *mutableInverseRowScale() const
   {
     return inverseRowScale_;
   }
-  inline double *mutableInverseColumnScale() const
+  inline FloatT *mutableInverseColumnScale() const
   {
     return inverseColumnScale_;
   }
-  inline double *swapRowScale(double *newScale)
+  inline FloatT *swapRowScale(FloatT *newScale)
   {
-    double *oldScale = rowScale_;
+    FloatT *oldScale = rowScale_;
     rowScale_ = newScale;
     return oldScale;
   }
-  void setRowScale(double *scale);
-  void setColumnScale(double *scale);
+  void setRowScale(FloatT *scale);
+  void setColumnScale(FloatT *scale);
   /// Scaling of objective
-  inline double objectiveScale() const
+  inline FloatT objectiveScale() const
   {
     return objectiveScale_;
   }
-  inline void setObjectiveScale(double value)
+  inline void setObjectiveScale(FloatT value)
   {
     objectiveScale_ = value;
   }
   /// Scaling of rhs and bounds
-  inline double rhsScale() const
+  inline FloatT rhsScale() const
   {
     return rhsScale_;
   }
-  inline void setRhsScale(double value)
+  inline void setRhsScale(FloatT value)
   {
     rhsScale_ = value;
   }
@@ -710,16 +710,16 @@ public:
     return scalingFlag_;
   }
   /// Objective
-  inline double *objective() const
+  inline FloatT *objective() const
   {
     if (objective_) {
-      double offset;
+      FloatT offset;
       return objective_->gradient(NULL, NULL, offset, false);
     } else {
       return NULL;
     }
   }
-  inline double *objective(const double *solution, double &offset, bool refresh = true) const
+  inline FloatT *objective(const FloatT *solution, FloatT &offset, bool refresh = true) const
   {
     offset = 0.0;
     if (objective_) {
@@ -728,39 +728,39 @@ public:
       return NULL;
     }
   }
-  inline const double *getObjCoefficients() const
+  inline const FloatT *getObjCoefficients() const
   {
     if (objective_) {
-      double offset;
+      FloatT offset;
       return objective_->gradient(NULL, NULL, offset, false);
     } else {
       return NULL;
     }
   }
   /// Row Objective
-  inline double *rowObjective() const
+  inline FloatT *rowObjective() const
   {
     return rowObjective_;
   }
-  inline const double *getRowObjCoefficients() const
+  inline const FloatT *getRowObjCoefficients() const
   {
     return rowObjective_;
   }
   /// Column Lower
-  inline double *columnLower() const
+  inline FloatT *columnLower() const
   {
     return columnLower_;
   }
-  inline const double *getColLower() const
+  inline const FloatT *getColLower() const
   {
     return columnLower_;
   }
   /// Column Upper
-  inline double *columnUpper() const
+  inline FloatT *columnUpper() const
   {
     return columnUpper_;
   }
-  inline const double *getColUpper() const
+  inline const FloatT *getColUpper() const
   {
     return columnUpper_;
   }
@@ -779,11 +779,11 @@ public:
   }
   /** Small element value - elements less than this set to zero,
         default is 1.0e-20 */
-  inline double getSmallElementValue() const
+  inline FloatT getSmallElementValue() const
   {
     return smallElement_;
   }
-  inline void setSmallElementValue(double value)
+  inline void setSmallElementValue(FloatT value)
   {
     smallElement_ = value;
   }
@@ -834,15 +834,15 @@ public:
     replaceMatrix(new ClpPackedMatrix(newmatrix), deleteCurrent);
   }
   /// Objective value
-  inline double objectiveValue() const
+  inline FloatT objectiveValue() const
   {
     return objectiveValue_ * optimizationDirection_ - dblParam_[ClpObjOffset];
   }
-  inline void setObjectiveValue(double value)
+  inline void setObjectiveValue(FloatT value)
   {
     objectiveValue_ = (value + dblParam_[ClpObjOffset]) / optimizationDirection_;
   }
-  inline double getObjValue() const
+  inline FloatT getObjValue() const
   {
     return objectiveValue_ * optimizationDirection_ - dblParam_[ClpObjOffset];
   }
@@ -853,10 +853,10 @@ public:
   }
   /** Infeasibility/unbounded ray (NULL returned if none/wrong)
          Up to user to use delete [] on these arrays.  */
-  double *infeasibilityRay(bool fullRay = false) const;
-  double *unboundedRay() const;
+  FloatT *infeasibilityRay(bool fullRay = false) const;
+  FloatT *unboundedRay() const;
   /// For advanced users - no need to delete - sign not changed
-  inline double *ray() const
+  inline FloatT *ray() const
   {
     return ray_;
   }
@@ -872,7 +872,7 @@ public:
     ray_ = NULL;
   }
   /// Access internal ray storage. Users should call infeasibilityRay() or unboundedRay() instead.
-  inline const double *internalRay() const
+  inline const FloatT *internalRay() const
   {
     return ray_;
   }
@@ -1060,7 +1060,7 @@ public:
   }
   /** Solve a problem with no elements - return status and
          dual and primal infeasibilites */
-  int emptyProblem(int *infeasNumber = NULL, double *infeasSum = NULL, bool printMessage = true);
+  int emptyProblem(int *infeasNumber = NULL, FloatT *infeasSum = NULL, bool printMessage = true);
 
   //@}
 
@@ -1072,13 +1072,13 @@ public:
   /** Return <code>y + A * x * scalar</code> in <code>y</code>.
          @pre <code>x</code> must be of size <code>numColumns()</code>
          @pre <code>y</code> must be of size <code>numRows()</code> */
-  void times(double scalar,
-    const double *x, double *y) const;
+  void times(FloatT scalar,
+    const FloatT *x, FloatT *y) const;
   /** Return <code>y + x * scalar * A</code> in <code>y</code>.
          @pre <code>x</code> must be of size <code>numRows()</code>
          @pre <code>y</code> must be of size <code>numColumns()</code> */
-  void transposeTimes(double scalar,
-    const double *x, double *y) const;
+  void transposeTimes(FloatT scalar,
+    const FloatT *x, FloatT *y) const;
   //@}
 
   //---------------------------------------------------------------------------
@@ -1101,8 +1101,8 @@ public:
   //@{
   /// Set an integer parameter
   bool setIntParam(ClpIntParam key, int value);
-  /// Set an double parameter
-  bool setDblParam(ClpDblParam key, double value);
+  /// Set an FloatT parameter
+  bool setDblParam(ClpDblParam key, FloatT value);
 #ifndef CLP_NO_STD
   /// Set an string parameter
   bool setStrParam(ClpStrParam key, const std::string &value);
@@ -1117,8 +1117,8 @@ public:
       return false;
     }
   }
-  // Get an double parameter
-  inline bool getDblParam(ClpDblParam key, double &value) const
+  // Get an FloatT parameter
+  inline bool getDblParam(ClpDblParam key, FloatT &value) const
   {
     if (key < ClpLastDblParam) {
       value = dblParam_[key];
@@ -1199,17 +1199,17 @@ protected:
          If -1 leaves as much as possible */
   void gutsOfCopy(const ClpModel &rhs, int trueCopy = 1);
   /// gets lower and upper bounds on rows
-  void getRowBound(int iRow, double &lower, double &upper) const;
+  void getRowBound(int iRow, FloatT &lower, FloatT &upper) const;
   /// puts in format I like - 4 array matrix - may make row copy
   void gutsOfLoadModel(int numberRows, int numberColumns,
-    const double *collb, const double *colub,
-    const double *obj,
-    const double *rowlb, const double *rowub,
-    const double *rowObjective = NULL);
+    const FloatT *collb, const FloatT *colub,
+    const FloatT *obj,
+    const FloatT *rowlb, const FloatT *rowub,
+    const FloatT *rowObjective = NULL);
   /// Does much of scaling
   void gutsOfScaling();
   /// Objective value - always minimize
-  inline double rawObjectiveValue() const
+  inline FloatT rawObjectiveValue() const
   {
     return objectiveValue_;
   }
@@ -1237,41 +1237,41 @@ protected:
   /**@name data */
   //@{
   /// Direction of optimization (1 - minimize, -1 - maximize, 0 - ignore
-  double optimizationDirection_;
-  /// Array of double parameters
-  double dblParam_[ClpLastDblParam];
+  FloatT optimizationDirection_;
+  /// Array of FloatT parameters
+  FloatT dblParam_[ClpLastDblParam];
   /// Objective value
-  double objectiveValue_;
+  FloatT objectiveValue_;
   /// Small element value
-  double smallElement_;
+  FloatT smallElement_;
   /// Scaling of objective
-  double objectiveScale_;
+  FloatT objectiveScale_;
   /// Scaling of rhs and bounds
-  double rhsScale_;
+  FloatT rhsScale_;
   /// Number of rows
   int numberRows_;
   /// Number of columns
   int numberColumns_;
   /// Row activities
-  double *rowActivity_;
+  FloatT *rowActivity_;
   /// Column activities
-  double *columnActivity_;
+  FloatT *columnActivity_;
   /// Duals
-  double *dual_;
+  FloatT *dual_;
   /// Reduced costs
-  double *reducedCost_;
+  FloatT *reducedCost_;
   /// Row lower
-  double *rowLower_;
+  FloatT *rowLower_;
   /// Row upper
-  double *rowUpper_;
+  FloatT *rowUpper_;
   /// Objective
   ClpObjective *objective_;
   /// Row Objective (? sign)  - may be NULL
-  double *rowObjective_;
+  FloatT *rowObjective_;
   /// Column Lower
-  double *columnLower_;
+  FloatT *columnLower_;
   /// Column Upper
-  double *columnUpper_;
+  FloatT *columnUpper_;
   /// Packed matrix
   ClpMatrixBase *matrix_;
   /// Row copy if wanted
@@ -1279,15 +1279,15 @@ protected:
   /// Scaled packed matrix
   ClpPackedMatrix *scaledMatrix_;
   /// Infeasible/unbounded ray
-  double *ray_;
+  FloatT *ray_;
   /// Row scale factors for matrix
-  double *rowScale_;
+  FloatT *rowScale_;
   /// Column scale factors
-  double *columnScale_;
+  FloatT *columnScale_;
   /// Inverse row scale factors for matrix (end of rowScale_)
-  double *inverseRowScale_;
+  FloatT *inverseRowScale_;
   /// Inverse column scale factors for matrix (end of columnScale_)
-  double *inverseColumnScale_;
+  FloatT *inverseColumnScale_;
   /** Scale flag, 0 none, 1 equilibrium, 2 geometric, 3, auto, 4 dynamic,
          5 geometric on rows */
   int scalingFlag_;
@@ -1383,9 +1383,9 @@ protected:
   /// Base row copy
   CoinPackedMatrix baseRowCopy_;
   /// Saved row scale factors for matrix
-  double *savedRowScale_;
+  FloatT *savedRowScale_;
   /// Saved column scale factors
-  double *savedColumnScale_;
+  FloatT *savedColumnScale_;
 #ifndef CLP_NO_STD
   /// Array of string parameters
   std::string strParam_[ClpLastStrParam];
@@ -1416,13 +1416,13 @@ public:
 public:
   /**@name data - with same names as in other classes*/
   //@{
-  double dualBound_;
-  double infeasibilityCost_;
-  double pivotTolerance_;
-  double zeroFactorizationTolerance_;
-  double zeroSimplexTolerance_;
-  double acceptablePivot_;
-  double objectiveScale_;
+  FloatT dualBound_;
+  FloatT infeasibilityCost_;
+  FloatT pivotTolerance_;
+  FloatT zeroFactorizationTolerance_;
+  FloatT zeroSimplexTolerance_;
+  FloatT acceptablePivot_;
+  FloatT objectiveScale_;
   int sparseThreshold_;
   int perturbation_;
   int forceFactorization_;

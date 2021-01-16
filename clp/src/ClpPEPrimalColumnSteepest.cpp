@@ -28,7 +28,7 @@
 //-------------------------------------------------------------------
 // Default Constructor
 //-------------------------------------------------------------------
-ClpPEPrimalColumnSteepest::ClpPEPrimalColumnSteepest(double psi, int mode)
+ClpPEPrimalColumnSteepest::ClpPEPrimalColumnSteepest(FloatT psi, int mode)
   : ClpPrimalColumnSteepest(mode)
   , modelPE_(NULL)
   , psi_(psi)
@@ -114,15 +114,15 @@ int ClpPEPrimalColumnSteepest::pivotColumn(CoinIndexedVector *updates,
   int number = 0;
   int *index;
 
-  double tolerance = model_->currentDualTolerance();
+  FloatT tolerance = model_->currentDualTolerance();
   // we can't really trust infeasibilities if there is dual error
   // this coding has to mimic coding in checkDualSolution
-  double error = CoinMin(1.0e-2, model_->largestDualError());
+  FloatT error = CoinMin(1.0e-2, model_->largestDualError());
   // allow tolerance at least slightly bigger than standard
   tolerance = tolerance + error;
   int pivotRow = model_->pivotRow();
   int anyUpdates;
-  double *infeas = infeasible_->denseVector();
+  FloatT *infeas = infeasible_->denseVector();
 
   // Local copy of mode so can decide what to do
   int switchType;
@@ -201,7 +201,7 @@ int ClpPEPrimalColumnSteepest::pivotColumn(CoinIndexedVector *updates,
   // make sure outgoing from last iteration okay
   if (sequenceOut >= 0) {
     ClpSimplex::Status status = model_->getStatus(sequenceOut);
-    double value = model_->reducedCost(sequenceOut);
+    FloatT value = model_->reducedCost(sequenceOut);
 
     switch (status) {
 
@@ -250,7 +250,7 @@ int ClpPEPrimalColumnSteepest::pivotColumn(CoinIndexedVector *updates,
 	*/
   // store the number of degenerate pivots on compatible variables and the
   // overall number of degenerate pivots
-  //double progress = fabs(modelPE_->lastObjectiveValue() - model_->objectiveValue());
+  //FloatT progress = fabs(modelPE_->lastObjectiveValue() - model_->objectiveValue());
   //bool isLastDegenerate = progress <= 1.0e-12*fabs(model_->objectiveValue()) ? true:false;
   bool isLastDegenerate = fabs(model_->theta()) < 1.01e-7;
   bool isLastDegenerate2;
@@ -316,7 +316,7 @@ int ClpPEPrimalColumnSteepest::pivotColumn(CoinIndexedVector *updates,
 	*/
   if (modelPE_->doStatistics())
     modelPE_->startTimer();
-  double psiTmp = psi_;
+  FloatT psiTmp = psi_;
   if ((psi_ < 1.0) && (iCurrent_ >= iInterval_) && (updateCompatibles_ || iCurrent_ >= 1000)) {
     // the compatible variables are never updated if the last pivot is non degenerate
     // this could be counterproductive
@@ -394,7 +394,7 @@ int ClpPEPrimalColumnSteepest::pivotColumn(CoinIndexedVector *updates,
   int numberColumns = model_->numberColumns();
   int numberRows = model_->numberRows();
   // ratio is done on number of rows here
-  double ratio = static_cast< double >(sizeFactorization_) / static_cast< double >(numberRows);
+  FloatT ratio = static_cast< FloatT >(sizeFactorization_) / static_cast< FloatT >(numberRows);
   if (switchType == 4) {
     // Still in devex mode
     // Go to steepest if lot of iterations?
@@ -450,9 +450,9 @@ int ClpPEPrimalColumnSteepest::pivotColumn(CoinIndexedVector *updates,
   }
 
   // initialize the best reduced cost values
-  double bestDj = 1.0e-30;
+  FloatT bestDj = 1.0e-30;
   int bestSequence = -1;
-  double bestDjComp = 1.0e-30;
+  FloatT bestDjComp = 1.0e-30;
   int bestSequenceComp = -1;
 
   int i, iSequence;
@@ -475,7 +475,7 @@ int ClpPEPrimalColumnSteepest::pivotColumn(CoinIndexedVector *updates,
   }
   if (model_->numberIterations() < model_->lastBadIteration() + 200 && model_->factorization()->pivots() > 10) {
     // we can't really trust infeasibilities if there is dual error
-    double checkTolerance = 1.0e-8;
+    FloatT checkTolerance = 1.0e-8;
     if (model_->largestDualError() > checkTolerance)
       tolerance *= model_->largestDualError() / checkTolerance;
     // But cap
@@ -483,7 +483,7 @@ int ClpPEPrimalColumnSteepest::pivotColumn(CoinIndexedVector *updates,
   }
 
   // stop last one coming immediately
-  double saveOutInfeasibility = 0.0;
+  FloatT saveOutInfeasibility = 0.0;
   if (sequenceOut >= 0) {
     saveOutInfeasibility = infeas[sequenceOut];
     infeas[sequenceOut] = 0.0;
@@ -495,8 +495,8 @@ int ClpPEPrimalColumnSteepest::pivotColumn(CoinIndexedVector *updates,
   // only check the compatible variables when the bidimensional factor is less than 1
   // and the ratio of compatible variables is larger than 0.01
   bool checkCompatibles = true;
-  double ratioCompatibles = static_cast< double >(modelPE_->coCompatibleCols()) / static_cast< double >((model_->numberRows() + model_->numberColumns()));
-  double ratioCompatibles2 = static_cast< double >(modelPE_->coCompatibleCols()) / static_cast< double >(model_->numberColumns());
+  FloatT ratioCompatibles = static_cast< FloatT >(modelPE_->coCompatibleCols()) / static_cast< FloatT >((model_->numberRows() + model_->numberColumns()));
+  FloatT ratioCompatibles2 = static_cast< FloatT >(modelPE_->coCompatibleCols()) / static_cast< FloatT >(model_->numberColumns());
 
   if (psi_ >= 1.0 || ratioCompatibles < 0.01)
     checkCompatibles = false;
@@ -509,7 +509,7 @@ int ClpPEPrimalColumnSteepest::pivotColumn(CoinIndexedVector *updates,
   int start[4];
   start[1] = number;
   start[2] = 0;
-  double dstart = static_cast< double >(number) * model_->randomNumberGenerator()->randomDouble();
+  FloatT dstart = static_cast< FloatT >(number) * model_->randomNumberGenerator()->randomDouble();
   start[0] = static_cast< int >(dstart);
   start[3] = start[0];
   for (iPass = 0; iPass < 2; iPass++) {
@@ -517,10 +517,10 @@ int ClpPEPrimalColumnSteepest::pivotColumn(CoinIndexedVector *updates,
 
     for (i = start[2 * iPass]; i < end; i++) {
       iSequence = index[i];
-      double value = infeas[iSequence];
-      double weight = weights_[iSequence];
-      double weightedDj = weight * bestDj;
-      double largestWeightedDj = std::max(psi_ * weightedDj, weight * bestDjComp);
+      FloatT value = infeas[iSequence];
+      FloatT weight = weights_[iSequence];
+      FloatT weightedDj = weight * bestDj;
+      FloatT largestWeightedDj = std::max(psi_ * weightedDj, weight * bestDjComp);
       if (value > tolerance) {
         if (value > largestWeightedDj) {
           if (model_->flagged(iSequence)) {
@@ -601,7 +601,7 @@ void ClpPEPrimalColumnSteepest::saveWeights(ClpSimplex *model, int mode)
 void ClpPEPrimalColumnSteepest::updateWeights(CoinIndexedVector *input)
 {
   //if (modelPE_->isLastPivotCompatible()) {
-  //double theta = modelPE_->model()->theta();
+  //FloatT theta = modelPE_->model()->theta();
   //if (theta
   //}
   ClpPrimalColumnSteepest::updateWeights(input);

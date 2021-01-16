@@ -9,17 +9,17 @@
 
 #include "ClpSimplex.hpp"
 
-FloatType frStr(const std::string & val)
+FloatT frStr(const std::string & val)
 {
     const auto vLower = toLower(val);
     if (vLower == "-inf")
         return MinusInf;
     if (vLower == "inf" || vLower == "+inf")
         return PlusInf;
-    if constexpr (std::is_same<double, FloatType>::value)
+    if constexpr (std::is_same<double, FloatT>::value)
         return std::stod(val);
     else
-        return std::stod(val); // FloatType(val);
+        return std::stod(val); // FloatT(val);
 }
 
 enum ParsingContext
@@ -84,7 +84,7 @@ void ProblemLoader::loadProblem(const std::string & problemFileOrContent)
             buffer >> t;
             tokens.push_back(std::move(t));
         }
-        int nt = tokens.size();
+        const auto nt = static_cast<int>(tokens.size());
         token = tokens[0];
 
         if (token.length())
@@ -294,7 +294,8 @@ std::string ProblemLoader::runWithClp()
         r++;
     }
 
-    const CoinPackedMatrix matrix(true, rowIndices.data(), colIndices.data(), matrixData.data(), matrixData.size());
+    const auto numElements = static_cast<int>(matrixData.size());
+    const CoinPackedMatrix matrix(true, rowIndices.data(), colIndices.data(), matrixData.data(), numElements);
 
     simplex.setDirectionIn(-1);
     simplex.loadProblem(matrix, collb.data(), colub.data(), objective.data(), rowlb.data(), rowub.data());

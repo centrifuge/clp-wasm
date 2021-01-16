@@ -52,18 +52,18 @@ const CoinPresolveAction
   int *hincol = prob->hincol_;
   presolvehlink *clink = prob->clink_;
 
-  double *clo = prob->clo_;
-  double *cup = prob->cup_;
-  double *cost = prob->cost_;
+  FloatT *clo = prob->clo_;
+  FloatT *cup = prob->cup_;
+  FloatT *cost = prob->cost_;
 
-  const double ztoldj = prob->ztoldj_;
+  const FloatT ztoldj = prob->ztoldj_;
 
   unsigned char *integerType = prob->integerType_;
   int *originalColumn = prob->originalColumn_;
 
-  const double maxmin = prob->maxmin_;
+  const FloatT maxmin = prob->maxmin_;
 
-  double *sol = prob->sol_;
+  FloatT *sol = prob->sol_;
   unsigned char *colstat = prob->colstat_;
 
   action *actions = new action[necols];
@@ -86,8 +86,8 @@ const CoinPresolveAction
   Groom bounds on integral variables. Check for previously undetected
   infeasibility unless the user wants to ignore it. If we find it, quit.
 */
-    double &lj = clo[j];
-    double &uj = cup[j];
+    FloatT &lj = clo[j];
+    FloatT &uj = cup[j];
 
     if (integerType[j]) {
       lj = ceil(lj - 1.0e-9);
@@ -313,14 +313,14 @@ void drop_empty_cols_action::postsolve(CoinPostsolveMatrix *prob) const
   CoinBigIndex *colStarts = prob->mcstrt_;
   int *colLengths = prob->hincol_;
 
-  double *clo = prob->clo_;
-  double *cup = prob->cup_;
+  FloatT *clo = prob->clo_;
+  FloatT *cup = prob->cup_;
 
-  double *sol = prob->sol_;
-  double *cost = prob->cost_;
-  double *rcosts = prob->rcosts_;
+  FloatT *sol = prob->sol_;
+  FloatT *cost = prob->cost_;
+  FloatT *rcosts = prob->rcosts_;
   unsigned char *colstat = prob->colstat_;
-  const double maxmin = prob->maxmin_;
+  const FloatT maxmin = prob->maxmin_;
 
   /*
   Set up a mapping vector, coded 0 for existing columns, -1 for columns we're
@@ -425,17 +425,17 @@ const CoinPresolveAction
   int *hinrow = prob->hinrow_;
   //int *hcol	= prob->hcol_;
 
-  double *rlo = prob->rlo_;
-  double *rup = prob->rup_;
+  FloatT *rlo = prob->rlo_;
+  FloatT *rup = prob->rup_;
 
   unsigned char *rowstat = prob->rowstat_;
-  double *acts = prob->acts_;
+  FloatT *acts = prob->acts_;
   int *originalRow = prob->originalRow_;
 
   //presolvehlink *rlink = prob->rlink_;
   bool fixInfeasibility = ((prob->presolveOptions_ & 0x4000) != 0);
   // Relax tolerance
-  double tolerance = 10.0 * prob->feasibilityTolerance_;
+  FloatT tolerance = 10.0 * prob->feasibilityTolerance_;
 
   int i;
   int nactions = 0;
@@ -551,11 +551,11 @@ void drop_empty_rows_action::postsolve(CoinPostsolveMatrix *prob) const
 
   int *hrow = prob->hrow_;
 
-  double *rlo = prob->rlo_;
-  double *rup = prob->rup_;
+  FloatT *rlo = prob->rlo_;
+  FloatT *rup = prob->rup_;
   unsigned char *rowstat = prob->rowstat_;
-  double *rowduals = prob->rowduals_;
-  double *acts = prob->acts_;
+  FloatT *rowduals = prob->rowduals_;
+  FloatT *acts = prob->acts_;
 
 #if PRESOLVE_CONSISTENCY > 0 || PRESOLVE_DEBUG > 0
 #if PRESOLVE_DEBUG > 0

@@ -23,15 +23,15 @@
 
 #define DSEED2 2147483647.0
 // Can be used from anywhere
-void coin_init_random_vec(double *work, int n)
+void coin_init_random_vec(FloatT *work, int n)
 {
-  double deseed = 12345678.0;
+  FloatT deseed = 12345678.0;
 
   for (int i = 0; i < n; ++i) {
     deseed *= 16807.;
     int jseed = static_cast< int >(deseed / DSEED2);
-    deseed -= static_cast< double >(jseed) * DSEED2;
-    double random = deseed / DSEED2;
+    deseed -= static_cast< FloatT >(jseed) * DSEED2;
+    FloatT random = deseed / DSEED2;
 
     work[i] = random;
   }
@@ -47,8 +47,8 @@ namespace { // begin unnamed file-local namespace
 */
 
 void compute_sums(int /*n*/, const int *majlens, const CoinBigIndex *majstrts,
-  int *minndxs, double *elems, const double *minmuls,
-  int *majcands, double *majsums, int nlook)
+  int *minndxs, FloatT *elems, const FloatT *minmuls,
+  int *majcands, FloatT *majsums, int nlook)
 
 {
   for (int cndx = 0; cndx < nlook; ++cndx) {
@@ -58,7 +58,7 @@ void compute_sums(int /*n*/, const int *majlens, const CoinBigIndex *majstrts,
     CoinBigIndex kcs = majstrts[i];
     CoinBigIndex kce = kcs + majlens[i];
 
-    double value = 0.0;
+    FloatT value = 0.0;
 
     for (CoinBigIndex k = kcs; k < kce; k++) {
       int irow = minndxs[k];
@@ -71,8 +71,8 @@ void compute_sums(int /*n*/, const int *majlens, const CoinBigIndex *majstrts,
   return;
 }
 
-void create_col(int col, int n, double *els,
-  CoinBigIndex *mcstrt, double *colels, int *hrow, CoinBigIndex *link,
+void create_col(int col, int n, FloatT *els,
+  CoinBigIndex *mcstrt, FloatT *colels, int *hrow, CoinBigIndex *link,
   CoinBigIndex *free_listp)
 {
   int *rows = reinterpret_cast< int * >(els + n);
@@ -144,30 +144,30 @@ const CoinPresolveAction
   startEmptyRows = prob->countEmptyRows();
   startEmptyColumns = prob->countEmptyCols();
 #if COIN_PRESOLVE_TUNING > 0
-  double startTime = 0.0;
+  FloatT startTime = 0.0;
   if (prob->tuning_)
     startTime = CoinCpuTime();
 #endif
 #endif
 
-  double maxmin = prob->maxmin_;
+  FloatT maxmin = prob->maxmin_;
 
-  double *colels = prob->colels_;
+  FloatT *colels = prob->colels_;
   int *hrow = prob->hrow_;
   CoinBigIndex *mcstrt = prob->mcstrt_;
   int *hincol = prob->hincol_;
   int ncols = prob->ncols_;
   int nrows = prob->nrows_;
 
-  double *clo = prob->clo_;
-  double *cup = prob->cup_;
-  double *sol = prob->sol_;
-  double *rlo = prob->rlo_;
-  double *rup = prob->rup_;
+  FloatT *clo = prob->clo_;
+  FloatT *cup = prob->cup_;
+  FloatT *sol = prob->sol_;
+  FloatT *rlo = prob->rlo_;
+  FloatT *rup = prob->rup_;
 
   // If all coefficients positive do more simply
   bool allPositive = true;
-  double *rhs = prob->usefulRowDouble_; //new double[nrows];
+  FloatT *rhs = prob->usefulRowDouble_; //new FloatT[nrows];
   CoinMemcpyN(rup, nrows, rhs);
   /*
   Scan the columns for candidates, and write the indices into sort. We're not
@@ -188,10 +188,10 @@ const CoinPresolveAction
       colels + mcstrt[j]);
     // check all positive and adjust rhs
     if (allPositive) {
-      double lower = clo[j];
+      FloatT lower = clo[j];
       if (lower < cup[j]) {
         for (CoinBigIndex k = mcstrt[j]; k < mcstrt[j] + hincol[j]; k++) {
-          double value = colels[k];
+          FloatT value = colels[k];
           if (value < 0.0)
             allPositive = false;
           else
@@ -199,7 +199,7 @@ const CoinPresolveAction
         }
       } else {
         for (CoinBigIndex k = mcstrt[j]; k < mcstrt[j] + hincol[j]; k++) {
-          double value = colels[k];
+          FloatT value = colels[k];
           rhs[hrow[k]] -= lower * value;
         }
       }
@@ -224,10 +224,10 @@ const CoinPresolveAction
   indices and column sums, respectively, of candidate columns.  The pair of
   arrays are then sorted by sum so that equal sums are adjacent.
 */
-  double *colsum = prob->usefulColumnDouble_; //new double[ncols] ;
-  double *rowmul;
+  FloatT *colsum = prob->usefulColumnDouble_; //new FloatT[ncols] ;
+  FloatT *rowmul;
   if (!prob->randomNumber_) {
-    rowmul = new double[nrows];
+    rowmul = new FloatT[nrows];
     coin_init_random_vec(rowmul, nrows);
   } else {
     rowmul = prob->randomNumber_;
@@ -257,12 +257,12 @@ const CoinPresolveAction
 */
   presolvehlink *clink = prob->clink_;
 
-  double *rowels = prob->rowels_;
+  FloatT *rowels = prob->rowels_;
   int *hcol = prob->hcol_;
   const CoinBigIndex *mrstrt = prob->mrstrt_;
   int *hinrow = prob->hinrow_;
 
-  double *dcost = prob->cost_;
+  FloatT *dcost = prob->cost_;
 
   action *actions = new action[nlook];
   int nactions = 0;
@@ -284,14 +284,14 @@ const CoinPresolveAction
   // that we set the most expensive one to its minimum
   // now sort in each class by cost
   {
-    double dval = colsum[0] ;
+    FloatT dval = colsum[0] ;
     int first = 0 ;
     for (int jj = 1; jj < nlook; jj++) {
       while (colsum[jj]==dval) 
 	jj++ ;
 
       if (first + 1 < jj) {
-	double buf[jj - first] ;
+	FloatT buf[jj - first] ;
 	for (int i=first; i<jj; ++i)
 	  buf[i-first] = dcost[sort[i]]*maxmin ;
 
@@ -395,16 +395,16 @@ const CoinPresolveAction
   These really are duplicate columns. Grab values for convenient reference.
   Convert the objective coefficients for minimization.
 */
-    double clo1 = clo[j1];
-    double cup1 = cup[j1];
-    double clo2 = clo[j2];
-    double cup2 = cup[j2];
-    double c1 = dcost[j1] * maxmin;
-    double c2 = dcost[j2] * maxmin;
+    FloatT clo1 = clo[j1];
+    FloatT cup1 = cup[j1];
+    FloatT clo2 = clo[j2];
+    FloatT cup2 = cup[j2];
+    FloatT c1 = dcost[j1] * maxmin;
+    FloatT c2 = dcost[j2] * maxmin;
     PRESOLVEASSERT(!(clo1 == cup1 || clo2 == cup2));
     // Get reasonable bounds on sum of two variables
-    double lowerBound = -COIN_DBL_MAX;
-    double upperBound = COIN_DBL_MAX;
+    FloatT lowerBound = -COIN_DBL_MAX;
+    FloatT upperBound = COIN_DBL_MAX;
 #if USE_LBS == 0
     // For now only if lower bounds are zero
     bool takeColumn = (!clo1 && !clo2);
@@ -424,22 +424,22 @@ const CoinPresolveAction
 	    int iRow = hrow[k];
 	    bool posinf = false;
 	    bool neginf = false;
-	    double maxup = 0.0;
-	    double maxdown = 0.0;
+	    FloatT maxup = 0.0;
+	    FloatT maxdown = 0.0;
 	    
 	    // compute sum of all bounds except for j1,j2
 	    CoinBigIndex kk;
 	    CoinBigIndex kre = mrstrt[iRow]+hinrow[iRow];
-	    double value1=0.0;
+	    FloatT value1=0.0;
 	    for (kk=mrstrt[iRow]; kk<kre; kk++) {
 	      int col = hcol[kk];
 	      if (col == j1||col==j2) {
 		value1=rowels[kk];
 		continue;
 	      }
-	      double coeff = rowels[kk];
-	      double lb = clo[col];
-	      double ub = cup[col];
+	      FloatT coeff = rowels[kk];
+	      FloatT lb = clo[col];
+	      FloatT ub = cup[col];
 	      
 	      if (coeff > 0.0) {
 		if (PRESOLVE_INF <= ub) {
@@ -487,7 +487,7 @@ const CoinPresolveAction
 		if (!neginf&&rup[iRow]<1.0e10)
 		  if (lowerBound*value1>rup[iRow]-maxdown) {
 #ifndef NDEBUG
-		    double x=lowerBound;
+		    FloatT x=lowerBound;
 #endif
 		    lowerBound = (rup[iRow]-maxdown)/value1;
 		    assert (lowerBound == CoinMax(x,(rup[iRow]-maxdown)/value1));
@@ -495,7 +495,7 @@ const CoinPresolveAction
 		if (!posinf&&rlo[iRow]>-1.0e10)
 		  if (upperBound*value1<rlo[iRow]-maxup) {
 #ifndef NDEBUG
-		    double x=upperBound;
+		    FloatT x=upperBound;
 #endif
 		    upperBound = (rlo[iRow]-maxup)/value1;
 		    assert(upperBound == CoinMin(x,(rlo[iRow]-maxup)/value1));
@@ -503,8 +503,8 @@ const CoinPresolveAction
 	      }
 	    }
 	  }
-	  double l=lowerBound;
-	  double u=upperBound;
+	  FloatT l=lowerBound;
+	  FloatT u=upperBound;
 #endif
           if (!gotStuff) {
             prob->recomputeSums(-1); // get min max
@@ -512,8 +512,8 @@ const CoinPresolveAction
           }
           int positiveInf = 0;
           int negativeInf = 0;
-          double lo = 0;
-          double up = 0.0;
+          FloatT lo = 0;
+          FloatT up = 0.0;
           if (clo1 < -PRESOLVE_INF)
             negativeInf++;
           else
@@ -532,15 +532,15 @@ const CoinPresolveAction
             up += cup2;
           for (k = kcs; k < kce; k++) {
             int iRow = hrow[k];
-            double value = colels[k];
+            FloatT value = colels[k];
             int pInf = (value > 0.0) ? positiveInf : negativeInf;
             int nInf = (value > 0.0) ? negativeInf : positiveInf;
             int posinf = prob->infiniteUp_[iRow] - pInf;
             int neginf = prob->infiniteDown_[iRow] - nInf;
             if (posinf > 0 && neginf > 0)
               continue; // this row can't bound
-            double maxup = prob->sumUp_[iRow];
-            double maxdown = prob->sumDown_[iRow];
+            FloatT maxup = prob->sumUp_[iRow];
+            FloatT maxdown = prob->sumDown_[iRow];
 
             if (value > 0.0) {
               maxdown -= value * lo;
@@ -573,7 +573,7 @@ const CoinPresolveAction
           lowerBound = 0.0;
           for (k = kcs; k < kce; k++) {
             int iRow = hrow[k];
-            double value = colels[k];
+            FloatT value = colels[k];
             if (upperBound * value > rhs[iRow])
               upperBound = rhs[iRow] / value;
           }
@@ -803,7 +803,7 @@ const CoinPresolveAction
           prob->setColumnStatus(j2, CoinPrePostsolveMatrix::atUpperBound);
         }
         if (sol) {
-          double delta2 = cup2 - sol[j2];
+          FloatT delta2 = cup2 - sol[j2];
           sol[j2] = cup2;
           sol[j1] -= delta2;
         }
@@ -827,7 +827,7 @@ const CoinPresolveAction
           prob->setColumnStatus(j2, CoinPrePostsolveMatrix::atLowerBound);
         }
         if (sol) {
-          double delta2 = clo2 - sol[j2];
+          FloatT delta2 = clo2 - sol[j2];
           sol[j2] = clo2;
           sol[j1] -= delta2;
         }
@@ -896,10 +896,10 @@ const CoinPresolveAction
     for (int i = 0; i < ncols; i++) {
       if ((piece[i] & 0x80000000) == 0) {
         int number = 1;
-        double lo = CoinMax(clo[i], -1.0e100);
-        double up = CoinMin(cup[i], 1.0e100);
+        FloatT lo = CoinMax(clo[i], -1.0e100);
+        FloatT up = CoinMin(cup[i], 1.0e100);
         // get first
-        double value = colels[mcstrt[i]];
+        FloatT value = colels[mcstrt[i]];
         int iNext = piece[i];
         piece[i] |= 0x80000000;
         while (iNext != i) {
@@ -960,7 +960,7 @@ const CoinPresolveAction
   delete[] fixed_up;
 
 #if COIN_PRESOLVE_TUNING > 0
-  double thisTime = 0.0;
+  FloatT thisTime = 0.0;
   if (prob->tuning_)
     thisTime = CoinCpuTime();
 #endif
@@ -987,20 +987,20 @@ void dupcol_action::postsolve(CoinPostsolveMatrix *prob) const
   const action *const actions = actions_;
   const int nactions = nactions_;
 
-  double *clo = prob->clo_;
-  double *cup = prob->cup_;
+  FloatT *clo = prob->clo_;
+  FloatT *cup = prob->cup_;
 
-  double *sol = prob->sol_;
-  double *dcost = prob->cost_;
+  FloatT *sol = prob->sol_;
+  FloatT *dcost = prob->cost_;
 
-  double *colels = prob->colels_;
+  FloatT *colels = prob->colels_;
   int *hrow = prob->hrow_;
   CoinBigIndex *mcstrt = prob->mcstrt_;
   int *hincol = prob->hincol_;
   CoinBigIndex *link = prob->link_;
 
-  double *rcosts = prob->rcosts_;
-  double tolerance = prob->ztolzb_;
+  FloatT *rcosts = prob->rcosts_;
+  FloatT tolerance = prob->ztolzb_;
 
   for (const action *f = &actions[nactions - 1]; actions <= f; f--) {
     int icol = f->ithis; // was fixed
@@ -1020,11 +1020,11 @@ void dupcol_action::postsolve(CoinPostsolveMatrix *prob) const
     // hincol[icol] = hincol[icol2]; // right? - no - has to match number in create_col
     hincol[icol] = f->nincol;
 
-    double l_j = f->thislo;
-    double u_j = f->thisup;
-    double l_k = f->lastlo;
-    double u_k = f->lastup;
-    double x_k_sol = sol[icol2];
+    FloatT l_j = f->thislo;
+    FloatT u_j = f->thisup;
+    FloatT l_k = f->lastlo;
+    FloatT u_k = f->lastup;
+    FloatT x_k_sol = sol[icol2];
     PRESOLVE_DETAIL_PRINT(printf("post icol %d %g %g %g icol2 %d %g %g %g\n",
       icol, clo[icol], sol[icol], cup[icol],
       icol2, clo[icol2], sol[icol2], cup[icol2]));
@@ -1062,10 +1062,10 @@ void dupcol_action::postsolve(CoinPostsolveMatrix *prob) const
     // dj of both variables is the same
     rcosts[icol] = rcosts[icol2];
     // leave until destructor
-    //    deleteAction(f->colels,double *);
+    //    deleteAction(f->colels,FloatT *);
 
 #if PRESOLVE_DEBUG > 0
-    const double ztolzb = prob->ztolzb_;
+    const FloatT ztolzb = prob->ztolzb_;
     if (!(clo[icol] - ztolzb <= sol[icol] && sol[icol] <= cup[icol] + ztolzb))
       printf("BAD DUPCOL BOUNDS:  %g %g %g\n", clo[icol], sol[icol], cup[icol]);
     if (!(clo[icol2] - ztolzb <= sol[icol2] && sol[icol2] <= cup[icol2] + ztolzb))
@@ -1079,7 +1079,7 @@ void dupcol_action::postsolve(CoinPostsolveMatrix *prob) const
 dupcol_action::~dupcol_action()
 {
   for (int i = nactions_ - 1; i >= 0; --i) {
-    deleteAction(actions_[i].colels, double *);
+    deleteAction(actions_[i].colels, FloatT *);
   }
   deleteAction(actions_, action *);
 }
@@ -1105,7 +1105,7 @@ const CoinPresolveAction
   duprow_action::presolve(CoinPresolveMatrix *prob,
     const CoinPresolveAction *next)
 {
-  double startTime = 0.0;
+  FloatT startTime = 0.0;
   int startEmptyRows = 0;
   int startEmptyColumns = 0;
   if (prob->tuning_) {
@@ -1113,7 +1113,7 @@ const CoinPresolveAction
     startEmptyRows = prob->countEmptyRows();
     startEmptyColumns = prob->countEmptyCols();
   }
-  double *rowels = prob->rowels_;
+  FloatT *rowels = prob->rowels_;
   int *hcol = prob->hcol_;
   CoinBigIndex *mrstrt = prob->mrstrt_;
   int *hinrow = prob->hinrow_;
@@ -1144,11 +1144,11 @@ const CoinPresolveAction
     return (next);
   }
 
-  double *workrow = new double[nrows + 1];
+  FloatT *workrow = new FloatT[nrows + 1];
 
-  double *workcol;
+  FloatT *workcol;
   if (!prob->randomNumber_) {
-    workcol = new double[ncols + 1];
+    workcol = new FloatT[ncols + 1];
     coin_init_random_vec(workcol, ncols);
   } else {
     workcol = prob->randomNumber_;
@@ -1156,18 +1156,18 @@ const CoinPresolveAction
   compute_sums(nrows, hinrow, mrstrt, hcol, rowels, workcol, sort, workrow, nlook);
   CoinSort_2(workrow, workrow + nlook, sort);
 
-  double *rlo = prob->rlo_;
-  double *rup = prob->rup_;
+  FloatT *rlo = prob->rlo_;
+  FloatT *rup = prob->rup_;
 
   int nuseless_rows = 0;
   bool fixInfeasibility = ((prob->presolveOptions_ & 0x4000) != 0);
   bool allowIntersection = ((prob->presolveOptions_ & 0x10) != 0);
-  double tolerance = prob->feasibilityTolerance_;
+  FloatT tolerance = prob->feasibilityTolerance_;
 
   if (0) {
     static int xxxxxx = 0;
     int n = 0;
-    double dval = workrow[0];
+    FloatT dval = workrow[0];
     int ilastX = 0;
     xxxxxx++;
     for (int jj = 1; jj < nlook; jj++) {
@@ -1181,7 +1181,7 @@ const CoinPresolveAction
     }
     printf("may be able to delete %d rows - pass %d\n", n, xxxxxx);
   }
-  double dval = workrow[0];
+  FloatT dval = workrow[0];
   for (int jj = 1; jj < nlook; jj++) {
     if (workrow[jj] == dval) {
       int ithis = sort[jj];
@@ -1212,10 +1212,10 @@ const CoinPresolveAction
         }
         if (k == kre) {
           /* now check rhs to see what is what */
-          double rlo1 = rlo[ilast];
-          double rup1 = rup[ilast];
-          double rlo2 = rlo[ithis];
-          double rup2 = rup[ithis];
+          FloatT rlo1 = rlo[ilast];
+          FloatT rup1 = rup[ilast];
+          FloatT rlo2 = rlo[ithis];
+          FloatT rup2 = rup[ithis];
 
           int idelete = -1;
           if (rlo1 <= rlo2) {
@@ -1313,7 +1313,7 @@ const CoinPresolveAction
   delete[] sort;
 
   if (prob->tuning_) {
-    double thisTime = CoinCpuTime();
+    FloatT thisTime = CoinCpuTime();
     int droppedRows = prob->countEmptyRows() - startEmptyRows;
     int droppedColumns = prob->countEmptyCols() - startEmptyColumns;
     printf("CoinPresolveDuprow(256) - %d rows, %d columns dropped in time %g, total %g\n",
@@ -1346,22 +1346,22 @@ const CoinPresolveAction
   duprow3_action::presolve(CoinPresolveMatrix *prob,
     const CoinPresolveAction *next)
 {
-  double startTime = 0.0;
+  FloatT startTime = 0.0;
   if (prob->tuning_) {
     startTime = CoinCpuTime();
   }
-  //double *rowels	= prob->rowels_;
+  //FloatT *rowels	= prob->rowels_;
   //int *hcol		= prob->hcol_;
   //CoinBigIndex *mrstrt	= prob->mrstrt_;
   int *hinrow = prob->hinrow_;
-  double *colels = prob->colels_;
+  FloatT *colels = prob->colels_;
   int *hrow = prob->hrow_;
   CoinBigIndex *mcstrt = prob->mcstrt_;
   int *hincol = prob->hincol_;
-  double *rowLower = prob->rlo_;
-  double *rowUpper = prob->rup_;
-  double *columnLower = prob->clo_;
-  double *columnUpper = prob->cup_;
+  FloatT *rowLower = prob->rlo_;
+  FloatT *rowUpper = prob->rup_;
+  FloatT *columnLower = prob->clo_;
+  FloatT *columnUpper = prob->cup_;
   int ncols = prob->ncols_;
   int nrows = prob->nrows_;
   int numberDropped = 0;
@@ -1399,10 +1399,10 @@ const CoinPresolveAction
   if (numberRows) {
     CoinIndexedVector one;
     one.reserve(numberRows);
-    double *minValue = one.denseVector();
+    FloatT *minValue = one.denseVector();
     CoinIndexedVector two;
     two.reserve(numberRows);
-    double *maxValue = two.denseVector();
+    FloatT *maxValue = two.denseVector();
     for (int i = 0; i < numberRows; i++) {
       minValue[i] = COIN_DBL_MAX;
       maxValue[i] = 0.0;
@@ -1417,7 +1417,7 @@ const CoinPresolveAction
           iRow = rowBack[iRow];
           if (iRow >= 0) {
             n++;
-            double value = fabs(colels[j]);
+            FloatT value = fabs(colels[j]);
             minValue[iRow] = CoinMin(minValue[iRow], value);
             maxValue[iRow] = CoinMax(maxValue[iRow], value);
           }
@@ -1438,7 +1438,7 @@ const CoinPresolveAction
     matrix.reserve(numberColumns, nElements);
     int maxDimension = CoinMax(numberRows, numberColumns);
     matrix.setDimensions(maxDimension, numberColumns);
-    double *element = matrix.getMutableElements();
+    FloatT *element = matrix.getMutableElements();
     int *row = matrix.getMutableIndices();
     CoinBigIndex *columnStart = matrix.getMutableVectorStarts();
     int *columnLength = matrix.getMutableVectorLengths();
@@ -1520,12 +1520,12 @@ const CoinPresolveAction
           // check feasible
           numberDropped = 0;
           if (numberRhs) {
-            memset(minValue, 0, numberRows * sizeof(double));
-            memset(maxValue, 0, numberRows * sizeof(double));
+            memset(minValue, 0, numberRows * sizeof(FloatT));
+            memset(maxValue, 0, numberRows * sizeof(FloatT));
             int *index = one.getIndices();
             for (int i = 0; i < numberRows; i++) {
               int iRow = rowMap[i];
-              double rhs = rowLower[iRow];
+              FloatT rhs = rowLower[iRow];
               minValue[i] = rhs;
             }
             for (int i = 0; i < nBad; i++) {
@@ -1573,7 +1573,7 @@ const CoinPresolveAction
   }
   delete[] rowMap;
   if (prob->tuning_) {
-    double thisTime = CoinCpuTime();
+    FloatT thisTime = CoinCpuTime();
     printf("CoinPresolveDuprow3 - %d rows dropped in time %g, total %g\n",
       numberDropped, thisTime - startTime, thisTime - prob->startTime_);
   }
@@ -1607,24 +1607,24 @@ const CoinPresolveAction
   gubrow_action::presolve(CoinPresolveMatrix *prob,
     const CoinPresolveAction *next)
 {
-  double startTime = 0.0;
+  FloatT startTime = 0.0;
   int droppedElements = 0;
   int affectedRows = 0;
   if (prob->tuning_) {
     startTime = CoinCpuTime();
   }
-  double *rowels = prob->rowels_;
+  FloatT *rowels = prob->rowels_;
   int *hcol = prob->hcol_;
   CoinBigIndex *mrstrt = prob->mrstrt_;
   int *hinrow = prob->hinrow_;
-  double *colels = prob->colels_;
+  FloatT *colels = prob->colels_;
   int *hrow = prob->hrow_;
   CoinBigIndex *mcstrt = prob->mcstrt_;
   int *hincol = prob->hincol_;
   int ncols = prob->ncols_;
   int nrows = prob->nrows_;
-  double *rlo = prob->rlo_;
-  double *rup = prob->rup_;
+  FloatT *rlo = prob->rlo_;
+  FloatT *rup = prob->rup_;
 
   // maximum number of records
   action *actions = new action[nrows];
@@ -1636,7 +1636,7 @@ const CoinPresolveAction
 */
   int *which = prob->usefulRowInt_;
   int *number = which + nrows;
-  double *els = prob->usefulRowDouble_;
+  FloatT *els = prob->usefulRowDouble_;
   char *markCol = reinterpret_cast< char * >(prob->usefulColumnInt_);
   memset(markCol, 0, ncols);
   CoinZeroN(els, nrows);
@@ -1646,7 +1646,7 @@ const CoinPresolveAction
       CoinBigIndex rStart = mrstrt[i];
       CoinBigIndex k = rStart;
       CoinBigIndex rEnd = rStart + nInRow;
-      double value1 = rowels[k];
+      FloatT value1 = rowels[k];
       k++;
       for (; k < rEnd; k++) {
         if (rowels[k] != value1)
@@ -1662,9 +1662,9 @@ const CoinPresolveAction
           CoinBigIndex cEnd = kk + hincol[iColumn];
           for (; kk < cEnd; kk++) {
             int iRow = hrow[kk];
-            double value = colels[kk];
+            FloatT value = colels[kk];
             if (iRow != i) {
-              double value2 = els[iRow];
+              FloatT value2 = els[iRow];
               if (value2) {
                 if (value == value2)
                   number[iRow]++;
@@ -1699,7 +1699,7 @@ const CoinPresolveAction
             nDrop++;
             if (!hinrow[iRow])
               PRESOLVE_REMOVE_LINK(prob->rlink_, iRow);
-            double value = (rlo[i] / value1) * els[iRow];
+            FloatT value = (rlo[i] / value1) * els[iRow];
             // correct rhs
             if (rlo[iRow] > -1.0e20)
               rlo[iRow] -= value;
@@ -1716,7 +1716,7 @@ const CoinPresolveAction
           int *deletedRow = new int[nDrop + 1];
           int *indices = CoinCopyOfArray(hcol + rStart, nInRow);
           thisAction.indices = indices;
-          double *rowels = new double[nDrop + 1];
+          FloatT *rowels = new FloatT[nDrop + 1];
           thisAction.rhs = rlo[i];
           deletedRow[nDrop] = i;
           rowels[nDrop] = value1;
@@ -1751,7 +1751,7 @@ const CoinPresolveAction
   }
   deleteAction(actions, action *);
   if (prob->tuning_) {
-    double thisTime = CoinCpuTime();
+    FloatT thisTime = CoinCpuTime();
     printf("CoinPresolveGubrow(1024) - %d elements dropped (%d rows) in time %g, total %g\n",
       droppedElements, affectedRows, thisTime - startTime, thisTime - prob->startTime_);
   } else if (droppedElements) {
@@ -1774,7 +1774,7 @@ void gubrow_action::postsolve(CoinPostsolveMatrix *prob) const
   //int ncols = prob->ncols_ ;
   //char *cdone = prob->cdone_ ;
   //char *rdone = prob->rdone_ ;
-  //const double ztolzb = prob->ztolzb_ ;
+  //const FloatT ztolzb = prob->ztolzb_ ;
 
   presolve_check_threads(prob);
   presolve_check_free_list(prob);
@@ -1790,22 +1790,22 @@ void gubrow_action::postsolve(CoinPostsolveMatrix *prob) const
   CoinBigIndex *colStarts = prob->mcstrt_;
   int *colLengths = prob->hincol_;
   int *rowIndices = prob->hrow_;
-  double *colCoeffs = prob->colels_;
+  FloatT *colCoeffs = prob->colels_;
   /*
   Rim vectors, solution, reduced costs, duals, row activity.
 */
-  double *rlo = prob->rlo_;
-  double *rup = prob->rup_;
-  //double *cost = prob->cost_ ;
-  //double *sol = prob->sol_ ;
-  //double *rcosts = prob->rcosts_ ;
-  double *acts = prob->acts_;
-  double *rowduals = prob->rowduals_;
+  FloatT *rlo = prob->rlo_;
+  FloatT *rup = prob->rup_;
+  //FloatT *cost = prob->cost_ ;
+  //FloatT *sol = prob->sol_ ;
+  //FloatT *rcosts = prob->rcosts_ ;
+  FloatT *acts = prob->acts_;
+  FloatT *rowduals = prob->rowduals_;
 
   CoinBigIndex *link = prob->link_;
   CoinBigIndex &free_list = prob->free_list_;
 
-  //const double maxmin = prob->maxmin_ ;
+  //const FloatT maxmin = prob->maxmin_ ;
 
   const action *const actions = actions_;
   const int nactions = nactions_;
@@ -1816,17 +1816,17 @@ void gubrow_action::postsolve(CoinPostsolveMatrix *prob) const
 */
   for (const action *f = &actions[nactions - 1]; actions <= f; f--) {
     int *deletedRow = f->deletedRow;
-    double *els = f->rowels;
+    FloatT *els = f->rowels;
     int *indices = f->indices;
     int nDrop = f->nDrop;
     int ninrow = f->ninrow;
-    double rhs = f->rhs;
-    double coeff = els[nDrop];
+    FloatT rhs = f->rhs;
+    FloatT coeff = els[nDrop];
     int iRow = deletedRow[nDrop];
     for (int i = 0; i < nDrop; i++) {
       int tgtrow = deletedRow[i];
-      double coeffy = els[i];
-      double dualValue = rowduals[tgtrow];
+      FloatT coeffy = els[i];
+      FloatT dualValue = rowduals[tgtrow];
 #if PRESOLVE_DEBUG > 2
       std::cout << "    restoring row " << tgtrow << " coeff " << coeffy
                 << " dual " << dualValue
@@ -1840,7 +1840,7 @@ void gubrow_action::postsolve(CoinPostsolveMatrix *prob) const
 #if 0 //PRESOLVE_DEBUG > 2
       int * rowStart;
       int * column;
-      double * element;
+      FloatT * element;
       postsolve_get_rowcopy(prob,rowStart,column,element);
       for (int k=rowStart[tgtrow];k<rowStart[tgtrow+1];k++) {
 	printf("(%d, %g, %s - rcost %g) ",column[k],element[k],
@@ -1866,7 +1866,7 @@ void gubrow_action::postsolve(CoinPostsolveMatrix *prob) const
         rowIndices[kk] = tgtrow;
         ++colLengths[j];
       }
-      double value = (rhs / coeff) * coeffy;
+      FloatT value = (rhs / coeff) * coeffy;
       acts[tgtrow] += value;
       ;
       // correct rhs
@@ -1929,7 +1929,7 @@ const CoinPresolveAction
   twoxtwo_action::presolve(CoinPresolveMatrix *prob,
     const CoinPresolveAction *next)
 {
-  double startTime = 0.0;
+  FloatT startTime = 0.0;
   int startEmptyRows = 0;
   int startEmptyColumns = 0;
   if (prob->tuning_) {
@@ -1945,32 +1945,32 @@ const CoinPresolveAction
   const CoinBigIndex *const mcstrt = prob->mcstrt_;
   const int *const hincol = prob->hincol_;
   const int *const hrow = prob->hrow_;
-  const double *colels = prob->colels_;
-  double *cost = prob->cost_;
+  const FloatT *colels = prob->colels_;
+  FloatT *cost = prob->cost_;
 
   // column type, bounds, solution, and status
   const unsigned char *const integerType = prob->integerType_;
-  double *clo = prob->clo_;
-  double *cup = prob->cup_;
+  FloatT *clo = prob->clo_;
+  FloatT *cup = prob->cup_;
   // row-major representation
   //const int nrows = prob->nrows_ ;
   const CoinBigIndex *const mrstrt = prob->mrstrt_;
   const int *const hinrow = prob->hinrow_;
   const int *const hcol = prob->hcol_;
-  const double *rowels = prob->rowels_;
+  const FloatT *rowels = prob->rowels_;
 
   // row bounds
-  double *rlo = prob->rlo_;
-  double *rup = prob->rup_;
+  FloatT *rlo = prob->rlo_;
+  FloatT *rup = prob->rup_;
 
   // tolerances
-  //const double ekkinf2 = PRESOLVE_SMALL_INF ;
-  //const double ekkinf = ekkinf2*1.0e8 ;
-  //const double ztolcbarj = prob->ztoldj_ ;
+  //const FloatT ekkinf2 = PRESOLVE_SMALL_INF ;
+  //const FloatT ekkinf = ekkinf2*1.0e8 ;
+  //const FloatT ztolcbarj = prob->ztoldj_ ;
   //const CoinRelFltEq relEq(prob->ztolzb_) ;
-  double bound[2];
-  double alpha[2] = { 0.0, 0.0 };
-  double offset = 0.0;
+  FloatT bound[2];
+  FloatT alpha[2] = { 0.0, 0.0 };
+  FloatT offset = 0.0;
 
   for (int icol = 0; icol < ncols; icol++) {
     if (hincol[icol] == 2) {
@@ -1981,8 +1981,8 @@ const CoinPresolveAction
       int row1 = hrow[start + 1];
       if (hinrow[row1] != 2)
         continue;
-      double element0 = colels[start];
-      double rowUpper0 = rup[row0];
+      FloatT element0 = colels[start];
+      FloatT rowUpper0 = rup[row0];
       bool swapSigns0 = false;
       if (rlo[row0] > -1.0e30) {
         if (rup[row0] > 1.0e30) {
@@ -2010,8 +2010,8 @@ const CoinPresolveAction
 	continue;
       }
 #endif
-      double element1 = colels[start + 1];
-      double rowUpper1 = rup[row1];
+      FloatT element1 = colels[start + 1];
+      FloatT rowUpper1 = rup[row1];
       bool swapSigns1 = false;
       if (rlo[row1] > -1.0e30) {
         if (rup[row1] > 1.0e30) {
@@ -2026,8 +2026,8 @@ const CoinPresolveAction
         // free
         continue;
       }
-      double lowerX = clo[icol];
-      double upperX = cup[icol];
+      FloatT lowerX = clo[icol];
+      FloatT upperX = cup[icol];
       int otherCol = -1;
       CoinBigIndex startRow = mrstrt[row0];
       for (CoinBigIndex j = startRow; j < startRow + 2; j++) {
@@ -2062,18 +2062,18 @@ const CoinPresolveAction
         }
         bound[0] = clo[otherCol];
         bound[1] = cup[otherCol];
-        double lowestLowest = COIN_DBL_MAX;
-        double highestLowest = -COIN_DBL_MAX;
-        double lowestHighest = COIN_DBL_MAX;
-        double highestHighest = -COIN_DBL_MAX;
+        FloatT lowestLowest = COIN_DBL_MAX;
+        FloatT highestLowest = -COIN_DBL_MAX;
+        FloatT lowestHighest = COIN_DBL_MAX;
+        FloatT highestHighest = -COIN_DBL_MAX;
         int binding0 = 0;
         int binding1 = 0;
         for (int k = 0; k < 2; k++) {
           bool infLow0 = false;
           bool infLow1 = false;
-          double sum0 = 0.0;
-          double sum1 = 0.0;
-          double value = bound[k];
+          FloatT sum0 = 0.0;
+          FloatT sum1 = 0.0;
+          FloatT value = bound[k];
           if (fabs(value) < 1.0e30) {
             sum0 += alpha[0] * value;
             sum1 += alpha[1] * value;
@@ -2095,8 +2095,8 @@ const CoinPresolveAction
           }
           /* Got sums
 	   */
-          double thisLowest0 = -COIN_DBL_MAX;
-          double thisHighest0 = COIN_DBL_MAX;
+          FloatT thisLowest0 = -COIN_DBL_MAX;
+          FloatT thisHighest0 = COIN_DBL_MAX;
           if (element0 > 0.0) {
             // upper bound unless inf&2 !=0
             if (!infLow0)
@@ -2106,8 +2106,8 @@ const CoinPresolveAction
             if (!infLow0)
               thisLowest0 = (rowUpper0 - sum0) / element0;
           }
-          double thisLowest1 = -COIN_DBL_MAX;
-          double thisHighest1 = COIN_DBL_MAX;
+          FloatT thisLowest1 = -COIN_DBL_MAX;
+          FloatT thisHighest1 = COIN_DBL_MAX;
           if (element1 > 0.0) {
             // upper bound unless inf&2 !=0
             if (!infLow1)
@@ -2177,13 +2177,13 @@ const CoinPresolveAction
           }
 #endif
           // see if we can move costs
-          double xValue;
-          double yValue0;
-          double yValue1;
-          double newLower = COIN_DBL_MAX;
-          double newUpper = -COIN_DBL_MAX;
-          double costEqual;
-          double slope[2];
+          FloatT xValue;
+          FloatT yValue0;
+          FloatT yValue1;
+          FloatT newLower = COIN_DBL_MAX;
+          FloatT newUpper = -COIN_DBL_MAX;
+          FloatT costEqual;
+          FloatT slope[2];
           assert(binding0 + binding1 == 3);
           // get where equal
           xValue = (rowUpper0 * element1 - rowUpper1 * element0) / (alpha[0] * element1 - alpha[1] * element0);
@@ -2191,14 +2191,14 @@ const CoinPresolveAction
           yValue1 = (rowUpper1 - xValue * alpha[1]) / element1;
           newLower = CoinMin(newLower, CoinMax(yValue0, yValue1));
           newUpper = CoinMax(newUpper, CoinMax(yValue0, yValue1));
-          double xValueEqual = xValue;
-          double yValueEqual = yValue0;
+          FloatT xValueEqual = xValue;
+          FloatT yValueEqual = yValue0;
           costEqual = xValue * cost[otherCol] + yValueEqual * cost[icol];
           if (binding0 == 1) {
             // take x 1.0 down
-            double x = xValue - 1.0;
-            double y = (rowUpper0 - x * alpha[0]) / element0;
-            double costTotal = x * cost[otherCol] + y * cost[icol];
+            FloatT x = xValue - 1.0;
+            FloatT y = (rowUpper0 - x * alpha[0]) / element0;
+            FloatT costTotal = x * cost[otherCol] + y * cost[icol];
             slope[0] = costEqual - costTotal;
             // take x 1.0 up
             x = xValue + 1.0;
@@ -2207,9 +2207,9 @@ const CoinPresolveAction
             slope[1] = costTotal - costEqual;
           } else {
             // take x 1.0 down
-            double x = xValue - 1.0;
-            double y = (rowUpper1 - x * alpha[1]) / element0;
-            double costTotal = x * cost[otherCol] + y * cost[icol];
+            FloatT x = xValue - 1.0;
+            FloatT y = (rowUpper1 - x * alpha[1]) / element0;
+            FloatT costTotal = x * cost[otherCol] + y * cost[icol];
             slope[1] = costEqual - costTotal;
             // take x 1.0 up
             x = xValue + 1.0;
@@ -2228,7 +2228,7 @@ const CoinPresolveAction
             otherCol, xValue, icol, yValue0, yValue1, CoinMax(yValue0, yValue1)));
           newLower = CoinMin(newLower, CoinMax(yValue0, yValue1));
           // cost>0 so will be at lower
-          //double yValueAtBound0=newLower;
+          //FloatT yValueAtBound0=newLower;
           newUpper = CoinMax(newUpper, CoinMax(yValue0, yValue1));
           xValue = bound[1];
           yValue0 = (rowUpper0 - xValue * alpha[0]) / element0;
@@ -2237,7 +2237,7 @@ const CoinPresolveAction
             otherCol, xValue, icol, yValue0, yValue1, CoinMax(yValue0, yValue1)));
           newLower = CoinMin(newLower, CoinMax(yValue0, yValue1));
           // cost>0 so will be at lower
-          //double yValueAtBound1=newLower;
+          //FloatT yValueAtBound1=newLower;
           newUpper = CoinMax(newUpper, CoinMax(yValue0, yValue1));
           lowerX = CoinMax(lowerX, newLower - 1.0e-12 * fabs(newLower));
           upperX = CoinMin(upperX, newUpper + 1.0e-12 * fabs(newUpper));
@@ -2246,11 +2246,11 @@ const CoinPresolveAction
           PRESOLVE_DETAIL_PRINT(printf("Costs for x %g,%g,%g are %g,%g,%g\n",
             xValueEqual - 1.0, xValueEqual, xValueEqual + 1.0,
             costEqual - slope[0], costEqual, costEqual + slope[1]));
-          double costOther = cost[otherCol] + slope[1];
-          double costThis = cost[icol] + slope[1] * (element0 / alpha[0]);
+          FloatT costOther = cost[otherCol] + slope[1];
+          FloatT costThis = cost[icol] + slope[1] * (element0 / alpha[0]);
           xValue = xValueEqual;
           yValue0 = CoinMax((rowUpper0 - xValue * alpha[0]) / element0, lowerX);
-          double thisOffset = costEqual - (costOther * xValue + costThis * yValue0);
+          FloatT thisOffset = costEqual - (costOther * xValue + costThis * yValue0);
           offset += thisOffset;
           PRESOLVE_DETAIL_PRINT(printf("new cost at equal %g\n", costOther * xValue + costThis * yValue0 + thisOffset));
           xValue = xValueEqual - 1.0;
@@ -2301,7 +2301,7 @@ const CoinPresolveAction
   }
   delete[] boundRecords;
   if (prob->tuning_) {
-    double thisTime = CoinCpuTime();
+    FloatT thisTime = CoinCpuTime();
     int droppedRows = prob->countEmptyRows() - startEmptyRows;
     int droppedColumns = prob->countEmptyCols() - startEmptyColumns;
     printf("CoinPresolveTwoxtwo(2048) - %d rows, %d columns dropped in time %g, total %g\n",
@@ -2314,24 +2314,24 @@ void twoxtwo_action::postsolve(CoinPostsolveMatrix *prob) const
   const CoinBigIndex *const mcstrt = prob->mcstrt_;
   const int *const hincol = prob->hincol_;
   const int *const hrow = prob->hrow_;
-  const double *colels = prob->colels_;
+  const FloatT *colels = prob->colels_;
   CoinBigIndex *link = prob->link_;
-  double *cost = prob->cost_;
+  FloatT *cost = prob->cost_;
 
   // column type, bounds, solution, and status
   //const unsigned char *const integerType = prob->integerType_ ;
-  double *clo = prob->clo_;
-  double *cup = prob->cup_;
+  FloatT *clo = prob->clo_;
+  FloatT *cup = prob->cup_;
 
   // row bounds
-  double *rlo = prob->rlo_;
-  double *rup = prob->rup_;
-  double *sol = prob->sol_;
-  double *rcosts = prob->rcosts_;
-  double *rowacts = prob->acts_;
-  double *dual = prob->rowduals_;
-  double tolerance = prob->ztolzb_;
-  const double maxmin = prob->maxmin_;
+  FloatT *rlo = prob->rlo_;
+  FloatT *rup = prob->rup_;
+  FloatT *sol = prob->sol_;
+  FloatT *rcosts = prob->rcosts_;
+  FloatT *rowacts = prob->acts_;
+  FloatT *dual = prob->rowduals_;
+  FloatT tolerance = prob->ztolzb_;
+  const FloatT maxmin = prob->maxmin_;
   for (int iAction = 0; iAction < nactions_; iAction++) {
     const action &boundRecord = actions_[iAction];
     int row1 = boundRecord.row;
@@ -2341,8 +2341,8 @@ void twoxtwo_action::postsolve(CoinPostsolveMatrix *prob) const
     CoinBigIndex nextEl = link[start];
     int row0;
     // first is otherCol
-    double els0[2] = { 0.0, 0.0 };
-    double els1[2] = { 0.0, 0.0 };
+    FloatT els0[2] = { 0.0, 0.0 };
+    FloatT els1[2] = { 0.0, 0.0 };
     if (hrow[start] == row1) {
       row0 = hrow[nextEl];
       els0[1] = colels[nextEl];
@@ -2366,24 +2366,24 @@ void twoxtwo_action::postsolve(CoinPostsolveMatrix *prob) const
     rup[row1] = boundRecord.ubound_row;
     clo[icol] = boundRecord.lbound_col;
     cup[icol] = boundRecord.ubound_col;
-    double oldCost = cost[icol];
-    //double oldOtherCost=cost[otherCol];
+    FloatT oldCost = cost[icol];
+    //FloatT oldOtherCost=cost[otherCol];
     cost[icol] = boundRecord.cost_col;
     cost[otherCol] = boundRecord.cost_othercol;
-    double els0real[2];
-    double els1real[2];
+    FloatT els0real[2];
+    FloatT els1real[2];
     els0real[0] = els0[0];
     els0real[1] = els0[1];
     els1real[0] = els1[0];
     els1real[1] = els1[1];
     // make <= rows
-    double rowUpper0 = rup[row0];
+    FloatT rowUpper0 = rup[row0];
     if (rlo[row0] > -1.0e30) {
       rowUpper0 = -rlo[row0];
       els0[0] = -els0[0];
       els0[1] = -els0[1];
     }
-    double rowUpper1 = rup[row1];
+    FloatT rowUpper1 = rup[row1];
     bool swapSigns1 = false;
     if (rlo[row1] > -1.0e30) {
       swapSigns1 = true;
@@ -2392,26 +2392,26 @@ void twoxtwo_action::postsolve(CoinPostsolveMatrix *prob) const
       els1[1] = -els1[1];
     }
     // compute feasible value for icol
-    double valueOther = sol[otherCol];
-    double value;
+    FloatT valueOther = sol[otherCol];
+    FloatT value;
     // first see if at bound is OK
     bool lowerBoundPossible = clo[icol] > -1.0e30;
     value = clo[icol];
     if (lowerBoundPossible) {
-      double value0 = els0[0] * valueOther + els0[1] * value;
+      FloatT value0 = els0[0] * valueOther + els0[1] * value;
       if (value0 > rowUpper0 + tolerance)
         lowerBoundPossible = false;
-      double value1 = els1[0] * valueOther + els1[1] * value;
+      FloatT value1 = els1[0] * valueOther + els1[1] * value;
       if (value1 > rowUpper1 + tolerance)
         lowerBoundPossible = false;
     }
     bool upperBoundPossible = cup[icol] < 1.0e30;
     value = cup[icol];
     if (upperBoundPossible) {
-      double value0 = els0[0] * valueOther + els0[1] * value;
+      FloatT value0 = els0[0] * valueOther + els0[1] * value;
       if (value0 > rowUpper0 + tolerance)
         upperBoundPossible = false;
-      double value1 = els1[0] * valueOther + els1[1] * value;
+      FloatT value1 = els1[0] * valueOther + els1[1] * value;
       if (value1 > rowUpper1 + tolerance)
         upperBoundPossible = false;
     }
@@ -2429,10 +2429,10 @@ void twoxtwo_action::postsolve(CoinPostsolveMatrix *prob) const
       // need to make basic
       // we shouldn't get here (at present) if zero cost
       assert(cost[icol]);
-      double value0 = (rowUpper0 - els0[0] * valueOther) / els0[1];
-      double value1 = (rowUpper1 - els1[0] * valueOther) / els1[1];
+      FloatT value0 = (rowUpper0 - els0[0] * valueOther) / els0[1];
+      FloatT value1 = (rowUpper1 - els1[0] * valueOther) / els1[1];
       //bool binding0=true;
-      double value;
+      FloatT value;
       if (cost[icol] > 0) {
         if (value0 > value1) {
           value = value0;

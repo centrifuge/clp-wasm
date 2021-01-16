@@ -56,7 +56,7 @@ const CoinPresolveAction *testRedundant(CoinPresolveMatrix *prob,
 #if PRESOLVE_DEBUG > 0 || COIN_PRESOLVE_TUNING > 0
   const int startEmptyRows = prob->countEmptyRows();
 #if COIN_PRESOLVE_TUNING > 0
-  double startTime = 0.0;
+  FloatT startTime = 0.0;
   if (prob->tuning_)
     startTime = CoinCpuTime();
 #endif
@@ -69,7 +69,7 @@ const CoinPresolveAction *testRedundant(CoinPresolveMatrix *prob,
 */
   const CoinBigIndex *rowStarts = prob->mrstrt_;
   const int *rowLengths = prob->hinrow_;
-  const double *rowCoeffs = prob->rowels_;
+  const FloatT *rowCoeffs = prob->rowels_;
   const int *colIndices = prob->hcol_;
 
   const CoinBigIndex *colStarts = prob->mcstrt_;
@@ -80,11 +80,11 @@ const CoinPresolveAction *testRedundant(CoinPresolveMatrix *prob,
   
   We need copies of the column bounds to modify as we do bound propagation.
 */
-  const double *rlo = prob->rlo_;
-  const double *rup = prob->rup_;
+  const FloatT *rlo = prob->rlo_;
+  const FloatT *rup = prob->rup_;
 
-  double *columnLower = new double[n];
-  double *columnUpper = new double[n];
+  FloatT *columnLower = new FloatT[n];
+  FloatT *columnUpper = new FloatT[n];
   CoinMemcpyN(prob->clo_, n, columnLower);
   CoinMemcpyN(prob->cup_, n, columnUpper);
   /*
@@ -98,16 +98,16 @@ const CoinPresolveAction *testRedundant(CoinPresolveMatrix *prob,
 */
 #define USE_SMALL_LARGE
 #ifdef USE_SMALL_LARGE
-  const double large = 1.0e15;
+  const FloatT large = 1.0e15;
 #else
-  const double large = 1.0e20;
+  const FloatT large = 1.0e20;
 #endif
 #ifndef NDEBUG
-  const double large2 = 1.0e10 * large;
+  const FloatT large2 = 1.0e10 * large;
 #endif
 
-  double feasTol = prob->feasibilityTolerance_;
-  double relaxedTol = 100.0 * feasTol;
+  FloatT feasTol = prob->feasibilityTolerance_;
+  FloatT relaxedTol = 100.0 * feasTol;
 
   /*
   More like `ignore infeasibility.'
@@ -186,8 +186,8 @@ const CoinPresolveAction *testRedundant(CoinPresolveMatrix *prob,
 
       int infUpi = 0;
       int infLoi = 0;
-      double finUpi = 0.0;
-      double finDowni = 0.0;
+      FloatT finUpi = 0.0;
+      FloatT finDowni = 0.0;
       const CoinBigIndex krs = rowStarts[i];
       const CoinBigIndex kre = krs + rowLengths[i];
       /*
@@ -197,7 +197,7 @@ const CoinPresolveAction *testRedundant(CoinPresolveMatrix *prob,
   infinite component.
 */
       for (CoinBigIndex kcol = krs; kcol < kre; ++kcol) {
-        const double value = rowCoeffs[kcol];
+        const FloatT value = rowCoeffs[kcol];
         const int j = colIndices[kcol];
         if (value > 0.0) {
           if (columnUpper[j] < large)
@@ -222,8 +222,8 @@ const CoinPresolveAction *testRedundant(CoinPresolveMatrix *prob,
       markRow[i] = markActOK;
       finUpi += 1.0e-8 * fabs(finUpi);
       finDowni -= 1.0e-8 * fabs(finDowni);
-      const double maxUpi = finUpi + infUpi * 1.0e31;
-      const double maxDowni = finDowni - infLoi * 1.0e31;
+      const FloatT maxUpi = finUpi + infUpi * 1.0e31;
+      const FloatT maxDowni = finDowni - infLoi * 1.0e31;
       /*
   If LB(i) > rup(i) or UB(i) < rlo(i), we're infeasible. Break for the exit,
   unless the user has been so foolish as to tell us to ignore infeasibility,
@@ -256,8 +256,8 @@ const CoinPresolveAction *testRedundant(CoinPresolveMatrix *prob,
   the line, force the bound to exact equality to ensure conservative column
   bounds.
 */
-      const double rloi = rlo[i];
-      const double rupi = rup[i];
+      const FloatT rloi = rlo[i];
+      const FloatT rupi = rup[i];
       if (finUpi < rloi && finUpi > rloi - relaxedTol)
         finUpi = rloi;
       if (finDowni > rupi && finDowni < rupi + relaxedTol)
@@ -266,12 +266,12 @@ const CoinPresolveAction *testRedundant(CoinPresolveMatrix *prob,
   Open a loop to walk the row and try to tighten column bounds.
 */
       for (CoinBigIndex kcol = krs; kcol < kre; ++kcol) {
-        const double ait = rowCoeffs[kcol];
+        const FloatT ait = rowCoeffs[kcol];
         const int t = colIndices[kcol];
-        double lt = columnLower[t];
-        double ut = columnUpper[t];
-        double newlt = COIN_DBL_MAX;
-        double newut = -COIN_DBL_MAX;
+        FloatT lt = columnLower[t];
+        FloatT ut = columnUpper[t];
+        FloatT newlt = COIN_DBL_MAX;
+        FloatT newut = -COIN_DBL_MAX;
         /*
   For a target variable x(t) with a(it) > 0, we have
 
@@ -487,13 +487,13 @@ const CoinPresolveAction *testRedundant(CoinPresolveMatrix *prob,
 */
       int infUpi = 0;
       int infLoi = 0;
-      double finUpi = 0.0;
-      double finDowni = 0.0;
+      FloatT finUpi = 0.0;
+      FloatT finDowni = 0.0;
       const CoinBigIndex krs = rowStarts[i];
       const CoinBigIndex kre = krs + rowLengths[i];
 
       for (CoinBigIndex krow = krs; krow < kre; ++krow) {
-        const double value = rowCoeffs[krow];
+        const FloatT value = rowCoeffs[krow];
         const int j = colIndices[krow];
         if (value > 0.0) {
           if (columnUpper[j] < large)
@@ -517,8 +517,8 @@ const CoinPresolveAction *testRedundant(CoinPresolveMatrix *prob,
       }
       finUpi += 1.0e-8 * fabs(finUpi);
       finDowni -= 1.0e-8 * fabs(finDowni);
-      const double maxUpi = finUpi + infUpi * 1.0e31;
-      const double maxDowni = finDowni - infLoi * 1.0e31;
+      const FloatT maxUpi = finUpi + infUpi * 1.0e31;
+      const FloatT maxDowni = finDowni - infLoi * 1.0e31;
       /*
   If we have L(i) and U(i) at or inside the row bounds, we have a useless
   constraint.
@@ -546,17 +546,17 @@ const CoinPresolveAction *testRedundant(CoinPresolveMatrix *prob,
 */
     if (prob->presolveOptions_ & 0x10) {
       const unsigned char *integerType = prob->integerType_;
-      double *csol = prob->sol_;
-      double *clo = prob->clo_;
-      double *cup = prob->cup_;
+      FloatT *csol = prob->sol_;
+      FloatT *clo = prob->clo_;
+      FloatT *cup = prob->cup_;
       int *fixed = prob->usefulColumnInt_;
       int nFixed = 0;
       int nChanged = 0;
       for (int j = 0; j < n; j++) {
         if (clo[j] == cup[j])
           continue;
-        double lower = columnLower[j];
-        double upper = columnUpper[j];
+        FloatT lower = columnLower[j];
+        FloatT upper = columnUpper[j];
         if (integerType[j]) {
           upper = floor(upper + 1.0e-4);
           lower = ceil(lower - 1.0e-4);
@@ -600,7 +600,7 @@ const CoinPresolveAction *testRedundant(CoinPresolveMatrix *prob,
   delete[] columnUpper;
 
 #if COIN_PRESOLVE_TUNING > 0
-  double thisTime = 0.0;
+  FloatT thisTime = 0.0;
   if (prob->tuning_)
     thisTime = CoinCpuTime();
 #endif
@@ -645,7 +645,7 @@ const CoinPresolveAction *useless_constraint_action::presolve(CoinPresolveMatrix
 #endif
 
   // may be modified by useless constraint
-  double *colels = prob->colels_;
+  FloatT *colels = prob->colels_;
 
   // may be modified by useless constraint
   int *hrow = prob->hrow_;
@@ -655,10 +655,10 @@ const CoinPresolveAction *useless_constraint_action::presolve(CoinPresolveMatrix
   // may be modified by useless constraint
   int *hincol = prob->hincol_;
 
-  //  double *clo	= prob->clo_;
-  //  double *cup	= prob->cup_;
+  //  FloatT *clo	= prob->clo_;
+  //  FloatT *cup	= prob->cup_;
 
-  const double *rowels = prob->rowels_;
+  const FloatT *rowels = prob->rowels_;
   const int *hcol = prob->hcol_;
   const CoinBigIndex *mrstrt = prob->mrstrt_;
 
@@ -666,8 +666,8 @@ const CoinPresolveAction *useless_constraint_action::presolve(CoinPresolveMatrix
   int *hinrow = prob->hinrow_;
   //  const int nrows	= prob->nrows_;
 
-  double *rlo = prob->rlo_;
-  double *rup = prob->rup_;
+  FloatT *rlo = prob->rlo_;
+  FloatT *rup = prob->rup_;
 
   action *actions = new action[nuseless_rows];
 
@@ -729,7 +729,7 @@ useless_constraint_action::~useless_constraint_action()
 {
   for (int i = 0; i < nactions_; i++) {
     deleteAction(actions_[i].rowcols, int *);
-    deleteAction(actions_[i].rowels, double *);
+    deleteAction(actions_[i].rowels, FloatT *);
   }
   deleteAction(actions_, action *);
 }
@@ -754,28 +754,28 @@ void useless_constraint_action::postsolve(CoinPostsolveMatrix *prob) const
   presolve_check_nbasic(prob);
 #endif
 
-  double *colels = prob->colels_;
+  FloatT *colels = prob->colels_;
   int *hrow = prob->hrow_;
   CoinBigIndex *mcstrt = prob->mcstrt_;
   CoinBigIndex *link = prob->link_;
   int *hincol = prob->hincol_;
 
-  //  double *rowduals	= prob->rowduals_;
-  double *rowacts = prob->acts_;
-  const double *sol = prob->sol_;
+  //  FloatT *rowduals	= prob->rowduals_;
+  FloatT *rowacts = prob->acts_;
+  const FloatT *sol = prob->sol_;
 
   CoinBigIndex &free_list = prob->free_list_;
 
-  double *rlo = prob->rlo_;
-  double *rup = prob->rup_;
+  FloatT *rlo = prob->rlo_;
+  FloatT *rup = prob->rup_;
 
   for (const action *f = &actions[nactions - 1]; actions <= f; f--) {
 
     int irow = f->row;
     int ninrow = f->ninrow;
     const int *rowcols = f->rowcols;
-    const double *rowels = f->rowels;
-    double rowact = 0.0;
+    const FloatT *rowels = f->rowels;
+    FloatT rowact = 0.0;
 
     rup[irow] = f->rup;
     rlo[irow] = f->rlo;
@@ -809,7 +809,7 @@ void useless_constraint_action::postsolve(CoinPostsolveMatrix *prob) const
     rowacts[irow] = rowact;
     // leave until desctructor
     //deleteAction(rowcols,int *);
-    //deleteAction(rowels,double *);
+    //deleteAction(rowels,FloatT *);
   }
 
   //deleteAction(actions_,action *);

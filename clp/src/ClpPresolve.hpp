@@ -39,7 +39,7 @@ public:
          Names will be dropped in presolved model if asked
      */
   ClpSimplex *presolvedModel(ClpSimplex &si,
-    double feasibilityTolerance = 0.0,
+    FloatT feasibilityTolerance = 0.0,
     bool keepIntegers = true,
     int numberPasses = 5,
     bool dropNames = false,
@@ -51,7 +51,7 @@ public:
          is updated to be presolved model.  
          Returns non-zero if infeasible*/
   int presolvedModelToFile(ClpSimplex &si, std::string fileName,
-    double feasibilityTolerance = 0.0,
+    FloatT feasibilityTolerance = 0.0,
     bool keepIntegers = true,
     int numberPasses = 5,
     bool dropNames = false,
@@ -73,11 +73,11 @@ public:
          may change and so presolve is very limited in what can be done
          to the row and column.  This is for non-linear problems.
      */
-  inline void setNonLinearValue(double value)
+  inline void setNonLinearValue(FloatT value)
   {
     nonLinearValue_ = value;
   }
-  inline double nonLinearValue() const
+  inline FloatT nonLinearValue() const
   {
     return nonLinearValue_;
   }
@@ -105,7 +105,7 @@ public:
     else
       presolveActions_ |= 2;
   }
-  /// Whether we want to do doubleton part of presolve
+  /// Whether we want to do FloatTton part of presolve
   inline bool doDoubleton() const
   {
     return (presolveActions_ & 4) == 0;
@@ -319,13 +319,13 @@ private:
          to the row and column.  This is for non-linear problems.
          One could also allow for cases where sign of coefficient is known.
      */
-  double nonLinearValue_;
+  FloatT nonLinearValue_;
   /// Original column numbers
   int *originalColumn_;
   /// Original row numbers
   int *originalRow_;
   /// Row objective
-  double *rowObjective_;
+  FloatT *rowObjective_;
   /// The list of transformations applied.
   const CoinPresolveAction *paction_;
 
@@ -365,7 +365,7 @@ protected:
   virtual void postsolve(CoinPostsolveMatrix &prob);
   /** This is main part of Presolve */
   virtual ClpSimplex *gutsOfPresolvedModel(ClpSimplex *originalModel,
-    double feasibilityTolerance,
+    FloatT feasibilityTolerance,
     bool keepIntegers,
     int numberPasses,
     bool dropNames,

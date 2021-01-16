@@ -27,7 +27,7 @@ public:
 
   /** Updates weights and returns pivot alpha.
          Also does FT update */
-  virtual double updateWeights(CoinIndexedVector *input,
+  virtual FloatT updateWeights(CoinIndexedVector *input,
     CoinIndexedVector *spare,
     CoinIndexedVector *spare2,
     CoinIndexedVector *updatedColumn);
@@ -36,8 +36,8 @@ public:
          Computes change in objective function
      */
   virtual void updatePrimalSolution(CoinIndexedVector *input,
-    double theta,
-    double &changeInObjective);
+    FloatT theta,
+    FloatT &changeInObjective);
   //@}
 
   ///@name Constructors and destructors

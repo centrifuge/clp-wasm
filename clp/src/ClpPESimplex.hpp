@@ -25,17 +25,17 @@
 /** SHARED METHODS FOR USEFUL ALGEBRAIC OPERATIONS */
 
 /** inner product between a coin vector and a pointer */
-double PEdot(CoinIndexedVector &v1, const double *v2);
+FloatT PEdot(CoinIndexedVector &v1, const FloatT *v2);
 
 /** inner product between two coin vectors
     call the function with the sparser vector first for efficiency */
-double PEdot(CoinIndexedVector &v1, CoinIndexedVector &v2);
+FloatT PEdot(CoinIndexedVector &v1, CoinIndexedVector &v2);
 
 /** compute the product x^T*[A I] for the indices "which" of [A I] */
 void PEtransposeTimesSubsetAll(ClpSimplex *model, int number, const int *which,
-  const double *COIN_RESTRICT x, double *COIN_RESTRICT y,
-  const double *COIN_RESTRICT rowScale,
-  const double *COIN_RESTRICT columnScale);
+  const FloatT *COIN_RESTRICT x, FloatT *COIN_RESTRICT y,
+  const FloatT *COIN_RESTRICT rowScale,
+  const FloatT *COIN_RESTRICT columnScale);
 
 /** BASE CLASS FOR THE IMPROVED SIMPLEX
 */
@@ -103,7 +103,7 @@ public:
   bool checkCompatibilityRow(int pivotRow);
 
   /** Tracking the degenerate iterations after compatible pivots */
-  inline double lastObjectiveValue() { return lastObjectiveValue_; }
+  inline FloatT lastObjectiveValue() { return lastObjectiveValue_; }
   inline void updateLastObjectiveValue() { lastObjectiveValue_ = model_->objectiveValue(); }
   inline bool isDegeneratePivot() { return fabs(model_->objectiveValue() - lastObjectiveValue_) < model_->dualTolerance(); }
   inline bool isLastPivotCompatible() { return isLastPivotCompatible_; }
@@ -113,9 +113,9 @@ public:
   inline void startTimer() { timeTmp_ = CoinCpuTime(); }
   inline void stopTimer() { timeCompatibility_ += CoinCpuTime() - timeTmp_; }
   void printTimer(std::ostream &out);
-  inline double timeMultRandom() { return timeMultRandom_; }
-  inline double timeLinearSystem() { return timeLinearSystem_; }
-  inline double timeCompatibility() { return timeCompatibility_; }
+  inline FloatT timeMultRandom() { return timeMultRandom_; }
+  inline FloatT timeLinearSystem() { return timeLinearSystem_; }
+  inline FloatT timeCompatibility() { return timeCompatibility_; }
 
   /** Update and return the number of degenerate pivots and variables */
   inline void addDegeneratePivot() { coDegeneratePivots_++; }
@@ -124,12 +124,12 @@ public:
   inline void resetDegeneratePivotsConsecutive() { coDegeneratePivotsConsecutive_ = 0; }
   inline int coDegeneratePivotsConsecutive() { return coDegeneratePivotsConsecutive_; }
   void updateDualDegeneratesAvg(int coPivots);
-  inline double coDualDegeneratesAvg() { return coDualDegeneratesAvg_; }
+  inline FloatT coDualDegeneratesAvg() { return coDualDegeneratesAvg_; }
   void updatePrimalDegeneratesAvg(int coPivots);
-  inline double coPrimalDegeneratesAvg() { return coPrimalDegeneratesAvg_; }
-  inline double coCompatibleRowsAvg() { return coCompatibleRowsAvg_; }
+  inline FloatT coPrimalDegeneratesAvg() { return coPrimalDegeneratesAvg_; }
+  inline FloatT coCompatibleRowsAvg() { return coCompatibleRowsAvg_; }
   void updateCompatibleRowsAvg(int coPivots);
-  inline double coCompatibleColsAvg() { return coCompatibleColsAvg_; }
+  inline FloatT coCompatibleColsAvg() { return coCompatibleColsAvg_; }
   void updateCompatibleColsAvg(int coPivots);
   inline int coCompatiblePivots() { return coCompatiblePivots_; }
   inline void addCompatiblePivot() { coCompatiblePivots_++; }
@@ -164,13 +164,13 @@ protected:
   /** Table of booleans indicating whether each variable is primal
         compatible (true) or not (false) */
   int coCompatibleCols_;
-  double *compatibilityCol_;
+  FloatT *compatibilityCol_;
   bool *isCompatibleCol_;
 
   /** Table of booleans indicating whether each constraint is dual
         compatible (true) or not (false) */
   int coCompatibleRows_;
-  double *compatibilityRow_;
+  FloatT *compatibilityRow_;
   bool *isCompatibleRow_;
 
 private:
@@ -178,8 +178,8 @@ private:
   ClpSimplex *model_;
 
   /** tolerance used for the tests of degeneracy and compatibility (resp.) */
-  double epsDegeneracy_;
-  double epsCompatibility_;
+  FloatT epsDegeneracy_;
+  FloatT epsCompatibility_;
 
   /** size of the original model */
   int numberRows_;
@@ -194,7 +194,7 @@ private:
   /** temporary vectors that are used to store colulns of the constraint
         matrix or random numbers */
   // not usedCoinIndexedVector *tempColumn_;
-  double *tempRandom_;
+  FloatT *tempRandom_;
 
   /** number of degenerate pivots and variables */
   int coPrimalDegeneratesAvg_;
@@ -214,15 +214,15 @@ private:
   int doStatistics_;
 
   /** tracking the degenerate iterations after compatible pivots */
-  double lastObjectiveValue_;
+  FloatT lastObjectiveValue_;
   bool isLastPivotCompatible_;
 
   /** Timer attribute recording the additional time spent in 
         identifying compatible variables */
-  double timeCompatibility_;
-  double timeMultRandom_;
-  double timeLinearSystem_;
-  double timeTmp_;
+  FloatT timeCompatibility_;
+  FloatT timeMultRandom_;
+  FloatT timeLinearSystem_;
+  FloatT timeTmp_;
 };
 
 #endif

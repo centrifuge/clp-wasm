@@ -78,7 +78,7 @@ private:
   CoinPackedVector *extractCol(int j, const CoinPostsolveMatrix *mtx) const;
 
   /// Worker method underlying the public checkAndTell methods.
-  void checkAndTell(CoinPackedVector *curVec, double lb, double ub);
+  void checkAndTell(CoinPackedVector *curVec, FloatT lb, FloatT ub);
 
   /// True to monitor a row, false to monitor a column
   bool isRow_;
@@ -93,10 +93,10 @@ private:
   CoinPackedVector *origVec_;
 
   /// Original row or column lower bound
-  double lb_;
+  FloatT lb_;
 
   /// Original row or column upper bound
-  double ub_;
+  FloatT ub_;
 };
 
 #endif

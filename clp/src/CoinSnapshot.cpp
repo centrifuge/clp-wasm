@@ -219,9 +219,9 @@ void CoinSnapshot::gutsOfCopy(const CoinSnapshot &rhs)
       </ul>
 */
 void CoinSnapshot::loadProblem(const CoinPackedMatrix &matrix,
-  const double *collb, const double *colub,
-  const double *obj,
-  const double *rowlb, const double *rowub,
+  const FloatT *collb, const FloatT *colub,
+  const FloatT *obj,
+  const FloatT *rowlb, const FloatT *rowub,
   bool makeRowCopy)
 {
   // Keep scalars (apart from objective value etc)
@@ -247,7 +247,7 @@ void CoinSnapshot::loadProblem(const CoinPackedMatrix &matrix,
 }
 
 // Set pointer to array[getNumCols()] of column lower bounds
-void CoinSnapshot::setColLower(const double *array, bool copyIn)
+void CoinSnapshot::setColLower(const FloatT *array, bool copyIn)
 {
   if (owned_.colLower)
     delete[] colLower_;
@@ -260,7 +260,7 @@ void CoinSnapshot::setColLower(const double *array, bool copyIn)
   }
 }
 // Set pointer to array[getNumCols()] of column upper bounds
-void CoinSnapshot::setColUpper(const double *array, bool copyIn)
+void CoinSnapshot::setColUpper(const FloatT *array, bool copyIn)
 {
   if (owned_.colUpper)
     delete[] colUpper_;
@@ -273,7 +273,7 @@ void CoinSnapshot::setColUpper(const double *array, bool copyIn)
   }
 }
 // Set pointer to array[getNumRows()] of row lower bounds
-void CoinSnapshot::setRowLower(const double *array, bool copyIn)
+void CoinSnapshot::setRowLower(const FloatT *array, bool copyIn)
 {
   if (owned_.rowLower)
     delete[] rowLower_;
@@ -286,7 +286,7 @@ void CoinSnapshot::setRowLower(const double *array, bool copyIn)
   }
 }
 // Set pointer to array[getNumRows()] of row upper bounds
-void CoinSnapshot::setRowUpper(const double *array, bool copyIn)
+void CoinSnapshot::setRowUpper(const FloatT *array, bool copyIn)
 {
   if (owned_.rowUpper)
     delete[] rowUpper_;
@@ -305,7 +305,7 @@ void CoinSnapshot::setRowUpper(const double *array, bool copyIn)
    else
      getRightHandSide()[i] == getRowLower()[i]
 */
-void CoinSnapshot::setRightHandSide(const double *array, bool copyIn)
+void CoinSnapshot::setRightHandSide(const FloatT *array, bool copyIn)
 {
   if (owned_.rightHandSide)
     delete[] rightHandSide_;
@@ -331,7 +331,7 @@ void CoinSnapshot::createRightHandSide()
   owned_.rightHandSide = 1;
   assert(rowUpper_);
   assert(rowLower_);
-  double *rightHandSide = CoinCopyOfArray(rowUpper_, numRows_);
+  FloatT *rightHandSide = CoinCopyOfArray(rowUpper_, numRows_);
   for (int i = 0; i < numRows_; i++) {
     if (rightHandSide[i] == infinity_)
       rightHandSide[i] = rowLower_[i];
@@ -339,7 +339,7 @@ void CoinSnapshot::createRightHandSide()
   rightHandSide_ = rightHandSide;
 }
 // Set pointer to array[getNumCols()] of objective function coefficients
-void CoinSnapshot::setObjCoefficients(const double *array, bool copyIn)
+void CoinSnapshot::setObjCoefficients(const FloatT *array, bool copyIn)
 {
   if (owned_.objCoefficients)
     delete[] objCoefficients_;
@@ -440,7 +440,7 @@ void CoinSnapshot::setOriginalMatrixByCol(const CoinPackedMatrix *matrix, bool c
   assert(matrixByCol_->getNumCols() == numCols_);
 }
 // Set pointer to array[getNumCols()] of primal variable values
-void CoinSnapshot::setColSolution(const double *array, bool copyIn)
+void CoinSnapshot::setColSolution(const FloatT *array, bool copyIn)
 {
   if (owned_.colSolution)
     delete[] colSolution_;
@@ -453,7 +453,7 @@ void CoinSnapshot::setColSolution(const double *array, bool copyIn)
   }
 }
 // Set pointer to array[getNumRows()] of dual variable values
-void CoinSnapshot::setRowPrice(const double *array, bool copyIn)
+void CoinSnapshot::setRowPrice(const FloatT *array, bool copyIn)
 {
   if (owned_.rowPrice)
     delete[] rowPrice_;
@@ -466,7 +466,7 @@ void CoinSnapshot::setRowPrice(const double *array, bool copyIn)
   }
 }
 // Set a pointer to array[getNumCols()] of reduced costs
-void CoinSnapshot::setReducedCost(const double *array, bool copyIn)
+void CoinSnapshot::setReducedCost(const FloatT *array, bool copyIn)
 {
   if (owned_.reducedCost)
     delete[] reducedCost_;
@@ -479,7 +479,7 @@ void CoinSnapshot::setReducedCost(const double *array, bool copyIn)
   }
 }
 // Set pointer to array[getNumRows()] of row activity levels (constraint matrix times the solution vector).
-void CoinSnapshot::setRowActivity(const double *array, bool copyIn)
+void CoinSnapshot::setRowActivity(const FloatT *array, bool copyIn)
 {
   if (owned_.rowActivity)
     delete[] rowActivity_;
@@ -492,7 +492,7 @@ void CoinSnapshot::setRowActivity(const double *array, bool copyIn)
   }
 }
 // Set pointer to array[getNumCols()] of primal variable values which should not be separated (for debug)
-void CoinSnapshot::setDoNotSeparateThis(const double *array, bool copyIn)
+void CoinSnapshot::setDoNotSeparateThis(const FloatT *array, bool copyIn)
 {
   if (owned_.doNotSeparateThis)
     delete[] doNotSeparateThis_;

@@ -40,7 +40,7 @@ public:
          Using a semi-trust region approach as for pooling problem
          This is in because I have it lying around
      */
-  int primalSLP(int numberPasses, double deltaTolerance,
+  int primalSLP(int numberPasses, FloatT deltaTolerance,
     int otherOptions = 0);
   /// May use a cut approach for solving any LP
   int primalDualCuts(char *rowsIn, int startUp, int algorithm);
@@ -50,7 +50,7 @@ public:
 
      */
   int primalSLP(int numberConstraints, ClpConstraint **constraints,
-    int numberPasses, double deltaTolerance);
+    int numberPasses, FloatT deltaTolerance);
 
   /** Creates direction vector.  note longArray is long enough
          for rows and columns.  If numberNonBasic 0 then is updated
@@ -60,7 +60,7 @@ public:
   void directionVector(CoinIndexedVector *longArray,
     CoinIndexedVector *spare1, CoinIndexedVector *spare2,
     int mode,
-    double &normFlagged, double &normUnflagged,
+    FloatT &normFlagged, FloatT &normUnflagged,
     int &numberNonBasic);
   /// Main part.
   int whileIterating(int &pivotMode);
@@ -81,8 +81,8 @@ public:
     CoinIndexedVector *columnArray,
     CoinIndexedVector *spare,
     int &pivotMode,
-    double &solutionError,
-    double *array1);
+    FloatT &solutionError,
+    FloatT *array1);
   /**  Refactorizes if necessary
           Checks if finished.  Updates status.
           lastCleaned refers to iteration at which some objective/feasibility
@@ -95,7 +95,7 @@ public:
   void statusOfProblemInPrimal(int &lastCleaned, int type,
     ClpSimplexProgress *progress,
     bool doFactorization,
-    double &bestObjectiveWhenFlagged);
+    FloatT &bestObjectiveWhenFlagged);
   /** Do last half of an iteration.
          Return codes
          Reasons to come out normal mode

@@ -148,7 +148,7 @@ const CoinPresolveAction
   startEmptyRows = prob->countEmptyRows();
   startEmptyColumns = prob->countEmptyCols();
 #if COIN_PRESOLVE_TUNING > 0
-  double startTime = 0.0;
+  FloatT startTime = 0.0;
   if (prob->tuning_)
     startTime = CoinCpuTime();
 #endif
@@ -159,14 +159,14 @@ const CoinPresolveAction
   const CoinBigIndex *const mcstrt = prob->mcstrt_;
   const int *const hincol = prob->hincol_;
   const int *const hrow = prob->hrow_;
-  const double *const colels = prob->colels_;
-  const double *const cost = prob->cost_;
+  const FloatT *const colels = prob->colels_;
+  const FloatT *const cost = prob->cost_;
 
   // column type, bounds, solution, and status
   const unsigned char *const integerType = prob->integerType_;
-  const double *const clo = prob->clo_;
-  const double *const cup = prob->cup_;
-  double *const csol = prob->sol_;
+  const FloatT *const clo = prob->clo_;
+  const FloatT *const cup = prob->cup_;
+  FloatT *const csol = prob->sol_;
   unsigned char *&colstat = prob->colstat_;
 
   // row-major representation
@@ -175,25 +175,25 @@ const CoinPresolveAction
   const int *const hinrow = prob->hinrow_;
   const int *const hcol = prob->hcol_;
 #if 1 //REMOVE_DUAL_ACTION_REPAIR_SOLN > 0
-  const double *const rowels = prob->rowels_;
+  const FloatT *const rowels = prob->rowels_;
 #endif
 
   // row bounds
-  double *const rlo = prob->rlo_;
-  double *const rup = prob->rup_;
+  FloatT *const rlo = prob->rlo_;
+  FloatT *const rup = prob->rup_;
 
   // tolerances
-  const double ekkinf2 = PRESOLVE_SMALL_INF;
-  const double ekkinf = ekkinf2 * 1.0e8;
-  const double ztolcbarj = prob->ztoldj_;
+  const FloatT ekkinf2 = PRESOLVE_SMALL_INF;
+  const FloatT ekkinf = ekkinf2 * 1.0e8;
+  const FloatT ztolcbarj = prob->ztoldj_;
   const CoinRelFltEq relEq(prob->ztolzb_);
 
   /*
   Grab one of the preallocated scratch arrays to hold min and max values of
   row duals.
 */
-  double *ymin = prob->usefulRowDouble_;
-  double *ymax = ymin + nrows;
+  FloatT *ymin = prob->usefulRowDouble_;
+  FloatT *ymax = ymin + nrows;
   /* use arrays to say which bound active
      1 - lower
      2 - upper
@@ -236,11 +236,11 @@ const CoinPresolveAction
     CoinBigIndex onlyPositive = -1;
     CoinBigIndex onlyNegative = -1;
     for (CoinBigIndex k = krs; k < kre; k++) {
-      const double coeff = rowels[k];
+      const FloatT coeff = rowels[k];
       const int icol = hcol[k];
       char type = active[icol];
-      //const double lb = clo[icol] ;
-      //const double ub = cup[icol] ;
+      //const FloatT lb = clo[icol] ;
+      //const FloatT ub = cup[icol] ;
       if (type == 0 || (type & 8) != 0) {
         // free or already used
         positive = 2;
@@ -275,13 +275,13 @@ const CoinPresolveAction
     }
     bool doneSomething = false;
     if (onlyPositive >= 0 && positive == 1) {
-      const double coeff = rowels[onlyPositive];
+      const FloatT coeff = rowels[onlyPositive];
       const int icol = hcol[onlyPositive];
-      const double lb = clo[icol];
-      const double ub = cup[icol];
+      const FloatT lb = clo[icol];
+      const FloatT ub = cup[icol];
       // Get possible without icol
-      double maxUp = 0.0;
-      double maxDown = 0.0;
+      FloatT maxUp = 0.0;
+      FloatT maxDown = 0.0;
 #if USE_ACTIVE > 2
       printf("%d pos coeff %g bounds %g,%g rhs %g,%g - %d negative",
         icol, coeff, lb, ub, rlo[i], rup[i], negative);
@@ -295,9 +295,9 @@ const CoinPresolveAction
 #endif
         if (icol2 == icol)
           continue;
-        const double coeff2 = rowels[k];
-        const double lb2 = clo[icol2];
-        const double ub2 = cup[icol2];
+        const FloatT coeff2 = rowels[k];
+        const FloatT lb2 = clo[icol2];
+        const FloatT ub2 = cup[icol2];
         if (coeff2 > 0.0) {
           if (ub2 > 1.0e30)
             maxUp = COIN_DBL_MAX;
@@ -318,8 +318,8 @@ const CoinPresolveAction
             maxDown += coeff2 * ub2;
         }
       }
-      double impliedLower = (rlo[i] - maxUp) / coeff;
-      double impliedUpper = (rup[i] - maxDown) / coeff;
+      FloatT impliedLower = (rlo[i] - maxUp) / coeff;
+      FloatT impliedUpper = (rup[i] - maxDown) / coeff;
 #if USE_ACTIVE > 2
       printf("<= %g - implied l,u %g,%g\n", rup[i], impliedLower, impliedUpper);
 #endif
@@ -360,7 +360,7 @@ const CoinPresolveAction
 	printf("cant take off lb as implied lower %g - ",impliedLower);
 	printf("row is %g <= ",rlo[i]);
 	for (CoinBigIndex k = krs ; k < kre ; k++) {
-	  const double coeff = rowels[k] ;
+	  const FloatT coeff = rowels[k] ;
 	  const int icol = hcol[k] ;
 	  printf("(%d,%g) ",icol,coeff);
 	}
@@ -369,13 +369,13 @@ const CoinPresolveAction
       }
     }
     if (onlyNegative >= 0 && negative == 1 && !doneSomething) {
-      const double coeff = rowels[onlyNegative];
+      const FloatT coeff = rowels[onlyNegative];
       const int icol = hcol[onlyNegative];
-      const double lb = clo[icol];
-      const double ub = cup[icol];
+      const FloatT lb = clo[icol];
+      const FloatT ub = cup[icol];
       // Get possible without icol
-      double maxUp = 0.0;
-      double maxDown = 0.0;
+      FloatT maxUp = 0.0;
+      FloatT maxDown = 0.0;
 #if USE_ACTIVE > 2
       printf("%d neg coeff %g bounds %g,%g rhs %g,%g - %d positive",
         icol, coeff, lb, ub, rlo[i], rup[i], positive);
@@ -389,9 +389,9 @@ const CoinPresolveAction
 #endif
         if (icol2 == icol)
           continue;
-        const double coeff2 = rowels[k];
-        const double lb2 = clo[icol2];
-        const double ub2 = cup[icol2];
+        const FloatT coeff2 = rowels[k];
+        const FloatT lb2 = clo[icol2];
+        const FloatT ub2 = cup[icol2];
         if (coeff2 > 0.0) {
           if (ub2 > 1.0e30)
             maxUp = COIN_DBL_MAX;
@@ -412,14 +412,14 @@ const CoinPresolveAction
             maxDown += coeff2 * ub2;
         }
       }
-      double impliedLower = (rup[i] - maxDown) / coeff;
-      double impliedUpper = (rlo[i] - maxUp) / coeff;
+      FloatT impliedLower = (rup[i] - maxDown) / coeff;
+      FloatT impliedUpper = (rlo[i] - maxUp) / coeff;
 #if USE_ACTIVE > 2
       printf("<= %g - implied l,u %g,%g\n", rup[i], impliedLower, impliedUpper);
 #endif
       int nOne = 0;
       for (CoinBigIndex k = krs; k < kre; k++) {
-        const double coeff = rowels[k];
+        const FloatT coeff = rowels[k];
         const int icol = hcol[k];
         if (hincol[icol] == 1 && coeff > 0.0)
           nOne++;
@@ -427,7 +427,7 @@ const CoinPresolveAction
       if (nOne >= hinrow[i] - 1) {
         for (CoinBigIndex k = krs; k < kre; k++) {
           const int icol = hcol[k];
-          const double coeff = rowels[k];
+          const FloatT coeff = rowels[k];
           if (hincol[icol] == 1 && coeff > 0.0) {
 #if USE_ACTIVE > 2
             printf("(%d has one entry) ", icol);
@@ -474,7 +474,7 @@ const CoinPresolveAction
     } else if (!positive && false) {
       printf("all negative %g <= ", rlo[i]);
       for (CoinBigIndex k = krs; k < kre; k++) {
-        const double coeff = rowels[k];
+        const FloatT coeff = rowels[k];
         const int icol = hcol[k];
         printf("(%d,%g) ", icol, coeff);
       }
@@ -482,7 +482,7 @@ const CoinPresolveAction
     } else if (!negative && false) {
       printf("all positive %g <= ", rlo[i]);
       for (CoinBigIndex k = krs; k < kre; k++) {
-        const double coeff = rowels[k];
+        const FloatT coeff = rowels[k];
         const int icol = hcol[k];
         printf("(%d,%g) ", icol, coeff);
       }
@@ -544,9 +544,9 @@ const CoinPresolveAction
 #endif
     if (no_ub != no_lb) {
       const int &i = hrow[mcstrt[j]];
-      double aij = colels[mcstrt[j]];
+      FloatT aij = colels[mcstrt[j]];
       PRESOLVEASSERT(fabs(aij) > ZTOLDP);
-      const double yzero = cost[j] / aij;
+      const FloatT yzero = cost[j] / aij;
       if ((aij > 0.0) == no_ub) {
         if (ymax[i] > yzero)
           ymax[i] = yzero;
@@ -561,8 +561,8 @@ const CoinPresolveAction
   // Grab another work array, sized to ncols_
   int *fix_cols = prob->usefulColumnInt_;
 #if PRESOLVE_TIGHTEN_DUALS > 0
-  double *cbarmin = new double[ncols];
-  double *cbarmax = new double[ncols];
+  FloatT *cbarmin = new FloatT[ncols];
+  FloatT *cbarmax = new FloatT[ncols];
 #endif
   /*
   Now we have (admittedly weak) bounds on the dual for each row. We can use
@@ -587,13 +587,13 @@ const CoinPresolveAction
       // Number of ordinary rows
       int nordu = 0;
       int nordl = 0;
-      double cbarjmin = cost[j];
-      double cbarjmax = cbarjmin;
+      FloatT cbarjmin = cost[j];
+      FloatT cbarjmax = cbarjmin;
       for (CoinBigIndex k = kcs; k < kce; k++) {
         const int &i = hrow[k];
-        const double &aij = colels[k];
-        const double mindelta = aij * ymin[i];
-        const double maxdelta = aij * ymax[i];
+        const FloatT &aij = colels[k];
+        const FloatT mindelta = aij * ymin[i];
+        const FloatT maxdelta = aij * ymax[i];
 
         if (aij > 0.0) {
           if (ymin[i] >= -ekkinf2) {
@@ -654,10 +654,10 @@ const CoinPresolveAction
           if (nflagu == 1 && cbarjmax < -ztolcbarj) {
             for (CoinBigIndex k = kcs; k < kce; k++) {
               const int i = hrow[k];
-              const double aij = colels[k];
+              const FloatT aij = colels[k];
               if (aij > 0.0 && ymin[i] < -ekkinf2) {
                 if (cbarjmax < (ymax[i] * aij - ztolcbarj)) {
-                  const double newValue = cbarjmax / aij;
+                  const FloatT newValue = cbarjmax / aij;
                   if (ymax[i] > ekkinf2 && newValue <= ekkinf2) {
                     nflagl--;
                     cbarjmin -= aij * newValue;
@@ -675,7 +675,7 @@ const CoinPresolveAction
                 }
               } else if (aij < 0.0 && ymax[i] > ekkinf2) {
                 if (cbarjmax < (ymin[i] * aij - ztolcbarj)) {
-                  const double newValue = cbarjmax / aij;
+                  const FloatT newValue = cbarjmax / aij;
                   if (ymin[i] < -ekkinf2 && newValue >= -ekkinf2) {
                     nflagl--;
                     cbarjmin -= aij * newValue;
@@ -708,7 +708,7 @@ const CoinPresolveAction
 #if 0
 	    for (CoinBigIndex k = kcs; k < kce; k++) {
 	      const int i = hrow[k] ;
-	      const double aij = colels[k] ;
+	      const FloatT aij = colels[k] ;
 	      if (aij > 0.0) {
 #if PRESOLVE_DEBUG > 1
 		std::cout
@@ -747,12 +747,12 @@ const CoinPresolveAction
             // We can make bound finite one way
             for (CoinBigIndex k = kcs; k < kce; k++) {
               const int i = hrow[k];
-              const double coeff = colels[k];
+              const FloatT coeff = colels[k];
 
               if (coeff < 0.0 && ymin[i] < -ekkinf2) {
                 // ymax[i] has upper bound
                 if (cbarjmin > ymax[i] * coeff + ztolcbarj) {
-                  const double newValue = cbarjmin / coeff;
+                  const FloatT newValue = cbarjmin / coeff;
                   // re-compute hi
                   if (ymax[i] > ekkinf2 && newValue <= ekkinf2) {
                     nflagu--;
@@ -769,7 +769,7 @@ const CoinPresolveAction
               } else if (coeff > 0.0 && ymax[i] > ekkinf2) {
                 // ymin[i] has lower bound
                 if (cbarjmin > ymin[i] * coeff + ztolcbarj) {
-                  const double newValue = cbarjmin / coeff;
+                  const FloatT newValue = cbarjmin / coeff;
                   // re-compute lo
                   if (ymin[i] < -ekkinf2 && newValue >= -ekkinf2) {
                     nflagu--;
@@ -789,7 +789,7 @@ const CoinPresolveAction
             // We may be able to tighten
             for (CoinBigIndex k = kcs; k < kce; k++) {
               const int i = hrow[k];
-              const double coeff = colels[k];
+              const FloatT coeff = colels[k];
 
               if (coeff < 0.0) {
                 ymax[i] += cbarjmax / coeff;
@@ -849,8 +849,8 @@ const CoinPresolveAction
   after establishing the basis.
 */
             if (csol[j] - clo[j] > 1.0e-7 && hincol[j] == 1) {
-              double value_j = colels[mcstrt[j]];
-              double distance_j = csol[j] - clo[j];
+              FloatT value_j = colels[mcstrt[j]];
+              FloatT distance_j = csol[j] - clo[j];
               int row = hrow[mcstrt[j]];
               // See if another column can take value
               for (CoinBigIndex kk = mrstrt[row]; kk < mrstrt[row] + hinrow[row]; kk++) {
@@ -859,15 +859,15 @@ const CoinPresolveAction
                   continue;
 
                 if (hincol[k] == 1 && k != j) {
-                  const double value_k = rowels[kk];
-                  double movement;
+                  const FloatT value_k = rowels[kk];
+                  FloatT movement;
                   if (value_k * value_j > 0.0) {
                     // k needs to increase
-                    double distance_k = cup[k] - csol[k];
+                    FloatT distance_k = cup[k] - csol[k];
                     movement = CoinMin((distance_j * value_j) / value_k, distance_k);
                   } else {
                     // k needs to decrease
-                    double distance_k = clo[k] - csol[k];
+                    FloatT distance_k = clo[k] - csol[k];
                     movement = CoinMax((distance_j * value_j) / value_k, distance_k);
                   }
                   if (relEq(movement, 0))
@@ -923,8 +923,8 @@ const CoinPresolveAction
 #if 0
 	    // See comments above for 'fix at lb'.
 	    if (cup[j]-csol[j] > 1.0e-7 && hincol[j] == 1) {
-	      double value_j = colels[mcstrt[j]] ;
-	      double distance_j = csol[j]-cup[j] ;
+	      FloatT value_j = colels[mcstrt[j]] ;
+	      FloatT distance_j = csol[j]-cup[j] ;
 	      int row = hrow[mcstrt[j]] ;
 	      // See if another column can take value
 	      for (CoinBigIndex kk = mrstrt[row] ; kk < mrstrt[row]+hinrow[row] ; kk++) {
@@ -933,15 +933,15 @@ const CoinPresolveAction
 		  continue ;
 
 		if (hincol[k] == 1 && k != j) {
-		  const double value_k = rowels[kk] ;
-		  double movement ;
+		  const FloatT value_k = rowels[kk] ;
+		  FloatT movement ;
 		  if (value_k*value_j<0.0) {
 		    // k needs to increase
-		    double distance_k = cup[k]-csol[k] ;
+		    FloatT distance_k = cup[k]-csol[k] ;
 		    movement = CoinMin((distance_j*value_j)/value_k,distance_k) ;
 		  } else {
 		    // k needs to decrease
-		    double distance_k = clo[k]-csol[k] ;
+		    FloatT distance_k = clo[k]-csol[k] ;
 		    movement = CoinMax((distance_j*value_j)/value_k,distance_k) ;
 		  }
 		  if (relEq(movement,0)) continue ;
@@ -978,7 +978,7 @@ const CoinPresolveAction
 */
     // I don't know why I stopped doing this.
 #if PRESOLVE_TIGHTEN_DUALS > 0
-    const double *rowels = prob->rowels_;
+    const FloatT *rowels = prob->rowels_;
     const int *hcol = prob->hcol_;
     const CoinBigIndex *mrstrt = prob->mrstrt_;
     int *hinrow = prob->hinrow_;
@@ -990,20 +990,20 @@ const CoinPresolveAction
       if ((no_ub ^ no_lb) == true) {
         const CoinBigIndex krs = mrstrt[i];
         const CoinBigIndex kre = krs + hinrow[i];
-        const double rmax = ymax[i];
-        const double rmin = ymin[i];
+        const FloatT rmax = ymax[i];
+        const FloatT rmin = ymin[i];
 
         // all row columns are non-empty
         for (CoinBigIndex k = krs; k < kre; k++) {
-          const double coeff = rowels[k];
+          const FloatT coeff = rowels[k];
           const int icol = hcol[k];
-          const double cbarmax0 = cbarmax[icol];
-          const double cbarmin0 = cbarmin[icol];
+          const FloatT cbarmax0 = cbarmax[icol];
+          const FloatT cbarmin0 = cbarmin[icol];
 
           if (no_ub) {
             // cbarj must not be negative
             if (coeff > ZTOLDP2 && cbarjmax0 < PRESOLVE_INF && cup[icol] >= ekkinf) {
-              const double bnd = cbarjmax0 / coeff;
+              const FloatT bnd = cbarjmax0 / coeff;
               if (rmax > bnd) {
 #if PRESOLVE_DEBUG > 1
                 printf("MAX TIGHT[%d,%d]: %g --> %g\n", i, hrow[k], ymax[i], bnd);
@@ -1013,7 +1013,7 @@ const CoinPresolveAction
                 ;
               }
             } else if (coeff < -ZTOLDP2 && cbarjmax0 < PRESOLVE_INF && cup[icol] >= ekkinf) {
-              const double bnd = cbarjmax0 / coeff;
+              const FloatT bnd = cbarjmax0 / coeff;
               if (rmin < bnd) {
 #if PRESOLVE_DEBUG > 1
                 printf("MIN TIGHT[%d,%d]: %g --> %g\n", i, hrow[k], ymin[i], bnd);
@@ -1026,7 +1026,7 @@ const CoinPresolveAction
           } else { // no_lb
             // cbarj must not be positive
             if (coeff > ZTOLDP2 && cbarmin0 > -PRESOLVE_INF && clo[icol] <= -ekkinf) {
-              const double bnd = cbarmin0 / coeff;
+              const FloatT bnd = cbarmin0 / coeff;
               if (rmin < bnd) {
 #if PRESOLVE_DEBUG > 1
                 printf("MIN1 TIGHT[%d,%d]: %g --> %g\n", i, hrow[k], ymin[i], bnd);
@@ -1036,7 +1036,7 @@ const CoinPresolveAction
                 ;
               }
             } else if (coeff < -ZTOLDP2 && cbarmin0 > -PRESOLVE_INF && clo[icol] <= -ekkinf) {
-              const double bnd = cbarmin0 / coeff;
+              const FloatT bnd = cbarmin0 / coeff;
               if (rmax > bnd) {
 #if PRESOLVE_DEBUG > 1
                 printf("MAX TIGHT1[%d,%d]: %g --> %g\n", i, hrow[k], ymax[i], bnd);
@@ -1185,7 +1185,7 @@ const CoinPresolveAction
         bindingDown = -2;
         break;
       }
-      double aij = colels[k];
+      FloatT aij = colels[k];
       /*
   For a<ij> > 0 in a <= constraint (canFix = 2), the up direction is
   binding. For a >= constraint, it'll be the down direction. If the relevant
@@ -1235,7 +1235,7 @@ const CoinPresolveAction
   If no constraint provided a bound, we might be headed for unboundedness,
   but leave that for some other code to determine.
 */
-    double cj = cost[j];
+    FloatT cj = cost[j];
     if (bindingUp > -2 && cj <= 0.0) {
       if (bindingUp >= 0) {
         canFix[bindingUp] /= 2;
@@ -1282,7 +1282,7 @@ const CoinPresolveAction
     int i, j;
     CoinBigIndex k, krs, kre;
     int iflagu, iflagl;
-    double dmaxup, dmaxdown;
+    FloatT dmaxup, dmaxdown;
 
     for (i = 0; i < nrows; ++i) {
       if (rlo[i] == rup[i]) {
@@ -1299,7 +1299,7 @@ const CoinPresolveAction
         /* Compute L(i) and U(i) */
         /* ------------------------------------------------------------*/
         for (k = krs; k < kre; ++k) {
-          double value = rowels[k];
+          FloatT value = rowels[k];
           j = hcol[k];
           if (value > 0.0) {
             if (cup[j] < 1.0e12)
@@ -1334,14 +1334,14 @@ const CoinPresolveAction
   for (int j = 0; j < ncols; j++) {
     if (hincol[j] == 1 && cost[j] > -1.0e10) {
       // can we make equality row
-      double coeff = colels[mcstrt[j]];
+      FloatT coeff = colels[mcstrt[j]];
       int irow = hrow[mcstrt[j]];
       int iflagl = infCount[irow] & 63;
       int iflagu = infCount[irow] >> 16;
       if (iflagu > 1 && iflagl > 1)
         continue;
-      double dmaxdown = ymin[irow];
-      double dmaxup = ymax[irow];
+      FloatT dmaxdown = ymin[irow];
+      FloatT dmaxup = ymax[irow];
 #if USE_ACTIVE > 1
       printf("singleton col %d has %g on row %d - rhs %g,%g infs %d,%d maxes %g,%g\n",
         j, coeff, irow, rlo[irow], rup[irow],
@@ -1365,7 +1365,7 @@ const CoinPresolveAction
         }
       } else {
       }
-      double rhs;
+      FloatT rhs;
       if (cost[j] > 0.0) {
         // we want as small as possible
         if (coeff > 0) {
@@ -1444,12 +1444,12 @@ const CoinPresolveAction
       int nBinary = 0;
       int nOther = 0;
       int nSameCoeff = 0;
-      double rhs = canFix[i] == 1 ? rup[i] : rlo[i];
-      double firstCoeff = 0.0;
+      FloatT rhs = canFix[i] == 1 ? rup[i] : rlo[i];
+      FloatT firstCoeff = 0.0;
       int j = -1;
       for (CoinBigIndex k = krs; k < kre; k++) {
         j = hcol[k];
-        double coeff = rowels[k];
+        FloatT coeff = rowels[k];
         if (cup[j] > clo[j]) {
           if (!firstCoeff) {
             firstCoeff = coeff;
@@ -1497,7 +1497,7 @@ const CoinPresolveAction
 #if PRESOLVE_DEBUG > 1
               printf("int eq row is %g <= ", rlo[i]);
               for (CoinBigIndex k = krs; k < kre; k++) {
-                const double coeff = rowels[k];
+                const FloatT coeff = rowels[k];
                 const int icol = hcol[k];
                 printf("(%d,%g - bounds %g,%g) ", icol, coeff, clo[icol], cup[icol]);
               }
@@ -1516,7 +1516,7 @@ const CoinPresolveAction
 #if PRESOLVE_DEBUG > 1
             printf("int2 eq row is %g <= ", rlo[i]);
             for (CoinBigIndex k = krs; k < kre; k++) {
-              const double coeff = rowels[k];
+              const FloatT coeff = rowels[k];
               const int icol = hcol[k];
               printf("(%d,%g - bounds %g,%g) ", icol, coeff, clo[icol], cup[icol]);
             }
@@ -1582,7 +1582,7 @@ const CoinPresolveAction
 #endif
 #undef PRESOLVE_DEBUG
 #if COIN_PRESOLVE_TUNING > 0
-  double thisTime = 0.0;
+  FloatT thisTime = 0.0;
   if (prob->tuning_)
     thisTime = CoinCpuTime();
 #endif
@@ -1622,8 +1622,8 @@ void remove_dual_action::postsolve(CoinPostsolveMatrix *prob) const
   const action *const &bndRecords = actions_;
   const int &numRecs = nactions_;
 
-  double *&rlo = prob->rlo_;
-  double *&rup = prob->rup_;
+  FloatT *&rlo = prob->rlo_;
+  FloatT *&rup = prob->rup_;
   unsigned char *&rowstat = prob->rowstat_;
 
 #if PRESOLVE_CONSISTENCY > 0 || PRESOLVE_DEBUG > 0
@@ -1650,8 +1650,8 @@ void remove_dual_action::postsolve(CoinPostsolveMatrix *prob) const
   for (int k = 0; k < numRecs; k++) {
     const action &bndRec = bndRecords[k];
     const int &i = bndRec.ndx_;
-    const double &rloi = bndRec.rlo_;
-    const double &rupi = bndRec.rup_;
+    const FloatT &rloi = bndRec.rlo_;
+    const FloatT &rupi = bndRec.rup_;
 
 #if PRESOLVE_DEBUG > 1
     std::cout << "NDUAL(eq): row(" << i << ")";

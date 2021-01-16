@@ -521,7 +521,7 @@ void CoinMessageHandler::gutsOfCopy(const CoinMessageHandler &rhs)
   int i;
   for (i = 0; i < COIN_NUM_LOG; i++)
     logLevels_[i] = rhs.logLevels_[i];
-  doubleValue_ = rhs.doubleValue_;
+  FloatTValue_ = rhs.FloatTValue_;
   longValue_ = rhs.longValue_;
   charValue_ = rhs.charValue_;
   stringValue_ = rhs.stringValue_;
@@ -726,7 +726,7 @@ int CoinMessageHandler::finish()
   messageBuffer_[0] = '\0';
   messageOut_ = messageBuffer_;
   printStatus_ = 0;
-  doubleValue_.clear();
+  FloatTValue_.clear();
   longValue_.clear();
   charValue_.clear();
   stringValue_.clear();
@@ -810,11 +810,11 @@ CoinMessageHandler::operator<<(int intvalue)
   return *this;
 }
 CoinMessageHandler &
-CoinMessageHandler::operator<<(double doublevalue)
+CoinMessageHandler::operator<<(FloatT FloatTvalue)
 {
   if (printStatus_ == 3)
     return *this; // not doing this message
-  doubleValue_.push_back(doublevalue);
+  FloatTValue_.push_back(FloatTvalue);
 
   if (printStatus_ < 2) {
     if (format_) {
@@ -826,9 +826,9 @@ CoinMessageHandler::operator<<(double doublevalue)
         if (format_[1] == '.' && format_[2] >= '0' && format_[2] <= '9') {
           // an explicitly specified precision currently overrides the
           // precision of the message handler
-          sprintf(messageOut_, format_, doublevalue);
+          sprintf(messageOut_, format_, FloatTvalue);
         } else {
-          sprintf(messageOut_, g_format_, doublevalue);
+          sprintf(messageOut_, g_format_, FloatTvalue);
           if (next != format_ + 2) {
             messageOut_ += strlen(messageOut_);
             strcpy(messageOut_, format_ + 2);
@@ -840,7 +840,7 @@ CoinMessageHandler::operator<<(double doublevalue)
     } else {
       sprintf(messageOut_, " ");
       messageOut_ += 1;
-      sprintf(messageOut_, g_format_, doublevalue);
+      sprintf(messageOut_, g_format_, FloatTvalue);
       messageOut_ += strlen(messageOut_);
     }
   }

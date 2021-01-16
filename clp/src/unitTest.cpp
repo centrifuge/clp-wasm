@@ -50,23 +50,23 @@
 #include "ClpPresolve.hpp"
 #include "Idiot.hpp"
 #if FACTORIZATION_STATISTICS
-extern double ftranTwiddleFactor1X;
-extern double ftranTwiddleFactor2X;
-extern double ftranFTTwiddleFactor1X;
-extern double ftranFTTwiddleFactor2X;
-extern double btranTwiddleFactor1X;
-extern double btranTwiddleFactor2X;
-extern double ftranFullTwiddleFactor1X;
-extern double ftranFullTwiddleFactor2X;
-extern double btranFullTwiddleFactor1X;
-extern double btranFullTwiddleFactor2X;
-extern double denseThresholdX;
-extern double twoThresholdX;
-extern double minRowsSparse;
-extern double largeRowsSparse;
-extern double mediumRowsDivider;
-extern double mediumRowsMinCount;
-extern double largeRowsCount;
+extern FloatT ftranTwiddleFactor1X;
+extern FloatT ftranTwiddleFactor2X;
+extern FloatT ftranFTTwiddleFactor1X;
+extern FloatT ftranFTTwiddleFactor2X;
+extern FloatT btranTwiddleFactor1X;
+extern FloatT btranTwiddleFactor2X;
+extern FloatT ftranFullTwiddleFactor1X;
+extern FloatT ftranFullTwiddleFactor2X;
+extern FloatT btranFullTwiddleFactor1X;
+extern FloatT btranFullTwiddleFactor2X;
+extern FloatT denseThresholdX;
+extern FloatT twoThresholdX;
+extern FloatT minRowsSparse;
+extern FloatT largeRowsSparse;
+extern FloatT mediumRowsDivider;
+extern FloatT mediumRowsMinCount;
+extern FloatT largeRowsCount;
 #endif
 
 //#############################################################################
@@ -223,27 +223,27 @@ static void printSol(ClpSimplex &model)
   int numberRows = model.numberRows();
   int numberColumns = model.numberColumns();
 
-  double *rowPrimal = model.primalRowSolution();
-  double *rowDual = model.dualRowSolution();
-  double *rowLower = model.rowLower();
-  double *rowUpper = model.rowUpper();
+  FloatT *rowPrimal = model.primalRowSolution();
+  FloatT *rowDual = model.dualRowSolution();
+  FloatT *rowLower = model.rowLower();
+  FloatT *rowUpper = model.rowUpper();
 
   int iRow;
-  double objValue = model.getObjValue();
+  FloatT objValue = model.getObjValue();
   printf("Objvalue %g Rows (%d)\n", objValue, numberRows);
   for (iRow = 0; iRow < numberRows; iRow++) {
     printf("%d primal %g dual %g low %g up %g\n",
       iRow, rowPrimal[iRow], rowDual[iRow],
       rowLower[iRow], rowUpper[iRow]);
   }
-  double *columnPrimal = model.primalColumnSolution();
-  double *columnDual = model.dualColumnSolution();
-  double *columnLower = model.columnLower();
-  double *columnUpper = model.columnUpper();
-  double offset;
-  //const double * gradient = model.objectiveAsObject()->gradient(&model,
+  FloatT *columnPrimal = model.primalColumnSolution();
+  FloatT *columnDual = model.dualColumnSolution();
+  FloatT *columnLower = model.columnLower();
+  FloatT *columnUpper = model.columnUpper();
+  FloatT offset;
+  //const FloatT * gradient = model.objectiveAsObject()->gradient(&model,
   //                                                       columnPrimal,offset,true,1);
-  const double *gradient = model.objective(columnPrimal, offset);
+  const FloatT *gradient = model.objective(columnPrimal, offset);
   int iColumn;
   objValue = -offset - model.objectiveOffset();
   printf("offset %g (%g)\n", offset, model.objectiveOffset());
@@ -359,29 +359,29 @@ int mainTest(int argc, const char *argv[], int algorithm,
     unsigned int m;
     std::string sizeLoHi;
 #if FACTORIZATION_STATISTICS
-    double ftranTwiddleFactor1XChoice[3] = { 0.9, 1.0, 1.1 };
-    double ftranTwiddleFactor2XChoice[3] = { 0.9, 1.0, 1.1 };
-    double ftranFTTwiddleFactor1XChoice[3] = { 0.9, 1.0, 1.1 };
-    double ftranFTTwiddleFactor2XChoice[3] = { 0.9, 1.0, 1.1 };
-    double btranTwiddleFactor1XChoice[3] = { 0.9, 1.0, 1.1 };
-    double btranTwiddleFactor2XChoice[3] = { 0.9, 1.0, 1.1 };
-    double ftranFullTwiddleFactor1XChoice[3] = { 0.9, 1.0, 1.1 };
-    double ftranFullTwiddleFactor2XChoice[3] = { 0.9, 1.0, 1.1 };
-    double btranFullTwiddleFactor1XChoice[3] = { 0.9, 1.0, 1.1 };
-    double btranFullTwiddleFactor2XChoice[3] = { 0.9, 1.0, 1.1 };
-    double denseThresholdXChoice[3] = { 2, 20, 40 };
-    double twoThresholdXChoice[3] = { 800, 1000, 1200 };
-    double minRowsSparseChoice[3] = { 250, 300, 350 };
-    double largeRowsSparseChoice[3] = { 8000, 10000, 12000 };
-    double mediumRowsDividerChoice[3] = { 5, 6, 7 };
-    double mediumRowsMinCountChoice[3] = { 300, 500, 600 };
-    double largeRowsCountChoice[3] = { 700, 1000, 1300 };
-    double times[3 * 3 * 3 * 3 * 3];
+    FloatT ftranTwiddleFactor1XChoice[3] = { 0.9, 1.0, 1.1 };
+    FloatT ftranTwiddleFactor2XChoice[3] = { 0.9, 1.0, 1.1 };
+    FloatT ftranFTTwiddleFactor1XChoice[3] = { 0.9, 1.0, 1.1 };
+    FloatT ftranFTTwiddleFactor2XChoice[3] = { 0.9, 1.0, 1.1 };
+    FloatT btranTwiddleFactor1XChoice[3] = { 0.9, 1.0, 1.1 };
+    FloatT btranTwiddleFactor2XChoice[3] = { 0.9, 1.0, 1.1 };
+    FloatT ftranFullTwiddleFactor1XChoice[3] = { 0.9, 1.0, 1.1 };
+    FloatT ftranFullTwiddleFactor2XChoice[3] = { 0.9, 1.0, 1.1 };
+    FloatT btranFullTwiddleFactor1XChoice[3] = { 0.9, 1.0, 1.1 };
+    FloatT btranFullTwiddleFactor2XChoice[3] = { 0.9, 1.0, 1.1 };
+    FloatT denseThresholdXChoice[3] = { 2, 20, 40 };
+    FloatT twoThresholdXChoice[3] = { 800, 1000, 1200 };
+    FloatT minRowsSparseChoice[3] = { 250, 300, 350 };
+    FloatT largeRowsSparseChoice[3] = { 8000, 10000, 12000 };
+    FloatT mediumRowsDividerChoice[3] = { 5, 6, 7 };
+    FloatT mediumRowsMinCountChoice[3] = { 300, 500, 600 };
+    FloatT largeRowsCountChoice[3] = { 700, 1000, 1300 };
+    FloatT times[3 * 3 * 3 * 3 * 3];
     memset(times, 0, sizeof(times));
 #define whichParam(za, zname)            \
   const char *choice##za = #zname;       \
-  const double *use##za = zname##Choice; \
-  double *external##za = &zname
+  const FloatT *use##za = zname##Choice; \
+  FloatT *external##za = &zname
     whichParam(A, denseThresholdX);
     whichParam(B, twoThresholdX);
     whichParam(C, minRowsSparse);
@@ -397,8 +397,8 @@ int mainTest(int argc, const char *argv[], int algorithm,
     std::vector< bool > min;
     std::vector< int > nRows;
     std::vector< int > nCols;
-    std::vector< double > objValue;
-    std::vector< double > objValueTol;
+    std::vector< FloatT > objValue;
+    std::vector< FloatT > objValueTol;
     // 100 added means no presolve
     std::vector< int > bestStrategy;
     if (empty.numberRows()) {
@@ -1073,7 +1073,7 @@ int mainTest(int argc, const char *argv[], int algorithm,
       }
     }
 
-    double timeTaken = 0.0;
+    FloatT timeTaken = 0.0;
     if (!barrierAvailable)
       switchOff[0] = 1;
     // Loop once for each Mps File
@@ -1110,13 +1110,13 @@ int mainTest(int argc, const char *argv[], int algorithm,
       // Runs through strategies
       if (algorithm == 6 || algorithm == 7) {
         // algorithms tested are at top of file
-        double testTime[NUMBER_ALGORITHMS];
+        FloatT testTime[NUMBER_ALGORITHMS];
         std::string alg[NUMBER_ALGORITHMS];
         int iTest;
         for (iTest = 0; iTest < NUMBER_ALGORITHMS; iTest++) {
           ClpSolve solveOptions = setupForSolve(iTest, alg[iTest], 1);
           if (solveOptions.getSolveType() != ClpSolve::notImplemented) {
-            double time1 = CoinCpuTime();
+            FloatT time1 = CoinCpuTime();
             ClpSimplex solution = solutionBase;
             if (solution.maximumSeconds() < 0.0)
               solution.setMaximumSeconds(120.0);
@@ -1128,7 +1128,7 @@ int mainTest(int argc, const char *argv[], int algorithm,
               }
             }
             solution.initialSolve(solveOptions);
-            double time2 = CoinCpuTime() - time1;
+            FloatT time2 = CoinCpuTime() - time1;
             testTime[iTest] = time2;
             printf("Finished %s Took %g seconds (%d iterations) - status %d\n",
               mpsName[m].c_str(), time2, solution.problemStatus(), solution.numberIterations());
@@ -1139,7 +1139,7 @@ int mainTest(int argc, const char *argv[], int algorithm,
           }
         }
         int iBest = -1;
-        double dBest = 1.0e10;
+        FloatT dBest = 1.0e10;
         printf("%s", fn.c_str());
         for (iTest = 0; iTest < NUMBER_ALGORITHMS; iTest++) {
           if (testTime[iTest] < 1.0e30) {
@@ -1159,13 +1159,13 @@ int mainTest(int argc, const char *argv[], int algorithm,
           printf("No strategy finished in time limit\n");
         continue;
       }
-      double time1 = CoinCpuTime();
+      FloatT time1 = CoinCpuTime();
       AnySimplex solution = solutionBase;
 #if 0
                solution.setOptimizationDirection(-1);
                {
                     int j;
-                    double * obj = solution.objective();
+                    FloatT * obj = solution.objective();
                     int n = solution.numberColumns();
                     for (j = 0; j < n; j++)
                          obj[j] *= -1.0;
@@ -1223,12 +1223,12 @@ int mainTest(int argc, const char *argv[], int algorithm,
         }
       }
 #if FACTORIZATION_STATISTICS
-      double timesOne[3 * 3 * 3 * 3 * 3];
+      FloatT timesOne[3 * 3 * 3 * 3 * 3];
       memset(timesOne, 0, sizeof(timesOne));
       int iterationsOne[3 * 3 * 3 * 3 * 3];
       memset(iterationsOne, 0, sizeof(iterationsOne));
       AnySimplex saveModel(solution);
-      double time2;
+      FloatT time2;
 #if 0
                solution.initialSolve(solveOptions);
                time2 = CoinCpuTime() - time1;
@@ -1258,7 +1258,7 @@ int mainTest(int argc, const char *argv[], int algorithm,
                 *externalE = useE[iE];
                 solution = saveModel;
                 solution.initialSolve(solveOptions);
-                double time3 = CoinCpuTime();
+                FloatT time3 = CoinCpuTime();
                 printf("Finished %s Took %g seconds (%d iterations) - status %d\n",
                   mpsName[m].c_str(), time3 - time2, solution.numberIterations(), solution.problemStatus());
                 iterationsOne[iA + 3 * iB + 9 * iC + 27 * iD + 81 * iE] = solution.numberIterations();
@@ -1270,9 +1270,9 @@ int mainTest(int argc, const char *argv[], int algorithm,
           }
         }
       }
-      double bestTime = 1.0e100;
+      FloatT bestTime = 1.0e100;
       int iBestTime = -1;
-      double bestTimePer = 1.0e100;
+      FloatT bestTimePer = 1.0e100;
       int iBestTimePer = -1;
       int bestIterations = 1000000;
       int iBestIterations = -1;
@@ -1281,7 +1281,7 @@ int mainTest(int argc, const char *argv[], int algorithm,
         // skip if not done
         if (!iterationsOne[i])
           continue;
-        double average = timesOne[i] / static_cast< double >(iterationsOne[i]);
+        FloatT average = timesOne[i] / static_cast< FloatT >(iterationsOne[i]);
         if (timesOne[i] < bestTime) {
           bestTime = timesOne[i];
           iBestTime = i;
@@ -1333,7 +1333,7 @@ int mainTest(int argc, const char *argv[], int algorithm,
         choiceB, useB[iB], choiceC, useC[iC], choiceD, useD[iD], choiceE, useE[iE]);
 #else
       solution.initialSolve(solveOptions);
-      double time2 = CoinCpuTime() - time1;
+      FloatT time2 = CoinCpuTime() - time1;
       timeTaken += time2;
       printf("%s took %g seconds using algorithm %s\n", fn.c_str(), time2, nameAlgorithm.c_str());
 #endif
@@ -1343,7 +1343,7 @@ int mainTest(int argc, const char *argv[], int algorithm,
           std::cerr << "** NOT OPTIMAL ";
           numberFailures++;
         }
-        double soln = solution.objectiveValue();
+        FloatT soln = solution.objectiveValue();
         CoinRelFltEq eq(objValueTol[m]);
         std::cerr << soln << ",  " << objValue[m] << " diff " << soln - objValue[m] << std::endl;
         if (!eq(soln, objValue[m])) {
@@ -1354,7 +1354,7 @@ int mainTest(int argc, const char *argv[], int algorithm,
     }
     printf("Total time %g seconds\n", timeTaken);
 #if FACTORIZATION_STATISTICS
-    double bestTime = 1.0e100;
+    FloatT bestTime = 1.0e100;
     int iBestTime = -1;
     for (int i = 0; i < 3 * 3 * 3 * 3 * 3; i++) {
       if (times[i] && times[i] < bestTime) {
@@ -1368,7 +1368,7 @@ int mainTest(int argc, const char *argv[], int algorithm,
           for (int iD = loD; iD < hiD; iD++) {
             for (int iE = loE; iE < hiE; iE++) {
               int k = iA + 3 * iB + 9 * iC + 27 * iD + 81 * iE;
-              double thisTime = times[k];
+              FloatT thisTime = times[k];
               if (thisTime) {
                 if (k == iBestTime)
                   printf("** ");
@@ -1418,15 +1418,15 @@ void ClpSimplexUnitTest(const std::string &dirSample)
     CoinBigIndex start[5] = { 0, 4, 7, 8, 9 };
     int length[5] = { 2, 3, 1, 1, 1 };
     int rows[11] = { 0, 2, -1, -1, 0, 1, 2, 0, 1, 2 };
-    double elements[11] = { 7.0, 2.0, 1.0e10, 1.0e10, -2.0, 1.0, -2.0, 1, 1, 1 };
+    FloatT elements[11] = { 7.0, 2.0, 1.0e10, 1.0e10, -2.0, 1.0, -2.0, 1, 1, 1 };
     CoinPackedMatrix matrix(true, 3, 5, 8, elements, rows, start, length);
 
     // rim data
-    double objective[7] = { -4.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-    double rowLower[5] = { 14.0, 3.0, 3.0, 1.0e10, 1.0e10 };
-    double rowUpper[5] = { 14.0, 3.0, 3.0, -1.0e10, -1.0e10 };
-    double colLower[7] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-    double colUpper[7] = { 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0 };
+    FloatT objective[7] = { -4.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+    FloatT rowLower[5] = { 14.0, 3.0, 3.0, 1.0e10, 1.0e10 };
+    FloatT rowUpper[5] = { 14.0, 3.0, 3.0, -1.0e10, -1.0e10 };
+    FloatT colLower[7] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+    FloatT colUpper[7] = { 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0 };
 
     // basis 1
     int rowBasis1[3] = { -1, -1, -1 };
@@ -1473,11 +1473,11 @@ void ClpSimplexUnitTest(const std::string &dirSample)
 #else
     solution.factorize();
 #endif
-    const double *colsol = solution.primalColumnSolution();
-    const double *rowsol = solution.primalRowSolution();
+    const FloatT *colsol = solution.primalColumnSolution();
+    const FloatT *rowsol = solution.primalRowSolution();
     solution.getSolution(rowsol, colsol);
 #ifndef NDEBUG
-    double colsol1[5] = { 20.0 / 7.0, 3.0, 0.0, 0.0, 23.0 / 7.0 };
+    FloatT colsol1[5] = { 20.0 / 7.0, 3.0, 0.0, 0.0, 23.0 / 7.0 };
     for (i = 0; i < 5; i++) {
       assert(eq(colsol[i], colsol1[i]));
     }
@@ -1521,7 +1521,7 @@ void ClpSimplexUnitTest(const std::string &dirSample)
     }
     solution.setLogLevel(3);
     solution.dual();
-    double rowObjective[] = { 1.0, 0.5, -10.0 };
+    FloatT rowObjective[] = { 1.0, 0.5, -10.0 };
     solution.loadProblem(matrix, colLower, colUpper, objective,
       rowLower, rowUpper, rowObjective);
     solution.dual();
@@ -1618,9 +1618,9 @@ void ClpSimplexUnitTest(const std::string &dirSample)
         m.getRowLower(), m.getRowUpper());
       model.primal();
       int which[13] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
-      double costIncrease[13];
+      FloatT costIncrease[13];
       int sequenceIncrease[13];
-      double costDecrease[13];
+      FloatT costDecrease[13];
       int sequenceDecrease[13];
       // ranging
       model.dualRanging(13, which, costIncrease, sequenceIncrease,
@@ -1635,14 +1635,14 @@ void ClpSimplexUnitTest(const std::string &dirSample)
       model.setOptimizationDirection(-1);
       {
         int j;
-        double *obj = model.objective();
+        FloatT *obj = model.objective();
         int n = model.numberColumns();
         for (j = 0; j < n; j++)
           obj[j] *= -1.0;
       }
-      double costIncrease2[13];
+      FloatT costIncrease2[13];
       int sequenceIncrease2[13];
-      double costDecrease2[13];
+      FloatT costDecrease2[13];
       int sequenceDecrease2[13];
       // ranging
       model.dualRanging(13, which, costIncrease2, sequenceIncrease2,
@@ -1680,9 +1680,9 @@ void ClpSimplexUnitTest(const std::string &dirSample)
         m.getRowLower(), m.getRowUpper());
       model.primal();
       int which[13] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
-      double valueIncrease[13];
+      FloatT valueIncrease[13];
       int sequenceIncrease[13];
-      double valueDecrease[13];
+      FloatT valueDecrease[13];
       int sequenceDecrease[13];
       // ranging
       model.primalRanging(13, which, valueIncrease, sequenceIncrease,
@@ -1701,8 +1701,8 @@ void ClpSimplexUnitTest(const std::string &dirSample)
           // out until I find optimization bug
           // Test parametrics
           ClpSimplexOther * model2 = (ClpSimplexOther *) (&model);
-          double rhs[] = { 1.0, 2.0, 3.0, 4.0, 5.0};
-          double endingTheta = 1.0;
+          FloatT rhs[] = { 1.0, 2.0, 3.0, 4.0, 5.0};
+          FloatT endingTheta = 1.0;
           model2->scaling(0);
           model2->setLogLevel(63);
           model2->parametrics(0.0, endingTheta, 0.1,
@@ -1725,15 +1725,15 @@ void ClpSimplexUnitTest(const std::string &dirSample)
     int n_cols = 2;
     int n_rows = 3;
 
-    double obj[2] = { -4.0, 1.0 };
-    double collb[2] = { 0.0, 0.0 };
-    double colub[2] = { COIN_DBL_MAX, COIN_DBL_MAX };
-    double rowlb[3] = { -COIN_DBL_MAX, -COIN_DBL_MAX, -COIN_DBL_MAX };
-    double rowub[3] = { 14.0, 3.0, 3.0 };
+    FloatT obj[2] = { -4.0, 1.0 };
+    FloatT collb[2] = { 0.0, 0.0 };
+    FloatT colub[2] = { COIN_DBL_MAX, COIN_DBL_MAX };
+    FloatT rowlb[3] = { -COIN_DBL_MAX, -COIN_DBL_MAX, -COIN_DBL_MAX };
+    FloatT rowub[3] = { 14.0, 3.0, 3.0 };
 
     int rowIndices[5] = { 0, 2, 0, 1, 2 };
     int colIndices[5] = { 0, 0, 1, 1, 1 };
-    double elements[5] = { 7.0, 2.0, -2.0, 1.0, -2.0 };
+    FloatT elements[5] = { 7.0, 2.0, -2.0, 1.0, -2.0 };
     CoinPackedMatrix M(true, rowIndices, colIndices, elements, 5);
 
     ClpSimplex model;
@@ -1742,7 +1742,7 @@ void ClpSimplexUnitTest(const std::string &dirSample)
 
     //check that the tableau matches wolsey (B-1 A)
     // slacks in second part of binvA
-    double *binvA = reinterpret_cast< double * >(malloc((n_cols + n_rows) * sizeof(double)));
+    FloatT *binvA = reinterpret_cast< FloatT * >(malloc((n_cols + n_rows) * sizeof(FloatT)));
 
     printf("B-1 A by row\n");
     int i;
@@ -1773,8 +1773,8 @@ void ClpSimplexUnitTest(const std::string &dirSample)
     model.scaling(0);
     for (int iPass = 0; iPass < 2; iPass++) {
       model.primal(0, 3 + 4); // keep factorization
-      const double *rowScale = model.rowScale();
-      const double *columnScale = model.columnScale();
+      const FloatT *rowScale = model.rowScale();
+      const FloatT *columnScale = model.columnScale();
       if (!iPass)
         assert(!rowScale);
       else
@@ -1907,7 +1907,7 @@ void ClpSimplexUnitTest(const std::string &dirSample)
       for (iPass = 0; iPass < 2; iPass++) {
         // explicit row objective for testing
         int nr = m.getNumRows();
-        double *rowObj = new double[nr];
+        FloatT *rowObj = new FloatT[nr];
         CoinFillN(rowObj, nr, 0.0);
         model.loadProblem(*m.getMatrixByCol(), m.getColLower(), m.getColUpper(),
           m.getObjCoefficients(),
@@ -1924,24 +1924,24 @@ void ClpSimplexUnitTest(const std::string &dirSample)
         int numberColumns = solution.numberColumns();
         int numberRows = solution.numberRows();
         CoinPackedVector colsol(numberColumns, solution.primalColumnSolution());
-        double *objective = solution.objective();
+        FloatT *objective = solution.objective();
 #ifndef NDEBUG
-        double objValue = colsol.dotProduct(objective);
+        FloatT objValue = colsol.dotProduct(objective);
 #endif
         CoinRelFltEq eq(1.0e-8);
         assert(eq(objValue, -4.6475314286e+02));
         solution.dual();
         assert(eq(solution.objectiveValue(), -4.6475314286e+02));
-        double *lower = solution.columnLower();
-        double *upper = solution.columnUpper();
-        double *sol = solution.primalColumnSolution();
-        double *result = new double[numberColumns];
+        FloatT *lower = solution.columnLower();
+        FloatT *upper = solution.columnUpper();
+        FloatT *sol = solution.primalColumnSolution();
+        FloatT *result = new FloatT[numberColumns];
         CoinFillN(result, numberColumns, 0.0);
         solution.matrix()->transposeTimes(solution.dualRowSolution(), result);
         int iRow, iColumn;
         // see if feasible and dual feasible
         for (iColumn = 0; iColumn < numberColumns; iColumn++) {
-          double value = sol[iColumn];
+          FloatT value = sol[iColumn];
           assert(value < upper[iColumn] + 1.0e-8);
           assert(value > lower[iColumn] - 1.0e-8);
           value = objective[iColumn] - result[iColumn];
@@ -1950,7 +1950,7 @@ void ClpSimplexUnitTest(const std::string &dirSample)
             assert(value < 1.0e-5);
         }
         delete[] result;
-        result = new double[numberRows];
+        result = new FloatT[numberRows];
         CoinFillN(result, numberRows, 0.0);
         solution.matrix()->times(colsol, result);
         lower = solution.rowLower();
@@ -1958,7 +1958,7 @@ void ClpSimplexUnitTest(const std::string &dirSample)
         sol = solution.primalRowSolution();
 #ifndef NDEBUG
         for (iRow = 0; iRow < numberRows; iRow++) {
-          double value = result[iRow];
+          FloatT value = result[iRow];
           assert(eq(value, sol[iRow]));
           assert(value < upper[iRow] + 1.0e-8);
           assert(value > lower[iRow] - 1.0e-8);
@@ -1966,7 +1966,7 @@ void ClpSimplexUnitTest(const std::string &dirSample)
 #endif
         delete[] result;
         // test row objective
-        double *rowObjective = solution.rowObjective();
+        FloatT *rowObjective = solution.rowObjective();
         CoinDisjointCopyN(solution.dualRowSolution(), numberRows, rowObjective);
         CoinDisjointCopyN(solution.dualColumnSolution(), numberColumns, objective);
         // this sets up all slack basis
@@ -2005,16 +2005,16 @@ void ClpSimplexUnitTest(const std::string &dirSample)
         assert(solution.status() == 2);
         int numberColumns = solution.numberColumns();
         int numberRows = solution.numberRows();
-        double *lower = solution.columnLower();
-        double *upper = solution.columnUpper();
-        double *sol = solution.primalColumnSolution();
-        double *ray = solution.unboundedRay();
-        double *objective = solution.objective();
-        double objChange = 0.0;
+        FloatT *lower = solution.columnLower();
+        FloatT *upper = solution.columnUpper();
+        FloatT *sol = solution.primalColumnSolution();
+        FloatT *ray = solution.unboundedRay();
+        FloatT *objective = solution.objective();
+        FloatT objChange = 0.0;
         int iRow, iColumn;
         // make sure feasible and columns form ray
         for (iColumn = 0; iColumn < numberColumns; iColumn++) {
-          double value = sol[iColumn];
+          FloatT value = sol[iColumn];
           assert(value < upper[iColumn] + 1.0e-8);
           assert(value > lower[iColumn] - 1.0e-8);
           value = ray[iColumn];
@@ -2026,7 +2026,7 @@ void ClpSimplexUnitTest(const std::string &dirSample)
         }
         // make sure increasing objective
         assert(objChange > 0.0);
-        double *result = new double[numberRows];
+        FloatT *result = new FloatT[numberRows];
         CoinFillN(result, numberRows, 0.0);
         solution.matrix()->times(sol, result);
         lower = solution.rowLower();
@@ -2034,7 +2034,7 @@ void ClpSimplexUnitTest(const std::string &dirSample)
         sol = solution.primalRowSolution();
 #ifndef NDEBUG
         for (iRow = 0; iRow < numberRows; iRow++) {
-          double value = result[iRow];
+          FloatT value = result[iRow];
           assert(eq(value, sol[iRow]));
           assert(value < upper[iRow] + 2.0e-8);
           assert(value > lower[iRow] - 2.0e-8);
@@ -2044,7 +2044,7 @@ void ClpSimplexUnitTest(const std::string &dirSample)
         solution.matrix()->times(ray, result);
         // there may be small differences (especially if scaled)
         for (iRow = 0; iRow < numberRows; iRow++) {
-          double value = result[iRow];
+          FloatT value = result[iRow];
           if (value > 1.0e-8)
             assert(upper[iRow] > 1.0e30);
           else if (value < -1.0e-8)
@@ -2082,13 +2082,13 @@ void ClpSimplexUnitTest(const std::string &dirSample)
         assert(solution.status() == 1);
         int numberColumns = solution.numberColumns();
         int numberRows = solution.numberRows();
-        double *lower = solution.rowLower();
-        double *upper = solution.rowUpper();
-        double *ray = solution.infeasibilityRay();
+        FloatT *lower = solution.rowLower();
+        FloatT *upper = solution.rowUpper();
+        FloatT *ray = solution.infeasibilityRay();
         assert(ray);
         // construct proof of infeasibility
         int iRow, iColumn;
-        double lo = 0.0, up = 0.0;
+        FloatT lo = 0.0, up = 0.0;
         int nl = 0, nu = 0;
         for (iRow = 0; iRow < numberRows; iRow++) {
           if (lower[iRow] > -1.0e20) {
@@ -2108,8 +2108,8 @@ void ClpSimplexUnitTest(const std::string &dirSample)
           lo = -1.0e100;
         if (nu)
           up = 1.0e100;
-        double *result = new double[numberColumns];
-        double lo2 = 0.0, up2 = 0.0;
+        FloatT *result = new FloatT[numberColumns];
+        FloatT lo2 = 0.0, up2 = 0.0;
         CoinFillN(result, numberColumns, 0.0);
         solution.matrix()->transposeTimes(ray, result);
         lower = solution.columnLower();
@@ -2164,20 +2164,20 @@ void ClpSimplexUnitTest(const std::string &dirSample)
 
       int numberColumns = solution.numberColumns();
       int numberRows = solution.numberRows();
-      double *saveObj = new double[numberColumns];
-      double *saveLower = new double[numberRows + numberColumns];
-      double *saveUpper = new double[numberRows + numberColumns];
+      FloatT *saveObj = new FloatT[numberColumns];
+      FloatT *saveLower = new FloatT[numberRows + numberColumns];
+      FloatT *saveUpper = new FloatT[numberRows + numberColumns];
       int *which = new int[numberRows + numberColumns];
 
       CoinBigIndex numberElements = m.getMatrixByCol()->getNumElements();
       CoinBigIndex *starts = new CoinBigIndex[numberRows + numberColumns];
       int *index = new int[numberElements];
-      double *element = new double[numberElements];
+      FloatT *element = new FloatT[numberElements];
 
       const CoinBigIndex *startM;
       const int *lengthM;
       const int *indexM;
-      const double *elementM;
+      const FloatT *elementM;
 
       int n, nel;
 
@@ -2185,9 +2185,9 @@ void ClpSimplexUnitTest(const std::string &dirSample)
       n = 0;
       nel = 0;
       int iRow, iColumn;
-      const double *lower = m.getColLower();
-      const double *upper = m.getColUpper();
-      const double *objective = m.getObjCoefficients();
+      const FloatT *lower = m.getColLower();
+      const FloatT *upper = m.getColUpper();
+      const FloatT *objective = m.getObjCoefficients();
       startM = m.getMatrixByCol()->getVectorStarts();
       lengthM = m.getMatrixByCol()->getVectorLengths();
       indexM = m.getMatrixByCol()->getIndices();
@@ -2384,8 +2384,8 @@ void ClpSimplexUnitTest(const std::string &dirSample)
         exit(2);
       }
       // get space for rhs
-      double *lower = new double[numberRows];
-      double *upper = new double[numberRows];
+      FloatT *lower = new FloatT[numberRows];
+      FloatT *upper = new FloatT[numberRows];
       int i;
       for (i = 0; i < numberRows; i++) {
         lower[i] = 0.0;
@@ -2452,11 +2452,11 @@ void ClpSimplexUnitTest(const std::string &dirSample)
       ClpSimplex model;
       // now build model
 
-      double *objective = new double[numberColumns];
-      double *lowerColumn = new double[numberColumns];
-      double *upperColumn = new double[numberColumns];
+      FloatT *objective = new FloatT[numberColumns];
+      FloatT *lowerColumn = new FloatT[numberColumns];
+      FloatT *upperColumn = new FloatT[numberColumns];
 
-      double *element = new double[2 * numberColumns];
+      FloatT *element = new FloatT[2 * numberColumns];
       CoinBigIndex *start = new CoinBigIndex[numberColumns + 1];
       int *row = new int[2 * numberColumns];
       start[numberColumns] = 2 * numberColumns;
@@ -2481,7 +2481,7 @@ void ClpSimplexUnitTest(const std::string &dirSample)
         lower, upper);
       model.factorization()->maximumPivots(200 + model.numberRows() / 100);
       model.createStatus();
-      double time1 = CoinCpuTime();
+      FloatT time1 = CoinCpuTime();
       model.dual();
       std::cout << "Network problem, ClpPackedMatrix took " << CoinCpuTime() - time1 << " seconds" << std::endl;
       ClpPlusMinusOneMatrix *plusMinus = new ClpPlusMinusOneMatrix(matrix);
@@ -2542,7 +2542,7 @@ void ClpSimplexUnitTest(const std::string &dirSample)
       int numberColumns = solution.numberColumns();
       int *start = new int[numberColumns + 1];
       int *column = new int[numberColumns];
-      double *element = new double[numberColumns];
+      FloatT *element = new FloatT[numberColumns];
       int i;
       start[0] = 0;
       int n = 0;
@@ -2590,10 +2590,10 @@ void ClpSimplexUnitTest(const std::string &dirSample)
       // get quadratic part
       int *start = NULL;
       int *column = NULL;
-      double *element = NULL;
+      FloatT *element = NULL;
       m.readQuadraticMps(NULL, start, column, element, 2);
       int column2[200];
-      double element2[200];
+      FloatT element2[200];
       int start2[80];
       int j;
       start2[0] = 0;
@@ -2640,7 +2640,7 @@ void ClpSimplexUnitTest(const std::string &dirSample)
       model.primal();
       printSol(model);
 #ifndef NDEBUG
-      double objValue = model.getObjValue();
+      FloatT objValue = model.getObjValue();
 #endif
       CoinRelFltEq eq(1.0e-4);
       assert(eq(objValue, -400.92));
@@ -2668,7 +2668,7 @@ void ClpSimplexUnitTest(const std::string &dirSample)
       // get quadratic part
       int *start = NULL;
       int *column = NULL;
-      double *element = NULL;
+      FloatT *element = NULL;
       m.readQuadraticMps(NULL, start, column, element, 2);
       // Load up objective
       solution.loadQuadraticObjective(solution.numberColumns(), start, column, element);
@@ -2677,7 +2677,7 @@ void ClpSimplexUnitTest(const std::string &dirSample)
       delete[] element;
       solution.primal(1);
       solution.nonlinearSLP(50, 1.0e-4);
-      double objValue = solution.getObjValue();
+      FloatT objValue = solution.getObjValue();
       CoinRelFltEq eq(1.0e-4);
       assert(eq(objValue, 0.5));
       solution.primal();
@@ -2699,21 +2699,21 @@ void ClpSimplexUnitTest(const std::string &dirSample)
       CoinBigIndex start[5] = { 0, 4, 7, 8, 9 };
       int length[5] = { 2, 3, 1, 1, 1 };
       int rows[11] = { 0, 2, -1, -1, 0, 1, 2, 0, 1, 2 };
-      double elements[11] = { 7.0, 2.0, 1.0e10, 1.0e10, -2.0, 1.0, -2.0, 1, 1, 1 };
+      FloatT elements[11] = { 7.0, 2.0, 1.0e10, 1.0e10, -2.0, 1.0, -2.0, 1, 1, 1 };
       CoinPackedMatrix matrix(true, 3, 5, 8, elements, rows, start, length);
       // by row
       matrix.reverseOrdering();
-      const double *element = matrix.getElements();
+      const FloatT *element = matrix.getElements();
       const int *column = matrix.getIndices();
       const CoinBigIndex *rowStart = matrix.getVectorStarts();
       const int *rowLength = matrix.getVectorLengths();
 
       // rim data
-      //double objective[5]={-4.0,1.0,0.0,0.0,0.0};
-      double rowLower[3] = { 14.0, 3.0, 3.0 };
-      double rowUpper[3] = { 14.0, 3.0, 3.0 };
-      //double columnLower[5]={0.0,0.0,0.0,0.0,0.0};
-      //double columnUpper[5]={100.0,100.0,100.0,100.0,100.0};
+      //FloatT objective[5]={-4.0,1.0,0.0,0.0,0.0};
+      FloatT rowLower[3] = { 14.0, 3.0, 3.0 };
+      FloatT rowUpper[3] = { 14.0, 3.0, 3.0 };
+      //FloatT columnLower[5]={0.0,0.0,0.0,0.0,0.0};
+      //FloatT columnUpper[5]={100.0,100.0,100.0,100.0,100.0};
 
       for (int i = 0; i < 3; i++) {
         sub.addRow(rowLength[i], column + rowStart[i],
@@ -2732,21 +2732,21 @@ void ClpSimplexUnitTest(const std::string &dirSample)
       CoinBigIndex start[5] = { 0, 2, 4, 6, 8 };
       int length[5] = { 2, 2, 2, 2, 2 };
       int rows[10] = { 0, 1, 0, 1, 0, 1, 0, 1, 0, 1 };
-      double elements[10] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+      FloatT elements[10] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
       CoinPackedMatrix matrix(true, 2, 5, 8, elements, rows, start, length);
       // by row
       matrix.reverseOrdering();
-      const double *element = matrix.getElements();
+      const FloatT *element = matrix.getElements();
       const int *column = matrix.getIndices();
       const CoinBigIndex *rowStart = matrix.getVectorStarts();
       const int *rowLength = matrix.getVectorLengths();
 
       // rim data
-      double objective[5] = { -4.0, 1.0, 0.0, 0.0, 0.0 };
-      //double rowLower[3]={14.0,3.0,3.0};
-      //double rowUpper[3]={14.0,3.0,3.0};
-      double columnLower[5] = { 0.0, 0.0, 0.0, 0.0, 0.0 };
-      double columnUpper[5] = { 100.0, 100.0, 100.0, 100.0, 100.0 };
+      FloatT objective[5] = { -4.0, 1.0, 0.0, 0.0, 0.0 };
+      //FloatT rowLower[3]={14.0,3.0,3.0};
+      //FloatT rowUpper[3]={14.0,3.0,3.0};
+      FloatT columnLower[5] = { 0.0, 0.0, 0.0, 0.0, 0.0 };
+      FloatT columnUpper[5] = { 100.0, 100.0, 100.0, 100.0, 100.0 };
 
       for (int i = 0; i < 2; i++) {
         top.addRow(rowLength[i], column + rowStart[i],

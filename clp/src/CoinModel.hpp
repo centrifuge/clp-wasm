@@ -48,22 +48,22 @@ public:
   /** Returns the (constant) objective offset
       This is the RHS entry for the objective row
   */
-  inline double objectiveOffset() const
+  inline FloatT objectiveOffset() const
   {
     return objectiveOffset_;
   }
   /// Set objective offset
-  inline void setObjectiveOffset(double value)
+  inline void setObjectiveOffset(FloatT value)
   {
     objectiveOffset_ = value;
   }
   /// Direction of optimization (1 - minimize, -1 - maximize, 0 - ignore
-  inline double optimizationDirection() const
+  inline FloatT optimizationDirection() const
   {
     return optimizationDirection_;
   }
   /// Set direction of optimization (1 - minimize, -1 - maximize, 0 - ignore
-  inline void setOptimizationDirection(double value)
+  inline void setOptimizationDirection(FloatT value)
   {
     optimizationDirection_ = value;
   }
@@ -115,9 +115,9 @@ protected:
   /// Current number of columns
   int numberColumns_;
   /// Direction of optimization (1 - minimize, -1 - maximize, 0 - ignore
-  double optimizationDirection_;
+  FloatT optimizationDirection_;
   /// Objective offset to be passed on
-  double objectiveOffset_;
+  FloatT objectiveOffset_;
   /// Problem name
   std::string problemName_;
   /// Rowblock name
@@ -149,7 +149,7 @@ protected:
     or loadProblem.
 
     It may have up to four parts -
-    1) A matrix of doubles (or strings - see note A)
+    1) A matrix of FloatTs (or strings - see note A)
     2) Column information including integer information and names
     3) Row information including names
     4) Quadratic objective (not implemented - but see A)
@@ -185,45 +185,45 @@ public:
   //@{
   /** add a row -  numberInRow may be zero */
   void addRow(int numberInRow, const int *columns,
-    const double *elements, double rowLower = -COIN_DBL_MAX,
-    double rowUpper = COIN_DBL_MAX, const char *name = NULL);
+    const FloatT *elements, FloatT rowLower = -COIN_DBL_MAX,
+    FloatT rowUpper = COIN_DBL_MAX, const char *name = NULL);
   /// add a column - numberInColumn may be zero */
   void addColumn(int numberInColumn, const int *rows,
-    const double *elements,
-    double columnLower = 0.0,
-    double columnUpper = COIN_DBL_MAX, double objectiveValue = 0.0,
+    const FloatT *elements,
+    FloatT columnLower = 0.0,
+    FloatT columnUpper = COIN_DBL_MAX, FloatT objectiveValue = 0.0,
     const char *name = NULL, bool isInteger = false);
   /// add a column - numberInColumn may be zero */
   inline void addCol(int numberInColumn, const int *rows,
-    const double *elements,
-    double columnLower = 0.0,
-    double columnUpper = COIN_DBL_MAX, double objectiveValue = 0.0,
+    const FloatT *elements,
+    FloatT columnLower = 0.0,
+    FloatT columnUpper = COIN_DBL_MAX, FloatT objectiveValue = 0.0,
     const char *name = NULL, bool isInteger = false)
   {
     addColumn(numberInColumn, rows, elements, columnLower, columnUpper, objectiveValue,
       name, isInteger);
   }
   /// Sets value for row i and column j
-  inline void operator()(int i, int j, double value)
+  inline void operator()(int i, int j, FloatT value)
   {
     setElement(i, j, value);
   }
   /// Sets value for row i and column j
-  void setElement(int i, int j, double value);
+  void setElement(int i, int j, FloatT value);
   /** Gets sorted row - user must provide enough space 
       (easiest is allocate number of columns).
       If column or element NULL then just returns number
       Returns number of elements
   */
-  int getRow(int whichRow, int *column, double *element);
+  int getRow(int whichRow, int *column, FloatT *element);
   /** Gets sorted column - user must provide enough space 
       (easiest is allocate number of rows).
       If row or element NULL then just returns number
       Returns number of elements
   */
-  int getColumn(int whichColumn, int *column, double *element);
+  int getColumn(int whichColumn, int *column, FloatT *element);
   /// Sets quadratic value for column i and j
-  void setQuadraticElement(int i, int j, double value);
+  void setQuadraticElement(int i, int j, FloatT value);
   /// Sets value for row i and column j as string
   inline void operator()(int i, int j, const char *value)
   {
@@ -232,19 +232,19 @@ public:
   /// Sets value for row i and column j as string
   void setElement(int i, int j, const char *value);
   /// Associates a string with a value.  Returns string id (or -1 if does not exist)
-  int associateElement(const char *stringValue, double value);
+  int associateElement(const char *stringValue, FloatT value);
   /** Sets rowLower (if row does not exist then
       all rows up to this are defined with default values and no elements)
   */
-  void setRowLower(int whichRow, double rowLower);
+  void setRowLower(int whichRow, FloatT rowLower);
   /** Sets rowUpper (if row does not exist then
       all rows up to this are defined with default values and no elements)
   */
-  void setRowUpper(int whichRow, double rowUpper);
+  void setRowUpper(int whichRow, FloatT rowUpper);
   /** Sets rowLower and rowUpper (if row does not exist then
       all rows up to this are defined with default values and no elements)
   */
-  void setRowBounds(int whichRow, double rowLower, double rowUpper);
+  void setRowBounds(int whichRow, FloatT rowLower, FloatT rowUpper);
   /** Sets name (if row does not exist then
       all rows up to this are defined with default values and no elements)
   */
@@ -252,19 +252,19 @@ public:
   /** Sets columnLower (if column does not exist then
       all columns up to this are defined with default values and no elements)
   */
-  void setColumnLower(int whichColumn, double columnLower);
+  void setColumnLower(int whichColumn, FloatT columnLower);
   /** Sets columnUpper (if column does not exist then
       all columns up to this are defined with default values and no elements)
   */
-  void setColumnUpper(int whichColumn, double columnUpper);
+  void setColumnUpper(int whichColumn, FloatT columnUpper);
   /** Sets columnLower and columnUpper (if column does not exist then
       all columns up to this are defined with default values and no elements)
   */
-  void setColumnBounds(int whichColumn, double columnLower, double columnUpper);
+  void setColumnBounds(int whichColumn, FloatT columnLower, FloatT columnUpper);
   /** Sets columnObjective (if column does not exist then
       all columns up to this are defined with default values and no elements)
   */
-  void setColumnObjective(int whichColumn, double columnObjective);
+  void setColumnObjective(int whichColumn, FloatT columnObjective);
   /** Sets name (if column does not exist then
       all columns up to this are defined with default values and no elements)
   */
@@ -276,7 +276,7 @@ public:
   /** Sets columnObjective (if column does not exist then
       all columns up to this are defined with default values and no elements)
   */
-  inline void setObjective(int whichColumn, double columnObjective)
+  inline void setObjective(int whichColumn, FloatT columnObjective)
   {
     setColumnObjective(whichColumn, columnObjective);
   }
@@ -304,28 +304,28 @@ public:
   /** Sets columnLower (if column does not exist then
       all columns up to this are defined with default values and no elements)
   */
-  inline void setColLower(int whichColumn, double columnLower)
+  inline void setColLower(int whichColumn, FloatT columnLower)
   {
     setColumnLower(whichColumn, columnLower);
   }
   /** Sets columnUpper (if column does not exist then
       all columns up to this are defined with default values and no elements)
   */
-  inline void setColUpper(int whichColumn, double columnUpper)
+  inline void setColUpper(int whichColumn, FloatT columnUpper)
   {
     setColumnUpper(whichColumn, columnUpper);
   }
   /** Sets columnLower and columnUpper (if column does not exist then
       all columns up to this are defined with default values and no elements)
   */
-  inline void setColBounds(int whichColumn, double columnLower, double columnUpper)
+  inline void setColBounds(int whichColumn, FloatT columnLower, FloatT columnUpper)
   {
     setColumnBounds(whichColumn, columnLower, columnUpper);
   }
   /** Sets columnObjective (if column does not exist then
       all columns up to this are defined with default values and no elements)
   */
-  inline void setColObjective(int whichColumn, double columnObjective)
+  inline void setColObjective(int whichColumn, FloatT columnObjective)
   {
     setColumnObjective(whichColumn, columnObjective);
   }
@@ -417,31 +417,31 @@ public:
 
   /** Sets columnObjective array
   */
-  void setObjective(int numberColumns, const double *objective);
+  void setObjective(int numberColumns, const FloatT *objective);
   /** Sets columnLower array
   */
-  void setColumnLower(int numberColumns, const double *columnLower);
+  void setColumnLower(int numberColumns, const FloatT *columnLower);
   /** Sets columnLower array
   */
-  inline void setColLower(int numberColumns, const double *columnLower)
+  inline void setColLower(int numberColumns, const FloatT *columnLower)
   {
     setColumnLower(numberColumns, columnLower);
   }
   /** Sets columnUpper array
   */
-  void setColumnUpper(int numberColumns, const double *columnUpper);
+  void setColumnUpper(int numberColumns, const FloatT *columnUpper);
   /** Sets columnUpper array
   */
-  inline void setColUpper(int numberColumns, const double *columnUpper)
+  inline void setColUpper(int numberColumns, const FloatT *columnUpper)
   {
     setColumnUpper(numberColumns, columnUpper);
   }
   /** Sets rowLower array
   */
-  void setRowLower(int numberRows, const double *rowLower);
+  void setRowLower(int numberRows, const FloatT *rowLower);
   /** Sets rowUpper array
   */
-  void setRowUpper(int numberRows, const double *rowUpper);
+  void setRowUpper(int numberRows, const FloatT *rowUpper);
 
   /** Write the problem in MPS format to a file with the given filename.
       
@@ -515,21 +515,21 @@ public:
     return elements_;
   }
   /// Returns value for row i and column j
-  inline double operator()(int i, int j) const
+  inline FloatT operator()(int i, int j) const
   {
     return getElement(i, j);
   }
   /// Returns value for row i and column j
-  double getElement(int i, int j) const;
+  FloatT getElement(int i, int j) const;
   /// Returns value for row rowName and column columnName
-  inline double operator()(const char *rowName, const char *columnName) const
+  inline FloatT operator()(const char *rowName, const char *columnName) const
   {
     return getElement(rowName, columnName);
   }
   /// Returns value for row rowName and column columnName
-  double getElement(const char *rowName, const char *columnName) const;
+  FloatT getElement(const char *rowName, const char *columnName) const;
   /// Returns quadratic value for columns i and j
-  double getQuadraticElement(int i, int j) const;
+  FloatT getQuadraticElement(int i, int j) const;
   /** Returns value for row i and column j as string.
       Returns NULL if does not exist.
       Returns "Numeric" if not a string
@@ -538,7 +538,7 @@ public:
   /** Returns pointer to element for row i column j.
       Only valid until next modification. 
       NULL if element does not exist */
-  double *pointer(int i, int j) const;
+  FloatT *pointer(int i, int j) const;
   /** Returns position in elements for row i column j.
       Only valid until next modification. 
       -1 if element does not exist */
@@ -582,20 +582,20 @@ public:
   CoinModelLink lastInQuadraticColumn(int whichColumn) const;
   /** Gets rowLower (if row does not exist then -COIN_DBL_MAX)
   */
-  double getRowLower(int whichRow) const;
+  FloatT getRowLower(int whichRow) const;
   /** Gets rowUpper (if row does not exist then +COIN_DBL_MAX)
   */
-  double getRowUpper(int whichRow) const;
+  FloatT getRowUpper(int whichRow) const;
   /** Gets name (if row does not exist then NULL)
   */
   const char *getRowName(int whichRow) const;
-  inline double rowLower(int whichRow) const
+  inline FloatT rowLower(int whichRow) const
   {
     return getRowLower(whichRow);
   }
   /** Gets rowUpper (if row does not exist then COIN_DBL_MAX)
   */
-  inline double rowUpper(int whichRow) const
+  inline FloatT rowUpper(int whichRow) const
   {
     return getRowUpper(whichRow);
   }
@@ -607,13 +607,13 @@ public:
   }
   /** Gets columnLower (if column does not exist then 0.0)
   */
-  double getColumnLower(int whichColumn) const;
+  FloatT getColumnLower(int whichColumn) const;
   /** Gets columnUpper (if column does not exist then COIN_DBL_MAX)
   */
-  double getColumnUpper(int whichColumn) const;
+  FloatT getColumnUpper(int whichColumn) const;
   /** Gets columnObjective (if column does not exist then 0.0)
   */
-  double getColumnObjective(int whichColumn) const;
+  FloatT getColumnObjective(int whichColumn) const;
   /** Gets name (if column does not exist then NULL)
   */
   const char *getColumnName(int whichColumn) const;
@@ -622,25 +622,25 @@ public:
   bool getColumnIsInteger(int whichColumn) const;
   /** Gets columnLower (if column does not exist then 0.0)
   */
-  inline double columnLower(int whichColumn) const
+  inline FloatT columnLower(int whichColumn) const
   {
     return getColumnLower(whichColumn);
   }
   /** Gets columnUpper (if column does not exist then COIN_DBL_MAX)
   */
-  inline double columnUpper(int whichColumn) const
+  inline FloatT columnUpper(int whichColumn) const
   {
     return getColumnUpper(whichColumn);
   }
   /** Gets columnObjective (if column does not exist then 0.0)
   */
-  inline double columnObjective(int whichColumn) const
+  inline FloatT columnObjective(int whichColumn) const
   {
     return getColumnObjective(whichColumn);
   }
   /** Gets columnObjective (if column does not exist then 0.0)
   */
-  inline double objective(int whichColumn) const
+  inline FloatT objective(int whichColumn) const
   {
     return getColumnObjective(whichColumn);
   }
@@ -664,19 +664,19 @@ public:
   }
   /** Gets columnLower (if column does not exist then 0.0)
   */
-  inline double getColLower(int whichColumn) const
+  inline FloatT getColLower(int whichColumn) const
   {
     return getColumnLower(whichColumn);
   }
   /** Gets columnUpper (if column does not exist then COIN_DBL_MAX)
   */
-  inline double getColUpper(int whichColumn) const
+  inline FloatT getColUpper(int whichColumn) const
   {
     return getColumnUpper(whichColumn);
   }
   /** Gets columnObjective (if column does not exist then 0.0)
   */
-  inline double getColObjective(int whichColumn) const
+  inline FloatT getColObjective(int whichColumn) const
   {
     return getColumnObjective(whichColumn);
   }
@@ -766,30 +766,30 @@ public:
     return type_;
   }
   /// returns unset value
-  inline double unsetValue() const
+  inline FloatT unsetValue() const
   {
     return -1.23456787654321e-97;
   }
   /// Creates a packed matrix - return number of errors
   int createPackedMatrix(CoinPackedMatrix &matrix,
-    const double *associated);
+    const FloatT *associated);
   /** Fills in startPositive and startNegative with counts for +-1 matrix.
       If not +-1 then startPositive[0]==-1 otherwise counts and
       startPositive[numberColumns]== size
       - return number of errors
   */
   int countPlusMinusOne(CoinBigIndex *startPositive, CoinBigIndex *startNegative,
-    const double *associated);
+    const FloatT *associated);
   /** Creates +-1 matrix given startPositive and startNegative counts for +-1 matrix.
   */
   void createPlusMinusOne(CoinBigIndex *startPositive, CoinBigIndex *startNegative,
     int *indices,
-    const double *associated);
+    const FloatT *associated);
   /// Creates copies of various arrays - return number of errors
-  int createArrays(double *&rowLower, double *&rowUpper,
-    double *&columnLower, double *&columnUpper,
-    double *&objective, int *&integerType,
-    double *&associated);
+  int createArrays(FloatT *&rowLower, FloatT *&rowUpper,
+    FloatT *&columnLower, FloatT *&columnUpper,
+    FloatT *&objective, int *&integerType,
+    FloatT *&associated);
   /// Says if strings exist
   inline bool stringsExist() const
   {
@@ -801,32 +801,32 @@ public:
     return &string_;
   }
   /// Returns associated array
-  inline double *associatedArray() const
+  inline FloatT *associatedArray() const
   {
     return associated_;
   }
   /// Return rowLower array
-  inline double *rowLowerArray() const
+  inline FloatT *rowLowerArray() const
   {
     return rowLower_;
   }
   /// Return rowUpper array
-  inline double *rowUpperArray() const
+  inline FloatT *rowUpperArray() const
   {
     return rowUpper_;
   }
   /// Return columnLower array
-  inline double *columnLowerArray() const
+  inline FloatT *columnLowerArray() const
   {
     return columnLower_;
   }
   /// Return columnUpper array
-  inline double *columnUpperArray() const
+  inline FloatT *columnUpperArray() const
   {
     return columnUpper_;
   }
   /// Return objective array
-  inline double *objectiveArray() const
+  inline FloatT *objectiveArray() const
   {
     return objective_;
   }
@@ -861,12 +861,12 @@ public:
     return cut_;
   }
   /// Direction of optimization (1 - minimize, -1 - maximize, 0 - ignore
-  inline double optimizationDirection() const
+  inline FloatT optimizationDirection() const
   {
     return optimizationDirection_;
   }
   /// Set direction of optimization (1 - minimize, -1 - maximize, 0 - ignore
-  inline void setOptimizationDirection(double value)
+  inline void setOptimizationDirection(FloatT value)
   {
     optimizationDirection_ = value;
   }
@@ -909,9 +909,9 @@ public:
     constraint -infty <= ax <= infty. This is probably not what you want.
   */
   void loadBlock(const CoinPackedMatrix &matrix,
-    const double *collb, const double *colub,
-    const double *obj,
-    const double *rowlb, const double *rowub);
+    const FloatT *collb, const FloatT *colub,
+    const FloatT *obj,
+    const FloatT *rowlb, const FloatT *rowub);
   /*! \brief Load in a problem by copying the arguments.
     The constraints on the rows are given by sense/rhs/range triplets.
     
@@ -929,10 +929,10 @@ public:
     constraint ax >= 0.
   */
   void loadBlock(const CoinPackedMatrix &matrix,
-    const double *collb, const double *colub,
-    const double *obj,
-    const char *rowsen, const double *rowrhs,
-    const double *rowrng);
+    const FloatT *collb, const FloatT *colub,
+    const FloatT *obj,
+    const char *rowsen, const FloatT *rowrhs,
+    const FloatT *rowrng);
 
   /*! \brief Load in a problem by copying the arguments. The constraint
     matrix is is specified with standard column-major
@@ -948,10 +948,10 @@ public:
   */
   void loadBlock(const int numcols, const int numrows,
     const CoinBigIndex *start, const int *index,
-    const double *value,
-    const double *collb, const double *colub,
-    const double *obj,
-    const double *rowlb, const double *rowub);
+    const FloatT *value,
+    const FloatT *collb, const FloatT *colub,
+    const FloatT *obj,
+    const FloatT *rowlb, const FloatT *rowub);
 
   /*! \brief Load in a problem by copying the arguments. The constraint
     matrix is is specified with standard column-major
@@ -967,11 +967,11 @@ public:
   */
   void loadBlock(const int numcols, const int numrows,
     const CoinBigIndex *start, const int *index,
-    const double *value,
-    const double *collb, const double *colub,
-    const double *obj,
-    const char *rowsen, const double *rowrhs,
-    const double *rowrng);
+    const FloatT *value,
+    const FloatT *collb, const FloatT *colub,
+    const FloatT *obj,
+    const char *rowsen, const FloatT *rowrhs,
+    const FloatT *rowrng);
 
   //@}
 
@@ -991,9 +991,9 @@ public:
   /// From arrays
   CoinModel(int numberRows, int numberColumns,
     const CoinPackedMatrix *matrix,
-    const double *rowLower, const double *rowUpper,
-    const double *columnLower, const double *columnUpper,
-    const double *objective);
+    const FloatT *rowLower, const FloatT *rowUpper,
+    const FloatT *columnLower, const FloatT *columnUpper,
+    const FloatT *objective);
   /// Clone
   virtual CoinBaseModel *clone() const;
 
@@ -1030,25 +1030,25 @@ private:
   void createList(int type) const;
   /// Adds one string, returns index
   int addString(const char *string);
-  /** Gets a double from a string possibly containing named strings,
+  /** Gets a FloatT from a string possibly containing named strings,
       returns unset if not found
   */
-  double getDoubleFromString(CoinYacc &info, const char *string);
+  FloatT getDoubleFromString(CoinYacc &info, const char *string);
   /// Frees value memory
   void freeStringMemory(CoinYacc &info);
 
 public:
   /// Fills in all associated - returning number of errors
-  int computeAssociated(double *associated);
+  int computeAssociated(FloatT *associated);
   /** Gets correct form for a quadratic row - user to delete
       If row is not quadratic then returns which other variables are involved
       with tiny (1.0e-100) elements and count of total number of variables which could not
       be put in quadratic form
   */
-  CoinPackedMatrix *quadraticRow(int rowNumber, double *linear,
+  CoinPackedMatrix *quadraticRow(int rowNumber, FloatT *linear,
     int &numberBad) const;
   /// Replaces a quadratic row
-  void replaceQuadraticRow(int rowNumber, const double *linear, const CoinPackedMatrix *quadraticPart);
+  void replaceQuadraticRow(int rowNumber, const FloatT *linear, const CoinPackedMatrix *quadraticPart);
   /** If possible return a model where if all variables marked nonzero are fixed
       the problem will be linear.  At present may only work if quadratic.
       Returns NULL if not possible
@@ -1064,8 +1064,8 @@ public:
       If reConstruct >=0 then returns number of entrie which make up item "reConstruct"
       in expanded knapsack.  Values in buildRow and buildElement;
   */
-  int expandKnapsack(int knapsackRow, int &numberOutput, double *buildObj, CoinBigIndex *buildStart,
-    int *buildRow, double *buildElement, int reConstruct = -1) const;
+  int expandKnapsack(int knapsackRow, int &numberOutput, FloatT *buildObj, CoinBigIndex *buildStart,
+    int *buildRow, FloatT *buildElement, int reConstruct = -1) const;
   /// Sets cut marker array
   void setCutMarker(int size, const int *marker);
   /// Sets priority array
@@ -1084,7 +1084,7 @@ private:
    */
   void gdb(int nonLinear, const char *fileName, const void *info);
   /// returns jColumn (-2 if linear term, -1 if unknown) and coefficient
-  int decodeBit(char *phrase, char *&nextPhrase, double &coefficient, bool ifFirst) const;
+  int decodeBit(char *phrase, char *&nextPhrase, FloatT &coefficient, bool ifFirst) const;
   /// Aborts with message about packedMatrix
   void badType() const;
   /**@name Data members */
@@ -1102,9 +1102,9 @@ private:
   /// Maximum number of quadratic elements
   CoinBigIndex maximumQuadraticElements_;
   /// Row lower
-  double *rowLower_;
+  FloatT *rowLower_;
   /// Row upper
-  double *rowUpper_;
+  FloatT *rowUpper_;
   /// Row names
   CoinModelHash rowName_;
   /** Row types.
@@ -1116,11 +1116,11 @@ private:
   */
   int *rowType_;
   /// Objective
-  double *objective_;
+  FloatT *objective_;
   /// Column Lower
-  double *columnLower_;
+  FloatT *columnLower_;
   /// Column Upper
-  double *columnUpper_;
+  FloatT *columnUpper_;
   /// Column names
   CoinModelHash columnName_;
   /// Integer information
@@ -1156,7 +1156,7 @@ private:
   /// Array for sorting indices
   int *sortIndices_;
   /// Array for sorting elements
-  double *sortElements_;
+  FloatT *sortElements_;
   /// Size of sort arrays
   int sortSize_;
   /// Linked list for quadratic rows
@@ -1166,7 +1166,7 @@ private:
   /// Size of associated values
   int sizeAssociated_;
   /// Associated values
-  double *associated_;
+  FloatT *associated_;
   /// Number of SOS - all these are done in one go e.g. from ampl
   int numberSOS_;
   /// SOS starts
@@ -1178,7 +1178,7 @@ private:
   /// SOS priority
   int *prioritySOS_;
   /// SOS reference
-  double *referenceSOS_;
+  FloatT *referenceSOS_;
   /// priorities (given for all columns (-1 if not integer)
   int *priority_;
   /// Nonzero if row is cut - done in one go e.g. from ampl
@@ -1205,9 +1205,9 @@ private:
   //@}
 };
 /// Just function of single variable x
-double getFunctionValueFromString(const char *string, const char *x, double xValue);
+FloatT getFunctionValueFromString(const char *string, const char *x, FloatT xValue);
 /// faster version
-double getDoubleFromString(CoinYacc &info, const char *string, const char *x, double xValue);
+FloatT getDoubleFromString(CoinYacc &info, const char *string, const char *x, FloatT xValue);
 #endif
 
 /* vi: softtabstop=2 shiftwidth=2 expandtab tabstop=2

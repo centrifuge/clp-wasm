@@ -99,13 +99,13 @@ int MyMessageHandler::print()
       if (!model_->nonLinearCost()->numberInfeasibilities()) {
         // Column solution
         int numberColumns = model_->numberColumns();
-        const double *solution = model_->solutionRegion(1);
+        const FloatT *solution = model_->solutionRegion(1);
 
         // Create vector to contain solution
         StdVectorDouble feasibleExtremePoint;
 
-        const double *objective = model_->objective();
-        double objectiveValue = 0;
+        const FloatT *objective = model_->objective();
+        FloatT objectiveValue = 0;
 
         if (!model_->columnScale()) {
           // No scaling
@@ -115,7 +115,7 @@ int MyMessageHandler::print()
           }
         } else {
           // scaled
-          const double *columnScale = model_->columnScale();
+          const FloatT *columnScale = model_->columnScale();
           for (int i = 0; i < numberColumns; i++) {
             feasibleExtremePoint.push_back(solution[i] * columnScale[i]);
             objectiveValue += solution[i] * objective[i] * columnScale[i];

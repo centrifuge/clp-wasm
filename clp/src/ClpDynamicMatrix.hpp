@@ -29,29 +29,29 @@ public:
   /**@name Main functions provided */
   //@{
   /// Partial pricing
-  virtual void partialPricing(ClpSimplex *model, double start, double end,
+  virtual void partialPricing(ClpSimplex *model, FloatT start, FloatT end,
     int &bestSequence, int &numberWanted);
 
   /**
         update information for a pivot (and effective rhs)
      */
-  virtual int updatePivot(ClpSimplex *model, double oldInValue, double oldOutValue);
+  virtual int updatePivot(ClpSimplex *model, FloatT oldInValue, FloatT oldOutValue);
   /** Returns effective RHS offset if it is being used.  This is used for long problems
          or big dynamic or anywhere where going through full columns is
          expensive.  This may re-compute */
-  virtual double *rhsOffset(ClpSimplex *model, bool forceRefresh = false,
+  virtual FloatT *rhsOffset(ClpSimplex *model, bool forceRefresh = false,
     bool check = false);
 
   using ClpPackedMatrix::times;
   /** Return <code>y + A * scalar *x</code> in <code>y</code>.
          @pre <code>x</code> must be of size <code>numColumns()</code>
          @pre <code>y</code> must be of size <code>numRows()</code> */
-  virtual void times(double scalar,
-    const double *x, double *y) const;
+  virtual void times(FloatT scalar,
+    const FloatT *x, FloatT *y) const;
   /// Modifies rhs offset
-  void modifyOffset(int sequence, double amount);
+  void modifyOffset(int sequence, FloatT amount);
   /// Gets key value when none in small
-  double keyValue(int iSet) const;
+  FloatT keyValue(int iSet) const;
   /**
          mode=0  - Set up before "updateTranspose" and "transposeTimes" for duals using extended
                    updates array (and may use other if dual values pass)
@@ -61,7 +61,7 @@ public:
          mode=4  - Modify before updateTranspose in partial pricing
      */
   virtual void dualExpanded(ClpSimplex *model, CoinIndexedVector *array,
-    double *other, int mode);
+    FloatT *other, int mode);
   /**
          mode=0  - Create list of non-key basics in pivotVariable_ using
                    number as numberBasic in and out
@@ -90,7 +90,7 @@ public:
      */
   virtual void createVariable(ClpSimplex *model, int &bestSequence);
   /// Returns reduced cost of a variable
-  virtual double reducedCost(ClpSimplex *model, int sequence) const;
+  virtual FloatT reducedCost(ClpSimplex *model, int sequence) const;
   /// Does gub crash
   void gubCrash();
   /// Writes out model (without names)
@@ -98,8 +98,8 @@ public:
   /// Populates initial matrix from dynamic status
   void initialProblem();
   /** Adds in a column to gub structure (called from descendant) and returns sequence */
-  int addColumn(CoinBigIndex numberEntries, const int *row, const double *element,
-    double cost, double lower, double upper, int iSet,
+  int addColumn(CoinBigIndex numberEntries, const int *row, const FloatT *element,
+    FloatT cost, FloatT lower, FloatT upper, int iSet,
     DynamicStatus status);
   /** If addColumn forces compression then this allows descendant to know what to do.
          If >=0 then entry stayed in, if -1 then entry went out to lower bound.of zero.
@@ -107,7 +107,7 @@ public:
      */
   virtual void packDown(const int *, int) {}
   /// Gets lower bound (to simplify coding)
-  inline double columnLower(int sequence) const
+  inline FloatT columnLower(int sequence) const
   {
     if (columnLower_)
       return columnLower_[sequence];
@@ -115,7 +115,7 @@ public:
       return 0.0;
   }
   /// Gets upper bound (to simplify coding)
-  inline double columnUpper(int sequence) const
+  inline FloatT columnUpper(int sequence) const
   {
     if (columnUpper_)
       return columnUpper_[sequence];
@@ -137,10 +137,10 @@ public:
       */
   ClpDynamicMatrix(ClpSimplex *model, int numberSets,
     int numberColumns, const int *starts,
-    const double *lower, const double *upper,
+    const FloatT *lower, const FloatT *upper,
     const CoinBigIndex *startColumn, const int *row,
-    const double *element, const double *cost,
-    const double *columnLower = NULL, const double *columnUpper = NULL,
+    const FloatT *element, const FloatT *cost,
+    const FloatT *columnLower = NULL, const FloatT *columnUpper = NULL,
     const unsigned char *status = NULL,
     const unsigned char *dynamicStatus = NULL);
 
@@ -224,7 +224,7 @@ public:
     return static_cast< DynamicStatus >(dynamicStatus_[sequence] & 7);
   }
   /// Saved value of objective offset
-  inline double objectiveOffset() const
+  inline FloatT objectiveOffset() const
   {
     return objectiveOffset_;
   }
@@ -239,12 +239,12 @@ public:
     return row_;
   }
   /// elements
-  inline double *element() const
+  inline FloatT *element() const
   {
     return element_;
   }
   /// costs
-  inline double *cost() const
+  inline FloatT *cost() const
   {
     return cost_;
   }
@@ -254,22 +254,22 @@ public:
     return id_;
   }
   /// Optional lower bounds on columns
-  inline double *columnLower() const
+  inline FloatT *columnLower() const
   {
     return columnLower_;
   }
   /// Optional upper bounds on columns
-  inline double *columnUpper() const
+  inline FloatT *columnUpper() const
   {
     return columnUpper_;
   }
   /// Lower bounds on sets
-  inline double *lowerSet() const
+  inline FloatT *lowerSet() const
   {
     return lowerSet_;
   }
   /// Upper bounds on sets
-  inline double *upperSet() const
+  inline FloatT *upperSet() const
   {
     return upperSet_;
   }
@@ -328,15 +328,15 @@ protected:
         The data members are protected to allow access for derived classes. */
   //@{
   /// Sum of dual infeasibilities
-  double sumDualInfeasibilities_;
+  FloatT sumDualInfeasibilities_;
   /// Sum of primal infeasibilities
-  double sumPrimalInfeasibilities_;
+  FloatT sumPrimalInfeasibilities_;
   /// Sum of Dual infeasibilities using tolerance based on error in duals
-  double sumOfRelaxedDualInfeasibilities_;
+  FloatT sumOfRelaxedDualInfeasibilities_;
   /// Sum of Primal infeasibilities using tolerance based on error in primals
-  double sumOfRelaxedPrimalInfeasibilities_;
+  FloatT sumOfRelaxedPrimalInfeasibilities_;
   /// Saved best dual on gub row in pricing
-  double savedBestGubDual_;
+  FloatT savedBestGubDual_;
   /// Saved best set in pricing
   int savedBestSet_;
   /// Backward pointer to pivot row !!!
@@ -352,11 +352,11 @@ protected:
   /// Number of active sets
   int numberActiveSets_;
   /// Saved value of objective offset
-  double objectiveOffset_;
+  FloatT objectiveOffset_;
   /// Lower bounds on sets
-  double *lowerSet_;
+  FloatT *lowerSet_;
   /// Upper bounds on sets
-  double *upperSet_;
+  FloatT *upperSet_;
   /// Status of slack on set
   unsigned char *status_;
   /// Pointer back to model
@@ -384,7 +384,7 @@ protected:
      */
   int noCheck_;
   /// Infeasibility weight when last full pass done
-  double infeasibilityWeight_;
+  FloatT infeasibilityWeight_;
   /// size
   int numberGubColumns_;
   /// current maximum number of columns (then compress)
@@ -400,17 +400,17 @@ protected:
   /// rows
   int *row_;
   /// elements
-  double *element_;
+  FloatT *element_;
   /// costs
-  double *cost_;
+  FloatT *cost_;
   /// ids of active columns (just index here)
   int *id_;
   /// for status and which bound
   unsigned char *dynamicStatus_;
   /// Optional lower bounds on columns
-  double *columnLower_;
+  FloatT *columnLower_;
   /// Optional upper bounds on columns
-  double *columnUpper_;
+  FloatT *columnUpper_;
   //@}
 };
 

@@ -146,8 +146,8 @@ void ClpNode::gutsOfConstructor(ClpSimplex *model, const ClpNodeStuff *stuff,
       delete[] dualSolution_;
       delete[] pivotVariables_;
       status_ = CoinCopyOfArrayPartial(model->statusArray(), maximumTotal, numberTotal);
-      primalSolution_ = new double[maximumTotal * sizeof(double)];
-      dualSolution_ = new double[maximumTotal * sizeof(double)];
+      primalSolution_ = new FloatT[maximumTotal * sizeof(FloatT)];
+      dualSolution_ = new FloatT[maximumTotal * sizeof(FloatT)];
       if (arraysExist == 1) {
         *factorization_ = *model->factorization(); // I think this is OK
         CoinMemcpyN(model->solutionRegion(), numberTotal, primalSolution_);
@@ -171,27 +171,27 @@ void ClpNode::gutsOfConstructor(ClpSimplex *model, const ClpNodeStuff *stuff,
     }
   }
   numberFixed_ = 0;
-  const double *lower = model->columnLower();
-  const double *upper = model->columnUpper();
-  const double *solution = model->primalColumnSolution();
+  const FloatT *lower = model->columnLower();
+  const FloatT *upper = model->columnUpper();
+  const FloatT *solution = model->primalColumnSolution();
   const char *integerType = model->integerInformation();
-  const double *columnScale = model->columnScale();
+  const FloatT *columnScale = model->columnScale();
   if (!flags_)
     columnScale = NULL; // as duals correct
   int iColumn;
   sequence_ = -1;
-  double integerTolerance = stuff->integerTolerance_;
-  double mostAway = 0.0;
+  FloatT integerTolerance = stuff->integerTolerance_;
+  FloatT mostAway = 0.0;
   int bestPriority = COIN_INT_MAX;
   sumInfeasibilities_ = 0.0;
   numberInfeasibilities_ = 0;
   int nFix = 0;
-  double gap = CoinMax(model->dualObjectiveLimit() - objectiveValue_, 1.0e-4);
+  FloatT gap = CoinMax(model->dualObjectiveLimit() - objectiveValue_, 1.0e-4);
 #define PSEUDO 3
 #if PSEUDO == 1 || PSEUDO == 2
   // Column copy of matrix
   ClpPackedMatrix *matrix = model->clpScaledMatrix();
-  const double *objective = model->costRegion();
+  const FloatT *objective = model->costRegion();
   if (!objective) {
     objective = model->objective();
     //if (!matrix)
@@ -199,18 +199,18 @@ void ClpNode::gutsOfConstructor(ClpSimplex *model, const ClpNodeStuff *stuff,
   } else if (!matrix) {
     matrix = dynamic_cast< ClpPackedMatrix * >(model->clpMatrix());
   }
-  const double *element = matrix->getElements();
+  const FloatT *element = matrix->getElements();
   const int *row = matrix->getIndices();
   const CoinBigIndex *columnStart = matrix->getVectorStarts();
   const int *columnLength = matrix->getVectorLengths();
-  double direction = model->optimizationDirection();
-  const double *dual = dualSolution_ + numberColumns;
+  FloatT direction = model->optimizationDirection();
+  const FloatT *dual = dualSolution_ + numberColumns;
 #if PSEUDO == 2
-  double *activeWeight = new double[numberRows];
-  const double *rowLower = model->rowLower();
-  const double *rowUpper = model->rowUpper();
-  const double *rowActivity = model->primalRowSolution();
-  double tolerance = 1.0e-6;
+  FloatT *activeWeight = new FloatT[numberRows];
+  const FloatT *rowLower = model->rowLower();
+  const FloatT *rowUpper = model->rowUpper();
+  const FloatT *rowActivity = model->primalRowSolution();
+  FloatT tolerance = 1.0e-6;
   for (int iRow = 0; iRow < numberRows; iRow++) {
     // could use pi to see if active or activity
     if (rowActivity[iRow] > rowUpper[iRow] - tolerance
@@ -222,7 +222,7 @@ void ClpNode::gutsOfConstructor(ClpSimplex *model, const ClpNodeStuff *stuff,
   }
   for (int iColumn = 0; iColumn < numberColumns; iColumn++) {
     if (integerType[iColumn]) {
-      double value = solution[iColumn];
+      FloatT value = solution[iColumn];
       if (fabs(value - floor(value + 0.5)) > 1.0e-6) {
         CoinBigIndex start = columnStart[iColumn];
         CoinBigIndex end = start + columnLength[iColumn];
@@ -244,10 +244,10 @@ void ClpNode::gutsOfConstructor(ClpSimplex *model, const ClpNodeStuff *stuff,
   }
 #endif
 #endif
-  const double *downPseudo = stuff->downPseudo_;
+  const FloatT *downPseudo = stuff->downPseudo_;
   const int *numberDown = stuff->numberDown_;
   const int *numberDownInfeasible = stuff->numberDownInfeasible_;
-  const double *upPseudo = stuff->upPseudo_;
+  const FloatT *upPseudo = stuff->upPseudo_;
   const int *priority = stuff->priority_;
   const int *numberUp = stuff->numberUp_;
   const int *numberUpInfeasible = stuff->numberUpInfeasible_;
@@ -260,25 +260,25 @@ void ClpNode::gutsOfConstructor(ClpSimplex *model, const ClpNodeStuff *stuff,
   //Stolen from Constraint Integer Programming book (with epsilon change)
 #define WEIGHT_PRODUCT
 #ifdef WEIGHT_PRODUCT
-  double smallChange = stuff->smallChange_;
+  FloatT smallChange = stuff->smallChange_;
 #endif
 #ifndef INFEAS_MULTIPLIER
 #define INFEAS_MULTIPLIER 1.0
 #endif
   for (iColumn = 0; iColumn < numberColumns; iColumn++) {
     if (integerType[iColumn]) {
-      double value = solution[iColumn];
-      value = CoinMax(value, static_cast< double >(lower[iColumn]));
-      value = CoinMin(value, static_cast< double >(upper[iColumn]));
-      double nearest = floor(value + 0.5);
+      FloatT value = solution[iColumn];
+      value = CoinMax(value, static_cast< FloatT >(lower[iColumn]));
+      value = CoinMin(value, static_cast< FloatT >(upper[iColumn]));
+      FloatT nearest = floor(value + 0.5);
       if (fabs(value - nearest) > integerTolerance) {
         numberInfeasibilities_++;
         sumInfeasibilities_ += fabs(value - nearest);
 #if PSEUDO == 1 || PSEUDO == 2
-        double upValue = 0.0;
-        double downValue = 0.0;
-        double value2 = direction * objective[iColumn];
-        //double dj2=value2;
+        FloatT upValue = 0.0;
+        FloatT downValue = 0.0;
+        FloatT value2 = direction * objective[iColumn];
+        //FloatT dj2=value2;
         if (value2) {
           if (value2 > 0.0)
             upValue += 1.5 * value2;
@@ -305,16 +305,16 @@ void ClpNode::gutsOfConstructor(ClpSimplex *model, const ClpNodeStuff *stuff,
         }
         //assert (fabs(dj2)<1.0e-4);
         int nUp = numberUp[iInteger];
-        double upValue2 = (upPseudo[iInteger] / (1.0 + nUp));
+        FloatT upValue2 = (upPseudo[iInteger] / (1.0 + nUp));
         // Extra for infeasible branches
         if (nUp) {
-          double ratio = 1.0 + INFEAS_MULTIPLIER * static_cast< double >(numberUpInfeasible[iInteger]) / static_cast< double >(nUp);
+          FloatT ratio = 1.0 + INFEAS_MULTIPLIER * static_cast< FloatT >(numberUpInfeasible[iInteger]) / static_cast< FloatT >(nUp);
           upValue2 *= ratio;
         }
         int nDown = numberDown[iInteger];
-        double downValue2 = (downPseudo[iInteger] / (1.0 + nDown));
+        FloatT downValue2 = (downPseudo[iInteger] / (1.0 + nDown));
         if (nDown) {
-          double ratio = 1.0 + INFEAS_MULTIPLIER * static_cast< double >(numberDownInfeasible[iInteger]) / static_cast< double >(nDown);
+          FloatT ratio = 1.0 + INFEAS_MULTIPLIER * static_cast< FloatT >(numberDownInfeasible[iInteger]) / static_cast< FloatT >(nDown);
           downValue2 *= ratio;
         }
         //printf("col %d - downPi %g up %g, downPs %g up %g\n",
@@ -325,7 +325,7 @@ void ClpNode::gutsOfConstructor(ClpSimplex *model, const ClpNodeStuff *stuff,
         //downValue = CoinMax(downValue,1.0e-8);
         upValue *= ceil(value) - value;
         downValue *= value - floor(value);
-        double infeasibility;
+        FloatT infeasibility;
         //if (depth>1000)
         //infeasibility = CoinMax(upValue,downValue)+integerTolerance;
         //else
@@ -344,14 +344,14 @@ void ClpNode::gutsOfConstructor(ClpSimplex *model, const ClpNodeStuff *stuff,
         int nUp = numberUp[iInteger];
         int nDown = numberDown[iInteger];
         // Extra 100% for infeasible branches
-        double upValue = (ceil(value) - value) * (upPseudo[iInteger] / (1.0 + nUp));
+        FloatT upValue = (ceil(value) - value) * (upPseudo[iInteger] / (1.0 + nUp));
         if (nUp) {
-          double ratio = 1.0 + INFEAS_MULTIPLIER * static_cast< double >(numberUpInfeasible[iInteger]) / static_cast< double >(nUp);
+          FloatT ratio = 1.0 + INFEAS_MULTIPLIER * static_cast< FloatT >(numberUpInfeasible[iInteger]) / static_cast< FloatT >(nUp);
           upValue *= ratio;
         }
-        double downValue = (value - floor(value)) * (downPseudo[iInteger] / (1.0 + nDown));
+        FloatT downValue = (value - floor(value)) * (downPseudo[iInteger] / (1.0 + nDown));
         if (nDown) {
-          double ratio = 1.0 + INFEAS_MULTIPLIER * static_cast< double >(numberDownInfeasible[iInteger]) / static_cast< double >(nDown);
+          FloatT ratio = 1.0 + INFEAS_MULTIPLIER * static_cast< FloatT >(numberDownInfeasible[iInteger]) / static_cast< FloatT >(nDown);
           downValue *= ratio;
         }
         if (nUp < numberBeforeTrust || nDown < numberBeforeTrust) {
@@ -359,7 +359,7 @@ void ClpNode::gutsOfConstructor(ClpSimplex *model, const ClpNodeStuff *stuff,
           downValue *= 10.0;
         }
 
-        double infeasibility;
+        FloatT infeasibility;
         //if (depth>1000)
         //infeasibility = CoinMax(upValue,downValue)+integerTolerance;
         //else
@@ -378,7 +378,7 @@ void ClpNode::gutsOfConstructor(ClpSimplex *model, const ClpNodeStuff *stuff,
         //0.9*CoinMin(upValue,downValue) + integerTolerance;
         estimatedSolution_ += CoinMin(upValue, downValue);
 #else
-        double infeasibility = fabs(value - nearest);
+        FloatT infeasibility = fabs(value - nearest);
 #endif
         assert(infeasibility > 0.0);
         if (priority[iInteger] < bestPriority) {
@@ -556,8 +556,8 @@ void ClpNode::cleanUpForCrunch()
 void ClpNode::applyNode(ClpSimplex *model, int doBoundsEtc)
 {
   int numberColumns = model->numberColumns();
-  const double *lower = model->columnLower();
-  const double *upper = model->columnUpper();
+  const FloatT *lower = model->columnLower();
+  const FloatT *upper = model->columnUpper();
   if (doBoundsEtc < 2) {
     // current bound
     int way = branchState_.firstBranch;
@@ -616,8 +616,8 @@ void ClpNode::applyNode(ClpSimplex *model, int doBoundsEtc)
       CoinMemcpyN(dualSolution_ + numberColumns, numberRows, model->dualRowSolution());
       if (model->columnScale()) {
         // See if just primal will work
-        double *solution = model->primalColumnSolution();
-        const double *columnScale = model->columnScale();
+        FloatT *solution = model->primalColumnSolution();
+        const FloatT *columnScale = model->columnScale();
         int i;
         for (i = 0; i < numberColumns; i++) {
           solution[i] *= columnScale[i];
@@ -881,7 +881,7 @@ int ClpNodeStuff::maximumSpace() const
   return maximumNodes_;
 }
 /* Fill with pseudocosts */
-void ClpNodeStuff::fillPseudoCosts(const double *down, const double *up,
+void ClpNodeStuff::fillPseudoCosts(const FloatT *down, const FloatT *up,
   const int *priority,
   const int *numberDown, const int *numberUp,
   const int *numberDownInfeasible,
@@ -914,7 +914,7 @@ void ClpNodeStuff::fillPseudoCosts(const double *down, const double *up,
   }
 }
 // Update pseudo costs
-void ClpNodeStuff::update(int way, int sequence, double change, bool feasible)
+void ClpNodeStuff::update(int way, int sequence, FloatT change, bool feasible)
 {
   assert(numberDown_[sequence] >= numberDownInfeasible_[sequence]);
   assert(numberUp_[sequence] >= numberUpInfeasible_[sequence]);
@@ -955,16 +955,16 @@ ClpHashValue::ClpHashValue(ClpSimplex *model)
 {
   maxHash_ = 1000;
   int numberColumns = model->numberColumns();
-  const double *columnLower = model->columnLower();
-  const double *columnUpper = model->columnUpper();
+  const FloatT *columnLower = model->columnLower();
+  const FloatT *columnUpper = model->columnUpper();
   int numberRows = model->numberRows();
-  const double *rowLower = model->rowLower();
-  const double *rowUpper = model->rowUpper();
-  const double *objective = model->objective();
+  const FloatT *rowLower = model->rowLower();
+  const FloatT *rowUpper = model->rowUpper();
+  const FloatT *objective = model->objective();
   CoinPackedMatrix *matrix = model->matrix();
   const int *columnLength = matrix->getVectorLengths();
   const CoinBigIndex *columnStart = matrix->getVectorStarts();
-  const double *elementByColumn = matrix->getElements();
+  const FloatT *elementByColumn = matrix->getElements();
   int i;
   int ipos;
 
@@ -988,7 +988,7 @@ ClpHashValue::ClpHashValue(ClpSimplex *model)
     int length = columnLength[i];
     CoinBigIndex start = columnStart[i];
     for (CoinBigIndex i = start; i < start + length; i++) {
-      double value = elementByColumn[i];
+      FloatT value = elementByColumn[i];
       ipos = hash(value);
       if (hash_[ipos].index == -1) {
         hash_[ipos].index = numberHash_;
@@ -1005,7 +1005,7 @@ ClpHashValue::ClpHashValue(ClpSimplex *model)
   for (i = 0; i < numberRows; i++) {
     if (numberHash_ * 2 > maxHash_)
       resize(true);
-    double value;
+    FloatT value;
     value = rowLower[i];
     ipos = index(value);
     if (ipos < 0)
@@ -1020,7 +1020,7 @@ ClpHashValue::ClpHashValue(ClpSimplex *model)
     CoinBigIndex start = columnStart[i];
     if (numberHash_ * 2 > maxHash_)
       resize(true);
-    double value;
+    FloatT value;
     value = objective[i];
     ipos = index(value);
     if (ipos < 0)
@@ -1099,7 +1099,7 @@ ClpHashValue::operator=(const ClpHashValue &rhs)
   return *this;
 }
 // Return index or -1 if not found
-int ClpHashValue::index(double value) const
+int ClpHashValue::index(FloatT value) const
 {
   if (!value)
     return 0;
@@ -1121,7 +1121,7 @@ int ClpHashValue::index(double value) const
   return returnCode;
 }
 // Add value to list and return index
-int ClpHashValue::addValue(double value)
+int ClpHashValue::addValue(FloatT value)
 {
   int ipos = hash(value);
 
@@ -1171,19 +1171,21 @@ const int mmult_for_hash[] = {
   82183, 79939, 77587, 75307, 72959, 70793, 68447, 66103
 };
 }
-int ClpHashValue::hash(double value) const
+int ClpHashValue::hash(FloatT value) const
 {
 
-  union {
-    double d;
-    char c[8];
+  union v1{
+    FloatT d {};
+    char c[sizeof(FloatT)];
+    v1(){};
+    ~v1(){};
   } v1;
-  assert(sizeof(double) == 8);
+  //assert(sizeof(FloatT) == 8);
   v1.d = value;
   int n = 0;
   int j;
 
-  for (j = 0; j < 8; ++j) {
+  for (j = 0; j < sizeof(FloatT); ++j) {
     int ichar = v1.c[j];
     n += mmult_for_hash[j] * ichar;
   }
@@ -1232,7 +1234,7 @@ void ClpHashValue::resize(bool increaseMax)
   lastUsed_ = -1;
   for (i = 0; i < oldSize; ++i) {
     if (oldHash[i].index >= 0) {
-      double value = oldHash[i].value;
+      FloatT value = oldHash[i].value;
       ipos = hash(value);
       int k;
       while (true) {

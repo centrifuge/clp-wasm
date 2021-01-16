@@ -64,7 +64,7 @@ namespace {
   reordered, just shifted down to remove gaps.
 */
 
-void compact_rep(double *elems, int *indices,
+void compact_rep(FloatT *elems, int *indices,
   CoinBigIndex *starts, const int *lengths, int n,
   const presolvehlink *link)
 {
@@ -152,7 +152,7 @@ void presolve_make_memlists(/*CoinBigIndex *starts,*/ int *lengths,
   Returns true for failure, false for success.
 */
 
-bool presolve_expand_major(CoinBigIndex *majstrts, double *els,
+bool presolve_expand_major(CoinBigIndex *majstrts, FloatT *els,
   int *minndxs, int *majlens,
   presolvehlink *majlinks, int nmaj, int k)
 
@@ -213,7 +213,7 @@ bool presolve_expand_major(CoinBigIndex *majstrts, double *els,
     memcpy(reinterpret_cast< void * >(&minndxs[newkcsx]),
       reinterpret_cast< void * >(&minndxs[kcsx]), majlens[k] * sizeof(int));
     memcpy(reinterpret_cast< void * >(&els[newkcsx]),
-      reinterpret_cast< void * >(&els[kcsx]), majlens[k] * sizeof(double));
+      reinterpret_cast< void * >(&els[kcsx]), majlens[k] * sizeof(FloatT));
     majstrts[k] = newkcsx;
     PRESOLVE_REMOVE_LINK(majlinks, k);
     PRESOLVE_INSERT_LINK(majlinks, k, lastcol);
@@ -253,11 +253,11 @@ bool presolve_expand_major(CoinBigIndex *majstrts, double *els,
   entry with minor index == tgt. In this case, we want to reduce the size of
   the allocated array by 1.
 
-  Pigs will fly before sizeof(int) > sizeof(double), but if it ever
+  Pigs will fly before sizeof(int) > sizeof(FloatT), but if it ever
   happens this code will fail.
 */
 
-double *presolve_dupmajor(const double *elems, const int *indices,
+FloatT *presolve_dupmajor(const FloatT *elems, const int *indices,
   int length, CoinBigIndex offset, int tgt)
 
 {
@@ -266,16 +266,16 @@ double *presolve_dupmajor(const double *elems, const int *indices,
   if (tgt >= 0)
     length--;
 
-  if (2 * sizeof(int) <= sizeof(double))
+  if (2 * sizeof(int) <= sizeof(FloatT))
     n = (3 * length + 1) >> 1;
   else
     n = 2 * length;
 
-  double *dArray = new double[n];
+  FloatT *dArray = new FloatT[n];
   int *iArray = reinterpret_cast< int * >(dArray + length);
 
   if (tgt < 0) {
-    memcpy(dArray, elems + offset, length * sizeof(double));
+    memcpy(dArray, elems + offset, length * sizeof(FloatT));
     memcpy(iArray, indices + offset, length * sizeof(int));
   } else {
     int korig;
@@ -390,7 +390,7 @@ CoinBigIndex presolve_find_minor3(int tgt, CoinBigIndex ks,
 #if 0
 void presolve_delete_from_major (int majndx, int minndx,
 				 const CoinBigIndex *majstrts,
-				 int *majlens, int *minndxs, double *els)
+				 int *majlens, int *minndxs, FloatT *els)
 
 { CoinBigIndex ks = majstrts[majndx] ;
   CoinBigIndex ke = ks + majlens[majndx] ;
@@ -405,7 +405,7 @@ void presolve_delete_from_major (int majndx, int minndx,
 // Delete all marked and zero marked
 void presolve_delete_many_from_major (int majndx, char * marked,
 				 const CoinBigIndex *majstrts,
-				 int *majlens, int *minndxs, double *els)
+				 int *majlens, int *minndxs, FloatT *els)
 
 { 
   CoinBigIndex ks = majstrts[majndx] ;

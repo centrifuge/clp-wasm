@@ -28,7 +28,7 @@ ClpLinearObjective::ClpLinearObjective()
 //-------------------------------------------------------------------
 // Useful Constructor
 //-------------------------------------------------------------------
-ClpLinearObjective::ClpLinearObjective(const double *objective,
+ClpLinearObjective::ClpLinearObjective(const FloatT *objective,
   int numberColumns)
   : ClpObjective()
 {
@@ -67,7 +67,7 @@ ClpLinearObjective::ClpLinearObjective(const ClpLinearObjective &rhs,
       throw CoinError("bad column list", "subset constructor",
         "ClpLinearObjective");
     numberColumns_ = numberColumns;
-    objective_ = new double[numberColumns_];
+    objective_ = new FloatT[numberColumns_];
     for (i = 0; i < numberColumns_; i++)
       objective_[i] = rhs.objective_[whichColumn[i]];
   }
@@ -97,9 +97,9 @@ ClpLinearObjective::operator=(const ClpLinearObjective &rhs)
 }
 
 // Returns gradient
-double *
+FloatT *
 ClpLinearObjective::gradient(const ClpSimplex * /*model*/,
-  const double * /*solution*/, double &offset,
+  const FloatT * /*solution*/, FloatT &offset,
   bool /*refresh*/,
   int /*includeLinear*/)
 {
@@ -112,8 +112,8 @@ ClpLinearObjective::gradient(const ClpSimplex * /*model*/,
 
 /* Returns reduced gradient.Returns an offset (to be added to current one).
  */
-double
-ClpLinearObjective::reducedGradient(ClpSimplex *model, double *region,
+FloatT
+ClpLinearObjective::reducedGradient(ClpSimplex *model, FloatT *region,
   bool /*useFeasibleCosts*/)
 {
   int numberRows = model->numberRows();
@@ -127,15 +127,15 @@ ClpLinearObjective::reducedGradient(ClpSimplex *model, double *region,
 #ifdef CLP_DEBUG
   workSpace->checkClear();
 #endif
-  double *array = arrayVector.denseVector();
+  FloatT *array = arrayVector.denseVector();
   int *index = arrayVector.getIndices();
   int number = 0;
-  const double *cost = model->costRegion();
+  const FloatT *cost = model->costRegion();
   //assert (!useFeasibleCosts);
   const int *pivotVariable = model->pivotVariable();
   for (iRow = 0; iRow < numberRows; iRow++) {
     int iPivot = pivotVariable[iRow];
-    double value = cost[iPivot];
+    FloatT value = cost[iPivot];
     if (value) {
       array[iRow] = value;
       index[number++] = iRow;
@@ -146,22 +146,22 @@ ClpLinearObjective::reducedGradient(ClpSimplex *model, double *region,
   int numberColumns = model->numberColumns();
 
   // Btran basic costs
-  double *work = workSpace->denseVector();
+  FloatT *work = workSpace->denseVector();
   model->factorization()->updateColumnTranspose(workSpace, &arrayVector);
   ClpFillN(work, numberRows, 0.0);
   // now look at dual solution
-  double *rowReducedCost = region + numberColumns;
-  double *dual = rowReducedCost;
-  double *rowCost = model->costRegion(0);
+  FloatT *rowReducedCost = region + numberColumns;
+  FloatT *dual = rowReducedCost;
+  FloatT *rowCost = model->costRegion(0);
   for (iRow = 0; iRow < numberRows; iRow++) {
     dual[iRow] = array[iRow];
   }
-  double *dj = region;
+  FloatT *dj = region;
   ClpDisjointCopyN(model->costRegion(1), numberColumns, dj);
   model->transposeTimes(-1.0, dual, dj);
   for (iRow = 0; iRow < numberRows; iRow++) {
     // slack
-    double value = dual[iRow];
+    FloatT value = dual[iRow];
     value += rowCost[iRow];
     rowReducedCost[iRow] = value;
   }
@@ -172,17 +172,17 @@ ClpLinearObjective::reducedGradient(ClpSimplex *model, double *region,
 
    arrays are numberColumns+numberRows
 */
-double
+FloatT
 ClpLinearObjective::stepLength(ClpSimplex *model,
-  const double *solution,
-  const double *change,
-  double maximumTheta,
-  double &currentObj,
-  double &predictedObj,
-  double &thetaObj)
+  const FloatT *solution,
+  const FloatT *change,
+  FloatT maximumTheta,
+  FloatT &currentObj,
+  FloatT &predictedObj,
+  FloatT &thetaObj)
 {
-  const double *cost = model->costRegion();
-  double delta = 0.0;
+  const FloatT *cost = model->costRegion();
+  FloatT delta = 0.0;
   int numberRows = model->numberRows();
   int numberColumns = model->numberColumns();
   currentObj = 0.0;
@@ -201,13 +201,13 @@ ClpLinearObjective::stepLength(ClpSimplex *model,
   }
 }
 // Return objective value (without any ClpModel offset) (model may be NULL)
-double
-ClpLinearObjective::objectiveValue(const ClpSimplex *model, const double *solution) const
+FloatT
+ClpLinearObjective::objectiveValue(const ClpSimplex *model, const FloatT *solution) const
 {
-  const double *cost = objective_;
+  const FloatT *cost = objective_;
   if (model && model->costRegion())
     cost = model->costRegion();
-  double currentObj = 0.0;
+  FloatT currentObj = 0.0;
   for (int iColumn = 0; iColumn < numberColumns_; iColumn++) {
     currentObj += cost[iColumn] * solution[iColumn];
   }
@@ -234,7 +234,7 @@ void ClpLinearObjective::resize(int newNumberColumns)
 {
   if (numberColumns_ != newNumberColumns) {
     int i;
-    double *newArray = new double[newNumberColumns];
+    FloatT *newArray = new FloatT[newNumberColumns];
     if (objective_)
       CoinMemcpyN(objective_, CoinMin(newNumberColumns, numberColumns_), newArray);
     delete[] objective_;
@@ -260,7 +260,7 @@ void ClpLinearObjective::deleteSome(int numberToDelete, const int *which)
       }
     }
     int newNumberColumns = numberColumns_ - numberDeleted;
-    double *newArray = new double[newNumberColumns];
+    FloatT *newArray = new FloatT[newNumberColumns];
     int put = 0;
     for (i = 0; i < numberColumns_; i++) {
       if (!deleted[i]) {
@@ -274,7 +274,7 @@ void ClpLinearObjective::deleteSome(int numberToDelete, const int *which)
   }
 }
 // Scale objective
-void ClpLinearObjective::reallyScale(const double *columnScale)
+void ClpLinearObjective::reallyScale(const FloatT *columnScale)
 {
   for (int iColumn = 0; iColumn < numberColumns_; iColumn++) {
     objective_[iColumn] *= columnScale[iColumn];

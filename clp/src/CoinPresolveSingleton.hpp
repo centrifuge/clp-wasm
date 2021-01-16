@@ -14,22 +14,22 @@
 
 //const int MAX_SLACK_DOUBLETONS	= 1000;
 
-/*! \class slack_doubleton_action
+/*! \class slack_FloatTton_action
     \brief Convert an explicit bound constraint to a column bound
 
   This transform looks for explicit bound constraints for a variable and
   transfers the bound to the appropriate column bound array.
   The constraint is removed from the constraint system.
 */
-class slack_doubleton_action : public CoinPresolveAction {
+class slack_FloatTton_action : public CoinPresolveAction {
   struct action {
-    double clo;
-    double cup;
+    FloatT clo;
+    FloatT cup;
 
-    double rlo;
-    double rup;
+    FloatT rlo;
+    FloatT rup;
 
-    double coeff;
+    FloatT coeff;
 
     int col;
     int row;
@@ -38,7 +38,7 @@ class slack_doubleton_action : public CoinPresolveAction {
   const int nactions_;
   const action *const actions_;
 
-  slack_doubleton_action(int nactions,
+  slack_FloatTton_action(int nactions,
     const action *actions,
     const CoinPresolveAction *next)
     : CoinPresolveAction(next)
@@ -48,7 +48,7 @@ class slack_doubleton_action : public CoinPresolveAction {
   }
 
 public:
-  const char *name() const { return ("slack_doubleton_action"); }
+  const char *name() const { return ("slack_FloatTton_action"); }
 
   /*! \brief Convert explicit bound constraints to column bounds.
   
@@ -62,7 +62,7 @@ public:
 
   void postsolve(CoinPostsolveMatrix *prob) const;
 
-  virtual ~slack_doubleton_action() { deleteAction(actions_, action *); }
+  virtual ~slack_FloatTton_action() { deleteAction(actions_, action *); }
 };
 /*! \class slack_singleton_action
     \brief For variables with one entry
@@ -74,13 +74,13 @@ public:
 */
 class slack_singleton_action : public CoinPresolveAction {
   struct action {
-    double clo;
-    double cup;
+    FloatT clo;
+    FloatT cup;
 
-    double rlo;
-    double rup;
+    FloatT rlo;
+    FloatT rup;
 
-    double coeff;
+    FloatT coeff;
 
     int col;
     int row;
@@ -103,7 +103,7 @@ public:
 
   static const CoinPresolveAction *presolve(CoinPresolveMatrix *prob,
     const CoinPresolveAction *next,
-    double *rowObjective);
+    FloatT *rowObjective);
 
   void postsolve(CoinPostsolveMatrix *prob) const;
 

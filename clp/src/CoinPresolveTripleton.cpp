@@ -66,16 +66,16 @@ static bool elim_tripleton(const char *
 #endif
   ,
   CoinBigIndex *mcstrt,
-  double *rlo, double *acts, double *rup,
-  double *colels,
+  FloatT *rlo, FloatT *acts, FloatT *rup,
+  FloatT *colels,
   int *hrow, int *hcol,
   int *hinrow, int *hincol,
   presolvehlink *clink, int ncols,
   presolvehlink *rlink, int nrows,
-  CoinBigIndex *mrstrt, double *rowels,
-  //double a, double b, double c,
-  double coeff_factorx, double coeff_factorz,
-  double bounds_factor,
+  CoinBigIndex *mrstrt, FloatT *rowels,
+  //FloatT a, FloatT b, FloatT c,
+  FloatT coeff_factorx, FloatT coeff_factorz,
+  FloatT bounds_factor,
   int row0, int icolx, int icoly, int icolz)
 {
   CoinBigIndex kcs = mcstrt[icoly];
@@ -139,7 +139,7 @@ static bool elim_tripleton(const char *
         jTemp = icolx;
         icolx = icolz;
         icolz = jTemp;
-        double dTemp = coeff_factorx;
+        FloatT dTemp = coeff_factorx;
         coeff_factorx = coeff_factorz;
         coeff_factorz = dTemp;
       }
@@ -289,35 +289,35 @@ static bool elim_tripleton(const char *
 const CoinPresolveAction *tripleton_action::presolve(CoinPresolveMatrix *prob,
   const CoinPresolveAction *next)
 {
-  double *colels = prob->colels_;
+  FloatT *colels = prob->colels_;
   int *hrow = prob->hrow_;
   CoinBigIndex *mcstrt = prob->mcstrt_;
   int *hincol = prob->hincol_;
   int ncols = prob->ncols_;
 
-  double *clo = prob->clo_;
-  double *cup = prob->cup_;
+  FloatT *clo = prob->clo_;
+  FloatT *cup = prob->cup_;
 
-  double *rowels = prob->rowels_;
+  FloatT *rowels = prob->rowels_;
   int *hcol = prob->hcol_;
   CoinBigIndex *mrstrt = prob->mrstrt_;
   int *hinrow = prob->hinrow_;
   int nrows = prob->nrows_;
 
-  double *rlo = prob->rlo_;
-  double *rup = prob->rup_;
+  FloatT *rlo = prob->rlo_;
+  FloatT *rup = prob->rup_;
 
   presolvehlink *clink = prob->clink_;
   presolvehlink *rlink = prob->rlink_;
 
   const unsigned char *integerType = prob->integerType_;
 
-  double *cost = prob->cost_;
+  FloatT *cost = prob->cost_;
 
   int numberLook = prob->numberRowsToDo_;
   int iLook;
   int *look = prob->rowsToDo_;
-  const double ztolzb = prob->ztolzb_;
+  const FloatT ztolzb = prob->ztolzb_;
 
 #if PRESOLVE_DEBUG > 0 || PRESOLVE_CONSISTENCY > 0
 #if PRESOLVE_DEBUG > 0
@@ -337,7 +337,7 @@ const CoinPresolveAction *tripleton_action::presolve(CoinPresolveMatrix *prob,
   startEmptyRows = prob->countEmptyRows();
   startEmptyColumns = prob->countEmptyCols();
 #if COIN_PRESOLVE_TUNING > 0
-  double startTime = 0.0;
+  FloatT startTime = 0.0;
   if (prob->tuning_)
     startTime = CoinCpuTime();
 #endif
@@ -357,7 +357,7 @@ const CoinPresolveAction *tripleton_action::presolve(CoinPresolveMatrix *prob,
 
   // If rowstat exists then all do
   unsigned char *rowstat = prob->rowstat_;
-  double *acts = prob->acts_;
+  FloatT *acts = prob->acts_;
   //  unsigned char * colstat = prob->colstat_;
 
 #if PRESOLVE_CONSISTENCY > 0
@@ -368,11 +368,11 @@ const CoinPresolveAction *tripleton_action::presolve(CoinPresolveMatrix *prob,
   for (iLook = 0; iLook < numberLook; iLook++) {
     int irow = look[iLook];
     if (hinrow[irow] == 3 && fabs(rup[irow] - rlo[irow]) <= ZTOLDP) {
-      double rhs = rlo[irow];
+      FloatT rhs = rlo[irow];
       CoinBigIndex krs = mrstrt[irow];
       CoinBigIndex kre = krs + hinrow[irow];
       int icolx, icoly, icolz;
-      double coeffx, coeffy, coeffz;
+      FloatT coeffx, coeffy, coeffz;
       CoinBigIndex k;
 
       /* locate first column */
@@ -419,14 +419,14 @@ const CoinPresolveAction *tripleton_action::presolve(CoinPresolveMatrix *prob,
         int iTemp = icoly;
         icoly = icolz;
         icolz = iTemp;
-        double dTemp = coeffy;
+        FloatT dTemp = coeffy;
         coeffy = coeffz;
         coeffz = dTemp;
       } else {
         int iTemp = icoly;
         icoly = icolx;
         icolx = iTemp;
-        double dTemp = coeffy;
+        FloatT dTemp = coeffy;
         coeffy = coeffx;
         coeffx = dTemp;
       }
@@ -435,8 +435,8 @@ const CoinPresolveAction *tripleton_action::presolve(CoinPresolveMatrix *prob,
       if (!(fabs(cup[icolx] - clo[icolx]) < ZTOLDP) && !(fabs(cup[icoly] - clo[icolx]) < ZTOLDP) && !(fabs(cup[icolz] - clo[icoly]) < ZTOLDP)) {
         assert(coeffx * coeffz > 0.0 && coeffx * coeffy < 0.0);
         // Only do if does not give implicit bounds on x and z
-        double cx = -coeffx / coeffy;
-        double cz = -coeffz / coeffy;
+        FloatT cx = -coeffx / coeffy;
+        FloatT cz = -coeffz / coeffy;
         /* don't do if y integer for now */
         if (integerType[icoly]) {
 #define PRESOLVE_DANGEROUS
@@ -449,7 +449,7 @@ const CoinPresolveAction *tripleton_action::presolve(CoinPresolveMatrix *prob,
             continue;
 #endif
         }
-        double rhsRatio = rhs / coeffy;
+        FloatT rhsRatio = rhs / coeffy;
         if (clo[icoly] > -1.0e30) {
           if (clo[icolx] < -1.0e30 || clo[icolz] < -1.0e30)
             continue;
@@ -646,7 +646,7 @@ const CoinPresolveAction *tripleton_action::presolve(CoinPresolveMatrix *prob,
   deleteAction(actions, action *);
 
 #if COIN_PRESOLVE_TUNING > 0
-  double thisTime = 0.0;
+  FloatT thisTime = 0.0;
   if (prob->tuning_)
     thisTime = CoinCpuTime();
 #endif
@@ -673,30 +673,30 @@ void tripleton_action::postsolve(CoinPostsolveMatrix *prob) const
   const action *const actions = actions_;
   const int nactions = nactions_;
 
-  double *colels = prob->colels_;
+  FloatT *colels = prob->colels_;
   int *hrow = prob->hrow_;
   CoinBigIndex *mcstrt = prob->mcstrt_;
   int *hincol = prob->hincol_;
   CoinBigIndex *link = prob->link_;
 
-  double *clo = prob->clo_;
-  double *cup = prob->cup_;
+  FloatT *clo = prob->clo_;
+  FloatT *cup = prob->cup_;
 
-  double *rlo = prob->rlo_;
-  double *rup = prob->rup_;
+  FloatT *rlo = prob->rlo_;
+  FloatT *rup = prob->rup_;
 
-  double *dcost = prob->cost_;
+  FloatT *dcost = prob->cost_;
 
-  double *sol = prob->sol_;
-  double *rcosts = prob->rcosts_;
+  FloatT *sol = prob->sol_;
+  FloatT *rcosts = prob->rcosts_;
 
-  double *acts = prob->acts_;
-  double *rowduals = prob->rowduals_;
+  FloatT *acts = prob->acts_;
+  FloatT *rowduals = prob->rowduals_;
 
   unsigned char *colstat = prob->colstat_;
   unsigned char *rowstat = prob->rowstat_;
 
-  const double maxmin = prob->maxmin_;
+  const FloatT maxmin = prob->maxmin_;
 
 #if PRESOLVE_DEBUG > 0 || PRESOLVE_CONSISTENCY > 0
   char *cdone = prob->cdone_;
@@ -711,34 +711,34 @@ void tripleton_action::postsolve(CoinPostsolveMatrix *prob) const
 
   CoinBigIndex &free_list = prob->free_list_;
 
-  const double ztolzb = prob->ztolzb_;
-  const double ztoldj = prob->ztoldj_;
+  const FloatT ztolzb = prob->ztolzb_;
+  const FloatT ztoldj = prob->ztoldj_;
 
   // Space for accumulating two columns
   int nrows = prob->nrows_;
   int *index1 = new int[nrows];
-  double *element1 = new double[nrows];
-  memset(element1, 0, nrows * sizeof(double));
+  FloatT *element1 = new FloatT[nrows];
+  memset(element1, 0, nrows * sizeof(FloatT));
   int *index2 = new int[nrows];
-  double *element2 = new double[nrows];
-  memset(element2, 0, nrows * sizeof(double));
+  FloatT *element2 = new FloatT[nrows];
+  memset(element2, 0, nrows * sizeof(FloatT));
 
   for (const action *f = &actions[nactions - 1]; actions <= f; f--) {
     int irow = f->row;
 
     // probably don't need this
-    double ylo0 = f->cloy;
-    double yup0 = f->cupy;
+    FloatT ylo0 = f->cloy;
+    FloatT yup0 = f->cupy;
 
-    double coeffx = f->coeffx;
-    double coeffy = f->coeffy;
-    double coeffz = f->coeffz;
+    FloatT coeffx = f->coeffx;
+    FloatT coeffy = f->coeffy;
+    FloatT coeffz = f->coeffz;
     int jcolx = f->icolx;
     int jcoly = f->icoly;
     int jcolz = f->icolz;
 
     // needed?
-    double rhs = f->rlo;
+    FloatT rhs = f->rlo;
 
     /* the column was in the reduced problem */
     PRESOLVEASSERT(cdone[jcolx] && rdone[irow] == DROP_ROW && cdone[jcolz]);
@@ -788,20 +788,20 @@ void tripleton_action::postsolve(CoinPostsolveMatrix *prob) const
     //
     // therefore, we must increase the row bounds by colels[kcoly] * rhs/coeffy,
     // which is similar to the bias
-    double djy = maxmin * dcost[jcoly];
-    double djx = maxmin * dcost[jcolx];
-    double djz = maxmin * dcost[jcolz];
-    double bounds_factor = rhs / coeffy;
+    FloatT djy = maxmin * dcost[jcoly];
+    FloatT djx = maxmin * dcost[jcolx];
+    FloatT djz = maxmin * dcost[jcolz];
+    FloatT bounds_factor = rhs / coeffy;
     // need to reconstruct x and z
-    double multiplier1 = coeffx / coeffy;
-    double multiplier2 = coeffz / coeffy;
+    FloatT multiplier1 = coeffx / coeffy;
+    FloatT multiplier2 = coeffz / coeffy;
     int *indy = reinterpret_cast< int * >(f->colel + f->ncoly);
     CoinBigIndex ystart = NO_LINK;
     int nX = 0, nZ = 0;
     int i, iRow;
     for (i = 0; i < f->ncoly; ++i) {
       int iRow = indy[i];
-      double yValue = f->colel[i];
+      FloatT yValue = f->colel[i];
       CoinBigIndex k = free_list;
       assert(k >= 0 && k < prob->bulk0_);
       free_list = link[free_list];
@@ -844,7 +844,7 @@ void tripleton_action::postsolve(CoinPostsolveMatrix *prob) const
     for (i = 0; i < numberToDo; ++i) {
       iRow = hrow[k];
       assert(iRow >= 0 && iRow < nrows);
-      double value = colels[k] + element1[iRow];
+      FloatT value = colels[k] + element1[iRow];
       element1[iRow] = 0.0;
       if (fabs(value) >= 1.0e-15) {
         colels[k] = value;
@@ -868,7 +868,7 @@ void tripleton_action::postsolve(CoinPostsolveMatrix *prob) const
     }
     for (i = 0; i < nX; i++) {
       int iRow = index1[i];
-      double xValue = element1[iRow];
+      FloatT xValue = element1[iRow];
       element1[iRow] = 0.0;
       if (fabs(xValue) >= 1.0e-15) {
         if (iRow != irow)
@@ -901,7 +901,7 @@ void tripleton_action::postsolve(CoinPostsolveMatrix *prob) const
     for (i = 0; i < numberToDo; ++i) {
       iRow = hrow[k];
       assert(iRow >= 0 && iRow < nrows);
-      double value = colels[k] + element2[iRow];
+      FloatT value = colels[k] + element2[iRow];
       element2[iRow] = 0.0;
       if (fabs(value) >= 1.0e-15) {
         colels[k] = value;
@@ -926,7 +926,7 @@ void tripleton_action::postsolve(CoinPostsolveMatrix *prob) const
     }
     for (i = 0; i < nZ; i++) {
       int iRow = index2[i];
-      double zValue = element2[iRow];
+      FloatT zValue = element2[iRow];
       element2[iRow] = 0.0;
       if (fabs(zValue) >= 1.0e-15) {
         if (iRow != irow)
@@ -999,11 +999,11 @@ void tripleton_action::postsolve(CoinPostsolveMatrix *prob) const
     {
       CoinBigIndex k = mcstrt[jcolx];
       int nx = hincol[jcolx];
-      double dj = maxmin * dcost[jcolx];
+      FloatT dj = maxmin * dcost[jcolx];
 
       for (int i = 0; i < nx; ++i) {
         int row = hrow[k];
-        double coeff = colels[k];
+        FloatT coeff = colels[k];
         k = link[k];
 
         dj -= rowduals[row] * coeff;
@@ -1016,11 +1016,11 @@ void tripleton_action::postsolve(CoinPostsolveMatrix *prob) const
     {
       CoinBigIndex k = mcstrt[jcoly];
       int ny = hincol[jcoly];
-      double dj = maxmin * dcost[jcoly];
+      FloatT dj = maxmin * dcost[jcoly];
 
       for (int i = 0; i < ny; ++i) {
         int row = hrow[k];
-        double coeff = colels[k];
+        FloatT coeff = colels[k];
         k = link[k];
 
         dj -= rowduals[row] * coeff;
@@ -1063,7 +1063,7 @@ tripleton_action::~tripleton_action()
   deleteAction(actions_, action *);
 }
 
-static double *tripleton_mult;
+static FloatT *tripleton_mult;
 static int *tripleton_id;
 void check_tripletons(const CoinPresolveAction *paction)
 {
@@ -1077,8 +1077,8 @@ void check_tripletons(const CoinPresolveAction *paction)
       for (int i = daction->nactions_ - 1; i >= 0; --i) {
         int icolx = daction->actions_[i].icolx;
         int icoly = daction->actions_[i].icoly;
-        double coeffx = daction->actions_[i].coeffx;
-        double coeffy = daction->actions_[i].coeffy;
+        FloatT coeffx = daction->actions_[i].coeffx;
+        FloatT coeffy = daction->actions_[i].coeffy;
 
         tripleton_mult[icoly] = -coeffx / coeffy;
         tripleton_id[icoly] = icolx;

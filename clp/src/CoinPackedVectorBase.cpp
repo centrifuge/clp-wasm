@@ -12,18 +12,18 @@
 
 //#############################################################################
 
-double *
+FloatT *
 CoinPackedVectorBase::denseVector(int denseSize) const
 {
   if (getMaxIndex() >= denseSize)
     throw CoinError("Dense vector size is less than max index",
       "denseVector", "CoinPackedVectorBase");
 
-  double *dv = new double[denseSize];
+  FloatT *dv = new FloatT[denseSize];
   CoinFillN(dv, denseSize, 0.0);
   const int s = getNumElements();
   const int *inds = getIndices();
-  const double *elems = getElements();
+  const FloatT *elems = getElements();
   for (int i = 0; i < s; ++i)
     dv[inds[i]] = elems[i];
   return dv;
@@ -31,7 +31,7 @@ CoinPackedVectorBase::denseVector(int denseSize) const
 
 //-----------------------------------------------------------------------------
 
-double
+FloatT
   CoinPackedVectorBase::operator[](int i) const
 {
   if (!testedDuplicateIndex_)
@@ -153,7 +153,7 @@ int CoinPackedVectorBase::compare(const CoinPackedVectorBase &rhs) const
   if (itmp != 0) {
     return itmp;
   }
-  return memcmp(getElements(), rhs.getElements(), size * sizeof(double));
+  return memcmp(getElements(), rhs.getElements(), size * sizeof(FloatT));
 }
 
 bool CoinPackedVectorBase::isEquivalent(const CoinPackedVectorBase &rhs) const
@@ -163,12 +163,12 @@ bool CoinPackedVectorBase::isEquivalent(const CoinPackedVectorBase &rhs) const
 
 //#############################################################################
 
-double
-CoinPackedVectorBase::dotProduct(const double *dense) const
+FloatT
+CoinPackedVectorBase::dotProduct(const FloatT *dense) const
 {
-  const double *elems = getElements();
+  const FloatT *elems = getElements();
   const int *inds = getIndices();
-  double dp = 0.0;
+  FloatT dp = 0.0;
   for (int i = getNumElements() - 1; i >= 0; --i)
     dp += elems[i] * dense[inds[i]];
   return dp;
@@ -176,11 +176,11 @@ CoinPackedVectorBase::dotProduct(const double *dense) const
 
 //-----------------------------------------------------------------------------
 
-double
+FloatT
 CoinPackedVectorBase::oneNorm() const
 {
-  double norm = 0.0;
-  const double *elements = getElements();
+  FloatT norm = 0.0;
+  const FloatT *elements = getElements();
   for (int i = getNumElements() - 1; i >= 0; --i) {
     norm += fabs(elements[i]);
   }
@@ -189,16 +189,16 @@ CoinPackedVectorBase::oneNorm() const
 
 //-----------------------------------------------------------------------------
 
-double
+FloatT
 CoinPackedVectorBase::normSquare() const
 {
   return std::inner_product(getElements(), getElements() + getNumElements(),
-    getElements(), 0.0);
+    getElements(), fd(0.0));
 }
 
 //-----------------------------------------------------------------------------
 
-double
+FloatT
 CoinPackedVectorBase::twoNorm() const
 {
   return sqrt(normSquare());
@@ -206,11 +206,11 @@ CoinPackedVectorBase::twoNorm() const
 
 //-----------------------------------------------------------------------------
 
-double
+FloatT
 CoinPackedVectorBase::infNorm() const
 {
-  double norm = 0.0;
-  const double *elements = getElements();
+  FloatT norm = 0.0;
+  const FloatT *elements = getElements();
   for (int i = getNumElements() - 1; i >= 0; --i) {
     norm = CoinMax(norm, fabs(elements[i]));
   }
@@ -219,10 +219,10 @@ CoinPackedVectorBase::infNorm() const
 
 //-----------------------------------------------------------------------------
 
-double
+FloatT
 CoinPackedVectorBase::sum() const
 {
-  return std::accumulate(getElements(), getElements() + getNumElements(), 0.0);
+  return std::accumulate(getElements(), getElements() + getNumElements(), fd(0.0));
 }
 
 //#############################################################################

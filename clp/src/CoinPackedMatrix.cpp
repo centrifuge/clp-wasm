@@ -29,7 +29,7 @@
 // T must be an integral type (int, CoinBigIndex, etc.)
 template < typename T >
 static inline T
-CoinLengthWithExtra(T len, double extraGap)
+CoinLengthWithExtra(T len, FloatT extraGap)
 {
   return static_cast< T >(ceil(len * (1 + extraGap)));
 }
@@ -96,9 +96,9 @@ void CoinPackedMatrix::reserve(const int newMaxMajorDim, const CoinBigIndex newM
   if (newMaxSize > maxSize_) {
     maxSize_ = newMaxSize;
     int *oldind = index_;
-    double *oldelem = element_;
+    FloatT *oldelem = element_;
     index_ = new int[newMaxSize];
-    element_ = new double[newMaxSize];
+    element_ = new FloatT[newMaxSize];
     for (int i = majorDim_ - 1; i >= 0; --i) {
       CoinMemcpyN(oldind + start_[i], length_[i], index_ + start_[i]);
       CoinMemcpyN(oldelem + start_[i], length_[i], element_ + start_[i]);
@@ -155,7 +155,7 @@ void CoinPackedMatrix::setDimensions(int newnumrows, int newnumcols)
 
 //-----------------------------------------------------------------------------
 
-void CoinPackedMatrix::setExtraGap(const double newGap)
+void CoinPackedMatrix::setExtraGap(const FloatT newGap)
 {
   if (newGap < 0)
     throw CoinError("negative new extra gap",
@@ -165,7 +165,7 @@ void CoinPackedMatrix::setExtraGap(const double newGap)
 
 //-----------------------------------------------------------------------------
 
-void CoinPackedMatrix::setExtraMajor(const double newMajor)
+void CoinPackedMatrix::setExtraMajor(const FloatT newMajor)
 {
   if (newMajor < 0)
     throw CoinError("negative new extra major",
@@ -187,7 +187,7 @@ void CoinPackedMatrix::appendCol(const CoinPackedVectorBase &vec)
 
 void CoinPackedMatrix::appendCol(const int vecsize,
   const int *vecind,
-  const double *vecelem)
+  const FloatT *vecelem)
 {
   if (colOrdered_)
     appendMajorVector(vecsize, vecind, vecelem);
@@ -210,7 +210,7 @@ void CoinPackedMatrix::appendCols(const int numcols,
 
 int CoinPackedMatrix::appendCols(const int numcols,
   const CoinBigIndex *columnStarts, const int *row,
-  const double *element, int numberRows)
+  const FloatT *element, int numberRows)
 {
   int numberErrors;
   if (colOrdered_) {
@@ -234,7 +234,7 @@ void CoinPackedMatrix::appendRow(const CoinPackedVectorBase &vec)
 
 void CoinPackedMatrix::appendRow(const int vecsize,
   const int *vecind,
-  const double *vecelem)
+  const FloatT *vecelem)
 {
   if (colOrdered_)
     appendMinorVector(vecsize, vecind, vecelem);
@@ -279,7 +279,7 @@ void CoinPackedMatrix::appendRows(const int numrows,
 
 int CoinPackedMatrix::appendRows(const int numrows,
   const CoinBigIndex *rowStarts, const int *column,
-  const double *element, int numberColumns)
+  const FloatT *element, int numberColumns)
 {
   int numberErrors;
   if (colOrdered_) {
@@ -358,7 +358,7 @@ void CoinPackedMatrix::deleteRows(const int numDel, const int *indDel)
    The index is between 0 and major dimension of matrix */
 void CoinPackedMatrix::replaceVector(const int index,
   const int numReplace,
-  const double *newElements)
+  const FloatT *newElements)
 {
   if (index >= 0 && index < majorDim_) {
     int length = (length_[index] < numReplace) ? length_[index] : numReplace;
@@ -372,7 +372,7 @@ void CoinPackedMatrix::replaceVector(const int index,
 /* Modify one element of packed matrix.  An element may be added.
    If the new element is zero it will be deleted unless
    keepZero true */
-void CoinPackedMatrix::modifyCoefficient(int row, int column, double newElement,
+void CoinPackedMatrix::modifyCoefficient(int row, int column, FloatT newElement,
   bool keepZero)
 {
   int minorIndex, majorIndex;
@@ -448,7 +448,7 @@ void CoinPackedMatrix::modifyCoefficient(int row, int column, double newElement,
 /* Return one element of packed matrix.
    This works for either ordering
    If it is not present will return 0.0 */
-double
+FloatT
 CoinPackedMatrix::getCoefficient(int row, int column) const
 {
   int minorIndex, majorIndex;
@@ -459,7 +459,7 @@ CoinPackedMatrix::getCoefficient(int row, int column) const
     minorIndex = column;
     majorIndex = row;
   }
-  double value = 0.0;
+  FloatT value = 0.0;
   if (majorIndex >= 0 && majorIndex < majorDim_) {
     if (minorIndex >= 0 && minorIndex < minorDim_) {
       CoinBigIndex j;
@@ -493,12 +493,12 @@ CoinPackedMatrix::getCoefficient(int row, int column) const
    eliminated.  Elements eliminated are at end of each vector
 */
 CoinBigIndex
-CoinPackedMatrix::compress(double threshold)
+CoinPackedMatrix::compress(FloatT threshold)
 {
   CoinBigIndex numberEliminated = 0;
   // space for eliminated
   int *eliminatedIndex = new int[minorDim_];
-  double *eliminatedElement = new double[minorDim_];
+  FloatT *eliminatedElement = new FloatT[minorDim_];
   int i;
   for (i = 0; i < majorDim_; i++) {
     int length = length_[i];
@@ -518,7 +518,7 @@ CoinPackedMatrix::compress(double threshold)
       numberEliminated += kbad;
       length_[i] = static_cast< int >(k - start_[i]);
       memcpy(index_ + k, eliminatedIndex, kbad * sizeof(int));
-      memcpy(element_ + k, eliminatedElement, kbad * sizeof(double));
+      memcpy(element_ + k, eliminatedElement, kbad * sizeof(FloatT));
     }
   }
   size_ -= numberEliminated;
@@ -533,7 +533,7 @@ CoinPackedMatrix::compress(double threshold)
    eliminated. 
 */
 CoinBigIndex
-CoinPackedMatrix::eliminateDuplicates(double threshold)
+CoinPackedMatrix::eliminateDuplicates(FloatT threshold)
 {
   CoinBigIndex numberEliminated = 0;
   // space for eliminated
@@ -573,7 +573,7 @@ CoinPackedMatrix::eliminateDuplicates(double threshold)
 }
 //#############################################################################
 
-void CoinPackedMatrix::removeGaps(double removeValue)
+void CoinPackedMatrix::removeGaps(FloatT removeValue)
 {
   if (removeValue < 0.0) {
     if (size_ < start_[majorDim_]) {
@@ -629,7 +629,7 @@ void CoinPackedMatrix::removeGaps(double removeValue)
       start = start_[i + 1];
       const int li = length_[i];
       for (CoinBigIndex j = si; j < si + li; j++) {
-        double value = element_[j];
+        FloatT value = element_[j];
         if (fabs(value) > removeValue) {
           index_[put] = index_[j];
           element_[put++] = value;
@@ -652,7 +652,7 @@ void CoinPackedMatrix::removeGaps(double removeValue)
    returns number of elements eliminated
 */
 CoinBigIndex
-CoinPackedMatrix::cleanMatrix(double threshold)
+CoinPackedMatrix::cleanMatrix(FloatT threshold)
 {
   if (!majorDim_) {
     extraGap_ = 0.0;
@@ -714,7 +714,7 @@ CoinPackedMatrix::cleanMatrix(double threshold)
   temp = CoinCopyOfArray(index_, size_);
   delete[] index_;
   index_ = temp;
-  double *temp3 = CoinCopyOfArray(element_, size_);
+  FloatT *temp3 = CoinCopyOfArray(element_, size_);
   delete[] element_;
   element_ = temp3;
   return numberEliminated;
@@ -746,7 +746,7 @@ void CoinPackedMatrix::submatrixOf(const CoinPackedMatrix &matrix,
   start_ = new CoinBigIndex[maxMajorDim_ + 1];
   start_[0] = 0;
   index_ = new int[maxSize_];
-  element_ = new double[maxSize_];
+  element_ = new FloatT[maxSize_];
   majorDim_ = 0;
   minorDim_ = matrix.minorDim_;
   size_ = 0;
@@ -800,18 +800,18 @@ void CoinPackedMatrix::submatrixOfWithDuplicates(const CoinPackedMatrix &matrix,
   start_[maxMajorDim_] = nzcnt;
   maxSize_ = nzcnt;
   index_ = new int[maxSize_];
-  element_ = new double[maxSize_];
+  element_ = new FloatT[maxSize_];
   majorDim_ = maxMajorDim_;
   minorDim_ = matrix.minorDim_;
   size_ = 0;
   const CoinBigIndex *startOld = matrix.start_;
-  const double *elementOld = matrix.element_;
+  const FloatT *elementOld = matrix.element_;
   const int *indexOld = matrix.index_;
   for (i = 0; i < maxMajorDim_; ++i) {
     int j = indMajor[i];
     CoinBigIndex start = startOld[j];
     int thisLength = length_[i];
-    const double *element = elementOld + start;
+    const FloatT *element = elementOld + start;
     const int *index = indexOld + start;
     for (int j = 0; j < thisLength; j++) {
       element_[size_] = element[j];
@@ -838,9 +838,9 @@ void CoinPackedMatrix::copyOf(const CoinPackedMatrix &rhs)
 void CoinPackedMatrix::copyOf(const bool colordered,
   const int minor, const int major,
   const CoinBigIndex numels,
-  const double *elem, const int *ind,
+  const FloatT *elem, const int *ind,
   const CoinBigIndex *start, const int *len,
-  const double extraMajor, const double extraGap)
+  const FloatT extraMajor, const FloatT extraGap)
 {
   gutsOfDestructor();
   gutsOfCopyOf(colordered, minor, major, numels, elem, ind, start, len,
@@ -911,7 +911,7 @@ void CoinPackedMatrix::reverseOrderedCopyOf(const CoinPackedMatrix &rhs)
     }
     start_[majorDim_] = 0;
     index_ = new int[maxSize_];
-    element_ = new double[maxSize_];
+    element_ = new FloatT[maxSize_];
     return;
   }
 
@@ -935,7 +935,7 @@ void CoinPackedMatrix::reverseOrderedCopyOf(const CoinPackedMatrix &rhs)
     for (i = 0; i < majorDim_; ++i)
       start_[i + 1] = start_[i] + orthoLength[i];
   } else {
-    const double eg = extraGap_;
+    const FloatT eg = extraGap_;
     for (i = 0; i < majorDim_; ++i)
       start_[i + 1] = start_[i] + CoinLengthWithExtra(orthoLength[i], eg);
   }
@@ -947,10 +947,10 @@ void CoinPackedMatrix::reverseOrderedCopyOf(const CoinPackedMatrix &rhs)
     delete[] index_;
     delete[] element_;
     index_ = new int[maxSize_];
-    element_ = new double[maxSize_];
+    element_ = new FloatT[maxSize_];
 #ifdef ZEROFAULT
     memset(index_, 0, (maxSize_ * sizeof(int)));
-    memset(element_, 0, (maxSize_ * sizeof(double)));
+    memset(element_, 0, (maxSize_ * sizeof(FloatT)));
 #endif
   }
 
@@ -960,7 +960,7 @@ void CoinPackedMatrix::reverseOrderedCopyOf(const CoinPackedMatrix &rhs)
   const CoinBigIndex *COIN_RESTRICT start = rhs.start_;
   const int *COIN_RESTRICT index = rhs.index_;
   const int *COIN_RESTRICT length = rhs.length_;
-  const double *COIN_RESTRICT element = rhs.element_;
+  const FloatT *COIN_RESTRICT element = rhs.element_;
   assert(start[0] == 0);
   CoinBigIndex first = 0;
   for (i = 0; i < minorDim_; ++i) {
@@ -979,10 +979,10 @@ void CoinPackedMatrix::reverseOrderedCopyOf(const CoinPackedMatrix &rhs)
      for (; j != last; j+=2) {
        const int ind0 = index[j];
        CoinBigIndex put0 = start_[ind0];
-       double value0=element[j];
+       FloatT value0=element[j];
        const int ind1 = index[j+1];
        CoinBigIndex put1 = start_[ind1];
-       double value1=element[j+1];
+       FloatT value1=element[j+1];
        start_[ind0] = put0 +1;
        start_[ind1] = put1 +1;
        element_[put0] = value0;
@@ -1011,7 +1011,7 @@ void CoinPackedMatrix::reverseOrderedCopyOf(const CoinPackedMatrix &rhs)
 void CoinPackedMatrix::assignMatrix(const bool colordered,
   const int minor, const int major,
   const CoinBigIndex numels,
-  double *&elem, int *&ind,
+  FloatT *&elem, int *&ind,
   CoinBigIndex *&start, int *&len,
   const int maxmajor, const CoinBigIndex maxsize)
 {
@@ -1094,7 +1094,7 @@ void CoinPackedMatrix::swap(CoinPackedMatrix &m)
 //#############################################################################
 //#############################################################################
 
-void CoinPackedMatrix::times(const double *x, double *y) const
+void CoinPackedMatrix::times(const FloatT *x, FloatT *y) const
 {
   if (colOrdered_)
     timesMajor(x, y);
@@ -1104,7 +1104,7 @@ void CoinPackedMatrix::times(const double *x, double *y) const
 
 //-----------------------------------------------------------------------------
 #ifndef CLP_NO_VECTOR
-void CoinPackedMatrix::times(const CoinPackedVectorBase &x, double *y) const
+void CoinPackedMatrix::times(const CoinPackedVectorBase &x, FloatT *y) const
 {
   if (colOrdered_)
     timesMajor(x, y);
@@ -1114,7 +1114,7 @@ void CoinPackedMatrix::times(const CoinPackedVectorBase &x, double *y) const
 #endif
 //-----------------------------------------------------------------------------
 
-void CoinPackedMatrix::transposeTimes(const double *x, double *y) const
+void CoinPackedMatrix::transposeTimes(const FloatT *x, FloatT *y) const
 {
   if (colOrdered_)
     timesMinor(x, y);
@@ -1124,7 +1124,7 @@ void CoinPackedMatrix::transposeTimes(const double *x, double *y) const
 
 //-----------------------------------------------------------------------------
 #ifndef CLP_NO_VECTOR
-void CoinPackedMatrix::transposeTimes(const CoinPackedVectorBase &x, double *y) const
+void CoinPackedMatrix::transposeTimes(const CoinPackedVectorBase &x, FloatT *y) const
 {
   if (colOrdered_)
     timesMinor(x, y);
@@ -1190,7 +1190,7 @@ int *CoinPackedMatrix::getMajorIndices() const
 
 void CoinPackedMatrix::appendMajorVector(const int vecsize,
   const int *vecind,
-  const double *vecelem)
+  const FloatT *vecelem)
 {
 #ifdef COIN_DEBUG
   for (int i = 0; i < vecsize; ++i) {
@@ -1262,7 +1262,7 @@ void CoinPackedMatrix::appendMajorVectors(const int numvecs,
 
 void CoinPackedMatrix::appendMinorVector(const int vecsize,
   const int *vecind,
-  const double *vecelem)
+  const FloatT *vecelem)
 {
   if (vecsize == 0) {
     ++minorDim_; // empty row/column - still need to increase
@@ -1361,7 +1361,7 @@ void CoinPackedMatrix::appendMinorVectors(const int numvecs,
   for (i = 0; i < numvecs; ++i) {
     const int vecsize = vecs[i]->getNumElements();
     const int *vecind = vecs[i]->getIndices();
-    const double *vecelem = vecs[i]->getElements();
+    const FloatT *vecelem = vecs[i]->getElements();
     for (int j = vecsize - 1; j >= 0; --j) {
       const int ind = vecind[j];
       element_[start_[ind] + length_[ind]] = vecelem[j];
@@ -1474,7 +1474,7 @@ void CoinPackedMatrix::majorAppendOrthoOrdered(const CoinPackedMatrix &matrix)
   if (majorDim_ + matrix.minorDim_ > maxMajorDim_) {
     resizeForAddingMajorVectors(matrix.minorDim_, orthoLength);
   } else {
-    const double extra_gap = extraGap_;
+    const FloatT extra_gap = extraGap_;
     start_ += majorDim_;
     for (i = 0; i < matrix.minorDim_; ++i) {
       start_[i + 1] = start_[i] + CoinLengthWithExtra(orthoLength[i], extra_gap);
@@ -1700,7 +1700,7 @@ void CoinPackedMatrix::deleteMinorVectors(const int numDel,
   memset(mcount, 0, 400 * sizeof(int));
   for (i = 0; i < majorDim_; ++i) {
     int *index = index_ + start_[i];
-    double *elem = element_ + start_[i];
+    FloatT *elem = element_ + start_[i];
     const int length_i = length_[i];
     for (j = 0, k = 0; j < length_i; ++j) {
       mcount[index[j]]++;
@@ -1722,7 +1722,7 @@ void CoinPackedMatrix::deleteMinorVectors(const int numDel,
     size_ = 0;
     for (i = 0; i < majorDim_; ++i) {
       int *index = index_ + start_[i];
-      double *elem = element_ + start_[i];
+      FloatT *elem = element_ + start_[i];
       start_[i] = size_;
       const int length_i = length_[i];
       for (j = 0; j < length_i; ++j) {
@@ -1739,7 +1739,7 @@ void CoinPackedMatrix::deleteMinorVectors(const int numDel,
     int deleted = 0;
     for (i = 0; i < majorDim_; ++i) {
       int *index = index_ + start_[i];
-      double *elem = element_ + start_[i];
+      FloatT *elem = element_ + start_[i];
       const int length_i = length_[i];
       for (j = 0, k = 0; j < length_i; ++j) {
         const int ind = newindex[index[j]];
@@ -1762,11 +1762,11 @@ void CoinPackedMatrix::deleteMinorVectors(const int numDel,
 //#############################################################################
 //#############################################################################
 
-void CoinPackedMatrix::timesMajor(const double *x, double *y) const
+void CoinPackedMatrix::timesMajor(const FloatT *x, FloatT *y) const
 {
-  memset(y, 0, minorDim_ * sizeof(double));
+  memset(y, 0, minorDim_ * sizeof(FloatT));
   for (int i = majorDim_ - 1; i >= 0; --i) {
-    const double x_i = x[i];
+    const FloatT x_i = x[i];
     if (x_i != 0.0) {
       const CoinBigIndex last = getVectorLast(i);
       for (CoinBigIndex j = getVectorFirst(i); j < last; ++j)
@@ -1777,11 +1777,11 @@ void CoinPackedMatrix::timesMajor(const double *x, double *y) const
 
 //-----------------------------------------------------------------------------
 #ifndef CLP_NO_VECTOR
-void CoinPackedMatrix::timesMajor(const CoinPackedVectorBase &x, double *y) const
+void CoinPackedMatrix::timesMajor(const CoinPackedVectorBase &x, FloatT *y) const
 {
-  memset(y, 0, minorDim_ * sizeof(double));
+  memset(y, 0, minorDim_ * sizeof(FloatT));
   for (CoinBigIndex i = x.getNumElements() - 1; i >= 0; --i) {
-    const double x_i = x.getElements()[i];
+    const FloatT x_i = x.getElements()[i];
     if (x_i != 0.0) {
       const int ind = x.getIndices()[i];
       const CoinBigIndex last = getVectorLast(ind);
@@ -1793,11 +1793,11 @@ void CoinPackedMatrix::timesMajor(const CoinPackedVectorBase &x, double *y) cons
 #endif
 //-----------------------------------------------------------------------------
 
-void CoinPackedMatrix::timesMinor(const double *x, double *y) const
+void CoinPackedMatrix::timesMinor(const FloatT *x, FloatT *y) const
 {
-  memset(y, 0, majorDim_ * sizeof(double));
+  memset(y, 0, majorDim_ * sizeof(FloatT));
   for (int i = majorDim_ - 1; i >= 0; --i) {
-    double y_i = 0;
+    FloatT y_i = 0;
     const CoinBigIndex last = getVectorLast(i);
     for (CoinBigIndex j = getVectorFirst(i); j < last; ++j)
       y_i += x[index_[j]] * element_[j];
@@ -1807,11 +1807,11 @@ void CoinPackedMatrix::timesMinor(const double *x, double *y) const
 
 //-----------------------------------------------------------------------------
 #ifndef CLP_NO_VECTOR
-void CoinPackedMatrix::timesMinor(const CoinPackedVectorBase &x, double *y) const
+void CoinPackedMatrix::timesMinor(const CoinPackedVectorBase &x, FloatT *y) const
 {
-  memset(y, 0, majorDim_ * sizeof(double));
+  memset(y, 0, majorDim_ * sizeof(FloatT));
   for (int i = majorDim_ - 1; i >= 0; --i) {
-    double y_i = 0;
+    FloatT y_i = 0;
     const CoinBigIndex last = getVectorLast(i);
     for (CoinBigIndex j = getVectorFirst(i); j < last; ++j)
       y_i += x[index_[j]] * element_[j];
@@ -1842,8 +1842,8 @@ CoinPackedMatrix::CoinPackedMatrix()
 //-----------------------------------------------------------------------------
 
 CoinPackedMatrix::CoinPackedMatrix(const bool colordered,
-  const double extraMajor,
-  const double extraGap)
+  const FloatT extraMajor,
+  const FloatT extraGap)
   : colOrdered_(colordered)
   , extraGap_(extraGap)
   , extraMajor_(extraMajor)
@@ -1865,10 +1865,10 @@ CoinPackedMatrix::CoinPackedMatrix(const bool colordered,
 CoinPackedMatrix::CoinPackedMatrix(const bool colordered,
   const int minor, const int major,
   const CoinBigIndex numels,
-  const double *elem, const int *ind,
+  const FloatT *elem, const int *ind,
   const CoinBigIndex *start, const int *len,
-  const double extraMajor,
-  const double extraGap)
+  const FloatT extraMajor,
+  const FloatT extraGap)
   : colOrdered_(colordered)
   , extraGap_(extraGap)
   , extraMajor_(extraMajor)
@@ -1890,7 +1890,7 @@ CoinPackedMatrix::CoinPackedMatrix(const bool colordered,
 CoinPackedMatrix::CoinPackedMatrix(const bool colordered,
   const int minor, const int major,
   const CoinBigIndex numels,
-  const double *elem, const int *ind,
+  const FloatT *elem, const int *ind,
   const CoinBigIndex *start, const int *len)
   : colOrdered_(colordered)
   , extraGap_(0.0)
@@ -1948,7 +1948,7 @@ CoinPackedMatrix::CoinPackedMatrix(
   const bool colordered,
   const int *indexRow,
   const int *indexColumn,
-  const double *element,
+  const FloatT *element,
   CoinBigIndex numberElements)
   : colOrdered_(colordered)
   , extraGap_(0.0)
@@ -1966,7 +1966,7 @@ CoinPackedMatrix::CoinPackedMatrix(
   CoinAbsFltEq eq;
   int *colIndices = new int[numberElements];
   int *rowIndices = new int[numberElements];
-  double *elements = new double[numberElements];
+  FloatT *elements = new FloatT[numberElements];
   CoinCopyN(element, numberElements, elements);
   if (colordered) {
     CoinCopyN(indexColumn, numberElements, colIndices);
@@ -2016,14 +2016,14 @@ CoinPackedMatrix::CoinPackedMatrix(
     iColumn = colIndices[k];
     if (iColumn >= 0) {
       /* pick up the entry with your right hand */
-      double value = elements[k];
+      FloatT value = elements[k];
       int iRow = rowIndices[k];
       colIndices[k] = -2; /* the hole */
 
       while (1) {
         /* pick this up with your left */
         CoinBigIndex iLook = startColumn[iColumn] - 1;
-        double valueSave = elements[iLook];
+        FloatT valueSave = elements[iLook];
         int iColumnSave = colIndices[iLook];
         int iRowSave = rowIndices[iLook];
 
@@ -2058,14 +2058,14 @@ CoinPackedMatrix::CoinPackedMatrix(
     startColumn[iColumn] = numberElements;
     if (end > start) {
       int lastRow;
-      double lastValue;
+      FloatT lastValue;
       // sorts on indices dragging elements with
-      CoinSort_2(rowIndices + start, rowIndices + end, elements + start, CoinFirstLess_2< int, double >());
+      CoinSort_2(rowIndices + start, rowIndices + end, elements + start, CoinFirstLess_2< int, FloatT >());
       lastRow = rowIndices[start];
       lastValue = elements[start];
       for (i = start + 1; i < end; i++) {
         int iRow = rowIndices[i];
-        double value = elements[i];
+        FloatT value = elements[i];
         if (iRow > lastRow) {
           //if(fabs(lastValue)>tolerance) {
           if (!eq(lastValue, 0.0)) {
@@ -2171,7 +2171,7 @@ CoinPackedMatrix::CoinPackedMatrix(const CoinPackedMatrix &rhs,
       length_ = new int[maxMajorDim_];
       CoinMemcpyN(rhs.length_, majorDim_, length_);
       start_ = new CoinBigIndex[maxMajorDim_ + 1];
-      element_ = new double[maxSize_];
+      element_ = new FloatT[maxSize_];
       index_ = new int[maxSize_];
       bool hasGaps = rhs.size_ < rhs.start_[rhs.majorDim_];
       if (hasGaps) {
@@ -2200,11 +2200,11 @@ CoinPackedMatrix::CoinPackedMatrix(const CoinPackedMatrix &rhs,
         length_ = new int[maxMajorDim_];
         start_ = new CoinBigIndex[maxMajorDim_ + 1];
         if (maxSize_ > 0) {
-          element_ = new double[maxSize_];
+          element_ = new FloatT[maxSize_];
           index_ = new int[maxSize_];
         }
         CoinBigIndex size = 0;
-        const double *oldElement = rhs.element_;
+        const FloatT *oldElement = rhs.element_;
         const CoinBigIndex *oldStart = rhs.start_;
         const int *oldIndex = rhs.index_;
         const int *oldLength = rhs.length_;
@@ -2213,7 +2213,7 @@ CoinPackedMatrix::CoinPackedMatrix(const CoinPackedMatrix &rhs,
           start_[i] = size;
           for (CoinBigIndex j = oldStart[i];
                j < oldStart[i] + oldLength[i]; j++) {
-            double value = oldElement[j];
+            FloatT value = oldElement[j];
             if (fabs(value) > 1.0e-21) {
               element_[size] = value;
               index_[size++] = oldIndex[j];
@@ -2241,7 +2241,7 @@ CoinPackedMatrix::CoinPackedMatrix(const CoinPackedMatrix &rhs,
     assert(maxMajorDim_ > 0);
     length_ = new int[maxMajorDim_];
     start_ = new CoinBigIndex[maxMajorDim_ + 1];
-    element_ = new double[maxSize_];
+    element_ = new FloatT[maxSize_];
     index_ = new int[maxSize_];
     bool hasGaps = rhs.size_ < rhs.start_[rhs.majorDim_];
     CoinZeroN(length_, majorDim_);
@@ -2321,7 +2321,7 @@ CoinPackedMatrix::CoinPackedMatrix(const CoinPackedMatrix &rhs,
       numberRows = numberColumns;
       numberColumns = n;
     }
-    const double *element1 = rhs.element_;
+    const FloatT *element1 = rhs.element_;
     const int *index1 = rhs.index_;
     const CoinBigIndex *start1 = rhs.start_;
     const int *length1 = rhs.length_;
@@ -2377,7 +2377,7 @@ CoinPackedMatrix::CoinPackedMatrix(const CoinPackedMatrix &rhs,
         start_ = new CoinBigIndex[numberColumns + 1];
         length_ = new int[numberColumns];
         index_ = new int[maxSize_];
-        element_ = new double[maxSize_];
+        element_ = new FloatT[maxSize_];
         // and fill them
         size_ = 0;
         start_[0] = 0;
@@ -2387,7 +2387,7 @@ CoinPackedMatrix::CoinPackedMatrix(const CoinPackedMatrix &rhs,
             CoinBigIndex i;
             for (i = start1[kColumn]; i < start1[kColumn] + length1[kColumn]; i++) {
               int kRow = index1[i];
-              double value = element1[i];
+              FloatT value = element1[i];
               kRow = newRow[kRow];
               if (kRow >= 0) {
                 index_[size_] = kRow;
@@ -2428,7 +2428,7 @@ CoinPackedMatrix::CoinPackedMatrix(const CoinPackedMatrix &rhs,
         start_ = new CoinBigIndex[numberColumns + 1];
         length_ = new int[numberColumns];
         index_ = new int[maxSize_];
-        element_ = new double[maxSize_];
+        element_ = new FloatT[maxSize_];
         // and fill them
         size_ = 0;
         start_[0] = 0;
@@ -2437,7 +2437,7 @@ CoinPackedMatrix::CoinPackedMatrix(const CoinPackedMatrix &rhs,
           CoinBigIndex i;
           for (i = start1[kColumn]; i < start1[kColumn] + length1[kColumn]; i++) {
             int kRow = index1[i];
-            double value = element1[i];
+            FloatT value = element1[i];
             kRow = newRow[kRow];
             if (kRow >= 0) {
               index_[size_] = kRow;
@@ -2474,7 +2474,7 @@ CoinPackedMatrix::CoinPackedMatrix(const CoinPackedMatrix &rhs,
       start_ = new CoinBigIndex[numberColumns + 1];
       length_ = new int[numberColumns];
       index_ = new int[maxSize_];
-      element_ = new double[maxSize_];
+      element_ = new FloatT[maxSize_];
       // and fill them
       size_ = 0;
       start_[0] = 0;
@@ -2483,7 +2483,7 @@ CoinPackedMatrix::CoinPackedMatrix(const CoinPackedMatrix &rhs,
         CoinBigIndex i;
         for (i = start1[kColumn]; i < start1[kColumn] + length1[kColumn]; i++) {
           int kRow = index1[i];
-          double value = element1[i];
+          FloatT value = element1[i];
           kRow = newRow[kRow];
           while (kRow >= 0) {
             index_[size_] = kRow;
@@ -2528,9 +2528,9 @@ void CoinPackedMatrix::gutsOfDestructor()
 void CoinPackedMatrix::gutsOfCopyOf(const bool colordered,
   const int minor, const int major,
   const CoinBigIndex numels,
-  const double *elem, const int *ind,
+  const FloatT *elem, const int *ind,
   const CoinBigIndex *start, const int *len,
-  const double extraMajor, const double extraGap)
+  const FloatT extraMajor, const FloatT extraGap)
 {
   colOrdered_ = colordered;
   majorDim_ = major;
@@ -2570,7 +2570,7 @@ void CoinPackedMatrix::gutsOfCopyOf(const bool colordered,
   if (maxSize_ > 0) {
     delete[] element_;
     delete[] index_;
-    element_ = new double[maxSize_];
+    element_ = new FloatT[maxSize_];
     index_ = new int[maxSize_];
     // we can't just simply memcpy these content over, because that can
     // upset memory debuggers like purify if there were gaps and those gaps
@@ -2586,7 +2586,7 @@ void CoinPackedMatrix::gutsOfCopyOf(const bool colordered,
 
 void CoinPackedMatrix::gutsOfCopyOfNoGaps(const bool colordered,
   const int minor, const int major,
-  const double *elem, const int *ind,
+  const FloatT *elem, const int *ind,
   const CoinBigIndex *start)
 {
   colOrdered_ = colordered;
@@ -2627,7 +2627,7 @@ void CoinPackedMatrix::gutsOfCopyOfNoGaps(const bool colordered,
   maxSize_ = start_[majorDim_];
 
   if (maxSize_ > 0) {
-    element_ = new double[maxSize_];
+    element_ = new FloatT[maxSize_];
     index_ = new int[maxSize_];
     CoinMemcpyN(ind, maxSize_, index_);
     CoinMemcpyN(elem, maxSize_, element_);
@@ -2642,7 +2642,7 @@ void CoinPackedMatrix::gutsOfCopyOfNoGaps(const bool colordered,
 void CoinPackedMatrix::gutsOfOpEqual(const bool colordered,
   const int minor, const int major,
   const CoinBigIndex numels,
-  const double *elem, const int *ind,
+  const FloatT *elem, const int *ind,
   const CoinBigIndex *start, const int *len)
 {
   colOrdered_ = colordered;
@@ -2664,7 +2664,7 @@ void CoinPackedMatrix::gutsOfOpEqual(const bool colordered,
       maxSize_ = numels;
       delete[] element_;
       delete[] index_;
-      element_ = new double[maxSize_];
+      element_ = new FloatT[maxSize_];
       index_ = new int[maxSize_];
     }
     CoinMemcpyN(ind, numels, index_);
@@ -2690,7 +2690,7 @@ void CoinPackedMatrix::gutsOfOpEqual(const bool colordered,
         for (i = 0; i < major; ++i)
           start_[i + 1] = start_[i] + length_[i];
       } else {
-        const double extra_gap = extraGap_;
+        const FloatT extra_gap = extraGap_;
         for (i = 0; i < major; ++i)
           start_[i + 1] = start_[i] + CoinLengthWithExtra(length_[i], extra_gap);
       }
@@ -2707,7 +2707,7 @@ void CoinPackedMatrix::gutsOfOpEqual(const bool colordered,
     if (maxSize_ > 0) {
       delete[] element_;
       delete[] index_;
-      element_ = new double[maxSize_];
+      element_ = new FloatT[maxSize_];
       index_ = new int[maxSize_];
       assert(maxSize_ >= start_[majorDim_ - 1] + length_[majorDim_ - 1]);
       // we can't just simply memcpy these content over, because that can
@@ -2736,7 +2736,7 @@ void CoinPackedMatrix::gutsOfOpEqual(const bool colordered,
 void CoinPackedMatrix::resizeForAddingMajorVectors(const int numVec,
   const int *lengthVec)
 {
-  const double extra_gap = extraGap_;
+  const FloatT extra_gap = extraGap_;
   int i;
 
   maxMajorDim_ = CoinMax(maxMajorDim_, CoinLengthWithExtra(majorDim_ + numVec, extraMajor_));
@@ -2762,7 +2762,7 @@ void CoinPackedMatrix::resizeForAddingMajorVectors(const int numVec,
   majorDim_ -= numVec;
 
   int *newIndex = new int[maxSize_];
-  double *newElem = new double[maxSize_];
+  FloatT *newElem = new FloatT[maxSize_];
   for (i = majorDim_ - 1; i >= 0; --i) {
     CoinMemcpyN(index_ + start_[i], length_[i], newIndex + newStart[i]);
     CoinMemcpyN(element_ + start_[i], length_[i], newElem + newStart[i]);
@@ -2794,7 +2794,7 @@ void CoinPackedMatrix::resizeForAddingMinorVectors(const int *addedEntries)
     for (i = 0; i < majorDim_; ++i)
       newStart[i + 1] = newStart[i] + newLength[i];
   } else {
-    const double eg = extraGap_;
+    const FloatT eg = extraGap_;
     for (i = 0; i < majorDim_; ++i)
       newStart[i + 1] = newStart[i] + CoinLengthWithExtra(newLength[i], eg);
   }
@@ -2805,7 +2805,7 @@ void CoinPackedMatrix::resizeForAddingMinorVectors(const int *addedEntries)
 
   maxSize_ = CoinMax(maxSize_, CoinLengthWithExtra(newStart[majorDim_], extraMajor_));
   int *newIndex = new int[maxSize_];
-  double *newElem = new double[maxSize_];
+  FloatT *newElem = new FloatT[maxSize_];
   for (i = majorDim_ - 1; i >= 0; --i) {
     CoinMemcpyN(index_ + start_[i], length_[i],
       newIndex + newStart[i]);
@@ -2877,7 +2877,7 @@ void CoinPackedMatrix::printMatrixElement(const int row_val,
   } else {
     CoinBigIndex curr_point = start_[major_index];
     const CoinBigIndex stop_point = curr_point + length_[major_index];
-    double aij = 0.0;
+    FloatT aij = 0.0;
     for (; curr_point < stop_point; curr_point++) {
       if (index_[curr_point] == minor_index) {
         aij = element_[curr_point];
@@ -2916,11 +2916,11 @@ bool CoinPackedMatrix::isEquivalent2(const CoinPackedMatrix &rhs) const
       std::cerr << "vector # " << i << " nel " << pv.getNumElements() << " rhs - " << rhsPv.getNumElements() << std::endl;
       int j;
       const int *inds = pv.getIndices();
-      const double *elems = pv.getElements();
+      const FloatT *elems = pv.getElements();
       const int *inds2 = rhsPv.getIndices();
-      const double *elems2 = rhsPv.getElements();
+      const FloatT *elems2 = rhsPv.getElements();
       for (j = 0; j < pv.getNumElements(); ++j) {
-        double diff = elems[j] - elems2[j];
+        FloatT diff = elems[j] - elems2[j];
         if (diff) {
           std::cerr << j << "( " << inds[j] << ", " << elems[j] << "), rhs ( " << inds2[j] << ", " << elems2[j] << ") diff " << diff << std::endl;
           const int *xx = reinterpret_cast< const int * >(elems + j);
@@ -2948,8 +2948,8 @@ bool CoinPackedMatrix::isEquivalent(const CoinPackedMatrix &rhs, const CoinRelFl
 
   const int major = getMajorDim();
   const int minor = getMinorDim();
-  double *values = new double[minor];
-  memset(values, 0, minor * sizeof(double));
+  FloatT *values = new FloatT[minor];
+  memset(values, 0, minor * sizeof(FloatT));
   bool same = true;
   for (int i = 0; i < major; ++i) {
     int length = length_[i];
@@ -2964,7 +2964,7 @@ bool CoinPackedMatrix::isEquivalent(const CoinPackedMatrix &rhs, const CoinRelFl
       }
       for (j = rhs.start_[i]; j < rhs.start_[i] + length; ++j) {
         int index = index_[j];
-        double oldValue = values[index];
+        FloatT oldValue = values[index];
         values[index] = 0.0;
         if (!eq(oldValue, rhs.element_[j])) {
           same = false;
@@ -2998,7 +2998,7 @@ void CoinPackedMatrix::orderMatrix()
    This version is easy one i.e. adding columns to column ordered */
 int CoinPackedMatrix::appendMajor(const int number,
   const CoinBigIndex *starts, const int *index,
-  const double *element, int numberOther)
+  const FloatT *element, int numberOther)
 {
   int i;
   int numberErrors = 0;
@@ -3022,7 +3022,7 @@ int CoinPackedMatrix::appendMajor(const int number,
       }
       if (size_ + numberElements > maxSize_) {
         maxSize_ = size_ + numberElements;
-        double *newElem = new double[maxSize_];
+        FloatT *newElem = new FloatT[maxSize_];
         CoinMemcpyN(element_, size_, newElem);
         delete[] element_;
         element_ = newElem;
@@ -3206,7 +3206,7 @@ int CoinPackedMatrix::appendMajor(const int number,
    This version is harder one i.e. adding columns to row ordered */
 int CoinPackedMatrix::appendMinor(const int number,
   const CoinBigIndex *starts, const int *index,
-  const double *element, int numberOther)
+  const FloatT *element, int numberOther)
 {
   int i;
   int numberErrors = 0;
@@ -3303,7 +3303,7 @@ static int xxxxxx[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
    This version is harder one i.e. adding columns to row ordered */
 void CoinPackedMatrix::appendMinorFast(const int number,
   const CoinBigIndex *starts, const int *index,
-  const double *element)
+  const FloatT *element)
 {
 #ifdef ADD_ROW_ANALYZE
   xxxxxx[0]++;
@@ -3360,7 +3360,7 @@ void CoinPackedMatrix::appendMinorFast(const int number,
     packType = 1;
   CoinBigIndex n = 0;
   if (packType) {
-    double slack = (static_cast< double >(maxSize_ - size_ - numberAdded)) / static_cast< double >(majorDim_);
+    FloatT slack = (static_cast< FloatT >(maxSize_ - size_ - numberAdded)) / static_cast< FloatT >(majorDim_);
     slack = CoinMax(0.0, slack - 0.01);
     if (!slack) {
       for (int i = 0; i < majorDim_; ++i) {
@@ -3369,12 +3369,12 @@ void CoinPackedMatrix::appendMinorFast(const int number,
         n += length_[i] + thisCount;
       }
     } else {
-      double added = 0.0;
+      FloatT added = 0.0;
       for (int i = 0; i < majorDim_; ++i) {
         CoinBigIndex thisCount = newStart[i];
         newStart[i] = n;
         added += slack;
-        double extra = 0;
+        FloatT extra = 0;
         if (added >= 1.0) {
           extra = floor(added);
           added -= extra;
@@ -3387,7 +3387,7 @@ void CoinPackedMatrix::appendMinorFast(const int number,
   if (packType) {
     maxSize_ = CoinMax(maxSize_, n);
     int *newIndex = new int[maxSize_];
-    double *newElem = new double[maxSize_];
+    FloatT *newElem = new FloatT[maxSize_];
     for (int i = majorDim_ - 1; i >= 0; --i) {
       CoinBigIndex start = start_[i];
 #ifdef USE_MEMCPY
@@ -3462,8 +3462,8 @@ void CoinPackedMatrix::appendMinorFast(const int number,
 int CoinPackedMatrix::verifyMtx(int verbosity, bool zeroesAreError) const
 
 {
-  const double smallCoeff = 1.0e-50;
-  const double largeCoeff = 1.0e50;
+  const FloatT smallCoeff = 1.0e-50;
+  const FloatT largeCoeff = 1.0e50;
 
   int majDim = majorDim_;
   int minDim = minorDim_;
@@ -3508,7 +3508,7 @@ int CoinPackedMatrix::verifyMtx(int verbosity, bool zeroesAreError) const
   const CoinBigIndex *const majStarts = start_;
   const int *const majLens = length_;
   const int *const minInds = index_;
-  const double *const coeffs = element_;
+  const FloatT *const coeffs = element_;
   /*
   Set up arrays to track use of bulk store entries.
 */
@@ -3645,7 +3645,7 @@ int CoinPackedMatrix::verifyMtx(int verbosity, bool zeroesAreError) const
         }
         errs++;
       }
-      double aij = coeffs[ii];
+      FloatT aij = coeffs[ii];
       if (CoinIsnan(aij) || CoinAbs(aij) > largeCoeff) {
         if (verbosity >= 1) {
           std::cout

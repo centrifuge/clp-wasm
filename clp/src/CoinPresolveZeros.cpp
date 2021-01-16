@@ -21,7 +21,7 @@ namespace { // begin unnamed file-local namespace
   checkcols to just the columns with zeros.
 */
 int count_col_zeros(int &ncheckcols, int *checkcols,
-  const CoinBigIndex *mcstrt, const double *colels,
+  const CoinBigIndex *mcstrt, const FloatT *colels,
   const int *hincol)
 {
   int nzeros = 0;
@@ -54,7 +54,7 @@ int count_col_zeros(int &ncheckcols, int *checkcols,
   checkcols, with the count in ncheckcols.
 */
 int count_col_zeros2(int &ncheckcols, int *checkcols,
-  const CoinBigIndex *mcstrt, const double *colels,
+  const CoinBigIndex *mcstrt, const FloatT *colels,
   const int *hincol)
 {
   int nzeros = 0;
@@ -85,7 +85,7 @@ int count_col_zeros2(int &ncheckcols, int *checkcols,
   Returns number of zeros found.
 */
 int drop_col_zeros(int ncheckcols, const int *checkcols,
-  const CoinBigIndex *mcstrt, double *colels, int *hrow,
+  const CoinBigIndex *mcstrt, FloatT *colels, int *hrow,
   int *hincol, presolvehlink *clink,
   dropped_zero *actions)
 {
@@ -144,7 +144,7 @@ int drop_col_zeros(int ncheckcols, const int *checkcols,
   zeros created by presolve, the bookkeeping likely exceeds the gain.
 */
 void drop_row_zeros(int nzeros, const dropped_zero *zeros,
-  const CoinBigIndex *mrstrt, double *rowels, int *hcol,
+  const CoinBigIndex *mrstrt, FloatT *rowels, int *hcol,
   int *hinrow, presolvehlink *rlink)
 {
   for (int i = 0; i < nzeros; i++) {
@@ -202,7 +202,7 @@ const CoinPresolveAction
     int ncheckcols,
     const CoinPresolveAction *next)
 {
-  double *colels = prob->colels_;
+  FloatT *colels = prob->colels_;
   int *hrow = prob->hrow_;
   CoinBigIndex *mcstrt = prob->mcstrt_;
   int *hincol = prob->hincol_;
@@ -249,7 +249,7 @@ const CoinPresolveAction
     nzeros = drop_col_zeros(ncheckcols, checkcols, mcstrt, colels,
       hrow, hincol, clink, zeros);
 
-    double *rowels = prob->rowels_;
+    FloatT *rowels = prob->rowels_;
     int *hcol = prob->hcol_;
     CoinBigIndex *mrstrt = prob->mrstrt_;
     int *hinrow = prob->hinrow_;
@@ -303,7 +303,7 @@ void drop_zero_coefficients_action::postsolve(CoinPostsolveMatrix *prob) const
   const int nzeros = nzeros_;
   const dropped_zero *const zeros = zeros_;
 
-  double *colels = prob->colels_;
+  FloatT *colels = prob->colels_;
   int *hrow = prob->hrow_;
   CoinBigIndex *mcstrt = prob->mcstrt_;
   int *hincol = prob->hincol_;

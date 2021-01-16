@@ -526,12 +526,12 @@ int getIntField(int argc, const char *argv[], int *valid)
 }
 
 /*
-  Read a double and return the value. Set valid to indicate the result of
+  Read a FloatT and return the value. Set valid to indicate the result of
   parsing: 0: okay, 1: bad parse, 2: not present. But we'll never return
   valid == 1 because atof gives us no way to tell.)
 */
 
-double getDoubleField(int argc, const char *argv[], int *valid)
+FloatT getDoubleField(int argc, const char *argv[], int *valid)
 
 {
   std::string field;
@@ -554,7 +554,7 @@ double getDoubleField(int argc, const char *argv[], int *valid)
   errno to 0 and then see if it's nonzero after we try to convert the string
   to integer.
 */
-  double value = 0.0;
+  FloatT value = 0.0;
   errno = 0;
   if (field != "EOL") {
     value = atof(field.c_str());

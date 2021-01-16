@@ -24,12 +24,12 @@ public:
        
        Offset is always set to 0.0. All other parameters unused.
      */
-  virtual double *gradient(const ClpSimplex *model,
-    const double *solution, double &offset, bool refresh,
+  virtual FloatT *gradient(const ClpSimplex *model,
+    const FloatT *solution, FloatT &offset, bool refresh,
     int includeLinear = 2);
   /** Returns reduced gradient.Returns an offset (to be added to current one).
      */
-  virtual double reducedGradient(ClpSimplex *model, double *region,
+  virtual FloatT reducedGradient(ClpSimplex *model, FloatT *region,
     bool useFeasibleCosts);
   /** Returns step length which gives minimum of objective for
          solution + theta * change vector up to maximum theta.
@@ -37,21 +37,21 @@ public:
          arrays are numberColumns+numberRows
          Also sets current objective, predicted and at maximumTheta
      */
-  virtual double stepLength(ClpSimplex *model,
-    const double *solution,
-    const double *change,
-    double maximumTheta,
-    double &currentObj,
-    double &predictedObj,
-    double &thetaObj);
+  virtual FloatT stepLength(ClpSimplex *model,
+    const FloatT *solution,
+    const FloatT *change,
+    FloatT maximumTheta,
+    FloatT &currentObj,
+    FloatT &predictedObj,
+    FloatT &thetaObj);
   /// Return objective value (without any ClpModel offset) (model may be NULL)
-  virtual double objectiveValue(const ClpSimplex *model, const double *solution) const;
+  virtual FloatT objectiveValue(const ClpSimplex *model, const FloatT *solution) const;
   /// Resize objective
   virtual void resize(int newNumberColumns);
   /// Delete columns in  objective
   virtual void deleteSome(int numberToDelete, const int *which);
   /// Scale objective
-  virtual void reallyScale(const double *columnScale);
+  virtual void reallyScale(const FloatT *columnScale);
 
   //@}
 
@@ -61,7 +61,7 @@ public:
   ClpLinearObjective();
 
   /// Constructor from objective
-  ClpLinearObjective(const double *objective, int numberColumns);
+  ClpLinearObjective(const FloatT *objective, int numberColumns);
 
   /// Copy constructor
   ClpLinearObjective(const ClpLinearObjective &);
@@ -92,7 +92,7 @@ public:
 private:
   ///@name Private member data
   /// Objective
-  double *objective_;
+  FloatT *objective_;
   /// number of columns
   int numberColumns_;
   //@}

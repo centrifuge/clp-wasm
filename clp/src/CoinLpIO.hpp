@@ -140,8 +140,8 @@ public:
   /** A quick inlined function to convert from lb/ub style constraint
 	definition to sense/rhs/range style */
   inline void
-  convertBoundToSense(const double lower, const double upper,
-    char &sense, double &right, double &range) const;
+  convertBoundToSense(const FloatT lower, const FloatT upper,
+    char &sense, FloatT &right, FloatT &range) const;
 
   /**@name Queries */
   //@{
@@ -162,16 +162,16 @@ public:
   CoinBigIndex getNumElements() const;
 
   /// Get pointer to array[getNumCols()] of column lower bounds
-  const double *getColLower() const;
+  const FloatT *getColLower() const;
 
   /// Get pointer to array[getNumCols()] of column upper bounds
-  const double *getColUpper() const;
+  const FloatT *getColUpper() const;
 
   /// Get pointer to array[getNumRows()] of row lower bounds
-  const double *getRowLower() const;
+  const FloatT *getRowLower() const;
 
   /// Get pointer to array[getNumRows()] of row upper bounds
-  const double *getRowUpper() const;
+  const FloatT *getRowUpper() const;
   /** Get pointer to array[getNumRows()] of constraint senses.
 	<ul>
 	<li>'L': <= constraint
@@ -194,7 +194,7 @@ public:
   <li> if rowsense()[i] == 'N' then rhs()[i] == 0.0
 	</ul>
   */
-  const double *getRightHandSide() const;
+  const FloatT *getRightHandSide() const;
 
   /** Get pointer to array[getNumRows()] of row ranges.
       
@@ -209,16 +209,16 @@ public:
   Put another way, only ranged constraints have a nontrivial value for
   rowrange.
   */
-  const double *getRowRange() const;
+  const FloatT *getRowRange() const;
 
   /// Get pointer to array[getNumCols()] of objective function coefficients
   const int getNumObjectives() const;
 
   /// Get pointer to array[getNumCols()] of objective function coefficients
-  const double *getObjCoefficients() const;
+  const FloatT *getObjCoefficients() const;
 
   /// Get pointer to array[getNumCols()] of objective function coefficients for objective j
-  const double *getObjCoefficients(int j) const;
+  const FloatT *getObjCoefficients(int j) const;
 
   /// Get pointer to row-wise copy of the coefficient matrix
   const CoinPackedMatrix *getMatrixByRow() const;
@@ -274,13 +274,13 @@ public:
   int columnIndex(const char *name) const;
 
   ///Returns the (constant) objective offset
-  double objectiveOffset() const;
+  FloatT objectiveOffset() const;
 
   ///Returns the (constant) objective offset for objective j
-  double objectiveOffset(int j) const;
+  FloatT objectiveOffset(int j) const;
 
   /// Set objective offset
-  inline void setObjectiveOffset(double value)
+  inline void setObjectiveOffset(FloatT value)
   {
     objectiveOffset_[0] = value;
   }
@@ -291,7 +291,7 @@ public:
   }
 
   /// Set objective offset
-  inline void setObjectiveOffset(double value, int j)
+  inline void setObjectiveOffset(FloatT value, int j)
   {
     objectiveOffset_[j] = value;
   }
@@ -307,18 +307,18 @@ public:
   /**@name Parameters */
   //@{
   /// Get infinity
-  double getInfinity() const;
+  FloatT getInfinity() const;
 
   /// Set infinity. Any number larger is considered infinity.
   /// Default: DBL_MAX
-  void setInfinity(const double);
+  void setInfinity(const FloatT);
 
   /// Get epsilon
-  double getEpsilon() const;
+  FloatT getEpsilon() const;
 
   /// Set epsilon.
   /// Default: 1e-5.
-  void setEpsilon(const double);
+  void setEpsilon(const FloatT);
 
   /// Get numberAcross, the number of monomials to be printed per line
   int getNumberAcross() const;
@@ -349,18 +349,18 @@ public:
   */
   void setLpDataWithoutRowAndColNames(
     const CoinPackedMatrix &m,
-    const double *collb, const double *colub,
-    const double *obj_coeff,
+    const FloatT *collb, const FloatT *colub,
+    const FloatT *obj_coeff,
     const char *integrality,
-    const double *rowlb, const double *rowub);
+    const FloatT *rowlb, const FloatT *rowub);
 
   void setLpDataWithoutRowAndColNames(
     const CoinPackedMatrix &m,
-    const double *collb, const double *colub,
-    const double *obj_coeff[MAX_OBJECTIVES],
+    const FloatT *collb, const FloatT *colub,
+    const FloatT *obj_coeff[MAX_OBJECTIVES],
     int num_objectives,
     const char *integrality,
-    const double *rowlb, const double *rowub);
+    const FloatT *rowlb, const FloatT *rowub);
 
   /** Return 0 if buff is a valid name for a row, a column or objective
       function, return a positive number otherwise.
@@ -440,7 +440,7 @@ public:
       default row names are used (see setDefaultRowNames()).
   */
   int writeLp(const char *filename,
-    const double epsilon,
+    const FloatT epsilon,
     const int numberAcross,
     const int decimals,
     const bool useRowNames = true);
@@ -460,7 +460,7 @@ public:
       default row names are used (see setDefaultRowNames()).
   */
   int writeLp(FILE *fp,
-    const double epsilon,
+    const FloatT epsilon,
     const int numberAcross,
     const int decimals,
     const bool useRowNames = true);
@@ -477,7 +477,7 @@ public:
   /// the given value for epsilon. If the original problem is
   /// a maximization problem, the objective function is immediadtly
   /// flipped to get a minimization problem.
-  void readLp(const char *filename, const double epsilon);
+  void readLp(const char *filename, const FloatT epsilon);
 
   /// Read the data in Lp format from the file with name filename.
   /// If the original problem is
@@ -490,7 +490,7 @@ public:
   /// If the original problem is
   /// a maximization problem, the objective function is immediadtly
   /// flipped to get a minimization problem.
-  void readLp(FILE *fp, const double epsilon);
+  void readLp(FILE *fp, const FloatT epsilon);
 
   /// Read the data in Lp format from the file stream.
   /// If the original problem is
@@ -576,36 +576,36 @@ protected:
   CoinPackedMatrix *matrixByRow_;
 
   /// Pointer to dense vector of row lower bounds
-  double *rowlower_;
+  FloatT *rowlower_;
 
   /// Pointer to dense vector of row upper bounds
-  double *rowupper_;
+  FloatT *rowupper_;
 
   /// Pointer to dense vector of column lower bounds
-  double *collower_;
+  FloatT *collower_;
 
   /// Pointer to dense vector of column upper bounds
-  double *colupper_;
+  FloatT *colupper_;
 
   /// Pointer to dense vector of row rhs
-  mutable double *rhs_;
+  mutable FloatT *rhs_;
 
   /** Pointer to dense vector of slack variable upper bounds for ranged 
       constraints (undefined for non-ranged constraints)
   */
-  mutable double *rowrange_;
+  mutable FloatT *rowrange_;
 
   /// Pointer to dense vector of row senses
   mutable char *rowsense_;
 
   /// Pointer to dense vector of objective coefficients
-  double *objective_[MAX_OBJECTIVES];
+  FloatT *objective_[MAX_OBJECTIVES];
 
   /// Number of objectives
   int num_objectives_;
 
   /// Constant offset for objective value
-  double objectiveOffset_[MAX_OBJECTIVES];
+  FloatT objectiveOffset_[MAX_OBJECTIVES];
 
   /// Pointer to dense vector specifying if a variable is continuous
   /// (0) or integer (1).  Added (3) sc (4) sc int.
@@ -621,10 +621,10 @@ protected:
   char *fileName_;
 
   /// Value to use for infinity
-  double infinity_;
+  FloatT infinity_;
 
   /// Value to use for epsilon
-  double epsilon_;
+  FloatT epsilon_;
 
   /// Number of monomials printed in a row
   int numberAcross_;
@@ -720,7 +720,7 @@ protected:
 
   /// Write a coefficient.
   /// print_1 = 0 : do not print the value 1.
-  void out_coeff(FILE *fp, double v, int print_1) const;
+  void out_coeff(FILE *fp, FloatT v, int print_1) const;
 
   /// Locate the objective function.
   /// Return 1 if found the keyword "Minimize" or one of its variants,
@@ -775,32 +775,32 @@ protected:
 
   /// Read a monomial of the objective function.
   /// Return 1 if "subject to" or one of its variants has been read.
-  int read_monom_obj(double *coeff, char **name, int *cnt,
+  int read_monom_obj(FloatT *coeff, char **name, int *cnt,
     char **obj_name, int *num_objectives, int *obj_starts);
 
   /// Read a monomial of a constraint.
   /// Return a positive number if the sense of the inequality has been
   /// read (see method is_sense() for the return code).
   /// Return -1 otherwise.
-  int read_monom_row(char *start_str, double *coeff, char **name,
+  int read_monom_row(char *start_str, FloatT *coeff, char **name,
     int cnt_coeff) const;
 
   /// Reallocate vectors related to number of coefficients.
-  void realloc_coeff(double **coeff, char ***colNames, int *maxcoeff) const;
+  void realloc_coeff(FloatT **coeff, char ***colNames, int *maxcoeff) const;
 
   /// Reallocate vectors related to rows.
-  void realloc_row(char ***rowNames, CoinBigIndex **start, double **rhs,
-    double **rowlow, double **rowup, int *maxrow) const;
+  void realloc_row(char ***rowNames, CoinBigIndex **start, FloatT **rhs,
+    FloatT **rowlow, FloatT **rowup, int *maxrow) const;
 
   /// Reallocate vectors related to columns.
-  void realloc_col(double **collow, double **colup, char **is_int,
+  void realloc_col(FloatT **collow, FloatT **colup, char **is_int,
     int *maxcol) const;
 
   /// Read a constraint.
-  void read_row(char *buff, double **pcoeff, char ***pcolNames,
+  void read_row(char *buff, FloatT **pcoeff, char ***pcolNames,
     int *cnt_coeff, int *maxcoeff,
-    double *rhs, double *rowlow, double *rowup,
-    int *cnt_row, double inf) const;
+    FloatT *rhs, FloatT *rowlow, FloatT *rowup,
+    int *cnt_row, FloatT inf) const;
 
   /** Check that current objective name and all row names are distinct
       including row names obtained by adding "_low" for ranged constraints.

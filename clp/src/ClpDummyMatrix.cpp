@@ -94,37 +94,37 @@ ClpDummyMatrix::reverseOrderedCopy() const
   return NULL;
 }
 //unscaled versions
-void ClpDummyMatrix::times(double,
-  const double *, double *) const
+void ClpDummyMatrix::times(FloatT,
+  const FloatT *, FloatT *) const
 {
   std::cerr << "times not supported - ClpDummyMatrix" << std::endl;
   abort();
 }
-void ClpDummyMatrix::transposeTimes(double,
-  const double *, double *) const
+void ClpDummyMatrix::transposeTimes(FloatT,
+  const FloatT *, FloatT *) const
 {
   std::cerr << "transposeTimes not supported - ClpDummyMatrix" << std::endl;
   abort();
 }
-void ClpDummyMatrix::times(double,
-  const double *, double *,
-  const double *,
-  const double *) const
+void ClpDummyMatrix::times(FloatT,
+  const FloatT *, FloatT *,
+  const FloatT *,
+  const FloatT *) const
 {
   std::cerr << "timesnot supported - ClpDummyMatrix" << std::endl;
   abort();
 }
-void ClpDummyMatrix::transposeTimes(double,
-  const double *, double *,
-  const double *,
-  const double *) const
+void ClpDummyMatrix::transposeTimes(FloatT,
+  const FloatT *, FloatT *,
+  const FloatT *,
+  const FloatT *) const
 {
   std::cerr << "transposeTimesnot supported - ClpDummyMatrix" << std::endl;
   abort();
 }
 /* Return <code>x * A + y</code> in <code>z</code>.
 	Squashes small elements and knows about ClpSimplex */
-void ClpDummyMatrix::transposeTimes(const ClpSimplex *, double,
+void ClpDummyMatrix::transposeTimes(const ClpSimplex *, FloatT,
   const CoinIndexedVector *,
   CoinIndexedVector *,
   CoinIndexedVector *) const
@@ -182,14 +182,14 @@ void ClpDummyMatrix::unpackPacked(ClpSimplex *,
 /* Adds multiple of a column into an CoinIndexedvector
       You can use quickAdd to add to vector */
 void ClpDummyMatrix::add(const ClpSimplex *, CoinIndexedVector *,
-  int, double) const
+  int, FloatT) const
 {
   std::cerr << "add not supported - ClpDummyMatrix" << std::endl;
   abort();
 }
 /* Adds multiple of a column into an array */
-void ClpDummyMatrix::add(const ClpSimplex *, double *,
-  int, double) const
+void ClpDummyMatrix::add(const ClpSimplex *, FloatT *,
+  int, FloatT) const
 {
   std::cerr << "add not supported - ClpDummyMatrix" << std::endl;
   abort();
@@ -207,7 +207,7 @@ ClpDummyMatrix::getPackedMatrix() const
    might be gaps in this list, entries that do not belong to any
    major-dimension vector. To get the actual elements one should look at
    this vector together with vectorStarts and vectorLengths. */
-const double *
+const FloatT *
 ClpDummyMatrix::getElements() const
 {
   std::cerr << "getElements not supported - ClpDummyMatrix" << std::endl;

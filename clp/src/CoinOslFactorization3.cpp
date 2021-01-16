@@ -14,8 +14,8 @@
 int c_ekkclco(const EKKfactinfo *fact, int *hcoli,
   int *mrstrt, int *hinrow, int xnewro);
 
-void c_ekkclcp(const int *hcol, const double *dels, const int *mrstrt,
-  int *hrow, double *dels2, int *mcstrt,
+void c_ekkclcp(const int *hcol, const FloatT *dels, const int *mrstrt,
+  int *hrow, FloatT *dels2, int *mcstrt,
   int *hincol, int itype, int nnrow, int nncol,
   int ninbas);
 
@@ -45,19 +45,19 @@ int c_ekkcmfd(EKKfactinfo *fact,
 int c_ekkford(const EKKfactinfo *fact, const int *hinrow, const int *hincol,
   int *hpivro, int *hpivco,
   EKKHlink *rlink, EKKHlink *clink);
-void c_ekkrowq(int *hrow, int *hcol, double *dels,
+void c_ekkrowq(int *hrow, int *hcol, FloatT *dels,
   int *mrstrt,
   const int *hinrow, int nnrow, int ninbas);
-int c_ekkrwco(const EKKfactinfo *fact, double *dluval, int *hcoli, int *mrstrt, int *hinrow, int xnewro);
+int c_ekkrwco(const EKKfactinfo *fact, FloatT *dluval, int *hcoli, int *mrstrt, int *hinrow, int xnewro);
 
-int c_ekkrwcs(const EKKfactinfo *fact, double *dluval, int *hcoli, int *mrstrt,
+int c_ekkrwcs(const EKKfactinfo *fact, FloatT *dluval, int *hcoli, int *mrstrt,
   const int *hinrow, const EKKHlink *mwork,
   int nfirst);
 
-void c_ekkrwct(const EKKfactinfo *fact, double *dluval, int *hcoli, int *mrstrt,
+void c_ekkrwct(const EKKfactinfo *fact, FloatT *dluval, int *hcoli, int *mrstrt,
   const int *hinrow, const EKKHlink *mwork,
   const EKKHlink *rlink,
-  const short *msort, double *dsort,
+  const short *msort, FloatT *dsort,
   int nlast, int xnewro);
 
 int c_ekkshff(EKKfactinfo *fact,
@@ -75,7 +75,7 @@ int c_ekktria(EKKfactinfo *fact,
   const int ninbas);
 #if 0
 static void c_ekkafpv(int *hentry, int *hcoli,
-	     double *dluval, int *mrstrt,
+	     FloatT *dluval, int *mrstrt,
 	     int *hinrow, int nentry)
 {
   int j;
@@ -89,7 +89,7 @@ static void c_ekkafpv(int *hentry, int *hcoli,
 #ifdef INTEL
     int * els_long,maxaij_long;
 #endif
-    double * els;
+    FloatT * els;
     irow = UNSHIFT_INDEX(hentry[ientry]);
     nel = hinrow[irow];
     krs = mrstrt[irow];
@@ -99,7 +99,7 @@ static void c_ekkafpv(int *hentry, int *hcoli,
     els_long=reinterpret_cast<int *> (els);
     maxaij_long=0;
 #else
-    double maxaij = 0.f;
+    FloatT maxaij = 0.f;
 #endif
     koff = 0;
     j=0;
@@ -124,7 +124,7 @@ static void c_ekkafpv(int *hentry, int *hcoli,
 	});
 #else
       UNROLL_LOOP_BODY2({
-	  double d = fabs(els[j]);
+	  FloatT d = fabs(els[j]);
 	  if (maxaij < d) {
 	    maxaij = d;
 	    koff=j;
@@ -135,7 +135,7 @@ static void c_ekkafpv(int *hentry, int *hcoli,
     }
     
     SWAP(int, index[koff], index[0]);
-    SWAP(double, els[koff], els[0]);
+    SWAP(FloatT, els[koff], els[0]);
   }
 } /* c_ekkafpv */
 #endif
@@ -171,8 +171,8 @@ int c_ekkcsin(EKKfactinfo *fact,
 {
 #if 1
   int *hcoli = fact->xecadr;
-  double *dluval = fact->xeeadr;
-  //double *dvalpv = fact->kw3adr;
+  FloatT *dluval = fact->xeeadr;
+  //FloatT *dvalpv = fact->kw3adr;
   int *mrstrt = fact->xrsadr;
   int *hrowi = fact->xeradr;
   int *mcstrt = fact->xcsadr;
@@ -182,10 +182,10 @@ int c_ekkcsin(EKKfactinfo *fact,
   int *hpivco = fact->kcpadr;
 #endif
   const int nrow = fact->nrow;
-  const double drtpiv = fact->drtpiv;
+  const FloatT drtpiv = fact->drtpiv;
 
   int j, k, kc, kce, kcs, nzj;
-  double pivot;
+  FloatT pivot;
   int kipis, kipie;
   int jpivot;
 #ifndef NDEBUG
@@ -314,8 +314,8 @@ int c_ekkrsin(EKKfactinfo *fact,
 {
 #if 1
   int *hcoli = fact->xecadr;
-  double *dluval = fact->xeeadr;
-  //double *dvalpv = fact->kw3adr;
+  FloatT *dluval = fact->xeeadr;
+  //FloatT *dvalpv = fact->kw3adr;
   int *mrstrt = fact->xrsadr;
   int *hrowi = fact->xeradr;
   int *mcstrt = fact->xcsadr;
@@ -325,7 +325,7 @@ int c_ekkrsin(EKKfactinfo *fact,
   int *hpivco = fact->kcpadr;
 #endif
   const int nrow = fact->nrow;
-  const double drtpiv = fact->drtpiv;
+  const FloatT drtpiv = fact->drtpiv;
 
   int xnewro = *xnewrop;
   int xnewco = *xnewcop;
@@ -335,9 +335,9 @@ int c_ekkrsin(EKKfactinfo *fact,
   int nnentl = *nnentlp;
 
   int i, j, k, kc, kr, npr, nzi;
-  double pivot;
+  FloatT pivot;
   int kjpis, kjpie, knprs, knpre;
-  double elemnt, maxaij;
+  FloatT elemnt, maxaij;
   int ipivot, epivco, lstart;
 #ifndef NDEBUG
   int kpivot = -1;
@@ -513,11 +513,11 @@ int c_ekkfpvt(const EKKfactinfo *fact,
   int *nsingp, int *xrejctp,
   int *xipivtp, int *xjpivtp)
 {
-  double zpivlu = fact->zpivlu;
+  FloatT zpivlu = fact->zpivlu;
 #if 1
   int *hcoli = fact->xecadr;
-  double *dluval = fact->xeeadr;
-  //double *dvalpv = fact->kw3adr;
+  FloatT *dluval = fact->xeeadr;
+  //FloatT *dvalpv = fact->kw3adr;
   int *mrstrt = fact->xrsadr;
   int *hrowi = fact->xeradr;
   int *mcstrt = fact->xcsadr;
@@ -527,7 +527,7 @@ int c_ekkfpvt(const EKKfactinfo *fact,
   int *hpivco = fact->kcpadr;
 #endif
   int i, j, k, ke, kk, ks, nz, nz1, kce, kcs, kre, krs;
-  double minsze;
+  FloatT minsze;
   int marcst, mincst, mincnt, trials, nentri;
   int jpivot = -1;
   bool rjectd;
@@ -655,8 +655,8 @@ void c_ekkprpv(EKKfactinfo *fact,
 {
 #if 1
   int *hcoli = fact->xecadr;
-  double *dluval = fact->xeeadr;
-  //double *dvalpv = fact->kw3adr;
+  FloatT *dluval = fact->xeeadr;
+  //FloatT *dvalpv = fact->kw3adr;
   int *mrstrt = fact->xrsadr;
   int *hrowi = fact->xeradr;
   int *mcstrt = fact->xcsadr;
@@ -667,7 +667,7 @@ void c_ekkprpv(EKKfactinfo *fact,
 #endif
   int i, k;
   int kc;
-  double pivot;
+  FloatT pivot;
   int kipis = mrstrt[ipivot];
   int kipie = kipis + hinrow[ipivot] - 1;
 
@@ -732,8 +732,8 @@ int c_ekkclco(const EKKfactinfo *fact, int *hcoli, int *mrstrt, int *hinrow, int
 {
 #if 0
   int *hcoli	= fact->xecadr;
-  double *dluval	= fact->xeeadr;
-  double *dvalpv = fact->kw3adr;
+  FloatT *dluval	= fact->xeeadr;
+  FloatT *dvalpv = fact->kw3adr;
   int *mrstrt	= fact->xrsadr;
   int *hrowi	= fact->xeradr;
   int *mcstrt	= fact->xcsadr;
@@ -799,11 +799,11 @@ int c_ekkcmfc(EKKfactinfo *fact,
 #include "CoinOslC.h"
 #undef COIN_OSL_CMFC
 #undef MACTION_T
-  static int c_ekkidmx(int n, const double *dx)
+  static int c_ekkidmx(int n, const FloatT *dx)
 {
   int ret_val;
   int i;
-  double dmax;
+  FloatT dmax;
   --dx;
 
   /* Function Body */
@@ -840,7 +840,7 @@ int c_ekkcmfd(EKKfactinfo *fact,
   int *nsingp)
 {
   int *hcoli = fact->xecadr;
-  double *dluval = fact->xeeadr;
+  FloatT *dluval = fact->xeeadr;
   int *mrstrt = fact->xrsadr;
   int *hrowi = fact->xeradr;
   int *mcstrt = fact->xcsadr;
@@ -853,21 +853,21 @@ int c_ekkcmfd(EKKfactinfo *fact,
   int storeZero = fact->ndenuc;
 
   int mkrs[8];
-  double dpivyy[8];
+  FloatT dpivyy[8];
 
   /* Local variables */
   int i, j;
-  double d0, dx;
+  FloatT d0, dx;
   int nz, ndo, krs;
   int kend, jcol;
   int irow, iput, jrow, krxs;
   int mjcol[8];
-  double pivot;
+  FloatT pivot;
   int count;
   int ilast, isort;
-  double dpivx, dsave;
-  double dpivxx[8];
-  double multip;
+  FloatT dpivx, dsave;
+  FloatT dpivxx[8];
+  FloatT multip;
   int lstart, ndense, krlast, kcount, idense, ipivot,
     jdense, kchunk, jpivot;
 
@@ -1213,7 +1213,7 @@ int c_ekkcmfy(EKKfactinfo *fact,
     assert(clink[i].suc == 0);
   }
 
-  /*     Generate double linked list of rows having equal numbers of */
+  /*     Generate FloatT linked list of rows having equal numbers of */
   /*     nonzeros in each row. Skip pivotal rows. */
   for (i = 1; i <= nrow; ++i) {
     if (!(rlink[i].pre < 0)) {
@@ -1233,7 +1233,7 @@ int c_ekkcmfy(EKKfactinfo *fact,
     }
   }
 
-  /*     Generate double linked list of cols having equal numbers of */
+  /*     Generate FloatT linked list of cols having equal numbers of */
   /*     nonzeros in each col. Skip pivotal cols. */
   for (i = 1; i <= nrow; ++i) {
     if (!(clink[i].pre < 0)) {
@@ -1313,14 +1313,14 @@ int c_ekkcmfy(EKKfactinfo *fact,
  * what the largest element is, we ensure that it is always in front.
  * This establishes this property; later on we take steps to preserve it.
  */
-static void c_ekkmltf(const EKKfactinfo *fact, double *dluval, int *hcoli,
+static void c_ekkmltf(const EKKfactinfo *fact, FloatT *dluval, int *hcoli,
   const int *mrstrt, const int *hinrow,
   const EKKHlink *rlink)
 {
 #if 0
   int *hcoli	= fact->xecadr;
-  double *dluval	= fact->xeeadr;
-  double *dvalpv = fact->kw3adr;
+  FloatT *dluval	= fact->xeeadr;
+  FloatT *dvalpv = fact->kw3adr;
   int *mrstrt	= fact->xrsadr;
   int *hrowi	= fact->xeradr;
   int *mcstrt	= fact->xcsadr;
@@ -1340,7 +1340,7 @@ static void c_ekkmltf(const EKKfactinfo *fact, double *dluval, int *hcoli,
       const int krs = mrstrt[i];
       const int kre = krs + hinrow[i] - 1;
 
-      double maxaij = 0.f;
+      FloatT maxaij = 0.f;
 
       /* this assumes that at least one of the dluvals is non-zero. */
       for (k = krs; k <= kre; ++k) {
@@ -1367,7 +1367,7 @@ int c_ekklfct(EKKfactinfo *fact)
   int ninbas = fact->xcsadr[nrow + 1] - 1;
   int ifvsol = fact->ifvsol;
   int *hcoli = fact->xecadr;
-  double *dluval = fact->xeeadr;
+  FloatT *dluval = fact->xeeadr;
   int *mrstrt = fact->xrsadr;
   int *hrowi = fact->xeradr;
   int *mcstrt = fact->xcsadr;
@@ -1387,8 +1387,8 @@ int c_ekklfct(EKKfactinfo *fact)
   const int nnetas = fact->nnetas;
 
   int ncompactions;
-  double save_drtpiv = fact->drtpiv;
-  double save_zpivlu = fact->zpivlu;
+  FloatT save_drtpiv = fact->drtpiv;
+  FloatT save_zpivlu = fact->zpivlu;
   if (ifvsol > 0 && fact->invok < 0) {
     fact->zpivlu = CoinMin(0.9, fact->zpivlu * 10.);
     fact->drtpiv = 1.0e-8;
@@ -1525,7 +1525,7 @@ L8000:
     if (fact->maxNNetas != fact->eta_size && nnetas) {
       /* return and get more space */
 
-      /* double eta_size, unless that exceeds max (if there is one) */
+      /* FloatT eta_size, unless that exceeds max (if there is one) */
       fact->eta_size = fact->eta_size << 1;
       if (fact->maxNNetas > 0 && fact->eta_size > fact->maxNNetas) {
         fact->eta_size = fact->maxNNetas;
@@ -1594,14 +1594,14 @@ L8500:
   any return code from c_ekklfct, except 2 and 5
 */
 
-void c_ekkrowq(int *hrow, int *hcol, double *dels,
+void c_ekkrowq(int *hrow, int *hcol, FloatT *dels,
   int *mrstrt,
   const int *hinrow, int nnrow, int ninbas)
 {
   int i, k, iak, jak;
-  double daik;
+  FloatT daik;
   int iloc;
-  double dsave;
+  FloatT dsave;
   int isave, jsave;
 
   /* Order matrix rowwise using MRSTRT, DELS, HCOL */
@@ -1641,7 +1641,7 @@ void c_ekkrowq(int *hrow, int *hcol, double *dels,
   }
 } /* c_ekkrowq */
 
-int c_ekkrwco(const EKKfactinfo *fact, double *dluval,
+int c_ekkrwco(const EKKfactinfo *fact, FloatT *dluval,
   int *hcoli, int *mrstrt, int *hinrow, int xnewro)
 {
   int i, k, nz, kold;
@@ -1687,14 +1687,14 @@ int c_ekkrwco(const EKKfactinfo *fact, double *dluval,
   return (kstart);
 } /* c_ekkrwco */
 
-int c_ekkrwcs(const EKKfactinfo *fact, double *dluval, int *hcoli, int *mrstrt,
+int c_ekkrwcs(const EKKfactinfo *fact, FloatT *dluval, int *hcoli, int *mrstrt,
   const int *hinrow, const EKKHlink *mwork,
   int nfirst)
 {
 #if 0
   int *hcoli	= fact->xecadr;
-  double *dluval	= fact->xeeadr;
-  double *dvalpv = fact->kw3adr;
+  FloatT *dluval	= fact->xeeadr;
+  FloatT *dvalpv = fact->kw3adr;
   int *mrstrt	= fact->xrsadr;
   int *hrowi	= fact->xeradr;
   int *mcstrt	= fact->xcsadr;
@@ -1730,16 +1730,16 @@ int c_ekkrwcs(const EKKfactinfo *fact, double *dluval, int *hcoli, int *mrstrt,
 
   return (iput);
 } /* c_ekkrwcs */
-void c_ekkrwct(const EKKfactinfo *fact, double *dluval, int *hcoli, int *mrstrt,
+void c_ekkrwct(const EKKfactinfo *fact, FloatT *dluval, int *hcoli, int *mrstrt,
   const int *hinrow, const EKKHlink *mwork,
   const EKKHlink *rlink,
-  const short *msort, double *dsort,
+  const short *msort, FloatT *dsort,
   int nlast, int xnewro)
 {
 #if 0
   int *hcoli	= fact->xecadr;
-  double *dluval	= fact->xeeadr;
-  double *dvalpv = fact->kw3adr;
+  FloatT *dluval	= fact->xeeadr;
+  FloatT *dvalpv = fact->kw3adr;
   int *mrstrt	= fact->xrsadr;
   int *hrowi	= fact->xeradr;
   int *mcstrt	= fact->xcsadr;
@@ -1864,7 +1864,7 @@ int c_ekkshff(EKKfactinfo *fact,
   return (0);
 } /* c_ekkshff */
 /* sorts on indices dragging elements with */
-static void c_ekk_sort2(int *key, double *array2, int number)
+static void c_ekk_sort2(int *key, FloatT *array2, int number)
 {
   int minsize = 10;
   int n = number;
@@ -1873,7 +1873,7 @@ static void c_ekk_sort2(int *key, double *array2, int number)
   int *m, t;
   int *ls[32], *rs[32];
   int *l, *r, c;
-  double it;
+  FloatT it;
   int j;
   /*check already sorted  */
 #ifndef LONG_MAX
@@ -1975,8 +1975,8 @@ void c_ekkshfv(EKKfactinfo *fact,
   int xnewro)
 {
   int *hcoli = fact->xecadr;
-  double *dluval = fact->xeeadr;
-  double *dvalpv = fact->kw3adr;
+  FloatT *dluval = fact->xeeadr;
+  FloatT *dvalpv = fact->kw3adr;
   int *mrstrt = fact->xrsadr;
   int *hrowi = fact->xeradr;
   int *mcstrt = fact->xcsadr;
@@ -1984,8 +1984,8 @@ void c_ekkshfv(EKKfactinfo *fact,
   int *hincol = fact->xcnadr;
   int *hpivro = fact->krpadr;
   int *hpivco = fact->kcpadr;
-  double *dpermu = fact->kadrpm;
-  double *de2val = fact->xe2adr ? fact->xe2adr - 1 : 0;
+  FloatT *dpermu = fact->kadrpm;
+  FloatT *de2val = fact->xe2adr ? fact->xe2adr - 1 : 0;
   int nnentu = fact->nnentu;
   int xnetal = fact->xnetal;
 
@@ -2119,7 +2119,7 @@ void c_ekkshfv(EKKfactinfo *fact,
     int ninbas = 0;
     int ilast; /* last available entry */
     int spareSpace;
-    double *dluval2;
+    FloatT *dluval2;
     /*int * hlink2 = ihlink+nrow;
       int * mrstrt2 = hlink2+nrow;*/
     /* mwork has order of row copy */
@@ -2303,8 +2303,8 @@ void c_ekkshfv(EKKfactinfo *fact,
         }
       }
       if (de2val) {
-        double *a = dluval;
-        double *address;
+        FloatT *a = dluval;
+        FloatT *address;
         /* move first down */
         i = eta_next[0];
         {
@@ -2329,7 +2329,7 @@ void c_ekkshfv(EKKfactinfo *fact,
           j2 = mcstrt2[1];
           j1 = mcstrt2[n + 1] + 1;
 #if 0
-	  memcpy(de2val+j1,dluval+j1,(j2-j1+1)*sizeof(double));
+	  memcpy(de2val+j1,dluval+j1,(j2-j1+1)*sizeof(FloatT));
 #else
           c_ekkdcpy(j2 - j1 + 1,
             (dluval + j1), (de2val + j1));
@@ -2340,7 +2340,7 @@ void c_ekkshfv(EKKfactinfo *fact,
       } else {
         /* copy down dluval */
 #if 0
-	memcpy(&dluval[1],&dluval2[1],ninbas*sizeof(double));
+	memcpy(&dluval[1],&dluval2[1],ninbas*sizeof(FloatT));
 #else
         c_ekkdcpy(ninbas,
           (dluval2 + 1), (dluval + 1));
@@ -2562,8 +2562,8 @@ static void c_ekkclcp1(const int *hcol, const int *mrstrt,
     }
   }
 } /* c_ekkclcp */
-inline void c_ekkclcp2(const int *hcol, const double *dels, const int *mrstrt,
-  int *hrow, double *dels2, int *mcstrt,
+inline void c_ekkclcp2(const int *hcol, const FloatT *dels, const int *mrstrt,
+  int *hrow, FloatT *dels2, int *mcstrt,
   int *hincol, int nnrow, int nncol,
   int ninbas)
 {
@@ -2597,7 +2597,7 @@ int c_ekkslcf(const EKKfactinfo *fact)
 {
   int *hrow = fact->xeradr;
   int *hcol = fact->xecadr;
-  double *dels = fact->xeeadr;
+  FloatT *dels = fact->xeeadr;
   int *hinrow = fact->xrnadr;
   int *hincol = fact->xcnadr;
   int *mrstrt = fact->xrsadr;
@@ -2767,7 +2767,7 @@ int c_ekktria(EKKfactinfo *fact,
   const int nrow = fact->nrow;
   const int maxinv = fact->maxinv;
   int *hcoli = fact->xecadr;
-  double *dluval = fact->xeeadr;
+  FloatT *dluval = fact->xeeadr;
   int *mrstrt = fact->xrsadr;
   int *hrowi = fact->xeradr;
   int *mcstrt = fact->xcsadr;
@@ -2775,7 +2775,7 @@ int c_ekktria(EKKfactinfo *fact,
   int *hincol = fact->xcnadr;
   int *stack = fact->krpadr; /* normally hpivro */
   int *hpivco = fact->kcpadr;
-  const double drtpiv = fact->drtpiv;
+  const FloatT drtpiv = fact->drtpiv;
   CoinZeroN(reinterpret_cast< int * >(rlink + 1), static_cast< int >(nrow * (sizeof(EKKHlink) / sizeof(int))));
   CoinZeroN(reinterpret_cast< int * >(clink + 1), static_cast< int >(nrow * (sizeof(EKKHlink) / sizeof(int))));
 
@@ -2789,7 +2789,7 @@ int c_ekktria(EKKfactinfo *fact,
   int ncompactions = 0;
 
   int i, j, k, kc, kce, kcs, npr;
-  double pivot;
+  FloatT pivot;
   int kipis, kipie, kjpis, kjpie, knprs, knpre;
   int ipivot, jpivot, stackc, stackr;
 #ifndef NDEBUG
@@ -3077,7 +3077,7 @@ int c_ekktria(EKKfactinfo *fact,
 
             {
               /* (10) */
-              double elemnt = dluval[kpivot];
+              FloatT elemnt = dluval[kpivot];
               dluval[kpivot] = dluval[knpre];
               hcoli[kpivot] = hcoli[knpre];
 

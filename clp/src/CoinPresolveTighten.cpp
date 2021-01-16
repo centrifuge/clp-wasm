@@ -64,19 +64,19 @@ const char *do_tighten_action::name() const
 const CoinPresolveAction *do_tighten_action::presolve(CoinPresolveMatrix *prob,
   const CoinPresolveAction *next)
 {
-  double *colels = prob->colels_;
+  FloatT *colels = prob->colels_;
   int *hrow = prob->hrow_;
   CoinBigIndex *mcstrt = prob->mcstrt_;
   int *hincol = prob->hincol_;
   int ncols = prob->ncols_;
 
-  double *clo = prob->clo_;
-  double *cup = prob->cup_;
+  FloatT *clo = prob->clo_;
+  FloatT *cup = prob->cup_;
 
-  double *rlo = prob->rlo_;
-  double *rup = prob->rup_;
+  FloatT *rlo = prob->rlo_;
+  FloatT *rup = prob->rup_;
 
-  double *dcost = prob->cost_;
+  FloatT *dcost = prob->cost_;
 
   const unsigned char *integerType = prob->integerType_;
 
@@ -114,7 +114,7 @@ const CoinPresolveAction *do_tighten_action::presolve(CoinPresolveMatrix *prob,
   startEmptyRows = prob->countEmptyRows();
   startEmptyColumns = prob->countEmptyCols();
 #if COIN_PRESOLVE_TUNING > 0
-  double startTime = 0.0;
+  FloatT startTime = 0.0;
   if (prob->tuning_)
     startTime = CoinCpuTime();
 #endif
@@ -148,9 +148,9 @@ const CoinPresolveAction *do_tighten_action::presolve(CoinPresolveMatrix *prob,
       // check constraints
       for (CoinBigIndex k = kcs; k < kce; ++k) {
         int i = hrow[k];
-        double coeff = colels[k];
-        double rlb = rlo[i];
-        double rub = rup[i];
+        FloatT coeff = colels[k];
+        FloatT rlb = rlo[i];
+        FloatT rub = rup[i];
 
         if (-1.0e28 < rlb && rub < 1.0e28) {
           // bounded - we lose
@@ -212,7 +212,7 @@ const CoinPresolveAction *do_tighten_action::presolve(CoinPresolveMatrix *prob,
 	    limit++;
 
 	  printf("TIGHTEN STATS %d %g %g %d:  \n", j, clo[j], cup[j], integerType[j]); 
-  double *rowels	= prob->rowels_;
+  FloatT *rowels	= prob->rowels_;
   int *hcol		= prob->hcol_;
   int *mrstrt		= prob->mrstrt_;
   int *hinrow		= prob->hinrow_;
@@ -240,8 +240,8 @@ const CoinPresolveAction *do_tighten_action::presolve(CoinPresolveMatrix *prob,
             s->direction = iflag;
 
             s->rows = new int[hincol[j]];
-            s->lbound = new double[hincol[j]];
-            s->ubound = new double[hincol[j]];
+            s->lbound = new FloatT[hincol[j]];
+            s->ubound = new FloatT[hincol[j]];
 #if PRESOLVE_DEBUG > 1
             printf("TIGHTEN FREE:  %d   ", j);
 #endif
@@ -311,7 +311,7 @@ const CoinPresolveAction *do_tighten_action::presolve(CoinPresolveMatrix *prob,
   //delete[]fixup_cols;
 
 #if COIN_PRESOLVE_TUNING > 0
-  double thisTime = 0.0;
+  FloatT thisTime = 0.0;
   if (prob->tuning_)
     thisTime = CoinCpuTime();
 #endif
@@ -338,19 +338,19 @@ void do_tighten_action::postsolve(CoinPostsolveMatrix *prob) const
   const action *const actions = actions_;
   const int nactions = nactions_;
 
-  double *colels = prob->colels_;
+  FloatT *colels = prob->colels_;
   int *hrow = prob->hrow_;
   CoinBigIndex *mcstrt = prob->mcstrt_;
   int *hincol = prob->hincol_;
   CoinBigIndex *link = prob->link_;
 
-  double *clo = prob->clo_;
-  double *cup = prob->cup_;
-  double *rlo = prob->rlo_;
-  double *rup = prob->rup_;
+  FloatT *clo = prob->clo_;
+  FloatT *cup = prob->cup_;
+  FloatT *rlo = prob->rlo_;
+  FloatT *rup = prob->rup_;
 
-  double *sol = prob->sol_;
-  double *acts = prob->acts_;
+  FloatT *sol = prob->sol_;
+  FloatT *acts = prob->acts_;
 
 #if PRESOLVE_DEBUG > 0 || PRESOLVE_CONSISTENCY > 0
   char *cdone = prob->cdone_;
@@ -370,8 +370,8 @@ void do_tighten_action::postsolve(CoinPostsolveMatrix *prob) const
     int iflag = f->direction;
     int nr = f->nrows;
     const int *rows = f->rows;
-    const double *lbound = f->lbound;
-    const double *ubound = f->ubound;
+    const FloatT *lbound = f->lbound;
+    const FloatT *ubound = f->ubound;
 
     PRESOLVEASSERT(prob->getColumnStatus(jcol) != CoinPrePostsolveMatrix::basic);
     int i;
@@ -392,19 +392,19 @@ void do_tighten_action::postsolve(CoinPostsolveMatrix *prob) const
 
     // Each constraint has exactly one bound.
     // The correction should only ever be forced to move in one direction.
-    //    double orig_sol = sol[jcol];
-    double correction = 0.0;
+    //    FloatT orig_sol = sol[jcol];
+    FloatT correction = 0.0;
 
     int last_corrected = -1;
     CoinBigIndex k = mcstrt[jcol];
     int nk = hincol[jcol];
     for (i = 0; i < nk; ++i) {
       int irow = hrow[k];
-      double coeff = colels[k];
+      FloatT coeff = colels[k];
       k = link[k];
-      double newrlo = rlo[irow];
-      double newrup = rup[irow];
-      double activity = acts[irow];
+      FloatT newrlo = rlo[irow];
+      FloatT newrup = rup[irow];
+      FloatT activity = acts[irow];
 
       if (activity + correction * coeff < newrlo) {
         // only one of these two should fire
@@ -413,7 +413,7 @@ void do_tighten_action::postsolve(CoinPostsolveMatrix *prob) const
         last_corrected = irow;
 
         // adjust to just meet newrlo (solve for correction)
-        double new_correction = (newrlo - activity) / coeff;
+        FloatT new_correction = (newrlo - activity) / coeff;
         //adjust if integer
         if (iflag == -2 || iflag == 2) {
           new_correction += sol[jcol];
@@ -429,7 +429,7 @@ void do_tighten_action::postsolve(CoinPostsolveMatrix *prob) const
       } else if (activity + correction * coeff > newrup) {
         last_corrected = irow;
 
-        double new_correction = (newrup - activity) / coeff;
+        FloatT new_correction = (newrup - activity) / coeff;
         //adjust if integer
         if (iflag == -2 || iflag == 2) {
           new_correction += sol[jcol];
@@ -457,9 +457,9 @@ void do_tighten_action::postsolve(CoinPostsolveMatrix *prob) const
       k = mcstrt[jcol];
       for (i = 0; i < nk; ++i) {
         int irow = hrow[k];
-        double coeff = colels[k];
+        FloatT coeff = colels[k];
         k = link[k];
-        //      double activity = acts[irow];
+        //      FloatT activity = acts[irow];
 
         acts[irow] += correction * coeff;
       }

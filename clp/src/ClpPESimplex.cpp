@@ -17,9 +17,9 @@
 /** SHARED METHODS FOR USEFUL ALGEBRAIC OPERATIONS */
 
 /** inner product between a coin vector and a pointer */
-double PEdot(CoinIndexedVector &v1, const double *v2)
+FloatT PEdot(CoinIndexedVector &v1, const FloatT *v2)
 {
-  double sum = 0;
+  FloatT sum = 0;
   int size = v1.getNumElements();
   int *indices = v1.getIndices();
 
@@ -30,9 +30,9 @@ double PEdot(CoinIndexedVector &v1, const double *v2)
 
 /** inner product between two coin vectors
     call the function with the sparser vector first for efficiency */
-double PEdot(CoinIndexedVector &v1, CoinIndexedVector &v2)
+FloatT PEdot(CoinIndexedVector &v1, CoinIndexedVector &v2)
 {
-  double sum = 0;
+  FloatT sum = 0;
   int size = v1.getNumElements();
   int *indices = v1.getIndices();
 
@@ -43,9 +43,9 @@ double PEdot(CoinIndexedVector &v1, CoinIndexedVector &v2)
 
 /** compute the product y + x^T*[A I] for the indices "which" of [A I] and store it into y */
 void PEtransposeTimesSubsetAll(ClpSimplex *model, int number, const int *which,
-  const double *COIN_RESTRICT x, double *COIN_RESTRICT y,
-  const double *COIN_RESTRICT rowScale,
-  const double *COIN_RESTRICT columnScale)
+  const FloatT *COIN_RESTRICT x, FloatT *COIN_RESTRICT y,
+  const FloatT *COIN_RESTRICT rowScale,
+  const FloatT *COIN_RESTRICT columnScale)
 {
   // get the packed matrix
   CoinPackedMatrix *clpMatrix = model->matrix();
@@ -54,7 +54,7 @@ void PEtransposeTimesSubsetAll(ClpSimplex *model, int number, const int *which,
   const int *row = clpMatrix->getIndices();
   const CoinBigIndex *columnStart = clpMatrix->getVectorStarts();
   const int *columnLength = clpMatrix->getVectorLengths();
-  const double *elementByColumn = clpMatrix->getElements();
+  const FloatT *elementByColumn = clpMatrix->getElements();
 
   // there is scaling iff rowScale is not null
   if (rowScale) {
@@ -63,7 +63,7 @@ void PEtransposeTimesSubsetAll(ClpSimplex *model, int number, const int *which,
       CoinBigIndex j;
       CoinBigIndex start = columnStart[iColumn];
       CoinBigIndex next = start + columnLength[iColumn];
-      double value = 0.0;
+      FloatT value = 0.0;
 
       // if looking at a slack variable, there is no scaling (rowScale=1/columnScale)
       if (iColumn > model->getNumCols()) {
@@ -85,7 +85,7 @@ void PEtransposeTimesSubsetAll(ClpSimplex *model, int number, const int *which,
       CoinBigIndex j;
       CoinBigIndex start = columnStart[iColumn];
       CoinBigIndex next = start + columnLength[iColumn];
-      double value = 0.0;
+      FloatT value = 0.0;
       if (iColumn > model->getNumCols()) {
         int jRow = iColumn - model->getNumCols();
         value = x[jRow] * (-1);
@@ -153,19 +153,19 @@ ClpPESimplex::ClpPESimplex(ClpSimplex *model)
   dualDegenerates_ = reinterpret_cast< int * >(malloc(numberColumns_ * sizeof(int)));
   isDualDegenerate_ = reinterpret_cast< bool * >(malloc((numberRows_ + numberColumns_) * sizeof(bool)));
 
-  compatibilityCol_ = reinterpret_cast< double * >(malloc((numberRows_ + numberColumns_) * sizeof(double)));
+  compatibilityCol_ = reinterpret_cast< FloatT * >(malloc((numberRows_ + numberColumns_) * sizeof(FloatT)));
   isCompatibleCol_ = reinterpret_cast< bool * >(malloc((numberRows_ + numberColumns_) * sizeof(bool)));
   std::fill(isCompatibleCol_, isCompatibleCol_ + numberRows_ + numberColumns_, false);
 
-  compatibilityRow_ = reinterpret_cast< double * >(malloc(numberRows_ * sizeof(double)));
+  compatibilityRow_ = reinterpret_cast< FloatT * >(malloc(numberRows_ * sizeof(FloatT)));
   isCompatibleRow_ = reinterpret_cast< bool * >(malloc(numberRows_ * sizeof(bool)));
   std::fill(isCompatibleRow_, isCompatibleRow_ + numberRows_, false);
 
-  tempRandom_ = reinterpret_cast< double * >(malloc(CoinMax(numberColumns_, numberRows_) * sizeof(double)));
+  tempRandom_ = reinterpret_cast< FloatT * >(malloc(CoinMax(numberColumns_, numberRows_) * sizeof(FloatT)));
   // fill
   CoinThreadRandom generator = *model_->randomNumberGenerator();
   for (int i = 0; i < CoinMax(numberColumns_, numberRows_); i++) {
-    double random;
+    FloatT random;
     do
       random = static_cast< int >(generator.randomDouble() * 1.0e6) - 5.0e5;
     while (random == 0.0);
@@ -227,18 +227,18 @@ ClpPESimplex::~ClpPESimplex()
         << generalPrint << CoinMessageEol;
     }
     if (numberPivots - coCompatiblePivots()) {
-      sprintf(generalPrint, "(coDegeneratePivots()-coDegenerateCompatiblePivots())/( (numberPivots-coCompatiblePivots()) %g", (static_cast< double >(coDegeneratePivots() - coDegenerateCompatiblePivots())) / (static_cast< double >(numberPivots - coCompatiblePivots())));
+      sprintf(generalPrint, "(coDegeneratePivots()-coDegenerateCompatiblePivots())/( (numberPivots-coCompatiblePivots()) %g", (static_cast< FloatT >(coDegeneratePivots() - coDegenerateCompatiblePivots())) / (static_cast< FloatT >(numberPivots - coCompatiblePivots())));
       model_->messageHandler()->message(CLP_GENERAL,
         *model_->messagesPointer())
         << generalPrint << CoinMessageEol;
     }
     if (coCompatiblePivots()) {
-      sprintf(generalPrint, "coDegenerateCompatiblePivots()/coCompatiblePivots() %g", static_cast< double >(coDegenerateCompatiblePivots()) / static_cast< double >(coCompatiblePivots()));
+      sprintf(generalPrint, "coDegenerateCompatiblePivots()/coCompatiblePivots() %g", static_cast< FloatT >(coDegenerateCompatiblePivots()) / static_cast< FloatT >(coCompatiblePivots()));
       model_->messageHandler()->message(CLP_GENERAL,
         *model_->messagesPointer())
         << generalPrint << CoinMessageEol;
     }
-    sprintf(generalPrint, "coDegeneratePivots()/ numberPivots %g", static_cast< double >(coDegeneratePivots()) / static_cast< double >(numberPivots));
+    sprintf(generalPrint, "coDegeneratePivots()/ numberPivots %g", static_cast< FloatT >(coDegeneratePivots()) / static_cast< FloatT >(numberPivots));
     model_->messageHandler()->message(CLP_GENERAL,
       *model_->messagesPointer())
       << generalPrint << CoinMessageEol;
@@ -259,7 +259,7 @@ void ClpPESimplex::updatePrimalDegenerates()
 {
 
   coPrimalDegenerates_ = 0;
-  epsDegeneracy_ = 1.0e-04; //std::min(1.0e-2, 1.0e-7*fabs(model_->objectiveValue()));
+  epsDegeneracy_ = 1.0e-04; //std::min(1.0e-2, 1.0e-7*CoinAbs(model_->objectiveValue()));
   std::fill(isPrimalDegenerate_, isPrimalDegenerate_ + numberRows_ + numberColumns_, false);
   int *pivotVariable = model_->pivotVariable();
 
@@ -271,12 +271,12 @@ void ClpPESimplex::updatePrimalDegenerates()
 
     // std::cout << "solution[" << iVar << "] = " << model_->solution(iVar) << " ; lb = " << model_->lower(iVar) << " ; ub = "<< model_->upper(iVar) << "\n" ;
 
-    double dVal = model_->solution(iVar);
-    double dUb = model_->upper(iVar);
-    double dLb = model_->lower(iVar);
-    // if (fabs(dVal) <= epsDegeneracy_) {
-    if ((dLb > -COIN_DBL_MAX && fabs(dVal - dLb) <= std::max(1.0, fabs(dLb)) * epsDegeneracy_)
-      || (dUb < COIN_DBL_MAX && fabs(dVal - dUb) <= std::max(1.0, fabs(dUb)) * epsDegeneracy_)) {
+    FloatT dVal = model_->solution(iVar);
+    FloatT dUb = model_->upper(iVar);
+    FloatT dLb = model_->lower(iVar);
+    // if (CoinAbs(dVal) <= epsDegeneracy_) {
+    if ((dLb > -COIN_DBL_MAX && CoinAbs(dVal - dLb) <= CoinMax(1.0, CoinAbs(dLb)) * epsDegeneracy_)
+      || (dUb < COIN_DBL_MAX && CoinAbs(dVal - dUb) <= CoinMax(1.0, CoinAbs(dUb)) * epsDegeneracy_)) {
       primalDegenerates_[coPrimalDegenerates_++] = i;
       isPrimalDegenerate_[iVar] = true;
     }
@@ -293,14 +293,14 @@ void ClpPESimplex::updateDualDegenerates()
 
   // The dual degenerate variables are the nonbasic variables with a zero reduced costs
   // An epsDegeneracy_ tolerance is used to detect zero reduced costs
-  epsDegeneracy_ = 1.0e-04; //std::min(1.0e-2, 1.0e-7*fabs(model_->objectiveValue()));
-  double maxDegen = 0.0;
+  epsDegeneracy_ = 1.0e-04; //std::min(1.0e-2, 1.0e-7*CoinAbs(model_->objectiveValue()));
+  FloatT maxDegen = 0.0;
   for (int i = 0; i < numberColumns_ + numberRows_; i++) {
 
-    if (model_->getStatus(i) != ClpSimplex::basic && fabs(model_->reducedCost(i)) <= epsDegeneracy_) {
+    if (model_->getStatus(i) != ClpSimplex::basic && CoinAbs(model_->reducedCost(i)) <= epsDegeneracy_) {
       dualDegenerates_[coDualDegenerates_++] = i;
       isDualDegenerate_[i] = true;
-      maxDegen = std::max(maxDegen, fabs(model_->reducedCost(i)));
+      maxDegen = std::max(maxDegen, CoinAbs(model_->reducedCost(i)));
     }
   }
   coUpdateDegenerates_++;
@@ -348,9 +348,9 @@ void ClpPESimplex::identifyCompatibleCols(int number, const int *which,
   assert(coPrimalDegenerates_ <= CoinMax(numberColumns_, numberRows_));
   for (int i = 0; i < coPrimalDegenerates_; i++) {
 #if 0
-    double random;
+    FloatT random;
       do 
-        random = static_cast<double> ((rand() %(static_cast<int> (1.0e6)+1))) -5.0e5;
+        random = static_cast<FloatT> ((rand() %(static_cast<int> (1.0e6)+1))) -5.0e5;
       while (random == 0.0);
     wPrimal->quickInsert(primalDegenerates_[i], 0.5+random);
 #else
@@ -373,13 +373,13 @@ void ClpPESimplex::identifyCompatibleCols(int number, const int *which,
   number = which ? number : numberColumns_ + numberRows_;
   int jColumn;
   assert(!wPrimal->packedMode());
-  double *values = wPrimal->denseVector();
-  const double *rowScale = model_->rowScale();
+  FloatT *values = wPrimal->denseVector();
+  const FloatT *rowScale = model_->rowScale();
   CoinPackedMatrix *clpMatrix = model_->matrix();
   const int *row = clpMatrix->getIndices();
   const CoinBigIndex *columnStart = clpMatrix->getVectorStarts();
   const int *columnLength = clpMatrix->getVectorLengths();
-  const double *elementByColumn = clpMatrix->getElements();
+  const FloatT *elementByColumn = clpMatrix->getElements();
   for (int j = 0; j < number; j++) {
     if (which)
       jColumn = which[j];
@@ -391,7 +391,7 @@ void ClpPESimplex::identifyCompatibleCols(int number, const int *which,
       isCompatibleCol_[jColumn] = false;
       /*coCompatibleCols_++;*/
     } else {
-      double dotProduct = 0.0;
+      FloatT dotProduct = 0.0;
       if (jColumn < numberColumns_) {
         if (!rowScale) {
           for (CoinBigIndex i = columnStart[jColumn]; i < columnStart[jColumn] + columnLength[jColumn]; i++) {
@@ -400,7 +400,7 @@ void ClpPESimplex::identifyCompatibleCols(int number, const int *which,
           }
         } else {
           // apply scaling
-          double scale = model_->columnScale()[jColumn];
+          FloatT scale = model_->columnScale()[jColumn];
           for (CoinBigIndex i = columnStart[jColumn]; i < columnStart[jColumn] + columnLength[jColumn]; i++) {
             int iRow = row[i];
             dotProduct += values[iRow] * elementByColumn[i] * rowScale[iRow];
@@ -411,12 +411,12 @@ void ClpPESimplex::identifyCompatibleCols(int number, const int *which,
         // slack
         dotProduct = values[jColumn - numberColumns_];
       }
-      dotProduct = fabs(dotProduct);
+      dotProduct = CoinAbs(dotProduct);
 #if 0
       model_->unpack(tempColumn_, jColumn);
       // perform the inner product <tempColumn_,wPrimal_>
-      double dotProduct2 = fabs( PEdot(*tempColumn_, *wPrimal) );
-      assert (fabs(dotProduct-dotProduct2)<1.0e-6);
+      FloatT dotProduct2 = CoinAbs( PEdot(*tempColumn_, *wPrimal) );
+      assert (CoinAbs(dotProduct-dotProduct2)<1.0e-6);
 #endif
       compatibilityCol_[jColumn] = dotProduct;
 
@@ -449,7 +449,7 @@ void ClpPESimplex::identifyCompatibleRows(CoinIndexedVector *spare,
   // fill the elements of tempRandom with as many random elements as dual degenerate variables
   for (int j = 0; j < coDualDegenerates_; j++) {
     //do 
-    tempRandom_[j] = static_cast<double> ((rand() %(static_cast<int> (1.0e7)+1))) -5.0e6;
+    tempRandom_[j] = static_cast<FloatT> ((rand() %(static_cast<int> (1.0e7)+1))) -5.0e6;
     //while (tempRandom_[j] == 0.0);
   }
 #endif
@@ -458,16 +458,16 @@ void ClpPESimplex::identifyCompatibleRows(CoinIndexedVector *spare,
   // No longer using wDual_
   wDual->checkClear();
   //wDual_->clear();
-  double timeTmp = 0.0;
+  FloatT timeTmp = 0.0;
   if (doStatistics_)
     timeTmp = CoinCpuTime();
-  double *values = wDual->denseVector();
-  const double *rowScale = model_->rowScale();
+  FloatT *values = wDual->denseVector();
+  const FloatT *rowScale = model_->rowScale();
   CoinPackedMatrix *clpMatrix = model_->matrix();
   const int *row = clpMatrix->getIndices();
   const CoinBigIndex *columnStart = clpMatrix->getVectorStarts();
   const int *columnLength = clpMatrix->getVectorLengths();
-  const double *elementByColumn = clpMatrix->getElements();
+  const FloatT *elementByColumn = clpMatrix->getElements();
   for (int j = 0; j < coDualDegenerates_; j++) {
     // I try and save time to avoid calling unpack
     int sequence = dualDegenerates_[j];
@@ -484,7 +484,7 @@ void ClpPESimplex::identifyCompatibleRows(CoinIndexedVector *spare,
         }
       } else {
         // apply scaling
-        double scale = model_->columnScale()[sequence];
+        FloatT scale = model_->columnScale()[sequence];
         for (i = columnStart[sequence]; i < columnStart[sequence] + columnLength[sequence]; i++) {
           int iRow = row[i];
           values[iRow] += tempRandom_[j] * elementByColumn[i] * scale * rowScale[iRow];
@@ -497,7 +497,7 @@ void ClpPESimplex::identifyCompatibleRows(CoinIndexedVector *spare,
 
     // int nz = tempColumn_->getNumElements();
     // int *ind = tempColumn_->getIndices();
-    // double *val = tempColumn_->denseVector();
+    // FloatT *val = tempColumn_->denseVector();
 
     // for (int k = 0; k < nz ; k++) {
     //   values[ind[k]] = values[ind[k]] + tempRandom_[j]*val[ind[k]];
@@ -536,8 +536,8 @@ void ClpPESimplex::identifyCompatibleRows(CoinIndexedVector *spare,
   coCompatibleRows_ = numberRows_;
   for (int i = 0; i < size; i++) {
     int iRow = indices[i];
-    double value = values[iRow];
-    if (fabs(value) >= epsCompatibility_ * 100.0) {
+    FloatT value = values[iRow];
+    if (CoinAbs(value) >= epsCompatibility_ * 100.0) {
       isCompatibleRow_[iRow] = false;
       coCompatibleRows_--;
     }
@@ -552,7 +552,7 @@ void ClpPESimplex::identifyCompatibleRows(CoinIndexedVector *spare,
 void ClpPESimplex::updatePrimalDegeneratesAvg(int coPivots)
 {
   int totalPivots = model_->numberIterations() + 1;
-  double fracPivots = static_cast< double >(coPivots) / totalPivots;
+  FloatT fracPivots = static_cast< FloatT >(coPivots) / totalPivots;
   coPrimalDegeneratesAvg_ = floor((1.0 - fracPivots) * (coPrimalDegeneratesAvg_ + fracPivots * coPrimalDegenerates_));
 }
 
@@ -563,7 +563,7 @@ void ClpPESimplex::updatePrimalDegeneratesAvg(int coPivots)
 void ClpPESimplex::updateDualDegeneratesAvg(int coPivots)
 {
   int totalPivots = model_->numberIterations() + 1;
-  double fracPivots = static_cast< double >(coPivots) / totalPivots;
+  FloatT fracPivots = static_cast< FloatT >(coPivots) / totalPivots;
   coDualDegeneratesAvg_ = floor((1.0 - fracPivots) * coDualDegeneratesAvg_ + fracPivots * coDualDegenerates_);
 }
 
@@ -573,7 +573,7 @@ void ClpPESimplex::updateDualDegeneratesAvg(int coPivots)
 void ClpPESimplex::updateCompatibleColsAvg(int coPivots)
 {
   int totalPivots = model_->numberIterations() + 1;
-  double fracPivots = static_cast< double >(coPivots) / totalPivots;
+  FloatT fracPivots = static_cast< FloatT >(coPivots) / totalPivots;
   coCompatibleColsAvg_ = floor((1.0 - fracPivots) * coCompatibleColsAvg_ + fracPivots * (coCompatibleCols_ /*-(numberRows_-coPrimalDegenerates_)*/));
 }
 
@@ -583,7 +583,7 @@ void ClpPESimplex::updateCompatibleColsAvg(int coPivots)
 void ClpPESimplex::updateCompatibleRowsAvg(int coPivots)
 {
   int totalPivots = model_->numberIterations() + 1;
-  double fracPivots = static_cast< double >(coPivots) / totalPivots;
+  FloatT fracPivots = static_cast< FloatT >(coPivots) / totalPivots;
   coCompatibleRowsAvg_ = floor((1.0 - fracPivots) * coCompatibleRowsAvg_ + fracPivots * coCompatibleRows_);
 }
 
@@ -646,7 +646,7 @@ bool ClpPESimplex::checkCompatibilityCol(int sequence,
 #endif
 
   for (int j = 0; j < coPrimalDegenerates_; j++) {
-    if (fabs((*tempColumn_)[primalDegenerates_[j]]) > epsDegeneracy_) {
+    if (CoinAbs((*tempColumn_)[primalDegenerates_[j]]) > epsDegeneracy_) {
       return false;
     }
   }
@@ -659,7 +659,7 @@ bool ClpPESimplex::checkCompatibilityRow(int pivotRow)
 {
 
   bool isCompatible = true;
-  double direction = 1;
+  FloatT direction = 1;
   model_->rowArray(0)->createPacked(1, &pivotRow, &direction);
 #ifdef PE_TEST
   model_->factorization()->doStatistics(false);
@@ -674,22 +674,22 @@ bool ClpPESimplex::checkCompatibilityRow(int pivotRow)
   CoinIndexedVector *rowArray = model_->rowArray(0);
   int nzCol = columnArray->getNumElements();
   int *indCol = columnArray->getIndices();
-  double *valCol = columnArray->denseVector();
+  FloatT *valCol = columnArray->denseVector();
   int nzRow = rowArray->getNumElements();
   int *indRow = rowArray->getIndices();
-  double *valRow = rowArray->denseVector();
+  FloatT *valRow = rowArray->denseVector();
 
   if (columnArray->packedMode()) {
     for (int j = 0; j < nzCol; j++) {
       int iCol = indCol[j];
-      if (isDualDegenerate_[iCol] && fabs(valCol[j]) > epsDegeneracy_) {
+      if (isDualDegenerate_[iCol] && CoinAbs(valCol[j]) > epsDegeneracy_) {
         std::cout << "Dual degenerate column: " << valCol[j] << std::endl;
       }
     }
   } else {
     for (int j = 0; j < nzCol; j++) {
       int iCol = indCol[j];
-      if (isDualDegenerate_[iCol] && fabs(valCol[iCol]) > epsDegeneracy_) {
+      if (isDualDegenerate_[iCol] && CoinAbs(valCol[iCol]) > epsDegeneracy_) {
         std::cout << "Dual degenerate column: " << valCol[iCol] << std::endl;
       }
     }
@@ -697,14 +697,14 @@ bool ClpPESimplex::checkCompatibilityRow(int pivotRow)
   if (rowArray->packedMode()) {
     for (int j = 0; j < nzRow; j++) {
       int iRow = indRow[j];
-      if (isDualDegenerate_[iRow + numberColumns_] && fabs(valRow[j]) > epsDegeneracy_) {
+      if (isDualDegenerate_[iRow + numberColumns_] && CoinAbs(valRow[j]) > epsDegeneracy_) {
         std::cout << "Dual degenerate row: " << valRow[j] << std::endl;
       }
     }
   } else {
     for (int j = 0; j < nzRow; j++) {
       int iRow = indRow[j];
-      if (isDualDegenerate_[iRow + numberColumns_] && fabs(valRow[iRow]) > epsDegeneracy_) {
+      if (isDualDegenerate_[iRow + numberColumns_] && CoinAbs(valRow[iRow]) > epsDegeneracy_) {
         std::cout << "Dual degenerate row: " << valRow[iRow] << std::endl;
       }
     }

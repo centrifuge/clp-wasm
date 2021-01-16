@@ -84,9 +84,9 @@ public:
   /**@name Query members */
   //@{
   /** Return the current setting of the extra gap. */
-  inline double getExtraGap() const { return extraGap_; }
+  inline FloatT getExtraGap() const { return extraGap_; }
   /** Return the current setting of the extra major. */
-  inline double getExtraMajor() const { return extraMajor_; }
+  inline FloatT getExtraMajor() const { return extraMajor_; }
 
   /** Reserve sufficient space for appending major-ordered vectors. 
 	If create is true, empty columns are created (for column generation) */
@@ -123,7 +123,7 @@ public:
 	the actual elements one should look at this vector together with
 	vectorStarts (#start_) and vectorLengths (#length_).
     */
-  inline const double *getElements() const { return element_; }
+  inline const FloatT *getElements() const { return element_; }
 
   /*! \brief A vector containing the minor indices of the elements in
     	       the packed matrix.
@@ -233,9 +233,9 @@ public:
   void setDimensions(int numrows, int numcols);
 
   /** Set the extra gap to be allocated to the specified value. */
-  void setExtraGap(const double newGap);
+  void setExtraGap(const FloatT newGap);
   /** Set the extra major to be allocated to the specified value. */
-  void setExtraMajor(const double newMajor);
+  void setExtraMajor(const FloatT newMajor);
 #ifndef CLP_NO_VECTOR
   /*! Append a column to the end of the matrix.
     
@@ -252,7 +252,7 @@ public:
        method assumes that every index fits into the matrix.
     */
   void appendCol(const int vecsize,
-    const int *vecind, const double *vecelem);
+    const int *vecind, const FloatT *vecelem);
 #ifndef CLP_NO_VECTOR
   /*! Append a set of columns to the end of the matrix.
 
@@ -270,7 +270,7 @@ public:
     */
   int appendCols(const int numcols,
     const CoinBigIndex *columnStarts, const int *row,
-    const double *element, int numberRows = -1);
+    const FloatT *element, int numberRows = -1);
 #ifndef CLP_NO_VECTOR
   /*! Append a row to the end of the matrix.
   
@@ -287,7 +287,7 @@ public:
        method assumes that every index fits into the matrix.
     */
   void appendRow(const int vecsize,
-    const int *vecind, const double *vecelem);
+    const int *vecind, const FloatT *vecelem);
 #ifndef CLP_NO_VECTOR
   /*! Append a set of rows to the end of the matrix.
     
@@ -305,7 +305,7 @@ public:
     */
   int appendRows(const int numrows,
     const CoinBigIndex *rowStarts, const int *column,
-    const double *element, int numberColumns = -1);
+    const FloatT *element, int numberColumns = -1);
 
   /** Append the argument to the "right" of the current matrix. Imagine this
         as adding new columns (don't worry about how the matrices are ordered,
@@ -327,29 +327,29 @@ public:
 	At most the number specified will be replaced.
         The index is between 0 and major dimension of matrix */
   void replaceVector(const int index,
-    const int numReplace, const double *newElements);
+    const int numReplace, const FloatT *newElements);
   /** Modify one element of packed matrix.  An element may be added.
         This works for either ordering
 	If the new element is zero it will be deleted unless
 	keepZero true */
-  void modifyCoefficient(int row, int column, double newElement,
+  void modifyCoefficient(int row, int column, FloatT newElement,
     bool keepZero = false);
   /** Return one element of packed matrix.
         This works for either ordering
 	If it is not present will return 0.0 */
-  double getCoefficient(int row, int column) const;
+  FloatT getCoefficient(int row, int column) const;
 
   /** Eliminate all elements in matrix whose 
 	absolute value is less than threshold.
 	The column starts are not affected.  Returns number of elements
 	eliminated.  Elements eliminated are at end of each vector
     */
-  CoinBigIndex compress(double threshold);
+  CoinBigIndex compress(FloatT threshold);
   /** Eliminate all duplicate AND small elements in matrix 
 	The column starts are not affected.  Returns number of elements
 	eliminated.  
     */
-  CoinBigIndex eliminateDuplicates(double threshold);
+  CoinBigIndex eliminateDuplicates(FloatT threshold);
   /** Sort all columns so indices are increasing.in each column */
   void orderMatrix();
   /** Really clean up matrix.
@@ -359,7 +359,7 @@ public:
 	d) orders elements
 	returns number of elements eliminated
     */
-  CoinBigIndex cleanMatrix(double threshold = 1.0e-20);
+  CoinBigIndex cleanMatrix(FloatT threshold = 1.0e-20);
   //@}
 
   //---------------------------------------------------------------------------
@@ -367,7 +367,7 @@ public:
   //@{
   /** Remove the gaps from the matrix if there were any
 	Can also remove small elements fabs() <= removeValue*/
-  void removeGaps(double removeValue = -1.0);
+  void removeGaps(FloatT removeValue = -1.0);
 
   /** Extract a submatrix from matrix. Those major-dimension vectors of
 	the matrix comprise the submatrix whose indices are given in the
@@ -396,9 +396,9 @@ public:
         will be created accordingly. */
   void copyOf(const bool colordered,
     const int minor, const int major, const CoinBigIndex numels,
-    const double *elem, const int *ind,
+    const FloatT *elem, const int *ind,
     const CoinBigIndex *start, const int *len,
-    const double extraMajor = 0.0, const double extraGap = 0.0);
+    const FloatT extraMajor = 0.0, const FloatT extraGap = 0.0);
   /** Copy method. This method makes an exact replica of the argument,
         including the extra space parameters. 
 	If there is room it will re-use arrays */
@@ -424,7 +424,7 @@ public:
   void assignMatrix(const bool colordered,
     const int minor, const int major,
     const CoinBigIndex numels,
-    double *&elem, int *&ind,
+    FloatT *&elem, int *&ind,
     CoinBigIndex *&start, int *&len,
     const int maxmajor = -1, const CoinBigIndex maxsize = -1);
 
@@ -462,20 +462,20 @@ public:
   /** Return <code>A * x</code> in <code>y</code>.
         @pre <code>x</code> must be of size <code>numColumns()</code>
         @pre <code>y</code> must be of size <code>numRows()</code> */
-  void times(const double *x, double *y) const;
+  void times(const FloatT *x, FloatT *y) const;
 #ifndef CLP_NO_VECTOR
   /** Return <code>A * x</code> in <code>y</code>. Same as the previous
         method, just <code>x</code> is given in the form of a packed vector. */
-  void times(const CoinPackedVectorBase &x, double *y) const;
+  void times(const CoinPackedVectorBase &x, FloatT *y) const;
 #endif
   /** Return <code>x * A</code> in <code>y</code>.
         @pre <code>x</code> must be of size <code>numRows()</code>
         @pre <code>y</code> must be of size <code>numColumns()</code> */
-  void transposeTimes(const double *x, double *y) const;
+  void transposeTimes(const FloatT *x, FloatT *y) const;
 #ifndef CLP_NO_VECTOR
   /** Return <code>x * A</code> in <code>y</code>. Same as the previous
         method, just <code>x</code> is given in the form of a packed vector. */
-  void transposeTimes(const CoinPackedVectorBase &x, double *y) const;
+  void transposeTimes(const CoinPackedVectorBase &x, FloatT *y) const;
 #endif
   //@}
 
@@ -540,7 +540,7 @@ public:
 #endif
   /** Append a major-dimension vector to the end of the matrix. */
   void appendMajorVector(const int vecsize, const int *vecind,
-    const double *vecelem);
+    const FloatT *vecelem);
 #ifndef CLP_NO_VECTOR
   /** Append several major-dimensonvectors to the end of the matrix */
   void appendMajorVectors(const int numvecs,
@@ -551,7 +551,7 @@ public:
 #endif
   /** Append a minor-dimension vector to the end of the matrix. */
   void appendMinorVector(const int vecsize, const int *vecind,
-    const double *vecelem);
+    const FloatT *vecelem);
 #ifndef CLP_NO_VECTOR
   /** Append several minor-dimension vectors to the end of the matrix */
   void appendMinorVectors(const int numvecs,
@@ -571,7 +571,7 @@ public:
     */
   void appendMinorFast(const int number,
     const CoinBigIndex *starts, const int *index,
-    const double *element);
+    const FloatT *element);
   //@}
 
   //-------------------------------------------------------------------------
@@ -626,23 +626,23 @@ public:
 	  <code>y</code>.
 	  @pre <code>x</code> must be of size <code>majorDim()</code>
 	  @pre <code>y</code> must be of size <code>minorDim()</code> */
-  void timesMajor(const double *x, double *y) const;
+  void timesMajor(const FloatT *x, FloatT *y) const;
 #ifndef CLP_NO_VECTOR
   /** Return <code>A * x</code> (multiplied from the "right" direction) in
 	  <code>y</code>. Same as the previous method, just <code>x</code> is
 	  given in the form of a packed vector. */
-  void timesMajor(const CoinPackedVectorBase &x, double *y) const;
+  void timesMajor(const CoinPackedVectorBase &x, FloatT *y) const;
 #endif
   /** Return <code>A * x</code> (multiplied from the "right" direction) in
 	  <code>y</code>.
 	  @pre <code>x</code> must be of size <code>minorDim()</code>
 	  @pre <code>y</code> must be of size <code>majorDim()</code> */
-  void timesMinor(const double *x, double *y) const;
+  void timesMinor(const FloatT *x, FloatT *y) const;
 #ifndef CLP_NO_VECTOR
   /** Return <code>A * x</code> (multiplied from the "right" direction) in
 	  <code>y</code>. Same as the previous method, just <code>x</code> is
 	  given in the form of a packed vector. */
-  void timesMinor(const CoinPackedVectorBase &x, double *y) const;
+  void timesMinor(const CoinPackedVectorBase &x, FloatT *y) const;
 #endif
   //@}
   //@}
@@ -710,7 +710,7 @@ public:
 	might be gaps in this list, entries that do not belong to any
 	major-dimension vector. To get the actual elements one should look at
 	this vector together with #start_ and #length_. */
-  inline double *getMutableElements() const { return element_; }
+  inline FloatT *getMutableElements() const { return element_; }
   /** A vector containing the minor indices of the elements in the packed
         matrix. Note that there might be gaps in this list, entries that do not
         belong to any major-dimension vector. To get the actual elements one
@@ -761,17 +761,17 @@ public:
 
   /// A constructor where the ordering and the gaps are specified
   CoinPackedMatrix(const bool colordered,
-    const double extraMajor, const double extraGap);
+    const FloatT extraMajor, const FloatT extraGap);
 
   CoinPackedMatrix(const bool colordered,
     const int minor, const int major, const CoinBigIndex numels,
-    const double *elem, const int *ind,
+    const FloatT *elem, const int *ind,
     const CoinBigIndex *start, const int *len,
-    const double extraMajor, const double extraGap);
+    const FloatT extraMajor, const FloatT extraGap);
 
   CoinPackedMatrix(const bool colordered,
     const int minor, const int major, const CoinBigIndex numels,
-    const double *elem, const int *ind,
+    const FloatT *elem, const int *ind,
     const CoinBigIndex *start, const int *len);
 
   /** Create packed matrix from triples.
@@ -787,7 +787,7 @@ public:
   CoinPackedMatrix(const bool colordered,
     const int *rowIndices,
     const int *colIndices,
-    const double *elements,
+    const FloatT *elements,
     CoinBigIndex numels);
 
   /// Copy constructor
@@ -852,17 +852,17 @@ protected:
   void gutsOfDestructor();
   void gutsOfCopyOf(const bool colordered,
     const int minor, const int major, const CoinBigIndex numels,
-    const double *elem, const int *ind,
+    const FloatT *elem, const int *ind,
     const CoinBigIndex *start, const int *len,
-    const double extraMajor = 0.0, const double extraGap = 0.0);
+    const FloatT extraMajor = 0.0, const FloatT extraGap = 0.0);
   /// When no gaps we can do faster
   void gutsOfCopyOfNoGaps(const bool colordered,
     const int minor, const int major,
-    const double *elem, const int *ind,
+    const FloatT *elem, const int *ind,
     const CoinBigIndex *start);
   void gutsOfOpEqual(const bool colordered,
     const int minor, const int major, const CoinBigIndex numels,
-    const double *elem, const int *ind,
+    const FloatT *elem, const int *ind,
     const CoinBigIndex *start, const int *len);
   void resizeForAddingMajorVectors(const int numVec, const int *lengthVec);
   void resizeForAddingMinorVectors(const int *addedEntries);
@@ -878,7 +878,7 @@ protected:
     */
   int appendMajor(const int number,
     const CoinBigIndex *starts, const int *index,
-    const double *element, int numberOther = -1);
+    const FloatT *element, int numberOther = -1);
   /*! \brief Append a set of rows (columns) to the end of a column (row)
     	       ordered matrix.
     
@@ -890,7 +890,7 @@ protected:
     */
   int appendMinor(const int number,
     const CoinBigIndex *starts, const int *index,
-    const double *element, int numberOther = -1);
+    const FloatT *element, int numberOther = -1);
 
 private:
   inline CoinBigIndex getLastStart() const
@@ -909,15 +909,15 @@ protected:
        vector (with respect to the number of entries in the vector) when the
        matrix is resized. The purpose of these gaps is to allow fast insertion
        of new minor-dimension vectors. */
-  double extraGap_;
+  FloatT extraGap_;
   /** his much times more space should be allocated for major-dimension
        vectors when the matrix is resized. The purpose of these gaps is to
        allow fast addition of new major-dimension vectors. */
-  double extraMajor_;
+  FloatT extraMajor_;
 
   /** List of nonzero element values. The entries in the gaps between
        major-dimension vectors are undefined. */
-  double *element_;
+  FloatT *element_;
   /** List of nonzero element minor-dimension indices. The entries in the gaps
        between major-dimension vectors are undefined. */
   int *index_;

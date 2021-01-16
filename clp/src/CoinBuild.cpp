@@ -19,7 +19,7 @@
   Format of each item is a bit sleazy.
   First we have pointer to next item
   Then we have two ints giving item number and number of elements
-  Then we have three double for objective lower and upper
+  Then we have three FloatT for objective lower and upper
   Then we have elements
   Then indices
 */
@@ -27,10 +27,10 @@ struct buildFormat {
   buildFormat *next;
   int itemNumber;
   int numberElements;
-  double objective;
-  double lower;
-  double upper;
-  double restDouble[1];
+  FloatT objective;
+  FloatT lower;
+  FloatT upper;
+  FloatT restDouble[1];
   int restInt[1]; // just to make correct size
 };
 
@@ -84,9 +84,9 @@ CoinBuild::CoinBuild(const CoinBuild &rhs)
       buildFormat *item = currentItem;
       assert(item);
       int numberElements = item->numberElements;
-      int length = (CoinSizeofAsInt(buildFormat) + (numberElements - 1) * (CoinSizeofAsInt(double) + CoinSizeofAsInt(int)));
-      int doubles = (length + CoinSizeofAsInt(double) - 1) / CoinSizeofAsInt(double);
-      double *copyOfItem = new double[doubles];
+      int length = (CoinSizeofAsInt(buildFormat) + (numberElements - 1) * (CoinSizeofAsInt(FloatT) + CoinSizeofAsInt(int)));
+      int FloatTs = (length + CoinSizeofAsInt(FloatT) - 1) / CoinSizeofAsInt(FloatT);
+      FloatT *copyOfItem = new FloatT[FloatTs];
       memcpy(copyOfItem, item, length);
       if (!firstItem_) {
         firstItem_ = copyOfItem;
@@ -98,7 +98,7 @@ CoinBuild::CoinBuild(const CoinBuild &rhs)
       lastItem = reinterpret_cast< buildFormat * >(copyOfItem);
     }
     currentItem_ = firstItem_;
-    lastItem_ = reinterpret_cast< double * >(lastItem);
+    lastItem_ = reinterpret_cast< FloatT * >(lastItem);
   } else {
     currentItem_ = NULL;
     firstItem_ = NULL;
@@ -113,7 +113,7 @@ CoinBuild::~CoinBuild()
 {
   buildFormat *item = reinterpret_cast< buildFormat * >(firstItem_);
   for (int iItem = 0; iItem < numberItems_; iItem++) {
-    double *array = reinterpret_cast< double * >(item);
+    FloatT *array = reinterpret_cast< FloatT * >(item);
     item = item->next;
     delete[] array;
   }
@@ -128,7 +128,7 @@ CoinBuild::operator=(const CoinBuild &rhs)
   if (this != &rhs) {
     buildFormat *item = reinterpret_cast< buildFormat * >(firstItem_);
     for (int iItem = 0; iItem < numberItems_; iItem++) {
-      double *array = reinterpret_cast< double * >(item);
+      FloatT *array = reinterpret_cast< FloatT * >(item);
       item = item->next;
       delete[] array;
     }
@@ -144,9 +144,9 @@ CoinBuild::operator=(const CoinBuild &rhs)
         buildFormat *item = currentItem;
         assert(item);
         int numberElements = item->numberElements;
-        int length = CoinSizeofAsInt(buildFormat) + (numberElements - 1) * (CoinSizeofAsInt(double) + CoinSizeofAsInt(int));
-        int doubles = (length + CoinSizeofAsInt(double) - 1) / CoinSizeofAsInt(double);
-        double *copyOfItem = new double[doubles];
+        int length = CoinSizeofAsInt(buildFormat) + (numberElements - 1) * (CoinSizeofAsInt(FloatT) + CoinSizeofAsInt(int));
+        int FloatTs = (length + CoinSizeofAsInt(FloatT) - 1) / CoinSizeofAsInt(FloatT);
+        FloatT *copyOfItem = new FloatT[FloatTs];
         memcpy(copyOfItem, item, length);
         if (!firstItem_) {
           firstItem_ = copyOfItem;
@@ -158,7 +158,7 @@ CoinBuild::operator=(const CoinBuild &rhs)
         lastItem = reinterpret_cast< buildFormat * >(copyOfItem);
       }
       currentItem_ = firstItem_;
-      lastItem_ = reinterpret_cast< double * >(lastItem);
+      lastItem_ = reinterpret_cast< FloatT * >(lastItem);
     } else {
       currentItem_ = NULL;
       firstItem_ = NULL;
@@ -169,8 +169,8 @@ CoinBuild::operator=(const CoinBuild &rhs)
 }
 // add a row
 void CoinBuild::addRow(int numberInRow, const int *columns,
-  const double *elements, double rowLower,
-  double rowUpper)
+  const FloatT *elements, FloatT rowLower,
+  FloatT rowUpper)
 {
   if (type_ < 0) {
     type_ = 0;
@@ -187,22 +187,22 @@ void CoinBuild::addRow(int numberInRow, const int *columns,
 }
 /*  Returns number of elements in a row and information in row
  */
-int CoinBuild::row(int whichRow, double &rowLower, double &rowUpper,
-  const int *&indices, const double *&elements) const
+int CoinBuild::row(int whichRow, FloatT &rowLower, FloatT &rowUpper,
+  const int *&indices, const FloatT *&elements) const
 {
   assert(type_ == 0);
   setMutableCurrent(whichRow);
-  double dummyObjective;
+  FloatT dummyObjective;
   return currentItem(rowLower, rowUpper, dummyObjective, indices, elements);
 }
 /*  Returns number of elements in current row and information in row
     Used as rows may be stored in a chain
 */
-int CoinBuild::currentRow(double &rowLower, double &rowUpper,
-  const int *&indices, const double *&elements) const
+int CoinBuild::currentRow(FloatT &rowLower, FloatT &rowUpper,
+  const int *&indices, const FloatT *&elements) const
 {
   assert(type_ == 0);
-  double dummyObjective;
+  FloatT dummyObjective;
   return currentItem(rowLower, rowUpper, dummyObjective, indices, elements);
 }
 // Set current row
@@ -219,9 +219,9 @@ int CoinBuild::currentRow() const
 }
 // add a column
 void CoinBuild::addColumn(int numberInColumn, const int *rows,
-  const double *elements,
-  double columnLower,
-  double columnUpper, double objectiveValue)
+  const FloatT *elements,
+  FloatT columnLower,
+  FloatT columnUpper, FloatT objectiveValue)
 {
   if (type_ < 0) {
     type_ = 1;
@@ -235,8 +235,8 @@ void CoinBuild::addColumn(int numberInColumn, const int *rows,
 /*  Returns number of elements in a column and information in column
  */
 int CoinBuild::column(int whichColumn,
-  double &columnLower, double &columnUpper, double &objectiveValue,
-  const int *&indices, const double *&elements) const
+  FloatT &columnLower, FloatT &columnUpper, FloatT &objectiveValue,
+  const int *&indices, const FloatT *&elements) const
 {
   assert(type_ == 1);
   setMutableCurrent(whichColumn);
@@ -245,8 +245,8 @@ int CoinBuild::column(int whichColumn,
 /*  Returns number of elements in current column and information in column
     Used as columns may be stored in a chain
 */
-int CoinBuild::currentColumn(double &columnLower, double &columnUpper, double &objectiveValue,
-  const int *&indices, const double *&elements) const
+int CoinBuild::currentColumn(FloatT &columnLower, FloatT &columnUpper, FloatT &objectiveValue,
+  const int *&indices, const FloatT *&elements) const
 {
   assert(type_ == 1);
   return currentItem(columnLower, columnUpper, objectiveValue, indices, elements);
@@ -265,14 +265,14 @@ int CoinBuild::currentColumn() const
 }
 // add a item
 void CoinBuild::addItem(int numberInItem, const int *indices,
-  const double *elements,
-  double itemLower,
-  double itemUpper, double objectiveValue)
+  const FloatT *elements,
+  FloatT itemLower,
+  FloatT itemUpper, FloatT objectiveValue)
 {
   buildFormat *lastItem = reinterpret_cast< buildFormat * >(lastItem_);
-  int length = CoinSizeofAsInt(buildFormat) + (numberInItem - 1) * (CoinSizeofAsInt(double) + CoinSizeofAsInt(int));
-  int doubles = (length + CoinSizeofAsInt(double) - 1) / CoinSizeofAsInt(double);
-  double *newItem = new double[doubles];
+  int length = CoinSizeofAsInt(buildFormat) + (numberInItem - 1) * (CoinSizeofAsInt(FloatT) + CoinSizeofAsInt(int));
+  int FloatTs = (length + CoinSizeofAsInt(FloatT) - 1) / CoinSizeofAsInt(FloatT);
+  FloatT *newItem = new FloatT[FloatTs];
   if (!firstItem_) {
     firstItem_ = newItem;
   } else {
@@ -283,7 +283,7 @@ void CoinBuild::addItem(int numberInItem, const int *indices,
   currentItem_ = newItem;
   // now fill in
   buildFormat *item = reinterpret_cast< buildFormat * >(newItem);
-  double *els = &item->restDouble[0];
+  FloatT *els = &item->restDouble[0];
   int *cols = reinterpret_cast< int * >(els + numberInItem);
   item->next = NULL;
   item->itemNumber = numberItems_;
@@ -310,8 +310,8 @@ void CoinBuild::addItem(int numberInItem, const int *indices,
 /*  Returns number of elements in a item and information in item
  */
 int CoinBuild::item(int whichItem,
-  double &itemLower, double &itemUpper, double &objectiveValue,
-  const int *&indices, const double *&elements) const
+  FloatT &itemLower, FloatT &itemUpper, FloatT &objectiveValue,
+  const int *&indices, const FloatT *&elements) const
 {
   setMutableCurrent(whichItem);
   return currentItem(itemLower, itemUpper, objectiveValue, indices, elements);
@@ -319,9 +319,9 @@ int CoinBuild::item(int whichItem,
 /*  Returns number of elements in current item and information in item
     Used as items may be stored in a chain
 */
-int CoinBuild::currentItem(double &itemLower, double &itemUpper,
-  double &objectiveValue,
-  const int *&indices, const double *&elements) const
+int CoinBuild::currentItem(FloatT &itemLower, FloatT &itemUpper,
+  FloatT &objectiveValue,
+  const int *&indices, const FloatT *&elements) const
 {
   buildFormat *item = reinterpret_cast< buildFormat * >(currentItem_);
   if (item) {
@@ -357,7 +357,7 @@ void CoinBuild::setMutableCurrent(int whichItem) const
       item = item->next;
     }
     assert(whichItem == item->itemNumber);
-    currentItem_ = reinterpret_cast< double * >(item);
+    currentItem_ = reinterpret_cast< FloatT * >(item);
   }
 }
 // Returns current item number

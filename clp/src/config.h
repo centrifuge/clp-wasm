@@ -342,3 +342,7 @@
 
 // /* Version number of package */
 // #define VERSION "1.17.3"
+
+
+
+#include "floatdef.h"

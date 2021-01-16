@@ -43,13 +43,13 @@ ClpCholeskyPardiso::~ClpCholeskyPardiso()
   /* .. Termination and release of memory. */
   /* -------------------------------------------------------------------- */
   int phase = -1; /* Release internal memory. */
-  void *voidParameters = reinterpret_cast< void * >(doubleParameters_);
+  void *voidParameters = reinterpret_cast< void * >(FloatTParameters_);
   MKL_INT mtype = -2; /* Real symmetric matrix */
   MKL_INT nrhs = 1; /* Number of right hand sides. */
   memset(integerParameters_, 0, sizeof(integerParameters_));
   MKL_INT maxfct, mnum, error, msglvl = 0;
   /* Auxiliary variables. */
-  double ddum; /* Double dummy */
+  FloatT ddum; /* Double dummy */
   MKL_INT idum; /* Integer dummy. */
   PARDISO(voidParameters, &maxfct, &mnum, &mtype, &phase,
     &numberRows_, sparseFactor_,
@@ -138,7 +138,7 @@ int ClpCholeskyPardiso::order(ClpInterior *model)
       dense_ = NULL;
     } else {
       // space for dense columns
-      denseColumn_ = new double[numberDense * numberRows_];
+      denseColumn_ = new FloatT[numberDense * numberRows_];
       // dense cholesky
       dense_ = new ClpCholeskyDense();
       dense_->reserveSpace(NULL, numberDense);
@@ -186,7 +186,7 @@ int ClpCholeskyPardiso::order(ClpInterior *model)
     return -1;
   }
   try {
-    sparseFactor_ = new double[sizeFactor_];
+    sparseFactor_ = new FloatT[sizeFactor_];
   } catch (...) {
     // no memory
     delete[] choleskyRow_;
@@ -237,14 +237,14 @@ int ClpCholeskyPardiso::order(ClpInterior *model)
   delete[] used;
   permuteInverse_ = new int[numberRows_];
   permute_ = new int[numberRows_];
-  // Assume void * same size as double
-  void *voidParameters = reinterpret_cast< void * >(doubleParameters_);
+  // Assume void * same size as FloatT
+  void *voidParameters = reinterpret_cast< void * >(FloatTParameters_);
   MKL_INT mtype = -2; /* Real symmetric matrix */
   MKL_INT nrhs = 1; /* Number of right hand sides. */
   memset(integerParameters_, 0, sizeof(integerParameters_));
   MKL_INT maxfct, mnum, phase, error, msglvl;
   /* Auxiliary variables. */
-  double ddum; /* Double dummy */
+  FloatT ddum; /* Double dummy */
   MKL_INT idum; /* Integer dummy. */
   /* -------------------------------------------------------------------- */
   /* .. Setup Pardiso control parameters. */
@@ -279,7 +279,7 @@ int ClpCholeskyPardiso::order(ClpInterior *model)
   /* .. Initialize the internal solver memory pointer. This is only */
   /* necessary for the FIRST call of the PARDISO solver. */
   /* -------------------------------------------------------------------- */
-  memset(voidParameters, 0, sizeof(doubleParameters_));
+  memset(voidParameters, 0, sizeof(FloatTParameters_));
   /* -------------------------------------------------------------------- */
   /* .. Reordering and Symbolic Factorization. This step also allocates */
   /* all memory that is necessary for the factorization. */
@@ -320,27 +320,27 @@ int ClpCholeskyPardiso::symbolic()
   return 0;
 }
 /* Factorize - filling in rowsDropped and returning number dropped */
-int ClpCholeskyPardiso::factorize(const double *diagonal, int *rowsDropped)
+int ClpCholeskyPardiso::factorize(const FloatT *diagonal, int *rowsDropped)
 {
   const CoinBigIndex *columnStart = model_->clpMatrix()->getVectorStarts();
   const int *columnLength = model_->clpMatrix()->getVectorLengths();
   const int *row = model_->clpMatrix()->getIndices();
-  const double *element = model_->clpMatrix()->getElements();
+  const FloatT *element = model_->clpMatrix()->getElements();
   const CoinBigIndex *rowStart = rowCopy_->getVectorStarts();
   const int *rowLength = rowCopy_->getVectorLengths();
   const int *column = rowCopy_->getIndices();
-  const double *elementByRow = rowCopy_->getElements();
+  const FloatT *elementByRow = rowCopy_->getElements();
   int numberColumns = model_->clpMatrix()->getNumCols();
   int iRow;
-  double *work = new double[numberRows_];
+  FloatT *work = new FloatT[numberRows_];
   CoinZeroN(work, numberRows_);
-  const double *diagonalSlack = diagonal + numberColumns;
-  double largest;
+  const FloatT *diagonalSlack = diagonal + numberColumns;
+  FloatT largest;
   //int numberDense = 0;
   //if (dense_)
   //   numberDense = dense_->numberRows();
   //perturbation
-  double perturbation = model_->diagonalPerturbation() * model_->diagonalNorm();
+  FloatT perturbation = model_->diagonalPerturbation() * model_->diagonalNorm();
   perturbation = perturbation * perturbation;
   if (perturbation > 1.0) {
 #ifdef COIN_DEVELOP
@@ -352,8 +352,8 @@ int ClpCholeskyPardiso::factorize(const double *diagonal, int *rowsDropped)
     perturbation = 1.0;
   }
   if (whichDense_) {
-    double *denseDiagonal = dense_->diagonal();
-    double *dense = denseColumn_;
+    FloatT *denseDiagonal = dense_->diagonal();
+    FloatT *dense = denseColumn_;
     int iDense = 0;
     for (int iColumn = 0; iColumn < numberColumns; iColumn++) {
       if (whichDense_[iColumn]) {
@@ -369,7 +369,7 @@ int ClpCholeskyPardiso::factorize(const double *diagonal, int *rowsDropped)
       }
     }
   }
-  double delta2 = model_->delta(); // add delta*delta to diagonal
+  FloatT delta2 = model_->delta(); // add delta*delta to diagonal
   delta2 *= delta2;
   int *whichNon = new int[numberRows_];
   int nNon = 0;
@@ -380,7 +380,7 @@ int ClpCholeskyPardiso::factorize(const double *diagonal, int *rowsDropped)
       work[whichNon[i]] = 0.0;
     nNon = 1;
     whichNon[0] = iRow;
-    double *put = sparseFactor_ + choleskyStart_[iRow];
+    FloatT *put = sparseFactor_ + choleskyStart_[iRow];
     int *which = choleskyRow_ + choleskyStart_[iRow];
     int number = choleskyStart_[iRow + 1] - choleskyStart_[iRow];
     if (!rowLength[iRow])
@@ -394,11 +394,11 @@ int ClpCholeskyPardiso::factorize(const double *diagonal, int *rowsDropped)
         if (!whichDense_ || !whichDense_[iColumn]) {
           CoinBigIndex start = columnStart[iColumn];
           CoinBigIndex end = columnStart[iColumn] + columnLength[iColumn];
-          double multiplier = diagonal[iColumn] * elementByRow[k];
+          FloatT multiplier = diagonal[iColumn] * elementByRow[k];
           for (CoinBigIndex j = start; j < end; j++) {
             int jRow = row[j];
             if (jRow >= iRow && !rowsDropped_[jRow]) {
-              double value = element[j] * multiplier;
+              FloatT value = element[j] * multiplier;
               if (!work[jRow])
                 whichNon[nNon++] = jRow;
               work[jRow] += value;
@@ -423,7 +423,7 @@ int ClpCholeskyPardiso::factorize(const double *diagonal, int *rowsDropped)
   }
   delete[] whichNon;
   //check sizes
-  double largest2 = maximumAbsElement(sparseFactor_, sizeFactor_);
+  FloatT largest2 = maximumAbsElement(sparseFactor_, sizeFactor_);
   largest2 *= 1.0e-20;
   largest = CoinMin(largest2, 1.0e-11);
   int numberDroppedBefore = 0;
@@ -433,7 +433,7 @@ int ClpCholeskyPardiso::factorize(const double *diagonal, int *rowsDropped)
     rowsDropped[iRow] = dropped;
     if (!dropped) {
       CoinBigIndex start = choleskyStart_[iRow];
-      double diagonal = sparseFactor_[start];
+      FloatT diagonal = sparseFactor_[start];
       if (diagonal > largest2) {
         sparseFactor_[start] = diagonal + perturbation;
       } else {
@@ -452,13 +452,13 @@ int ClpCholeskyPardiso::factorize(const double *diagonal, int *rowsDropped)
 #ifdef ALWAYS_ORDER
   {
     int phase = -1; /* Release internal memory. */
-    void *voidParameters = reinterpret_cast< void * >(doubleParameters_);
+    void *voidParameters = reinterpret_cast< void * >(FloatTParameters_);
     MKL_INT mtype = -2; /* Real symmetric matrix */
     MKL_INT nrhs = 1; /* Number of right hand sides. */
     memset(integerParameters_, 0, sizeof(integerParameters_));
     MKL_INT maxfct, mnum, error, msglvl = 0;
     /* Auxiliary variables. */
-    double ddum; /* Double dummy */
+    FloatT ddum; /* Double dummy */
     MKL_INT idum; /* Integer dummy. */
     PARDISO(voidParameters, &maxfct, &mnum, &mtype, &phase,
       &numberRows_, sparseFactor_,
@@ -498,7 +498,7 @@ int ClpCholeskyPardiso::factorize(const double *diagonal, int *rowsDropped)
     /* .. Initialize the internal solver memory pointer. This is only */
     /* necessary for the FIRST call of the PARDISO solver. */
     /* -------------------------------------------------------------------- */
-    memset(voidParameters, 0, sizeof(doubleParameters_));
+    memset(voidParameters, 0, sizeof(FloatTParameters_));
     /* -------------------------------------------------------------------- */
     /* .. Reordering and Symbolic Factorization. This step also allocates */
     /* all memory that is necessary for the factorization. */
@@ -556,10 +556,10 @@ int ClpCholeskyPardiso::factorize(const double *diagonal, int *rowsDropped)
     lastNumberDropped_ = numberRowsDropped_;
   }
   MKL_INT mtype = -2; /* Real symmetric matrix */
-  void *voidParameters = reinterpret_cast< void * >(doubleParameters_);
+  void *voidParameters = reinterpret_cast< void * >(FloatTParameters_);
   MKL_INT nrhs = 1; /* Number of right hand sides. */
   /* Auxiliary variables. */
-  double ddum; /* Double dummy */
+  FloatT ddum; /* Double dummy */
   MKL_INT idum; /* Integer dummy. */
   PARDISO(voidParameters, &maxfct, &mnum, &mtype, &phase,
     &numberRows_, sparseFactor_,
@@ -568,14 +568,14 @@ int ClpCholeskyPardiso::factorize(const double *diagonal, int *rowsDropped)
   printf("%d positive, %d negative\n", integerParameters_[21],
     integerParameters_[22]);
   // use some other array?
-  double *originalDiagonal = new double[numberRows_];
+  FloatT *originalDiagonal = new FloatT[numberRows_];
   pardiso_getdiag(voidParameters, work, originalDiagonal, &mnum, &error);
   delete[] originalDiagonal;
   largest = 1.0e-11;
-  double smallest = COIN_DBL_MAX;
+  FloatT smallest = COIN_DBL_MAX;
   int newDropped = 0;
   for (int i = 0; i < numberRows_; i++) {
-    double value = work[i];
+    FloatT value = work[i];
     if (value != 1.0e100) {
       //if (value>1.0e13)
       //printf("large diagonal %g at %d\n",value,i);
@@ -599,17 +599,17 @@ int ClpCholeskyPardiso::factorize(const double *diagonal, int *rowsDropped)
   return newDropped;
 }
 /* Uses factorization to solve. */
-void ClpCholeskyPardiso::solve(double *region)
+void ClpCholeskyPardiso::solve(FloatT *region)
 {
   /* -------------------------------------------------------------------- */
   /* .. Back substitution and iterative refinement. */
   /* -------------------------------------------------------------------- */
   int phase = 33;
   integerParameters_[7] = 2; /* Max numbers of iterative refinement steps. */
-  double *x = new double[numberRows_];
-  memcpy(x, region, numberRows_ * sizeof(double));
+  FloatT *x = new FloatT[numberRows_];
+  memcpy(x, region, numberRows_ * sizeof(FloatT));
   MKL_INT mtype = -2; /* Real symmetric matrix */
-  void *voidParameters = reinterpret_cast< void * >(doubleParameters_);
+  void *voidParameters = reinterpret_cast< void * >(FloatTParameters_);
   MKL_INT nrhs = 1; /* Number of right hand sides. */
   MKL_INT maxfct = 1, mnum = 1, error, msglvl = 0;
   /* Auxiliary variables. */
@@ -630,7 +630,7 @@ void ClpCholeskyPardiso::solve(double *region)
 /* -------------------------------------------------------------------- */
 // up rows dropped
 extern "C" {
-int mkl_pardiso_pivot(const double *aii, double *bii, const double *eps)
+int mkl_pardiso_pivot(const FloatT *aii, FloatT *bii, const FloatT *eps)
 {
   //if ( (*bii > *eps) || ( *bii < -*eps ) )
   if (*bii > *eps)

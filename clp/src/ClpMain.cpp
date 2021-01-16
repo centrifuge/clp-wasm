@@ -44,12 +44,12 @@ void openblas_set_num_threads(int num_threads);
 #if 0
   /** LAPACK Fortran subroutine DGETRF. */
   void LAPACK_dgetrf(int * m, int *n,
-                               double *A, int *ldA,
+                               FloatT *A, int *ldA,
                                int * ipiv, int *info);
   /** LAPACK Fortran subroutine DGETRS. */
   void LAPACK_dgetrs(char *trans, int *n,
-                               int *nrhs, const double *A, int *ldA,
-		     int * ipiv, double *B, int *ldB, int *info);
+                               int *nrhs, const FloatT *A, int *ldA,
+		     int * ipiv, FloatT *B, int *ldB, int *info);
   //	LAPACK_dgetrf(&N, &N, m, &LDA,ipiv, &info);
 #endif
 }
@@ -58,14 +58,14 @@ int test_lapack(int n)
   int *ipiv;
   int info;
   int i, j;
-  double *m, *x, *y;
+  FloatT *m, *x, *y;
 
   int LDB, LDA, N, NRHS;
   char transp = 'N';
 
-  m = (double *)malloc(sizeof(double) * n * n);
-  x = (double *)malloc(sizeof(double) * n);
-  y = (double *)malloc(sizeof(double) * n);
+  m = (FloatT *)malloc(sizeof(FloatT) * n * n);
+  x = (FloatT *)malloc(sizeof(FloatT) * n);
+  y = (FloatT *)malloc(sizeof(FloatT) * n);
   ipiv = (int *)malloc(sizeof(int) * n);
 
   for (i = 0; i < n; ++i) {
@@ -113,11 +113,11 @@ enum CBLAS_ORDER { CblasRowMajor = 101,
 enum CBLAS_TRANSPOSE { CblasNoTrans = 111,
   CblasTrans = 112 };
 extern "C" {
-int clapack_dgetrf(const enum CBLAS_ORDER Order, const int M, const int N, double *A, const int lda, int *ipiv);
+int clapack_dgetrf(const enum CBLAS_ORDER Order, const int M, const int N, FloatT *A, const int lda, int *ipiv);
 int clapack_dgetrs(const enum CBLAS_ORDER Order,
   const enum CBLAS_TRANSPOSE Trans,
   const int N, const int NRHS,
-  const double *A, const int lda, const int *ipiv, double *B,
+  const FloatT *A, const int lda, const int *ipiv, FloatT *B,
   const int ldb);
 }
 int test_lapack(int n)
@@ -125,14 +125,14 @@ int test_lapack(int n)
   int *ipiv;
   int info;
   int i, j;
-  double *m, *x, *y;
+  FloatT *m, *x, *y;
 
   int LDB, LDA, N, NRHS;
   char transp = 'N';
 
-  m = (double *)malloc(sizeof(double) * n * n);
-  x = (double *)malloc(sizeof(double) * n);
-  y = (double *)malloc(sizeof(double) * n);
+  m = (FloatT *)malloc(sizeof(FloatT) * n * n);
+  x = (FloatT *)malloc(sizeof(FloatT) * n);
+  y = (FloatT *)malloc(sizeof(FloatT) * n);
   ipiv = (int *)malloc(sizeof(int) * n);
 
   for (i = 0; i < n; ++i) {
@@ -178,11 +178,11 @@ int test_lapack(int n)
 #include <malloc.h>
 #include <exception>
 #include <new>
-static double malloc_times = 0.0;
-static double malloc_total = 0.0;
+static FloatT malloc_times = 0.0;
+static FloatT malloc_total = 0.0;
 static int malloc_amount[] = { 0, 32, 128, 256, 1024, 4096, 16384, 65536, 262144, COIN_INT_MAX };
 static int malloc_n = 10;
-double malloc_counts[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+FloatT malloc_counts[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 bool malloc_counts_on = true;
 void *operator new(size_t size) throw(std::bad_alloc)
 {
@@ -207,7 +207,7 @@ void operator delete(void *p) throw()
 }
 static void malloc_stats2()
 {
-  double average = malloc_total / malloc_times;
+  FloatT average = malloc_total / malloc_times;
   printf("count %g bytes %g - average %g\n", malloc_times, malloc_total, average);
   for (int i = 0; i < malloc_n; i++)
     printf("%g ", malloc_counts[i]);
@@ -321,18 +321,18 @@ int
 // cilk_for granularity.
 #define CILK_FOR_GRAINSIZE 128
 
-double dowork(double i)
+FloatT dowork(FloatT i)
 {
   // Waste time:
   int j;
-  double k = i;
+  FloatT k = i;
   for (j = 0; j < 50000; ++j) {
     k += k / ((j + 1) * (k + 1));
   }
 
   return k;
 }
-static void doSomeWork(double *a, int low, int high)
+static void doSomeWork(FloatT *a, int low, int high)
 {
   if (high - low > 300) {
     int mid = (high + low) >> 1;
@@ -351,11 +351,11 @@ void cilkTest()
   unsigned int n = 10000;
   //cilk::cilkview cv;
 
-  double *a = new double[n];
+  FloatT *a = new FloatT[n];
 
   for (unsigned int i = 0; i < n; i++) {
     // Populate A
-    a[i] = (double)((i * i) % 1024 + 512) / 512;
+    a[i] = (FloatT)((i * i) % 1024 + 512) / 512;
   }
 
   std::cout << "Iterating over " << n << " integers" << std::endl;
@@ -374,7 +374,7 @@ void cilkTest()
   unsigned int n2 = n >> 1;
   for (int i = 0; i < n2; i++)
     which[i] = n - 2 * i;
-  cilk::reducer_max_index< int, double > maximumIndex(-1, 0.0);
+  cilk::reducer_max_index< int, FloatT > maximumIndex(-1, 0.0);
   cilk_for(unsigned int i = 0; i < n2; ++i)
   {
     int iWhich = which[i];
@@ -382,7 +382,7 @@ void cilkTest()
   }
   int bestIndex = maximumIndex.get_index();
   int bestIndex2 = -1;
-  double largest = 0.0;
+  FloatT largest = 0.0;
   cilk_for(unsigned int i = 0; i < n2; ++i)
   {
     int iWhich = which[i];

@@ -55,12 +55,12 @@ public:
          might be gaps in this list, entries that do not belong to any
          major-dimension vector. To get the actual elements one should look at
          this vector together with vectorStarts and vectorLengths. */
-  virtual const double *getElements() const
+  virtual const FloatT *getElements() const
   {
     return matrix_->getElements();
   }
   /// Mutable elements
-  inline double *getMutableElements() const
+  inline FloatT *getMutableElements() const
   {
     return matrix_->getMutableElements();
   }
@@ -105,20 +105,20 @@ public:
          If 0 then rows, 1 if columns */
   virtual int appendMatrix(int number, int type,
     const CoinBigIndex *starts, const int *index,
-    const double *element, int numberOther = -1);
+    const FloatT *element, int numberOther = -1);
   /** Replace the elements of a vector.  The indices remain the same.
          This is only needed if scaling and a row copy is used.
          At most the number specified will be replaced.
          The index is between 0 and major dimension of matrix */
   virtual void replaceVector(const int index,
-    const int numReplace, const double *newElements)
+    const int numReplace, const FloatT *newElements)
   {
     matrix_->replaceVector(index, numReplace, newElements);
   }
   /** Modify one element of packed matrix.  An element may be added.
          This works for either ordering If the new element is zero it will be
          deleted unless keepZero true */
-  virtual void modifyCoefficient(int row, int column, double newElement,
+  virtual void modifyCoefficient(int row, int column, FloatT newElement,
     bool keepZero = false)
   {
     matrix_->modifyCoefficient(row, column, newElement, keepZero);
@@ -158,13 +158,13 @@ public:
          8 - report on large and small
      */
   virtual bool allElementsInRange(ClpModel *model,
-    double smallest, double largest,
+    FloatT smallest, FloatT largest,
     int check = 15);
   /** Returns largest and smallest elements of both signs.
          Largest refers to largest absolute value.
      */
-  virtual void rangeOfElements(double &smallestNegative, double &largestNegative,
-    double &smallestPositive, double &largestPositive);
+  virtual void rangeOfElements(FloatT &smallestNegative, FloatT &largestNegative,
+    FloatT &smallestPositive, FloatT &largestPositive);
 
   /** Unpacks a column into an CoinIndexedvector
       */
@@ -180,10 +180,10 @@ public:
   /** Adds multiple of a column into an CoinIndexedvector
          You can use quickAdd to add to vector */
   virtual void add(const ClpSimplex *model, CoinIndexedVector *rowArray,
-    int column, double multiplier) const;
+    int column, FloatT multiplier) const;
   /** Adds multiple of a column into an array */
-  virtual void add(const ClpSimplex *model, double *array,
-    int column, double multiplier) const;
+  virtual void add(const ClpSimplex *model, FloatT *array,
+    int column, FloatT multiplier) const;
   /// Allow any parts of a created CoinPackedMatrix to be deleted
   virtual void releasePackedMatrix() const {}
   /** Given positive integer weights for each row fills in sum of weights
@@ -194,12 +194,12 @@ public:
   /// Says whether it can do partial pricing
   virtual bool canDoPartialPricing() const;
   /// Partial pricing
-  virtual void partialPricing(ClpSimplex *model, double start, double end,
+  virtual void partialPricing(ClpSimplex *model, FloatT start, FloatT end,
     int &bestSequence, int &numberWanted);
   /// makes sure active columns correct
   virtual int refresh(ClpSimplex *model);
   // Really scale matrix
-  virtual void reallyScale(const double *rowScale, const double *columnScale);
+  virtual void reallyScale(const FloatT *rowScale, const FloatT *columnScale);
   /** Set the dimensions of the matrix. In effect, append new empty
          columns/rows to the matrix. A negative number for either dimension
          means that that dimension doesn't change. Otherwise the new dimensions
@@ -213,39 +213,39 @@ public:
   /** Return <code>y + A * scalar *x</code> in <code>y</code>.
          @pre <code>x</code> must be of size <code>numColumns()</code>
          @pre <code>y</code> must be of size <code>numRows()</code> */
-  virtual void times(double scalar,
-    const double *x, double *y) const;
+  virtual void times(FloatT scalar,
+    const FloatT *x, FloatT *y) const;
   /// And for scaling
-  virtual void times(double scalar,
-    const double *x, double *y,
-    const double *rowScale,
-    const double *columnScale) const;
+  virtual void times(FloatT scalar,
+    const FloatT *x, FloatT *y,
+    const FloatT *rowScale,
+    const FloatT *columnScale) const;
   /** Return <code>y + x * scalar * A</code> in <code>y</code>.
          @pre <code>x</code> must be of size <code>numRows()</code>
          @pre <code>y</code> must be of size <code>numColumns()</code> */
-  virtual void transposeTimes(double scalar,
-    const double *x, double *y) const;
+  virtual void transposeTimes(FloatT scalar,
+    const FloatT *x, FloatT *y) const;
   /// And for scaling
-  virtual void transposeTimes(double scalar,
-    const double *x, double *y,
-    const double *rowScale,
-    const double *columnScale,
-    double *spare = NULL) const;
+  virtual void transposeTimes(FloatT scalar,
+    const FloatT *x, FloatT *y,
+    const FloatT *rowScale,
+    const FloatT *columnScale,
+    FloatT *spare = NULL) const;
   /** Return <code>y - pi * A</code> in <code>y</code>.
          @pre <code>pi</code> must be of size <code>numRows()</code>
          @pre <code>y</code> must be of size <code>numColumns()</code>
      This just does subset (but puts in correct place in y) */
   void transposeTimesSubset(int number,
     const int *which,
-    const double *pi, double *y,
-    const double *rowScale,
-    const double *columnScale,
-    double *spare = NULL) const;
+    const FloatT *pi, FloatT *y,
+    const FloatT *rowScale,
+    const FloatT *columnScale,
+    FloatT *spare = NULL) const;
   /** Return <code>x * scalar * A in <code>z</code>.
      Can use y as temporary array (will be empty at end)
      Note - If x packed mode - then z packed mode
      Squashes small elements and knows about ClpSimplex */
-  virtual void transposeTimes(const ClpSimplex *model, double scalar,
+  virtual void transposeTimes(const ClpSimplex *model, FloatT scalar,
     const CoinIndexedVector *x,
     CoinIndexedVector *y,
     CoinIndexedVector *z) const;
@@ -253,7 +253,7 @@ public:
      Note - If x packed mode - then z packed mode
      This does by column and knows no gaps
      Squashes small elements and knows about ClpSimplex */
-  void transposeTimesByColumn(const ClpSimplex *model, double scalar,
+  void transposeTimesByColumn(const ClpSimplex *model, FloatT scalar,
     const CoinIndexedVector *x,
     CoinIndexedVector *y,
     CoinIndexedVector *z) const;
@@ -262,7 +262,7 @@ public:
      Note - If x packed mode - then z packed mode
      Squashes small elements and knows about ClpSimplex.
      This version uses row copy*/
-  virtual void transposeTimesByRow(const ClpSimplex *model, double scalar,
+  virtual void transposeTimesByRow(const ClpSimplex *model, FloatT scalar,
     const CoinIndexedVector *x,
     CoinIndexedVector *y,
     CoinIndexedVector *z) const;
@@ -284,23 +284,23 @@ public:
     const CoinIndexedVector *pi1, CoinIndexedVector *dj1,
     const CoinIndexedVector *pi2,
     CoinIndexedVector *spare,
-    double *infeas, double *reducedCost,
-    double referenceIn, double devex,
+    FloatT *infeas, FloatT *reducedCost,
+    FloatT referenceIn, FloatT devex,
     // Array for exact devex to say what is in reference framework
     unsigned int *reference,
-    double *weights, double scaleFactor);
+    FloatT *weights, FloatT scaleFactor);
   /// Updates second array for steepest and does devex weights
   virtual void subsetTimes2(const ClpSimplex *model,
     CoinIndexedVector *dj1,
     const CoinIndexedVector *pi2, CoinIndexedVector *dj2,
-    double referenceIn, double devex,
+    FloatT referenceIn, FloatT devex,
     // Array for exact devex to say what is in reference framework
     unsigned int *reference,
-    double *weights, double scaleFactor);
+    FloatT *weights, FloatT scaleFactor);
   /// Sets up an effective RHS
   void useEffectiveRhs(ClpSimplex *model);
 #if COIN_LONG_WORK
-  // For long double versions
+  // For FloatT versions
   virtual void times(CoinWorkDouble scalar,
     const CoinWorkDouble *x, CoinWorkDouble *y) const;
   virtual void transposeTimes(CoinWorkDouble scalar,
@@ -406,71 +406,71 @@ public:
   //@}
 private:
   /// Meat of transposeTimes by column when not scaled
-  int gutsOfTransposeTimesUnscaled(const double *COIN_RESTRICT pi,
+  int gutsOfTransposeTimesUnscaled(const FloatT *COIN_RESTRICT pi,
     int *COIN_RESTRICT index,
-    double *COIN_RESTRICT array,
-    const double tolerance) const;
+    FloatT *COIN_RESTRICT array,
+    const FloatT tolerance) const;
   /// Meat of transposeTimes by column when scaled
-  int gutsOfTransposeTimesScaled(const double *COIN_RESTRICT pi,
-    const double *COIN_RESTRICT columnScale,
+  int gutsOfTransposeTimesScaled(const FloatT *COIN_RESTRICT pi,
+    const FloatT *COIN_RESTRICT columnScale,
     int *COIN_RESTRICT index,
-    double *COIN_RESTRICT array,
-    const double tolerance) const;
+    FloatT *COIN_RESTRICT array,
+    const FloatT tolerance) const;
   /// Meat of transposeTimes by column when not scaled and skipping
-  int gutsOfTransposeTimesUnscaled(const double *COIN_RESTRICT pi,
+  int gutsOfTransposeTimesUnscaled(const FloatT *COIN_RESTRICT pi,
     int *COIN_RESTRICT index,
-    double *COIN_RESTRICT array,
+    FloatT *COIN_RESTRICT array,
     const unsigned char *status,
-    const double tolerance) const;
+    const FloatT tolerance) const;
   /** Meat of transposeTimes by column when not scaled and skipping
          and doing part of dualColumn */
-  int gutsOfTransposeTimesUnscaled(const double *COIN_RESTRICT pi,
+  int gutsOfTransposeTimesUnscaled(const FloatT *COIN_RESTRICT pi,
     int *COIN_RESTRICT index,
-    double *COIN_RESTRICT array,
+    FloatT *COIN_RESTRICT array,
     const unsigned char *status,
     int *COIN_RESTRICT spareIndex,
-    double *COIN_RESTRICT spareArray,
-    const double *COIN_RESTRICT reducedCost,
-    double &upperTheta,
-    double acceptablePivot,
-    double dualTolerance,
+    FloatT *COIN_RESTRICT spareArray,
+    const FloatT *COIN_RESTRICT reducedCost,
+    FloatT &upperTheta,
+    FloatT acceptablePivot,
+    FloatT dualTolerance,
     int &numberRemaining,
-    const double zeroTolerance) const;
+    const FloatT zeroTolerance) const;
   /// Meat of transposeTimes by column when scaled and skipping
-  int gutsOfTransposeTimesScaled(const double *COIN_RESTRICT pi,
-    const double *COIN_RESTRICT columnScale,
+  int gutsOfTransposeTimesScaled(const FloatT *COIN_RESTRICT pi,
+    const FloatT *COIN_RESTRICT columnScale,
     int *COIN_RESTRICT index,
-    double *COIN_RESTRICT array,
+    FloatT *COIN_RESTRICT array,
     const unsigned char *status,
-    const double tolerance) const;
+    const FloatT tolerance) const;
   /// Meat of transposeTimes by row n > K if packed - returns number nonzero
   int gutsOfTransposeTimesByRowGEK(const CoinIndexedVector *COIN_RESTRICT piVector,
     int *COIN_RESTRICT index,
-    double *COIN_RESTRICT output,
+    FloatT *COIN_RESTRICT output,
     int numberColumns,
-    const double tolerance,
-    const double scalar) const;
+    const FloatT tolerance,
+    const FloatT scalar) const;
   /// Meat of transposeTimes by row n > 2 if packed - returns number nonzero
   int gutsOfTransposeTimesByRowGE3(const CoinIndexedVector *COIN_RESTRICT piVector,
     int *COIN_RESTRICT index,
-    double *COIN_RESTRICT output,
-    double *COIN_RESTRICT array2,
-    const double tolerance,
-    const double scalar) const;
+    FloatT *COIN_RESTRICT output,
+    FloatT *COIN_RESTRICT array2,
+    const FloatT tolerance,
+    const FloatT scalar) const;
   /// Meat of transposeTimes by row n > 2 if packed - returns number nonzero
   int gutsOfTransposeTimesByRowGE3a(const CoinIndexedVector *COIN_RESTRICT piVector,
     int *COIN_RESTRICT index,
-    double *COIN_RESTRICT output,
+    FloatT *COIN_RESTRICT output,
     int *COIN_RESTRICT lookup,
     char *COIN_RESTRICT marked,
-    const double tolerance,
-    const double scalar) const;
+    const FloatT tolerance,
+    const FloatT scalar) const;
   /// Meat of transposeTimes by row n == 2 if packed
   void gutsOfTransposeTimesByRowEQ2(const CoinIndexedVector *piVector, CoinIndexedVector *output,
-    CoinIndexedVector *spareVector, const double tolerance, const double scalar) const;
+    CoinIndexedVector *spareVector, const FloatT tolerance, const FloatT scalar) const;
   /// Meat of transposeTimes by row n == 1 if packed
   void gutsOfTransposeTimesByRowEQ1(const CoinIndexedVector *piVector, CoinIndexedVector *output,
-    const double tolerance, const double scalar) const;
+    const FloatT tolerance, const FloatT scalar) const;
   /// Gets rid of special copies
   void clearCopies();
 
@@ -501,22 +501,22 @@ protected:
 #ifdef THREAD
 #include <pthread.h>
 typedef struct {
-  double acceptablePivot;
+  FloatT acceptablePivot;
   const ClpSimplex *model;
-  double *spare;
+  FloatT *spare;
   int *spareIndex;
-  double *arrayTemp;
+  FloatT *arrayTemp;
   int *indexTemp;
   int *numberInPtr;
-  //double * bestPossiblePtr;
-  double *upperThetaPtr;
+  //FloatT * bestPossiblePtr;
+  FloatT *upperThetaPtr;
   int *posFreePtr;
-  double *freePivotPtr;
+  FloatT *freePivotPtr;
   int *numberOutPtr;
   const unsigned short *count;
-  const double *pi;
+  const FloatT *pi;
   const CoinBigIndex *rowStart;
-  const double *element;
+  const FloatT *element;
   const unsigned short *column;
   int offset;
   int numberInRowArray;
@@ -577,7 +577,7 @@ protected:
   /// columns within block
   unsigned short *column_;
   /// work arrays
-  double *work_;
+  FloatT *work_;
 #ifdef THREAD
   pthread_t *threadId_;
   dualColumn0Struct *info_;
@@ -610,24 +610,24 @@ public:
      Note - x packed and z will be packed mode
      Squashes small elements and knows about ClpSimplex */
   void transposeTimes(const ClpSimplex *model,
-    const double *pi,
+    const FloatT *pi,
     CoinIndexedVector *output) const;
   /// This version does dualColumn0
   /// Updates two arrays for steepest
   void transposeTimes(const ClpSimplex *model,
-    const double *pi,
+    const FloatT *pi,
     CoinIndexedVector *output,
     CoinIndexedVector *candidate,
     const CoinIndexedVector *rowArray) const;
   void transposeTimes2(const ClpSimplex *model,
-    const double *pi, CoinIndexedVector *dj1,
-    const double *piWeight,
-    double *COIN_RESTRICT infeas,
-    double *COIN_RESTRICT reducedCost,
-    double referenceIn, double devex,
+    const FloatT *pi, CoinIndexedVector *dj1,
+    const FloatT *piWeight,
+    FloatT *COIN_RESTRICT infeas,
+    FloatT *COIN_RESTRICT reducedCost,
+    FloatT referenceIn, FloatT devex,
     // Array for exact devex to say what is in reference framework
     unsigned int *reference,
-    double *weights, double scaleFactor);
+    FloatT *weights, FloatT scaleFactor);
   //@}
 
   /**@name Constructors, destructor */
@@ -692,7 +692,7 @@ protected:
   /// Rows
   int *row_;
   /// Elements
-  double *element_;
+  FloatT *element_;
   /// Temporary work area (aligned)
   CoinDoubleArrayWithLength *temporary_;
 #if ABOCA_LITE
@@ -709,9 +709,9 @@ protected:
 int iColumn = *column;
 column++;
 if (fabs(value) > zeroTolerance) {
-  double thisWeight = weights[iColumn];
-  double pivot = value * scaleFactor;
-  double pivotSquared = pivot * pivot;
+  FloatT thisWeight = weights[iColumn];
+  FloatT pivot = value * scaleFactor;
+  FloatT pivotSquared = pivot * pivot;
   thisWeight += pivotSquared * devex + pivot * modification;
   if (thisWeight < DEVEX_TRY_NORM) {
     if (referenceIn < 0.0) {

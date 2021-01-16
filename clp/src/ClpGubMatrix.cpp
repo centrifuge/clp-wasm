@@ -156,7 +156,7 @@ ClpGubMatrix::ClpGubMatrix(CoinPackedMatrix *rhs)
    real constructor*/
 ClpGubMatrix::ClpGubMatrix(ClpPackedMatrix *matrix, int numberSets,
   const int *start, const int *end,
-  const double *lower, const double *upper,
+  const FloatT *lower, const FloatT *upper,
   const unsigned char *status)
   : ClpPackedMatrix(matrix->matrix())
   , sumDualInfeasibilities_(0.0)
@@ -181,7 +181,7 @@ ClpGubMatrix::ClpGubMatrix(ClpPackedMatrix *matrix, int numberSets,
   int numberRows = matrix_->getNumRows();
   backward_ = new int[numberColumns];
   backToPivotRow_ = new int[numberColumns];
-  changeCost_ = new double[numberRows + numberSets_];
+  changeCost_ = new FloatT[numberRows + numberSets_];
   keyVariable_ = new int[numberSets_];
   // signal to need new ordering
   next_ = NULL;
@@ -512,28 +512,28 @@ ClpGubMatrix::ClpGubMatrix(
 }
 /* Return <code>x * A + y</code> in <code>z</code>.
 	Squashes small elements and knows about ClpSimplex */
-void ClpGubMatrix::transposeTimes(const ClpSimplex *model, double scalar,
+void ClpGubMatrix::transposeTimes(const ClpSimplex *model, FloatT scalar,
   const CoinIndexedVector *rowArray,
   CoinIndexedVector *y,
   CoinIndexedVector *columnArray) const
 {
   columnArray->clear();
-  double *pi = rowArray->denseVector();
+  FloatT *pi = rowArray->denseVector();
   int numberNonZero = 0;
   int *index = columnArray->getIndices();
-  double *array = columnArray->denseVector();
+  FloatT *array = columnArray->denseVector();
   int numberInRowArray = rowArray->getNumElements();
   // maybe I need one in OsiSimplex
-  double zeroTolerance = model->zeroTolerance();
+  FloatT zeroTolerance = model->zeroTolerance();
   int numberRows = model->numberRows();
   ClpPackedMatrix *rowCopy = dynamic_cast< ClpPackedMatrix * >(model->rowCopy());
   bool packed = rowArray->packedMode();
-  double factor = 0.3;
+  FloatT factor = 0.3;
   // We may not want to do by row if there may be cache problems
   int numberColumns = model->numberColumns();
   // It would be nice to find L2 cache size - for moment 512K
   // Be slightly optimistic
-  if (numberColumns * sizeof(double) > 1000000) {
+  if (numberColumns * sizeof(FloatT) > 1000000) {
     if (numberRows * 10 < numberColumns)
       factor = 0.1;
     else if (numberRows * 4 < numberColumns)
@@ -553,15 +553,15 @@ void ClpGubMatrix::transposeTimes(const ClpSimplex *model, double scalar,
     const int *row = matrix_->getIndices();
     const CoinBigIndex *columnStart = matrix_->getVectorStarts();
     const int *columnLength = matrix_->getVectorLengths();
-    const double *elementByColumn = matrix_->getElements();
-    const double *rowScale = model->rowScale();
+    const FloatT *elementByColumn = matrix_->getElements();
+    const FloatT *rowScale = model->rowScale();
     int numberColumns = model->numberColumns();
     int iSet = -1;
-    double djMod = 0.0;
+    FloatT djMod = 0.0;
     if (packed) {
       // need to expand pi into y
       assert(y->capacity() >= numberRows);
-      double *piOld = pi;
+      FloatT *piOld = pi;
       pi = y->denseVector();
       const int *whichRow = rowArray->getIndices();
       int i;
@@ -593,7 +593,7 @@ void ClpGubMatrix::transposeTimes(const ClpSimplex *model, double scalar,
               djMod = 0.0;
             }
           }
-          double value = -djMod;
+          FloatT value = -djMod;
           CoinBigIndex j;
           for (j = columnStart[iColumn];
                j < columnStart[iColumn] + columnLength[iColumn]; j++) {
@@ -635,9 +635,9 @@ void ClpGubMatrix::transposeTimes(const ClpSimplex *model, double scalar,
               djMod = 0.0;
             }
           }
-          double value = -djMod;
+          FloatT value = -djMod;
           CoinBigIndex j;
-          const double *columnScale = model->columnScale();
+          const FloatT *columnScale = model->columnScale();
           for (j = columnStart[iColumn];
                j < columnStart[iColumn] + columnLength[iColumn]; j++) {
             int iRow = row[j];
@@ -661,7 +661,7 @@ void ClpGubMatrix::transposeTimes(const ClpSimplex *model, double scalar,
       if (!rowScale) {
         if (scalar == -1.0) {
           for (iColumn = 0; iColumn < numberColumns; iColumn++) {
-            double value = 0.0;
+            FloatT value = 0.0;
             CoinBigIndex j;
             for (j = columnStart[iColumn];
                  j < columnStart[iColumn] + columnLength[iColumn]; j++) {
@@ -675,7 +675,7 @@ void ClpGubMatrix::transposeTimes(const ClpSimplex *model, double scalar,
           }
         } else if (scalar == 1.0) {
           for (iColumn = 0; iColumn < numberColumns; iColumn++) {
-            double value = 0.0;
+            FloatT value = 0.0;
             CoinBigIndex j;
             for (j = columnStart[iColumn];
                  j < columnStart[iColumn] + columnLength[iColumn]; j++) {
@@ -689,7 +689,7 @@ void ClpGubMatrix::transposeTimes(const ClpSimplex *model, double scalar,
           }
         } else {
           for (iColumn = 0; iColumn < numberColumns; iColumn++) {
-            double value = 0.0;
+            FloatT value = 0.0;
             CoinBigIndex j;
             for (j = columnStart[iColumn];
                  j < columnStart[iColumn] + columnLength[iColumn]; j++) {
@@ -707,9 +707,9 @@ void ClpGubMatrix::transposeTimes(const ClpSimplex *model, double scalar,
         // scaled
         if (scalar == -1.0) {
           for (iColumn = 0; iColumn < numberColumns; iColumn++) {
-            double value = 0.0;
+            FloatT value = 0.0;
             CoinBigIndex j;
-            const double *columnScale = model->columnScale();
+            const FloatT *columnScale = model->columnScale();
             for (j = columnStart[iColumn];
                  j < columnStart[iColumn] + columnLength[iColumn]; j++) {
               int iRow = row[j];
@@ -723,9 +723,9 @@ void ClpGubMatrix::transposeTimes(const ClpSimplex *model, double scalar,
           }
         } else if (scalar == 1.0) {
           for (iColumn = 0; iColumn < numberColumns; iColumn++) {
-            double value = 0.0;
+            FloatT value = 0.0;
             CoinBigIndex j;
-            const double *columnScale = model->columnScale();
+            const FloatT *columnScale = model->columnScale();
             for (j = columnStart[iColumn];
                  j < columnStart[iColumn] + columnLength[iColumn]; j++) {
               int iRow = row[j];
@@ -739,9 +739,9 @@ void ClpGubMatrix::transposeTimes(const ClpSimplex *model, double scalar,
           }
         } else {
           for (iColumn = 0; iColumn < numberColumns; iColumn++) {
-            double value = 0.0;
+            FloatT value = 0.0;
             CoinBigIndex j;
-            const double *columnScale = model->columnScale();
+            const FloatT *columnScale = model->columnScale();
             for (j = columnStart[iColumn];
                  j < columnStart[iColumn] + columnLength[iColumn]; j++) {
               int iRow = row[j];
@@ -769,11 +769,11 @@ void ClpGubMatrix::transposeTimes(const ClpSimplex *model, double scalar,
     int numberNonZero = columnArray->getNumElements();
     ;
     int *index = columnArray->getIndices();
-    double *array = columnArray->denseVector();
+    FloatT *array = columnArray->denseVector();
     int i;
     for (i = 0; i < numberNonZero; i++) {
       int j = index[i];
-      double value;
+      FloatT value;
       if (packed)
         value = array[i];
       else
@@ -784,7 +784,7 @@ void ClpGubMatrix::transposeTimes(const ClpSimplex *model, double scalar,
 }
 /* Return <code>x * A + y</code> in <code>z</code>.
 	Squashes small elements and knows about ClpSimplex */
-void ClpGubMatrix::transposeTimesByRow(const ClpSimplex *model, double scalar,
+void ClpGubMatrix::transposeTimesByRow(const ClpSimplex *model, FloatT scalar,
   const CoinIndexedVector *rowArray,
   CoinIndexedVector *y,
   CoinIndexedVector *columnArray) const
@@ -805,15 +805,15 @@ void ClpGubMatrix::subsetTransposeTimes(const ClpSimplex *model,
   CoinIndexedVector *columnArray) const
 {
   columnArray->clear();
-  double *pi = rowArray->denseVector();
-  double *array = columnArray->denseVector();
+  FloatT *pi = rowArray->denseVector();
+  FloatT *array = columnArray->denseVector();
   int jColumn;
   // get matrix data pointers
   const int *row = matrix_->getIndices();
   const CoinBigIndex *columnStart = matrix_->getVectorStarts();
   const int *columnLength = matrix_->getVectorLengths();
-  const double *elementByColumn = matrix_->getElements();
-  const double *rowScale = model->rowScale();
+  const FloatT *elementByColumn = matrix_->getElements();
+  const FloatT *rowScale = model->rowScale();
   int numberToDo = y->getNumElements();
   const int *which = y->getIndices();
   assert(!rowArray->packedMode());
@@ -822,7 +822,7 @@ void ClpGubMatrix::subsetTransposeTimes(const ClpSimplex *model,
   if (!rowScale) {
     for (jColumn = 0; jColumn < numberToDo; jColumn++) {
       int iColumn = which[jColumn];
-      double value = 0.0;
+      FloatT value = 0.0;
       CoinBigIndex j;
       for (j = columnStart[iColumn];
            j < columnStart[iColumn] + columnLength[iColumn]; j++) {
@@ -845,9 +845,9 @@ void ClpGubMatrix::subsetTransposeTimes(const ClpSimplex *model,
     // scaled
     for (jColumn = 0; jColumn < numberToDo; jColumn++) {
       int iColumn = which[jColumn];
-      double value = 0.0;
+      FloatT value = 0.0;
       CoinBigIndex j;
-      const double *columnScale = model->columnScale();
+      const FloatT *columnScale = model->columnScale();
       for (j = columnStart[iColumn];
            j < columnStart[iColumn] + columnLength[iColumn]; j++) {
         int iRow = row[j];
@@ -898,13 +898,13 @@ int ClpGubMatrix::countBasis(const int *whichColumn,
   int lastSet = -1;
   int key = -1;
   int keyLength = -1;
-  double *work = new double[numberRows];
+  FloatT *work = new FloatT[numberRows];
   CoinZeroN(work, numberRows);
   char *mark = new char[numberRows];
   CoinZeroN(mark, numberRows);
   const CoinBigIndex *columnStart = matrix_->getVectorStarts();
   const int *row = matrix_->getIndices();
-  const double *elementByColumn = matrix_->getElements();
+  const FloatT *elementByColumn = matrix_->getElements();
   //ClpGubDynamicMatrix* gubx =
   //dynamic_cast< ClpGubDynamicMatrix*>(this);
   //int * id = gubx->id();
@@ -938,8 +938,8 @@ int ClpGubMatrix::countBasis(const int *whichColumn,
         int extra = keyLength;
         for (j = columnStart[iColumn]; j < columnStart[iColumn] + length; j++) {
           int iRow = row[j];
-          double keyValue = work[iRow];
-          double value = elementByColumn[j];
+          FloatT keyValue = work[iRow];
+          FloatT value = elementByColumn[j];
           if (!keyValue) {
             if (fabs(value) > 1.0e-20)
               extra++;
@@ -982,14 +982,14 @@ void ClpGubMatrix::fillBasis(ClpSimplex *model,
   int lastSet = -1;
   int key = -1;
   int keyLength = -1;
-  double *work = new double[numberRows];
+  FloatT *work = new FloatT[numberRows];
   CoinZeroN(work, numberRows);
   char *mark = new char[numberRows];
   CoinZeroN(mark, numberRows);
   const CoinBigIndex *columnStart = matrix_->getVectorStarts();
   const int *row = matrix_->getIndices();
-  const double *elementByColumn = matrix_->getElements();
-  const double *rowScale = model->rowScale();
+  const FloatT *elementByColumn = matrix_->getElements();
+  const FloatT *rowScale = model->rowScale();
   int numberBasic = 0;
   if (0) {
     printf("%d basiccolumns\n", numberColumnBasic);
@@ -1021,7 +1021,7 @@ void ClpGubMatrix::fillBasis(ClpSimplex *model,
       CoinBigIndex j;
       if (iSet < 0 || keyVariable_[iSet] >= numberColumns) {
         for (j = columnStart[iColumn]; j < columnStart[iColumn] + columnLength[iColumn]; j++) {
-          double value = elementByColumn[j];
+          FloatT value = elementByColumn[j];
           if (fabs(value) > 1.0e-20) {
             int iRow = row[j];
             indexRowU[numberElements] = iRow;
@@ -1057,10 +1057,10 @@ void ClpGubMatrix::fillBasis(ClpSimplex *model,
           }
           for (j = columnStart[iColumn]; j < columnStart[iColumn] + length; j++) {
             int iRow = row[j];
-            double value = elementByColumn[j];
+            FloatT value = elementByColumn[j];
             if (mark[iRow]) {
               mark[iRow] = 0;
-              double keyValue = work[iRow];
+              FloatT keyValue = work[iRow];
               value -= keyValue;
             }
             if (fabs(value) > 1.0e-20) {
@@ -1072,7 +1072,7 @@ void ClpGubMatrix::fillBasis(ClpSimplex *model,
           for (j = columnStart[key]; j < columnStart[key] + keyLength; j++) {
             int iRow = row[j];
             if (mark[iRow]) {
-              double value = -work[iRow];
+              FloatT value = -work[iRow];
               if (fabs(value) > 1.0e-20) {
                 indexRowU[numberElements] = iRow;
                 rowCount[iRow]++;
@@ -1092,17 +1092,17 @@ void ClpGubMatrix::fillBasis(ClpSimplex *model,
     }
   } else {
     // scaling
-    const double *columnScale = model->columnScale();
+    const FloatT *columnScale = model->columnScale();
     for (i = 0; i < numberColumnBasic; i++) {
       int iColumn = whichColumn[i];
       int iSet = backward_[iColumn];
       int length = columnLength[iColumn];
       CoinBigIndex j;
       if (iSet < 0 || keyVariable_[iSet] >= numberColumns) {
-        double scale = columnScale[iColumn];
+        FloatT scale = columnScale[iColumn];
         for (j = columnStart[iColumn]; j < columnStart[iColumn] + columnLength[iColumn]; j++) {
           int iRow = row[j];
-          double value = elementByColumn[j] * scale * rowScale[iRow];
+          FloatT value = elementByColumn[j] * scale * rowScale[iRow];
           if (fabs(value) > 1.0e-20) {
             indexRowU[numberElements] = iRow;
             rowCount[iRow]++;
@@ -1116,7 +1116,7 @@ void ClpGubMatrix::fillBasis(ClpSimplex *model,
       } else {
         // in gub set
         if (iColumn != keyVariable_[iSet]) {
-          double scale = columnScale[iColumn];
+          FloatT scale = columnScale[iColumn];
           // not key
           if (lastSet < iSet) {
             // erase work
@@ -1130,7 +1130,7 @@ void ClpGubMatrix::fillBasis(ClpSimplex *model,
             key = keyVariable_[iSet];
             lastSet = iSet;
             keyLength = columnLength[key];
-            double scale = columnScale[key];
+            FloatT scale = columnScale[key];
             for (j = columnStart[key]; j < columnStart[key] + keyLength; j++) {
               int iRow = row[j];
               work[iRow] = elementByColumn[j] * scale * rowScale[iRow];
@@ -1139,10 +1139,10 @@ void ClpGubMatrix::fillBasis(ClpSimplex *model,
           }
           for (j = columnStart[iColumn]; j < columnStart[iColumn] + length; j++) {
             int iRow = row[j];
-            double value = elementByColumn[j] * scale * rowScale[iRow];
+            FloatT value = elementByColumn[j] * scale * rowScale[iRow];
             if (mark[iRow]) {
               mark[iRow] = 0;
-              double keyValue = work[iRow];
+              FloatT keyValue = work[iRow];
               value -= keyValue;
             }
             if (fabs(value) > 1.0e-20) {
@@ -1154,7 +1154,7 @@ void ClpGubMatrix::fillBasis(ClpSimplex *model,
           for (j = columnStart[key]; j < columnStart[key] + keyLength; j++) {
             int iRow = row[j];
             if (mark[iRow]) {
-              double value = -work[iRow];
+              FloatT value = -work[iRow];
               if (fabs(value) > 1.0e-20) {
                 indexRowU[numberElements] = iRow;
                 rowCount[iRow]++;
@@ -1212,12 +1212,12 @@ void ClpGubMatrix::unpackPacked(ClpSimplex *model,
       int iBasic = keyVariable_[iSet];
       if (iBasic < numberColumns) {
         int number = rowArray->getNumElements();
-        const double *rowScale = model->rowScale();
+        const FloatT *rowScale = model->rowScale();
         const int *row = matrix_->getIndices();
         const CoinBigIndex *columnStart = matrix_->getVectorStarts();
         const int *columnLength = matrix_->getVectorLengths();
-        const double *elementByColumn = matrix_->getElements();
-        double *array = rowArray->denseVector();
+        const FloatT *elementByColumn = matrix_->getElements();
+        FloatT *array = rowArray->denseVector();
         int *index = rowArray->getIndices();
         CoinBigIndex i;
         int numberOld = number;
@@ -1246,7 +1246,7 @@ void ClpGubMatrix::unpackPacked(ClpSimplex *model,
           }
         } else {
           // apply scaling
-          double scale = model->columnScale()[iBasic];
+          FloatT scale = model->columnScale()[iBasic];
           for (i = columnStart[iBasic];
                i < columnStart[iBasic] + columnLength[iBasic]; i++) {
             int iRow = row[i];
@@ -1276,12 +1276,12 @@ void ClpGubMatrix::unpackPacked(ClpSimplex *model,
     int iBasic = keyVariable_[gubSlackIn_];
     assert(iBasic < numberColumns);
     int number = 0;
-    const double *rowScale = model->rowScale();
+    const FloatT *rowScale = model->rowScale();
     const int *row = matrix_->getIndices();
     const CoinBigIndex *columnStart = matrix_->getVectorStarts();
     const int *columnLength = matrix_->getVectorLengths();
-    const double *elementByColumn = matrix_->getElements();
-    double *array = rowArray->denseVector();
+    const FloatT *elementByColumn = matrix_->getElements();
+    FloatT *array = rowArray->denseVector();
     int *index = rowArray->getIndices();
     CoinBigIndex i;
     if (!rowScale) {
@@ -1293,7 +1293,7 @@ void ClpGubMatrix::unpackPacked(ClpSimplex *model,
       }
     } else {
       // apply scaling
-      double scale = model->columnScale()[iBasic];
+      FloatT scale = model->columnScale()[iBasic];
       for (i = columnStart[iBasic];
            i < columnStart[iBasic] + columnLength[iBasic]; i++) {
         int iRow = row[i];
@@ -1308,7 +1308,7 @@ void ClpGubMatrix::unpackPacked(ClpSimplex *model,
 /* Adds multiple of a column into an CoinIndexedvector
       You can use quickAdd to add to vector */
 void ClpGubMatrix::add(const ClpSimplex *model, CoinIndexedVector *rowArray,
-  int iColumn, double multiplier) const
+  int iColumn, FloatT multiplier) const
 {
   assert(iColumn < model->numberColumns());
   // Do packed part
@@ -1319,8 +1319,8 @@ void ClpGubMatrix::add(const ClpSimplex *model, CoinIndexedVector *rowArray,
   }
 }
 /* Adds multiple of a column into an array */
-void ClpGubMatrix::add(const ClpSimplex *model, double *array,
-  int iColumn, double multiplier) const
+void ClpGubMatrix::add(const ClpSimplex *model, FloatT *array,
+  int iColumn, FloatT multiplier) const
 {
   assert(iColumn < model->numberColumns());
   // Do packed part
@@ -1333,31 +1333,31 @@ void ClpGubMatrix::add(const ClpSimplex *model, double *array,
   }
 }
 // Partial pricing
-void ClpGubMatrix::partialPricing(ClpSimplex *model, double startFraction, double endFraction,
+void ClpGubMatrix::partialPricing(ClpSimplex *model, FloatT startFraction, FloatT endFraction,
   int &bestSequence, int &numberWanted)
 {
   numberWanted = currentWanted_;
   if (numberSets_) {
     // Do packed part before gub
     int numberColumns = matrix_->getNumCols();
-    double ratio = static_cast< double >(firstGub_) / static_cast< double >(numberColumns);
+    FloatT ratio = static_cast< FloatT >(firstGub_) / static_cast< FloatT >(numberColumns);
     ClpPackedMatrix::partialPricing(model, startFraction * ratio,
       endFraction * ratio, bestSequence, numberWanted);
     if (numberWanted || minimumGoodReducedCosts_ < -1) {
       // do gub
-      const double *element = matrix_->getElements();
+      const FloatT *element = matrix_->getElements();
       const int *row = matrix_->getIndices();
       const CoinBigIndex *startColumn = matrix_->getVectorStarts();
       const int *length = matrix_->getVectorLengths();
-      const double *rowScale = model->rowScale();
-      const double *columnScale = model->columnScale();
+      const FloatT *rowScale = model->rowScale();
+      const FloatT *columnScale = model->columnScale();
       int iSequence;
       CoinBigIndex j;
-      double tolerance = model->currentDualTolerance();
-      double *reducedCost = model->djRegion();
-      const double *duals = model->dualRowSolution();
-      const double *cost = model->costRegion();
-      double bestDj;
+      FloatT tolerance = model->currentDualTolerance();
+      FloatT *reducedCost = model->djRegion();
+      const FloatT *duals = model->dualRowSolution();
+      const FloatT *cost = model->costRegion();
+      FloatT bestDj;
       int numberColumns = model->numberColumns();
       int numberRows = model->numberRows();
       if (bestSequence >= 0)
@@ -1377,10 +1377,10 @@ void ClpGubMatrix::partialPricing(ClpSimplex *model, double startFraction, doubl
       int minNeg = minimumGoodReducedCosts_ == -1 ? 5 : minimumGoodReducedCosts_;
       int nSets = 0;
       int iSet = -1;
-      double djMod = 0.0;
-      double infeasibilityCost = model->infeasibilityCost();
+      FloatT djMod = 0.0;
+      FloatT infeasibilityCost = model->infeasibilityCost();
       if (rowScale) {
-        double bestDjMod = 0.0;
+        FloatT bestDjMod = 0.0;
         // scaled
         for (iSequence = startG; iSequence < endAll; iSequence++) {
           if (numberWanted + minNeg < originalWanted_ && nSets > minSet) {
@@ -1412,7 +1412,7 @@ void ClpGubMatrix::partialPricing(ClpSimplex *model, double startFraction, doubl
                 djMod += cost[iBasic] / columnScale[iBasic];
                 // See if gub slack possible - dj is djMod
                 if (getStatus(iSet) == ClpSimplex::atLowerBound) {
-                  double value = -djMod;
+                  FloatT value = -djMod;
                   if (value > tolerance) {
                     numberWanted--;
                     if (value > bestDj) {
@@ -1429,7 +1429,7 @@ void ClpGubMatrix::partialPricing(ClpSimplex *model, double startFraction, doubl
                     }
                   }
                 } else if (getStatus(iSet) == ClpSimplex::atUpperBound) {
-                  double value = djMod;
+                  FloatT value = djMod;
                   if (value > tolerance) {
                     numberWanted--;
                     if (value > bestDj) {
@@ -1453,7 +1453,7 @@ void ClpGubMatrix::partialPricing(ClpSimplex *model, double startFraction, doubl
             }
           }
           if (iSequence != sequenceOut) {
-            double value;
+            FloatT value;
             ClpSimplex::Status status = model->getStatus(iSequence);
 
             switch (status) {
@@ -1544,7 +1544,7 @@ void ClpGubMatrix::partialPricing(ClpSimplex *model, double startFraction, doubl
         if (bestSequence != saveSequence) {
           if (bestSequence < numberRows + numberColumns) {
             // recompute dj
-            double value = bestDjMod;
+            FloatT value = bestDjMod;
             // scaled
             for (j = startColumn[bestSequence];
                  j < startColumn[bestSequence] + length[bestSequence]; j++) {
@@ -1571,7 +1571,7 @@ void ClpGubMatrix::partialPricing(ClpSimplex *model, double startFraction, doubl
           savedBestDj_ = reducedCost[savedBestSequence_];
         }
       } else {
-        double bestDjMod = 0.0;
+        FloatT bestDjMod = 0.0;
         //printf("iteration %d start %d end %d - wanted %d\n",model->numberIterations(),
         //     startG,endG,numberWanted);
         for (iSequence = startG; iSequence < endG; iSequence++) {
@@ -1603,7 +1603,7 @@ void ClpGubMatrix::partialPricing(ClpSimplex *model, double startFraction, doubl
                 djMod += cost[iBasic];
                 // See if gub slack possible - dj is djMod
                 if (getStatus(iSet) == ClpSimplex::atLowerBound) {
-                  double value = -djMod;
+                  FloatT value = -djMod;
                   if (value > tolerance) {
                     numberWanted--;
                     if (value > bestDj) {
@@ -1620,7 +1620,7 @@ void ClpGubMatrix::partialPricing(ClpSimplex *model, double startFraction, doubl
                     }
                   }
                 } else if (getStatus(iSet) == ClpSimplex::atUpperBound) {
-                  double value = djMod;
+                  FloatT value = djMod;
                   if (value > tolerance) {
                     numberWanted--;
                     if (value > bestDj) {
@@ -1644,7 +1644,7 @@ void ClpGubMatrix::partialPricing(ClpSimplex *model, double startFraction, doubl
             }
           }
           if (iSequence != sequenceOut) {
-            double value;
+            FloatT value;
             ClpSimplex::Status status = model->getStatus(iSequence);
 
             switch (status) {
@@ -1731,7 +1731,7 @@ void ClpGubMatrix::partialPricing(ClpSimplex *model, double startFraction, doubl
         if (bestSequence != saveSequence) {
           if (bestSequence < numberRows + numberColumns) {
             // recompute dj
-            double value = cost[bestSequence] - bestDjMod;
+            FloatT value = cost[bestSequence] - bestDjMod;
             for (j = startColumn[bestSequence];
                  j < startColumn[bestSequence] + length[bestSequence]; j++) {
               int jRow = row[j];
@@ -1765,10 +1765,10 @@ void ClpGubMatrix::partialPricing(ClpSimplex *model, double startFraction, doubl
     }
     if (numberWanted) {
       // Do packed part after gub
-      double offset = static_cast< double >(lastGub_) / static_cast< double >(numberColumns);
-      double ratio = static_cast< double >(numberColumns) / static_cast< double >(numberColumns) - offset;
-      double start2 = offset + ratio * startFraction;
-      double end2 = CoinMin(1.0, offset + ratio * endFraction + 1.0e-6);
+      FloatT offset = static_cast< FloatT >(lastGub_) / static_cast< FloatT >(numberColumns);
+      FloatT ratio = static_cast< FloatT >(numberColumns) / static_cast< FloatT >(numberColumns) - offset;
+      FloatT start2 = offset + ratio * startFraction;
+      FloatT end2 = CoinMin(1.0, offset + ratio * endFraction + 1.0e-6);
       ClpPackedMatrix::partialPricing(model, start2, end2, bestSequence, numberWanted);
     }
   } else {
@@ -1786,7 +1786,7 @@ int ClpGubMatrix::extendUpdated(ClpSimplex *model, CoinIndexedVector *update, in
 {
   // I think we only need to bother about sets with two in basis or incoming set
   int number = update->getNumElements();
-  double *array = update->denseVector();
+  FloatT *array = update->denseVector();
   int *index = update->getIndices();
   int i;
   assert(!number || update->packedMode());
@@ -1806,14 +1806,14 @@ int ClpGubMatrix::extendUpdated(ClpSimplex *model, CoinIndexedVector *update, in
   } else {
     iSetIn = gubSlackIn_;
   }
-  double *lower = model->lowerRegion();
-  double *upper = model->upperRegion();
-  double *cost = model->costRegion();
-  double *solution = model->solutionRegion();
+  FloatT *lower = model->lowerRegion();
+  FloatT *upper = model->upperRegion();
+  FloatT *cost = model->costRegion();
+  FloatT *solution = model->solutionRegion();
   int number2 = number;
   if (!mode) {
-    double primalTolerance = model->primalTolerance();
-    double infeasibilityCost = model->infeasibilityCost();
+    FloatT primalTolerance = model->primalTolerance();
+    FloatT infeasibilityCost = model->infeasibilityCost();
     // extend
     saveNumber_ = number;
     for (i = 0; i < number; i++) {
@@ -1824,8 +1824,8 @@ int ClpGubMatrix::extendUpdated(ClpSimplex *model, CoinIndexedVector *update, in
         if (iSet >= 0) {
           // two (or more) in set
           int iIndex = toIndex_[iSet];
-          double otherValue = array[i];
-          double value;
+          FloatT otherValue = array[i];
+          FloatT value;
           if (iIndex < 0) {
             toIndex_[iSet] = number2;
             int iNew = number2 - number;
@@ -1845,7 +1845,7 @@ int ClpGubMatrix::extendUpdated(ClpSimplex *model, CoinIndexedVector *update, in
                 value = -1.0;
               pivotVariable[numberRows + iNew] = iKey;
               // Do I need to recompute?
-              double sol;
+              FloatT sol;
               assert(getStatus(iSet) != ClpSimplex::basic);
               if (getStatus(iSet) == ClpSimplex::atLowerBound)
                 sol = lower_[iSet];
@@ -1884,7 +1884,7 @@ int ClpGubMatrix::extendUpdated(ClpSimplex *model, CoinIndexedVector *update, in
                 value = -1.0;
               pivotVariable[numberRows + iNew] = iNew + numberTotal;
               model->djRegion()[iNew + numberTotal] = 0.0;
-              double sol = 0.0;
+              FloatT sol = 0.0;
               if ((gubType_ & 8) != 0) {
                 int iColumn = next_[iKey];
                 // sum all non-key variables
@@ -1941,7 +1941,7 @@ int ClpGubMatrix::extendUpdated(ClpSimplex *model, CoinIndexedVector *update, in
       int iNew = number2 - number;
       fromIndex_[number2 - number] = iSetIn;
       // Save current cost of key
-      double currentCost;
+      FloatT currentCost;
       int key = keyVariable_[iSetIn];
       if (key < numberColumns)
         currentCost = cost[key];
@@ -1958,7 +1958,7 @@ int ClpGubMatrix::extendUpdated(ClpSimplex *model, CoinIndexedVector *update, in
           array[number2] = -1.0;
         pivotVariable[numberRows + iNew] = iKey;
         // Do I need to recompute?
-        double sol;
+        FloatT sol;
         assert(getStatus(iSetIn) != ClpSimplex::basic);
         if (getStatus(iSetIn) == ClpSimplex::atLowerBound)
           sol = lower_[iSetIn];
@@ -1992,7 +1992,7 @@ int ClpGubMatrix::extendUpdated(ClpSimplex *model, CoinIndexedVector *update, in
         array[number2] = -1.0;
         pivotVariable[numberRows + iNew] = iNew + numberTotal;
         model->djRegion()[iNew + numberTotal] = 0.0;
-        double sol = 0.0;
+        FloatT sol = 0.0;
         if ((gubType_ & 8) != 0) {
           int iColumn = next_[iKey];
           // sum all non-key variables
@@ -2042,8 +2042,8 @@ int ClpGubMatrix::extendUpdated(ClpSimplex *model, CoinIndexedVector *update, in
     // take off?
     if (number > saveNumber_) {
       // clear
-      double theta = model->theta();
-      double *solution = model->solutionRegion();
+      FloatT theta = model->theta();
+      FloatT *solution = model->solutionRegion();
       for (i = saveNumber_; i < number; i++) {
         int iRow = index[i];
         int iColumn = pivotVariable[iRow];
@@ -2052,7 +2052,7 @@ int ClpGubMatrix::extendUpdated(ClpSimplex *model, CoinIndexedVector *update, in
           iColumn, fromIndex_[i - saveNumber_], lower[iColumn], upper[iColumn], array[i],
           solution[iColumn], solution[iColumn] - model->theta() * array[i], model->theta());
 #endif
-        double value = array[i];
+        FloatT value = array[i];
         array[i] = 0.0;
         int iSet = fromIndex_[i - saveNumber_];
         toIndex_[iSet] = -1;
@@ -2083,7 +2083,7 @@ void ClpGubMatrix::primalExpanded(ClpSimplex *model, int mode)
     // If key variable then slot in gub rhs so will get correct contribution
   case 0: {
     int i;
-    double *solution = model->solutionRegion();
+    FloatT *solution = model->solutionRegion();
     ClpSimplex::Status iStatus;
     for (i = 0; i < numberSets_; i++) {
       int iColumn = keyVariable_[i];
@@ -2101,18 +2101,18 @@ void ClpGubMatrix::primalExpanded(ClpSimplex *model, int mode)
   // Compute values of key variables
   case 1: {
     int i;
-    double *solution = model->solutionRegion();
+    FloatT *solution = model->solutionRegion();
     //const int * columnLength = matrix_->getVectorLengths();
     //const CoinBigIndex * columnStart = matrix_->getVectorStarts();
     //const int * row = matrix_->getIndices();
-    //const double * elementByColumn = matrix_->getElements();
+    //const FloatT * elementByColumn = matrix_->getElements();
     //int * pivotVariable = model->pivotVariable();
     sumPrimalInfeasibilities_ = 0.0;
     numberPrimalInfeasibilities_ = 0;
-    double primalTolerance = model->primalTolerance();
-    double relaxedTolerance = primalTolerance;
+    FloatT primalTolerance = model->primalTolerance();
+    FloatT relaxedTolerance = primalTolerance;
     // we can't really trust infeasibilities if there is primal error
-    double error = CoinMin(1.0e-2, model->largestPrimalError());
+    FloatT error = CoinMin(1.0e-2, model->largestPrimalError());
     // allow tolerance at least slightly bigger than standard
     relaxedTolerance = relaxedTolerance + error;
     // but we will be using difference
@@ -2120,7 +2120,7 @@ void ClpGubMatrix::primalExpanded(ClpSimplex *model, int mode)
     sumOfRelaxedPrimalInfeasibilities_ = 0.0;
     for (i = 0; i < numberSets_; i++) { // Could just be over basics (esp if no bounds)
       int kColumn = keyVariable_[i];
-      double value = 0.0;
+      FloatT value = 0.0;
       if ((gubType_ & 8) != 0) {
         int iColumn = next_[kColumn];
         // sum all non-key variables
@@ -2153,7 +2153,7 @@ void ClpGubMatrix::primalExpanded(ClpSimplex *model, int mode)
       } else {
         // slack is key
         assert(getStatus(i) == ClpSimplex::basic);
-        double infeasibility = 0.0;
+        FloatT infeasibility = 0.0;
         if (value > upper_[i] + primalTolerance) {
           infeasibility = value - upper_[i] - primalTolerance;
           setAbove(i);
@@ -2188,17 +2188,17 @@ void ClpGubMatrix::primalExpanded(ClpSimplex *model, int mode)
 */
 void ClpGubMatrix::dualExpanded(ClpSimplex *model,
   CoinIndexedVector *array,
-  double * /*other*/, int mode)
+  FloatT * /*other*/, int mode)
 {
   switch (mode) {
     // modify costs before transposeUpdate
   case 0: {
     int i;
-    double *cost = model->costRegion();
+    FloatT *cost = model->costRegion();
     // not dual values yet
     //assert (!other);
-    //double * work = array->denseVector();
-    double infeasibilityCost = model->infeasibilityCost();
+    //FloatT * work = array->denseVector();
+    FloatT infeasibilityCost = model->infeasibilityCost();
     int *pivotVariable = model->pivotVariable();
     int numberRows = model->numberRows();
     int numberColumns = model->numberColumns();
@@ -2208,7 +2208,7 @@ void ClpGubMatrix::dualExpanded(ClpSimplex *model,
         int iSet = backward_[iPivot];
         if (iSet >= 0) {
           int kColumn = keyVariable_[iSet];
-          double costValue;
+          FloatT costValue;
           if (kColumn < numberColumns) {
             // structural has cost
             costValue = cost[kColumn];
@@ -2228,14 +2228,14 @@ void ClpGubMatrix::dualExpanded(ClpSimplex *model,
     // If key slack then dual 0.0 (if feasible)
     // dj for key is zero so that defines dual on set
     int i;
-    double *dj = model->djRegion();
+    FloatT *dj = model->djRegion();
     int numberColumns = model->numberColumns();
-    double infeasibilityCost = model->infeasibilityCost();
+    FloatT infeasibilityCost = model->infeasibilityCost();
     for (i = 0; i < numberSets_; i++) {
       int kColumn = keyVariable_[i];
       if (kColumn < numberColumns) {
         // dj without set
-        double value = dj[kColumn];
+        FloatT value = dj[kColumn];
         // Now subtract out from all
         dj[kColumn] = 0.0;
         int iColumn = next_[kColumn];
@@ -2248,7 +2248,7 @@ void ClpGubMatrix::dualExpanded(ClpSimplex *model,
         // slack key - may not be feasible
         assert(getStatus(i) == ClpSimplex::basic);
         // negative as -1.0 for slack
-        double value = -weight(i) * infeasibilityCost;
+        FloatT value = -weight(i) * infeasibilityCost;
         if (value) {
           int iColumn = next_[kColumn];
           // modify all non-key variables basic
@@ -2287,21 +2287,21 @@ void ClpGubMatrix::dualExpanded(ClpSimplex *model,
         return;
       }
     }
-    double *dj = model->djRegion();
-    double *dual = model->dualRowSolution();
-    double *cost = model->costRegion();
+    FloatT *dj = model->djRegion();
+    FloatT *dual = model->dualRowSolution();
+    FloatT *cost = model->costRegion();
     ClpSimplex::Status iStatus;
     const int *columnLength = matrix_->getVectorLengths();
     const CoinBigIndex *columnStart = matrix_->getVectorStarts();
     const int *row = matrix_->getIndices();
-    const double *elementByColumn = matrix_->getElements();
-    double infeasibilityCost = model->infeasibilityCost();
+    const FloatT *elementByColumn = matrix_->getElements();
+    FloatT infeasibilityCost = model->infeasibilityCost();
     sumDualInfeasibilities_ = 0.0;
     numberDualInfeasibilities_ = 0;
-    double dualTolerance = model->dualTolerance();
-    double relaxedTolerance = dualTolerance;
+    FloatT dualTolerance = model->dualTolerance();
+    FloatT relaxedTolerance = dualTolerance;
     // we can't really trust infeasibilities if there is dual error
-    double error = CoinMin(1.0e-2, model->largestDualError());
+    FloatT error = CoinMin(1.0e-2, model->largestDualError());
     // allow tolerance at least slightly bigger than standard
     relaxedTolerance = relaxedTolerance + error;
     // but we will be using difference
@@ -2311,7 +2311,7 @@ void ClpGubMatrix::dualExpanded(ClpSimplex *model,
       int kColumn = keyVariable_[i];
       if (kColumn < numberColumns) {
         // dj without set
-        double value = cost[kColumn];
+        FloatT value = cost[kColumn];
         for (CoinBigIndex j = columnStart[kColumn];
              j < columnStart[kColumn] + columnLength[kColumn]; j++) {
           int iRow = row[j];
@@ -2324,10 +2324,10 @@ void ClpGubMatrix::dualExpanded(ClpSimplex *model,
         while (kColumn != stop) {
           if (kColumn < 0)
             kColumn = -kColumn - 1;
-          double djValue = dj[kColumn] - value;
+          FloatT djValue = dj[kColumn] - value;
           dj[kColumn] = djValue;
           ;
-          double infeasibility = 0.0;
+          FloatT infeasibility = 0.0;
           iStatus = model->getStatus(kColumn);
           if (iStatus == ClpSimplex::atLowerBound) {
             if (djValue < -dualTolerance)
@@ -2348,7 +2348,7 @@ void ClpGubMatrix::dualExpanded(ClpSimplex *model,
         // check slack
         iStatus = getStatus(i);
         assert(iStatus != ClpSimplex::basic);
-        double infeasibility = 0.0;
+        FloatT infeasibility = 0.0;
         // dj of slack is -(-1.0)value
         if (iStatus == ClpSimplex::atLowerBound) {
           if (value < -dualTolerance)
@@ -2368,7 +2368,7 @@ void ClpGubMatrix::dualExpanded(ClpSimplex *model,
         // slack key - may not be feasible
         assert(getStatus(i) == ClpSimplex::basic);
         // negative as -1.0 for slack
-        double value = -weight(i) * infeasibilityCost;
+        FloatT value = -weight(i) * infeasibilityCost;
         if (value) {
           // Now subtract out from all
           int kColumn = i + numberColumns;
@@ -2377,10 +2377,10 @@ void ClpGubMatrix::dualExpanded(ClpSimplex *model,
           while (kColumn != stop) {
             if (kColumn < 0)
               kColumn = -kColumn - 1;
-            double djValue = dj[kColumn] - value;
+            FloatT djValue = dj[kColumn] - value;
             dj[kColumn] = djValue;
             ;
-            double infeasibility = 0.0;
+            FloatT infeasibility = 0.0;
             iStatus = model->getStatus(kColumn);
             if (iStatus == ClpSimplex::atLowerBound) {
               if (djValue < -dualTolerance)
@@ -2416,16 +2416,16 @@ void ClpGubMatrix::dualExpanded(ClpSimplex *model,
     // First compute new costs etc for interesting gubs
     int iLook = 0;
     int iSet = fromIndex_[0];
-    double primalTolerance = model->primalTolerance();
-    const double *cost = model->costRegion();
-    double *solution = model->solutionRegion();
-    double infeasibilityCost = model->infeasibilityCost();
+    FloatT primalTolerance = model->primalTolerance();
+    const FloatT *cost = model->costRegion();
+    FloatT *solution = model->solutionRegion();
+    FloatT infeasibilityCost = model->infeasibilityCost();
     int numberColumns = model->numberColumns();
     int numberChanged = 0;
     int *pivotVariable = model->pivotVariable();
     while (iSet >= 0) {
       int key = keyVariable_[iSet];
-      double value = 0.0;
+      FloatT value = 0.0;
       // sum over all except key
       if ((gubType_ & 8) != 0) {
         int iColumn = next_[key];
@@ -2446,11 +2446,11 @@ void ClpGubMatrix::dualExpanded(ClpSimplex *model,
           iColumn = next_[iColumn];
         }
       }
-      double costChange;
-      double oldCost = changeCost_[iLook];
+      FloatT costChange;
+      FloatT oldCost = changeCost_[iLook];
       if (key < numberColumns) {
         assert(getStatus(iSet) != ClpSimplex::basic);
-        double sol;
+        FloatT sol;
         if (getStatus(iSet) == ClpSimplex::atUpperBound)
           sol = upper_[iSet] - value;
         else
@@ -2491,7 +2491,7 @@ void ClpGubMatrix::dualExpanded(ClpSimplex *model,
       int number = array->getNumElements();
       array->setPacked();
       int i;
-      double *work = array->denseVector();
+      FloatT *work = array->denseVector();
       int *which = array->getIndices();
       for (i = 0; i < number; i++) {
         int iRow = which[i];
@@ -2499,7 +2499,7 @@ void ClpGubMatrix::dualExpanded(ClpSimplex *model,
         if (iPivot < numberColumns) {
           int iSet = backward_[iPivot];
           if (iSet >= 0 && toIndex_[iSet] >= 0) {
-            double newValue = work[i] + changeCost_[toIndex_[iSet]];
+            FloatT newValue = work[i] + changeCost_[toIndex_[iSet]];
             if (!newValue)
               newValue = 1.0e-100;
             work[i] = newValue;
@@ -2508,7 +2508,7 @@ void ClpGubMatrix::dualExpanded(ClpSimplex *model,
           }
         }
         if (possiblePivotKey_ == iRow) {
-          double newValue = work[i] - model->dualIn();
+          FloatT newValue = work[i] - model->dualIn();
           if (!newValue)
             newValue = 1.0e-100;
           work[i] = newValue;
@@ -2520,14 +2520,14 @@ void ClpGubMatrix::dualExpanded(ClpSimplex *model,
         int iSet = fromIndex_[i];
         int key = keyVariable_[iSet];
         int iColumn = next_[key];
-        double change = changeCost_[i];
+        FloatT change = changeCost_[i];
         while (iColumn >= 0) {
           if (backward_[iColumn] >= 0) {
             int iRow = backToPivotRow_[iColumn];
             assert(iRow >= 0);
             work[number] = change;
             if (possiblePivotKey_ == iRow) {
-              double newValue = work[number] - model->dualIn();
+              FloatT newValue = work[number] - model->dualIn();
               if (!newValue)
                 newValue = 1.0e-100;
               work[number] = newValue;
@@ -2649,8 +2649,8 @@ int ClpGubMatrix::generalExpanded(ClpSimplex *model, int mode, int &number)
         // look through rowArray_[1]
         int n = model->rowArray(1)->getNumElements();
         int *which = model->rowArray(1)->getIndices();
-        double *array = model->rowArray(1)->denseVector();
-        double bestAlpha = 1.0e-5;
+        FloatT *array = model->rowArray(1)->denseVector();
+        FloatT bestAlpha = 1.0e-5;
         //int shortest=numberRows+1;
         for (int i = 0; i < n; i++) {
           int iRow = which[i];
@@ -2696,7 +2696,7 @@ int ClpGubMatrix::generalExpanded(ClpSimplex *model, int mode, int &number)
               assert(iRow >= 0);
               unpack(model, model->rowArray(3), iColumn);
               model->factorization()->updateColumnFT(model->rowArray(2), model->rowArray(3));
-              double alpha = model->rowArray(3)->denseVector()[iRow];
+              FloatT alpha = model->rowArray(3)->denseVector()[iRow];
               //if (!alpha)
               //printf("zero alpha a\n");
               int updateStatus = model->factorization()->replaceColumn(model,
@@ -2719,7 +2719,7 @@ int ClpGubMatrix::generalExpanded(ClpSimplex *model, int mode, int &number)
             unpack(model, model->rowArray(3), key);
             model->factorization()->updateColumnFT(model->rowArray(2), model->rowArray(3));
             pivotRow = possiblePivotKey_;
-            double alpha = model->rowArray(3)->denseVector()[pivotRow];
+            FloatT alpha = model->rowArray(3)->denseVector()[pivotRow];
             //if (!alpha)
             //printf("zero alpha b\n");
             int updateStatus = model->factorization()->replaceColumn(model,
@@ -2763,9 +2763,9 @@ int ClpGubMatrix::generalExpanded(ClpSimplex *model, int mode, int &number)
         keyVariable_[iSetOut] = incomingColumn;
       else
         keyVariable_[iSetOut] = iSetIn + numberColumns;
-      double *cost = model->costRegion();
+      FloatT *cost = model->costRegion();
       if (possiblePivotKey_ < 0) {
-        double dj = model->djRegion()[sequenceIn] - cost[sequenceIn];
+        FloatT dj = model->djRegion()[sequenceIn] - cost[sequenceIn];
         changeCost_[iExtra] = -dj;
 #ifdef CLP_DEBUG_PRINT
         printf("modifying changeCost %d by %g - cost %g\n", iExtra, dj, cost[sequenceIn]);
@@ -2782,8 +2782,8 @@ int ClpGubMatrix::generalExpanded(ClpSimplex *model, int mode, int &number)
           assert(iRow >= 0 && iRow < numberRows);
           unpack(model, model->rowArray(3), iColumn);
           model->factorization()->updateColumnFT(model->rowArray(2), model->rowArray(3));
-          double *array = model->rowArray(3)->denseVector();
-          double alpha = array[iRow];
+          FloatT *array = model->rowArray(3)->denseVector();
+          FloatT alpha = array[iRow];
           //if (!alpha)
           //printf("zero alpha d\n");
           int updateStatus = model->factorization()->replaceColumn(model,
@@ -2832,7 +2832,7 @@ int ClpGubMatrix::generalExpanded(ClpSimplex *model, int mode, int &number)
           assert(iRow >= 0);
           unpack(model, model->rowArray(3), iColumn);
           model->factorization()->updateColumnFT(model->rowArray(2), model->rowArray(3));
-          double alpha = model->rowArray(3)->denseVector()[iRow];
+          FloatT alpha = model->rowArray(3)->denseVector()[iRow];
           //if (!alpha)
           //printf("zero alpha e\n");
           int updateStatus = model->factorization()->replaceColumn(model,
@@ -2854,7 +2854,7 @@ int ClpGubMatrix::generalExpanded(ClpSimplex *model, int mode, int &number)
 #endif
         unpack(model, model->rowArray(3), key);
         model->factorization()->updateColumnFT(model->rowArray(2), model->rowArray(3));
-        double alpha = model->rowArray(3)->denseVector()[pivotRow];
+        FloatT alpha = model->rowArray(3)->denseVector()[pivotRow];
         //if (!alpha)
         //printf("zero alpha f\n");
         int updateStatus = model->factorization()->replaceColumn(model,
@@ -2991,23 +2991,23 @@ void ClpGubMatrix::useEffectiveRhs(ClpSimplex *model, bool cheapest)
   for (iSet = 0; iSet < numberSets_; iSet++)
     longestSet = CoinMax(longestSet, end_[iSet] - start_[iSet]);
 
-  double *upper = new double[longestSet + 1];
-  double *cost = new double[longestSet + 1];
-  double *lower = new double[longestSet + 1];
-  double *solution = new double[longestSet + 1];
+  FloatT *upper = new FloatT[longestSet + 1];
+  FloatT *cost = new FloatT[longestSet + 1];
+  FloatT *lower = new FloatT[longestSet + 1];
+  FloatT *solution = new FloatT[longestSet + 1];
   assert(!next_);
   int numberColumns = getNumCols();
   const int *columnLength = matrix_->getVectorLengths();
-  const double *columnLower = model->lowerRegion();
-  const double *columnUpper = model->upperRegion();
-  double *columnSolution = model->solutionRegion();
-  const double *objective = model->costRegion();
+  const FloatT *columnLower = model->lowerRegion();
+  const FloatT *columnUpper = model->upperRegion();
+  FloatT *columnSolution = model->solutionRegion();
+  const FloatT *objective = model->costRegion();
   int numberRows = getNumRows();
   toIndex_ = new int[numberSets_];
   for (iSet = 0; iSet < numberSets_; iSet++)
     toIndex_[iSet] = -1;
   fromIndex_ = new int[getNumRows() + 1];
-  double tolerance = model->primalTolerance();
+  FloatT tolerance = model->primalTolerance();
   bool noNormalBounds = true;
   gubType_ &= ~8;
   bool gotBasis = false;
@@ -3035,7 +3035,7 @@ void ClpGubMatrix::useEffectiveRhs(ClpSimplex *model, bool cheapest)
       CoinBigIndex iEnd = end_[iSet];
       // find one with smallest length
       int smallest = numberRows + 1;
-      double value = 0.0;
+      FloatT value = 0.0;
       for (j = iStart; j < iEnd; j++) {
         if (model->getStatus(j) == ClpSimplex::basic) {
           if (columnLength[j] < smallest) {
@@ -3053,7 +3053,7 @@ void ClpGubMatrix::useEffectiveRhs(ClpSimplex *model, bool cheapest)
         done = true;
       } else if (numberBasic == 1) {
         // see if can be key
-        double thisSolution = columnSolution[iBasic];
+        FloatT thisSolution = columnSolution[iBasic];
         if (thisSolution > columnUpper[iBasic]) {
           value -= thisSolution - columnUpper[iBasic];
           thisSolution = columnUpper[iBasic];
@@ -3066,11 +3066,11 @@ void ClpGubMatrix::useEffectiveRhs(ClpSimplex *model, bool cheapest)
         }
         // try setting slack to a bound
         assert(upper_[iSet] < 1.0e20 || lower_[iSet] > -1.0e20);
-        double cost1 = COIN_DBL_MAX;
+        FloatT cost1 = COIN_DBL_MAX;
         int whichBound = -1;
         if (upper_[iSet] < 1.0e20) {
           // try slack at ub
-          double newBasic = thisSolution + upper_[iSet] - value;
+          FloatT newBasic = thisSolution + upper_[iSet] - value;
           if (newBasic >= columnLower[iBasic] - tolerance && newBasic <= columnUpper[iBasic] + tolerance) {
             // can go
             whichBound = 1;
@@ -3082,10 +3082,10 @@ void ClpGubMatrix::useEffectiveRhs(ClpSimplex *model, bool cheapest)
         }
         if (lower_[iSet] > -1.0e20) {
           // try slack at lb
-          double newBasic = thisSolution + lower_[iSet] - value;
+          FloatT newBasic = thisSolution + lower_[iSet] - value;
           if (newBasic >= columnLower[iBasic] - tolerance && newBasic <= columnUpper[iBasic] + tolerance) {
             // can go but is it cheaper
-            double cost2 = newBasic * objective[iBasic];
+            FloatT cost2 = newBasic * objective[iBasic];
             // But if exact then may be good solution
             if (fabs(lower_[iSet] - value) < tolerance)
               cost2 = -COIN_DBL_MAX;
@@ -3146,7 +3146,7 @@ void ClpGubMatrix::useEffectiveRhs(ClpSimplex *model, bool cheapest)
               cost[iBasic] = -1.0;
             CoinZeroN(cost, numberInSet);
           }
-          double dualTolerance = model->dualTolerance();
+          FloatT dualTolerance = model->dualTolerance();
           for (int iphase = kphase; iphase < 2; iphase++) {
             if (iphase) {
               cost[numberInSet] = 0.0;
@@ -3156,13 +3156,13 @@ void ClpGubMatrix::useEffectiveRhs(ClpSimplex *model, bool cheapest)
             bool improve = true;
             while (improve) {
               improve = false;
-              double dual = cost[iBasic];
+              FloatT dual = cost[iBasic];
               int chosen = -1;
-              double best = dualTolerance;
+              FloatT best = dualTolerance;
               int way = 0;
               for (int i = 0; i <= numberInSet; i++) {
-                double dj = cost[i] - dual;
-                double improvement = 0.0;
+                FloatT dj = cost[i] - dual;
+                FloatT improvement = 0.0;
                 if (iphase || i < numberInSet)
                   assert(solution[i] >= lower[i] && solution[i] <= upper[i]);
                 if (dj > dualTolerance)
@@ -3185,8 +3185,8 @@ void ClpGubMatrix::useEffectiveRhs(ClpSimplex *model, bool cheapest)
                 if (way > 0) {
                   // incoming increasing so basic decreasing
                   // if phase 0 then go to nearest bound
-                  double distance = upper[chosen] - solution[chosen];
-                  double basicDistance;
+                  FloatT distance = upper[chosen] - solution[chosen];
+                  FloatT basicDistance;
                   if (!iphase) {
                     assert(iBasic == numberInSet);
                     assert(solution[iBasic] > upper[iBasic]);
@@ -3212,8 +3212,8 @@ void ClpGubMatrix::useEffectiveRhs(ClpSimplex *model, bool cheapest)
                 } else {
                   // incoming decreasing so basic increasing
                   // if phase 0 then go to nearest bound
-                  double distance = solution[chosen] - lower[chosen];
-                  double basicDistance;
+                  FloatT distance = solution[chosen] - lower[chosen];
+                  FloatT basicDistance;
                   if (!iphase) {
                     assert(iBasic == numberInSet);
                     assert(solution[iBasic] < lower[iBasic]);
@@ -3294,7 +3294,7 @@ void ClpGubMatrix::useEffectiveRhs(ClpSimplex *model, bool cheapest)
   matrix_->orderMatrix();
   // create effective rhs
   delete[] rhsOffset_;
-  rhsOffset_ = new double[numberRows];
+  rhsOffset_ = new FloatT[numberRows];
   delete[] next_;
   next_ = new int[numberColumns + numberSets_ + 2 * longestSet];
   char *mark = new char[numberColumns];
@@ -3357,7 +3357,7 @@ void ClpGubMatrix::useEffectiveRhs(ClpSimplex *model, bool cheapest)
       // slack key
       keyVariable_[i] = numberColumns + i;
       int j;
-      double sol = 0.0;
+      FloatT sol = 0.0;
       j = keys[i];
       if (j != COIN_INT_MAX) {
         while (1) {
@@ -3437,7 +3437,7 @@ void ClpGubMatrix::redoSet(ClpSimplex *model, int newKey, int oldKey, int iSet)
 /* Returns effective RHS if it is being used.  This is used for long problems
    or big gub or anywhere where going through full columns is
    expensive.  This may re-compute */
-double *
+FloatT *
 ClpGubMatrix::rhsOffset(ClpSimplex *model, bool forceRefresh, bool
 #ifdef CLP_DEBUG
                                                                 check
@@ -3452,8 +3452,8 @@ ClpGubMatrix::rhsOffset(ClpSimplex *model, bool forceRefresh, bool
       // zero out basic
       int numberRows = model->numberRows();
       int numberColumns = model->numberColumns();
-      double *solution = new double[numberColumns];
-      double *rhs = new double[numberRows];
+      FloatT *solution = new FloatT[numberColumns];
+      FloatT *rhs = new FloatT[numberRows];
       CoinMemcpyN(model->solutionRegion(), numberColumns, solution);
       CoinZeroN(rhs, numberRows);
       int iRow;
@@ -3468,13 +3468,13 @@ ClpGubMatrix::rhsOffset(ClpSimplex *model, bool forceRefresh, bool
       }
       times(-1.0, solution, rhs);
       delete[] solution;
-      const double *columnSolution = model->solutionRegion();
+      const FloatT *columnSolution = model->solutionRegion();
       // and now subtract out non basic
       ClpSimplex::Status iStatus;
       for (int iSet = 0; iSet < numberSets_; iSet++) {
         int iColumn = keyVariable_[iSet];
         if (iColumn < numberColumns) {
-          double b = 0.0;
+          FloatT b = 0.0;
           // key is structural - where is slack
           iStatus = getStatus(iSet);
           assert(iStatus != ClpSimplex::basic);
@@ -3511,7 +3511,7 @@ ClpGubMatrix::rhsOffset(ClpSimplex *model, bool forceRefresh, bool
       // zero out basic
       int numberRows = model->numberRows();
       int numberColumns = model->numberColumns();
-      double *solution = new double[numberColumns];
+      FloatT *solution = new FloatT[numberColumns];
       CoinMemcpyN(model->solutionRegion(), numberColumns, solution);
       CoinZeroN(rhsOffset_, numberRows);
       for (int iColumn = 0; iColumn < numberColumns; iColumn++) {
@@ -3527,13 +3527,13 @@ ClpGubMatrix::rhsOffset(ClpSimplex *model, bool forceRefresh, bool
       times(-1.0, solution, rhsOffset_);
       delete[] solution;
       lastRefresh_ = model->numberIterations();
-      const double *columnSolution = model->solutionRegion();
+      const FloatT *columnSolution = model->solutionRegion();
       // and now subtract out non basic
       ClpSimplex::Status iStatus;
       for (iSet = 0; iSet < numberSets_; iSet++) {
         int iColumn = keyVariable_[iSet];
         if (iColumn < numberColumns) {
-          double b = 0.0;
+          FloatT b = 0.0;
           // key is structural - where is slack
           iStatus = getStatus(iSet);
           assert(iStatus != ClpSimplex::basic);
@@ -3567,11 +3567,11 @@ ClpGubMatrix::rhsOffset(ClpSimplex *model, bool forceRefresh, bool
 /*
    update information for a pivot (and effective rhs)
 */
-int ClpGubMatrix::updatePivot(ClpSimplex *model, double oldInValue, double /*oldOutValue*/)
+int ClpGubMatrix::updatePivot(ClpSimplex *model, FloatT oldInValue, FloatT /*oldOutValue*/)
 {
   int sequenceIn = model->sequenceIn();
   int sequenceOut = model->sequenceOut();
-  double *solution = model->solutionRegion();
+  FloatT *solution = model->solutionRegion();
   int numberColumns = model->numberColumns();
   int numberRows = model->numberRows();
   int pivotRow = model->pivotRow();
@@ -3614,7 +3614,7 @@ int ClpGubMatrix::updatePivot(ClpSimplex *model, double oldInValue, double /*old
           // old contribution to rhsOffset_
           int key = keyVariable_[iSetIn];
           if (key < numberColumns) {
-            double oldB = 0.0;
+            FloatT oldB = 0.0;
             ClpSimplex::Status iStatus = getStatus(iSetIn);
             if (iStatus == ClpSimplex::atLowerBound)
               oldB = lower_[iSetIn];
@@ -3651,7 +3651,7 @@ int ClpGubMatrix::updatePivot(ClpSimplex *model, double oldInValue, double /*old
         // old contribution to rhsOffset_
         int key = keyVariable_[iSetIn];
         if (key < numberColumns) {
-          double oldB = 0.0;
+          FloatT oldB = 0.0;
           ClpSimplex::Status iStatus = getStatus(iSetIn);
           if (iStatus == ClpSimplex::atLowerBound)
             oldB = lower_[iSetIn];
@@ -3683,7 +3683,7 @@ int ClpGubMatrix::updatePivot(ClpSimplex *model, double oldInValue, double /*old
           // old contribution to rhsOffset_
           int key = keyVariable_[iSetOut];
           if (key < numberColumns && iSetIn != iSetOut) {
-            double oldB = 0.0;
+            FloatT oldB = 0.0;
             ClpSimplex::Status iStatus = getStatus(iSetOut);
             if (iStatus == ClpSimplex::atLowerBound)
               oldB = lower_[iSetOut];
@@ -3734,7 +3734,7 @@ int ClpGubMatrix::updatePivot(ClpSimplex *model, double oldInValue, double /*old
 #endif
     // if slack out mark correctly
     if (sequenceOut >= numberRows + numberColumns) {
-      double value = model->valueOut();
+      FloatT value = model->valueOut();
       if (value == upper_[iSetOut]) {
         setStatus(iSetOut, ClpSimplex::atUpperBound);
       } else if (value == lower_[iSetOut]) {
@@ -3866,7 +3866,7 @@ int ClpGubMatrix::updatePivot(ClpSimplex *model, double oldInValue, double /*old
           // new contribution to rhsOffset_
           int key = keyVariable_[iSetIn];
           if (key < numberColumns) {
-            double newB = 0.0;
+            FloatT newB = 0.0;
             ClpSimplex::Status iStatus = getStatus(iSetIn);
             if (iStatus == ClpSimplex::atLowerBound)
               newB = lower_[iSetIn];
@@ -3896,7 +3896,7 @@ int ClpGubMatrix::updatePivot(ClpSimplex *model, double oldInValue, double /*old
         // new contribution to rhsOffset_
         int key = keyVariable_[iSetOut];
         if (key < numberColumns && iSetIn != iSetOut) {
-          double newB = 0.0;
+          FloatT newB = 0.0;
           ClpSimplex::Status iStatus = getStatus(iSetOut);
           if (iStatus == ClpSimplex::atLowerBound)
             newB = lower_[iSetOut];
@@ -3935,10 +3935,10 @@ int ClpGubMatrix::updatePivot(ClpSimplex *model, double oldInValue, double /*old
       if (iPivot < numberColumns && backward_[iPivot] >= 0)
         xxxx[iPivot] = 1;
     }
-    double primalTolerance = model->primalTolerance();
+    FloatT primalTolerance = model->primalTolerance();
     for (i = 0; i < numberSets_; i++) {
       int key = keyVariable_[i];
-      double value = 0.0;
+      FloatT value = 0.0;
       // sum over all except key
       int iColumn = next_[key];
       // sum all non-key variables
@@ -3957,7 +3957,7 @@ int ClpGubMatrix::updatePivot(ClpSimplex *model, double oldInValue, double /*old
       if (key < numberColumns) {
         // feasibility will be done later
         assert(getStatus(i) != ClpSimplex::basic);
-        double sol;
+        FloatT sol;
         if (getStatus(i) == ClpSimplex::atUpperBound)
           sol = upper_[i] - value;
         else
@@ -3968,7 +3968,7 @@ int ClpGubMatrix::updatePivot(ClpSimplex *model, double oldInValue, double /*old
         //printf("** stored value was %g\n",solution[key]);
       } else {
         // slack is key
-        double infeasibility = 0.0;
+        FloatT infeasibility = 0.0;
         if (value > upper_[i] + primalTolerance) {
           infeasibility = value - upper_[i] - primalTolerance;
           //setAbove(i);

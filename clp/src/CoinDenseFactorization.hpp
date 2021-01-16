@@ -85,11 +85,11 @@ public:
     return numberGoodU_;
   }
   /// Allows change of pivot accuracy check 1.0 == none >1.0 relaxed
-  inline void relaxAccuracyCheck(double value)
+  inline void relaxAccuracyCheck(FloatT value)
   {
     relaxCheck_ = value;
   }
-  inline double getAccuracyCheck() const
+  inline FloatT getAccuracyCheck() const
   {
     return relaxCheck_;
   }
@@ -102,24 +102,24 @@ public:
   virtual void maximumPivots(int value);
 
   /// Pivot tolerance
-  inline double pivotTolerance() const
+  inline FloatT pivotTolerance() const
   {
     return pivotTolerance_;
   }
-  void pivotTolerance(double value);
+  void pivotTolerance(FloatT value);
   /// Zero tolerance
-  inline double zeroTolerance() const
+  inline FloatT zeroTolerance() const
   {
     return zeroTolerance_;
   }
-  void zeroTolerance(double value);
+  void zeroTolerance(FloatT value);
 #ifndef COIN_FAST_CODE
   /// Whether slack value is +1 or -1
-  inline double slackValue() const
+  inline FloatT slackValue() const
   {
     return slackValue_;
   }
-  void slackValue(double value);
+  void slackValue(FloatT value);
 #endif
   /// Returns array to put basis elements in
   virtual CoinFactorizationDouble *elements() const;
@@ -207,9 +207,9 @@ public:
    partial update already in U */
   virtual int replaceColumn(CoinIndexedVector *regionSparse,
     int pivotRow,
-    double pivotCheck,
+    FloatT pivotCheck,
     bool checkBeforeModifying = false,
-    double acceptablePivot = 1.0e-8)
+    FloatT acceptablePivot = 1.0e-8)
     = 0;
   //@}
 
@@ -250,19 +250,19 @@ protected:
   /**@name data */
   //@{
   /// Pivot tolerance
-  double pivotTolerance_;
+  FloatT pivotTolerance_;
   /// Zero tolerance
-  double zeroTolerance_;
+  FloatT zeroTolerance_;
 #ifndef COIN_FAST_CODE
   /// Whether slack value is  +1 or -1
-  double slackValue_;
+  FloatT slackValue_;
 #else
 #ifndef slackValue_
 #define slackValue_ -1.0
 #endif
 #endif
   /// Relax check on accuracy in replaceColumn
-  double relaxCheck_;
+  FloatT relaxCheck_;
   /// Number of elements after factorization
   int factorElements_;
   /// Number of Rows in factorization
@@ -353,7 +353,7 @@ public:
     return numberRows_ * (numberColumns_ + numberPivots_);
   }
   /// Returns maximum absolute value in factorization
-  double maximumCoefficient() const;
+  FloatT maximumCoefficient() const;
   //@}
 
   /**@name rank one updates which do exist */
@@ -368,9 +368,9 @@ public:
    partial update already in U */
   virtual int replaceColumn(CoinIndexedVector *regionSparse,
     int pivotRow,
-    double pivotCheck,
+    FloatT pivotCheck,
     bool checkBeforeModifying = false,
-    double acceptablePivot = 1.0e-8);
+    FloatT acceptablePivot = 1.0e-8);
   //@}
 
   /**@name various uses of factorization (return code number elements) 
@@ -439,7 +439,7 @@ public:
 protected:
   /** Returns accuracy status of replaceColumn
       returns 0=OK, 1=Probably OK, 2=singular */
-  int checkPivot(double saveFromU, double oldPivot) const;
+  int checkPivot(FloatT saveFromU, FloatT oldPivot) const;
   ////////////////// data //////////////////
 protected:
   /**@name data */

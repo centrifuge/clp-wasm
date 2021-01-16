@@ -27,13 +27,13 @@ public:
          Uses model for scaling
          includeLinear 0 - no, 1 as is, 2 as feasible
      */
-  virtual double *gradient(const ClpSimplex *model,
-    const double *solution, double &offset, bool refresh,
+  virtual FloatT *gradient(const ClpSimplex *model,
+    const FloatT *solution, FloatT &offset, bool refresh,
     int includeLinear = 2);
   /// Resize objective
   /** Returns reduced gradient.Returns an offset (to be added to current one).
      */
-  virtual double reducedGradient(ClpSimplex *model, double *region,
+  virtual FloatT reducedGradient(ClpSimplex *model, FloatT *region,
     bool useFeasibleCosts);
   /** Returns step length which gives minimum of objective for
          solution + theta * change vector up to maximum theta.
@@ -41,20 +41,20 @@ public:
          arrays are numberColumns+numberRows
          Also sets current objective, predicted and at maximumTheta
      */
-  virtual double stepLength(ClpSimplex *model,
-    const double *solution,
-    const double *change,
-    double maximumTheta,
-    double &currentObj,
-    double &predictedObj,
-    double &thetaObj);
+  virtual FloatT stepLength(ClpSimplex *model,
+    const FloatT *solution,
+    const FloatT *change,
+    FloatT maximumTheta,
+    FloatT &currentObj,
+    FloatT &predictedObj,
+    FloatT &thetaObj);
   /// Return objective value (without any ClpModel offset) (model may be NULL)
-  virtual double objectiveValue(const ClpSimplex *model, const double *solution) const;
+  virtual FloatT objectiveValue(const ClpSimplex *model, const FloatT *solution) const;
   virtual void resize(int newNumberColumns);
   /// Delete columns in  objective
   virtual void deleteSome(int numberToDelete, const int *which);
   /// Scale objective
-  virtual void reallyScale(const double *columnScale);
+  virtual void reallyScale(const FloatT *columnScale);
   /** Given a zeroed array sets nonlinear columns to 1.
          Returns number of nonlinear columns
       */
@@ -68,9 +68,9 @@ public:
   ClpQuadraticObjective();
 
   /// Constructor from objective
-  ClpQuadraticObjective(const double *linearObjective, int numberColumns,
+  ClpQuadraticObjective(const FloatT *linearObjective, int numberColumns,
     const CoinBigIndex *start,
-    const int *column, const double *element,
+    const int *column, const FloatT *element,
     int numberExtendedColumns_ = -1);
 
   /** Copy constructor .
@@ -101,7 +101,7 @@ public:
   /** Load up quadratic objective.  This is stored as a CoinPackedMatrix */
   void loadQuadraticObjective(const int numberColumns,
     const CoinBigIndex *start,
-    const int *column, const double *element,
+    const int *column, const FloatT *element,
     int numberExtendedColumns = -1);
   void loadQuadraticObjective(const CoinPackedMatrix &matrix);
   /// Get rid of quadratic objective
@@ -115,7 +115,7 @@ public:
     return quadraticObjective_;
   }
   /// Linear objective
-  inline double *linearObjective() const
+  inline FloatT *linearObjective() const
   {
     return objective_;
   }
@@ -143,9 +143,9 @@ private:
   /// Quadratic objective
   CoinPackedMatrix *quadraticObjective_;
   /// Objective
-  double *objective_;
+  FloatT *objective_;
   /// Gradient
-  double *gradient_;
+  FloatT *gradient_;
   /// Useful to have number of columns about
   int numberColumns_;
   /// Also length of linear objective which could be bigger

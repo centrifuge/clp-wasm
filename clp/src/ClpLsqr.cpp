@@ -6,10 +6,10 @@
 #include "ClpLsqr.hpp"
 #include "ClpPdco.hpp"
 
-void ClpLsqr::do_lsqr(CoinDenseVector< double > &b,
-  double damp, double atol, double btol, double conlim, int itnlim,
-  bool show, Info info, CoinDenseVector< double > &x, int *istop,
-  int *itn, Outfo *outfo, bool precon, CoinDenseVector< double > &Pr)
+void ClpLsqr::do_lsqr(CoinDenseVector< FloatT > &b,
+  FloatT damp, FloatT atol, FloatT btol, FloatT conlim, int itnlim,
+  bool show, Info info, CoinDenseVector< FloatT > &x, int *istop,
+  int *itn, Outfo *outfo, bool precon, CoinDenseVector< FloatT > &Pr)
 {
 
   /**
@@ -39,27 +39,27 @@ void ClpLsqr::do_lsqr(CoinDenseVector< double > &b,
 
   *itn = 0;
   *istop = 0;
-  double ctol = 0;
+  FloatT ctol = 0;
   if (conlim > 0)
     ctol = 1 / conlim;
 
-  double anorm = 0;
-  double acond = 0;
-  double ddnorm = 0;
-  double xnorm = 0;
-  double xxnorm = 0;
-  double z = 0;
-  double cs2 = -1;
-  double sn2 = 0;
+  FloatT anorm = 0;
+  FloatT acond = 0;
+  FloatT ddnorm = 0;
+  FloatT xnorm = 0;
+  FloatT xxnorm = 0;
+  FloatT z = 0;
+  FloatT cs2 = -1;
+  FloatT sn2 = 0;
 
   // Set up the first vectors u and v for the bidiagonalization.
   // These satisfy  beta*u = b,  alfa*v = A'u.
 
-  CoinDenseVector< double > u(b);
-  CoinDenseVector< double > v(n, 0.0);
+  CoinDenseVector< FloatT > u(b);
+  CoinDenseVector< FloatT > v(n, 0.0);
   x.clear();
-  double alfa = 0;
-  double beta = u.twoNorm();
+  FloatT alfa = 0;
+  FloatT beta = u.twoNorm();
   if (beta > 0) {
     u = (1 / beta) * u;
     matVecMult(2, v, u);
@@ -70,25 +70,25 @@ void ClpLsqr::do_lsqr(CoinDenseVector< double > &b,
   if (alfa > 0) {
     v.scale(1 / alfa);
   }
-  CoinDenseVector< double > w(v);
+  CoinDenseVector< FloatT > w(v);
 
-  double arnorm = alfa * beta;
+  FloatT arnorm = alfa * beta;
   if (arnorm == 0) {
     printf("  %s\n\n", term_msg[0]);
     return;
   }
 
-  double rhobar = alfa;
-  double phibar = beta;
-  double bnorm = beta;
-  double rnorm = beta;
+  FloatT rhobar = alfa;
+  FloatT phibar = beta;
+  FloatT bnorm = beta;
+  FloatT rnorm = beta;
   sprintf(head1, "   Itn      x(1)      Function");
   sprintf(head2, " Compatible   LS      Norm A   Cond A");
 
   if (show) {
     printf(" %s%s\n", head1, head2);
-    double test1 = 1;
-    double test2 = alfa / beta;
+    FloatT test1 = 1;
+    FloatT test2 = alfa / beta;
     sprintf(str1, "%6d %12.5e %10.3e", *itn, x[0], rnorm);
     sprintf(str2, "  %8.1e  %8.1e", test1, test2);
     printf("%s%s\n", str1, str2);
@@ -106,7 +106,7 @@ void ClpLsqr::do_lsqr(CoinDenseVector< double > &b,
 
     u.scale((-alfa));
     if (precon) {
-      CoinDenseVector< double > pv(v * Pr);
+      CoinDenseVector< FloatT > pv(v * Pr);
       matVecMult(1, u, pv);
     } else {
       matVecMult(1, u, v);
@@ -116,7 +116,7 @@ void ClpLsqr::do_lsqr(CoinDenseVector< double > &b,
       u.scale((1 / beta));
       anorm = sqrt(anorm * anorm + alfa * alfa + beta * beta + damp * damp);
       v.scale((-beta));
-      CoinDenseVector< double > vv(n);
+      CoinDenseVector< FloatT > vv(n);
       vv.clear();
       matVecMult(2, vv, u);
       if (precon)
@@ -130,31 +130,31 @@ void ClpLsqr::do_lsqr(CoinDenseVector< double > &b,
     // Use a plane rotation to eliminate the damping parameter.
     // This alters the diagonal (rhobar) of the lower-bidiagonal matrix.
 
-    double rhobar1 = sqrt(rhobar * rhobar + damp * damp);
-    double cs1 = rhobar / rhobar1;
-    double sn1 = damp / rhobar1;
-    double psi = sn1 * phibar;
+    FloatT rhobar1 = sqrt(rhobar * rhobar + damp * damp);
+    FloatT cs1 = rhobar / rhobar1;
+    FloatT sn1 = damp / rhobar1;
+    FloatT psi = sn1 * phibar;
     phibar *= cs1;
 
     // Use a plane rotation to eliminate the subdiagonal element (beta)
     // of the lower-bidiagonal matrix, giving an upper-bidiagonal matrix.
 
-    double rho = sqrt(rhobar1 * rhobar1 + beta * beta);
-    double cs = rhobar1 / rho;
-    double sn = beta / rho;
-    double theta = sn * alfa;
+    FloatT rho = sqrt(rhobar1 * rhobar1 + beta * beta);
+    FloatT cs = rhobar1 / rho;
+    FloatT sn = beta / rho;
+    FloatT theta = sn * alfa;
     rhobar = -cs * alfa;
-    double phi = cs * phibar;
+    FloatT phi = cs * phibar;
     phibar = sn * phibar;
-    double tau = sn * phi;
+    FloatT tau = sn * phi;
 
     // Update x and w.
 
-    double t1 = phi / rho;
-    double t2 = -theta / rho;
+    FloatT t1 = phi / rho;
+    FloatT t2 = -theta / rho;
     //    dk           =   ((1/rho)*w);
 
-    double w_norm = w.twoNorm();
+    FloatT w_norm = w.twoNorm();
     x = x + t1 * w;
     w = v + t2 * w;
     ddnorm = ddnorm + (w_norm / rho) * (w_norm / rho);
@@ -164,12 +164,12 @@ void ClpLsqr::do_lsqr(CoinDenseVector< double > &b,
     // super-diagonal element (theta) of the upper-bidiagonal matrix.
     // Then use the result to estimate  norm(x).
 
-    double delta = sn2 * rho;
-    double gambar = -cs2 * rho;
-    double rhs = phi - delta * z;
-    double zbar = rhs / gambar;
+    FloatT delta = sn2 * rho;
+    FloatT gambar = -cs2 * rho;
+    FloatT rhs = phi - delta * z;
+    FloatT zbar = rhs / gambar;
     xnorm = sqrt(xxnorm + zbar * zbar);
-    double gamma = sqrt(gambar * gambar + theta * theta);
+    FloatT gamma = sqrt(gambar * gambar + theta * theta);
     cs2 = gambar / gamma;
     sn2 = theta / gamma;
     z = rhs / gamma;
@@ -180,19 +180,19 @@ void ClpLsqr::do_lsqr(CoinDenseVector< double > &b,
     // and the norms of  rbar  and  Abar'rbar.
 
     acond = anorm * sqrt(ddnorm);
-    double res1 = phibar * phibar;
-    double res2 = res1 + psi * psi;
+    FloatT res1 = phibar * phibar;
+    FloatT res2 = res1 + psi * psi;
     rnorm = sqrt(res1 + res2);
     arnorm = alfa * fabs(tau);
 
     // Now use these norms to estimate certain other quantities,
     // some of which will be small near a solution.
 
-    double test1 = rnorm / bnorm;
-    double test2 = arnorm / (anorm * rnorm);
-    double test3 = 1 / acond;
+    FloatT test1 = rnorm / bnorm;
+    FloatT test2 = arnorm / (anorm * rnorm);
+    FloatT test3 = 1 / acond;
     t1 = test1 / (1 + anorm * xnorm / bnorm);
-    double rtol = btol + atol * anorm * xnorm / bnorm;
+    FloatT rtol = btol + atol * anorm * xnorm / bnorm;
 
     // The following tests guard against extremely small values of
     // atol, btol  or  ctol.  (The user may have set any or all of
@@ -227,10 +227,10 @@ void ClpLsqr::do_lsqr(CoinDenseVector< double > &b,
     // We allow for diagonal preconditioning in pdDDD3.
     //-------------------------------------------------------------------
     if (*istop > 0) {
-      double r3new = arnorm;
-      double r3ratio = r3new / info.r3norm;
-      double atolold = atol;
-      double atolnew = atol;
+      FloatT r3new = arnorm;
+      FloatT r3ratio = r3new / info.r3norm;
+      FloatT atolold = atol;
+      FloatT atolnew = atol;
 
       if (atol > info.atolmin) {
         if (r3ratio <= 0.1) { // dy seems good
@@ -303,14 +303,14 @@ void ClpLsqr::do_lsqr(CoinDenseVector< double > &b,
   }
 }
 
-void ClpLsqr::matVecMult(int mode, CoinDenseVector< double > *x, CoinDenseVector< double > *y)
+void ClpLsqr::matVecMult(int mode, CoinDenseVector< FloatT > *x, CoinDenseVector< FloatT > *y)
 {
   int n = model_->numberColumns();
   int m = model_->numberRows();
-  CoinDenseVector< double > *temp = new CoinDenseVector< double >(n, 0.0);
-  double *t_elts = temp->getElements();
-  double *x_elts = x->getElements();
-  double *y_elts = y->getElements();
+  CoinDenseVector< FloatT > *temp = new CoinDenseVector< FloatT >(n, 0.0);
+  FloatT *t_elts = temp->getElements();
+  FloatT *x_elts = x->getElements();
+  FloatT *y_elts = y->getElements();
   ClpPdco *pdcoModel = (ClpPdco *)model_;
   if (mode == 1) {
     pdcoModel->matVecMult(2, temp, y);
@@ -329,7 +329,7 @@ void ClpLsqr::matVecMult(int mode, CoinDenseVector< double > *x, CoinDenseVector
   return;
 }
 
-void ClpLsqr::matVecMult(int mode, CoinDenseVector< double > &x, CoinDenseVector< double > &y)
+void ClpLsqr::matVecMult(int mode, CoinDenseVector< FloatT > &x, CoinDenseVector< FloatT > &y)
 {
   matVecMult(mode, &x, &y);
   return;

@@ -27,26 +27,26 @@ const CoinPresolveAction *isolated_constraint_action::presolve(CoinPresolveMatri
   int *hincol = prob->hincol_;
   const CoinBigIndex *mcstrt = prob->mcstrt_;
   int *hrow = prob->hrow_;
-  double *colels = prob->colels_;
+  FloatT *colels = prob->colels_;
 
-  double *clo = prob->clo_;
-  double *cup = prob->cup_;
+  FloatT *clo = prob->clo_;
+  FloatT *cup = prob->cup_;
 
-  const double *rowels = prob->rowels_;
+  const FloatT *rowels = prob->rowels_;
   const int *hcol = prob->hcol_;
   const CoinBigIndex *mrstrt = prob->mrstrt_;
 
   // may be written by useless constraint
   int *hinrow = prob->hinrow_;
 
-  double *rlo = prob->rlo_;
-  double *rup = prob->rup_;
+  FloatT *rlo = prob->rlo_;
+  FloatT *rup = prob->rup_;
 
   CoinBigIndex krs = mrstrt[irow];
   CoinBigIndex kre = krs + hinrow[irow];
 
-  double *dcost = prob->cost_;
-  const double maxmin = prob->maxmin_;
+  FloatT *dcost = prob->cost_;
+  const FloatT maxmin = prob->maxmin_;
 
 #if PRESOLVE_DEBUG
   {
@@ -78,10 +78,10 @@ const CoinPresolveAction *isolated_constraint_action::presolve(CoinPresolveMatri
   int nc = hinrow[irow];
 
 #if 0
-  double tableau = new double[nc];
-  double sol = new double[nc];
-  double clo = new double[nc];
-  double cup = new double[nc];
+  FloatT tableau = new FloatT[nc];
+  FloatT sol = new FloatT[nc];
+  FloatT clo = new FloatT[nc];
+  FloatT cup = new FloatT[nc];
 
 
   for (int i=0; i<nc; ++i) {
@@ -95,7 +95,7 @@ const CoinPresolveAction *isolated_constraint_action::presolve(CoinPresolveMatri
 #endif
 
   // HACK - set costs to 0.0 so empty.cpp doesn't complain
-  double *costs = new double[nc];
+  FloatT *costs = new FloatT[nc];
   for (k = krs; k < kre; ++k) {
     costs[k - krs] = dcost[hcol[k]];
     dcost[hcol[k]] = 0.0;
@@ -136,23 +136,23 @@ const char *isolated_constraint_action::name() const
 
 void isolated_constraint_action::postsolve(CoinPostsolveMatrix *prob) const
 {
-  double *colels = prob->colels_;
+  FloatT *colels = prob->colels_;
   int *hrow = prob->hrow_;
   CoinBigIndex *mcstrt = prob->mcstrt_;
   CoinBigIndex *link = prob->link_;
   int *hincol = prob->hincol_;
 
-  double *rowduals = prob->rowduals_;
-  double *rowacts = prob->acts_;
-  double *sol = prob->sol_;
+  FloatT *rowduals = prob->rowduals_;
+  FloatT *rowacts = prob->acts_;
+  FloatT *sol = prob->sol_;
 
   CoinBigIndex &free_list = prob->free_list_;
 
   // hides fields
-  double *rlo = prob->rlo_;
-  double *rup = prob->rup_;
+  FloatT *rlo = prob->rlo_;
+  FloatT *rup = prob->rup_;
 
-  double rowact = 0.0;
+  FloatT rowact = 0.0;
 
   int irow = this->row_;
 
@@ -192,15 +192,15 @@ void isolated_constraint_action::postsolve(CoinPostsolveMatrix *prob) const
 
   // leave until desctructor
   //  deleteAction(rowcols_,int *);
-  //  deleteAction(rowels_,double *);
-  //  deleteAction(costs_,double *);
+  //  deleteAction(rowels_,FloatT *);
+  //  deleteAction(costs_,FloatT *);
 }
 
 isolated_constraint_action::~isolated_constraint_action()
 {
   deleteAction(rowcols_, int *);
-  deleteAction(rowels_, double *);
-  deleteAction(costs_, double *);
+  deleteAction(rowels_, FloatT *);
+  deleteAction(costs_, FloatT *);
 }
 
 /* vi: softtabstop=2 shiftwidth=2 expandtab tabstop=2

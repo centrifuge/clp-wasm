@@ -32,18 +32,18 @@ const static bool doCheck = false;
 #endif
 #ifdef CLP_FACTORIZATION_INSTRUMENT
 #include "CoinTime.hpp"
-double factorization_instrument(int type)
+FloatT factorization_instrument(int type)
 {
   static int times[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-  static double startTime = 0.0;
-  static double totalTimes[10] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+  static FloatT startTime = 0.0;
+  static FloatT totalTimes[10] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
   if (type < 0) {
     assert(!startTime);
     startTime = CoinCpuTime();
     return 0.0;
   } else if (type > 0) {
     times[type]++;
-    double difference = CoinCpuTime() - startTime;
+    FloatT difference = CoinCpuTime() - startTime;
     totalTimes[type] += difference;
     startTime = 0.0;
     return difference;
@@ -53,7 +53,7 @@ double factorization_instrument(int type)
       "", "fac=rhs_etc", "factorize", "replace", "update_FT",
       "update", "update_transpose", "gosparse", "getWeights!", "update2_FT"
     };
-    double total = 0.0;
+    FloatT total = 0.0;
     for (int i = 1; i < 10; i++) {
       if (times[i]) {
         printf("%s was called %d times taking %g seconds\n",
@@ -198,18 +198,18 @@ int ClpFactorization::factorize(ClpSimplex *model,
                          CoinIndexedVector * objArray = model->columnArray(1);
                          array->clear();
                          objArray->clear();
-                         double * cost = model->costRegion();
-                         double tolerance = model->primalTolerance();
-                         double offset = 0.0;
+                         FloatT * cost = model->costRegion();
+                         FloatT tolerance = model->primalTolerance();
+                         FloatT offset = 0.0;
                          for (i = 0; i < numberRows; i++) {
                               int iPivot = pivotVariable[i];
                               if (iPivot < numberColumns && isDense(iPivot)) {
                                    if (model->getColumnStatus(iPivot) == ClpSimplex::basic) {
                                         nStill++;
-                                        double value = model->solutionRegion()[iPivot];
-                                        double dual = model->dualRowSolution()[i];
-                                        double lower = model->lowerRegion()[iPivot];
-                                        double upper = model->upperRegion()[iPivot];
+                                        FloatT value = model->solutionRegion()[iPivot];
+                                        FloatT dual = model->dualRowSolution()[i];
+                                        FloatT lower = model->lowerRegion()[iPivot];
+                                        FloatT upper = model->upperRegion()[iPivot];
                                         ClpSimplex::Status status;
                                         if (fabs(value - lower) < tolerance) {
                                              status = ClpSimplex::atLowerBound;
@@ -247,7 +247,7 @@ int ClpFactorization::factorize(ClpSimplex *model,
                               array->clear();
                               int n = objArray->getNumElements();
                               int * indices = objArray->getIndices();
-                              double * elements = objArray->denseVector();
+                              FloatT * elements = objArray->denseVector();
                               for (i = 0; i < n; i++) {
                                    int iColumn = indices[i];
                                    cost[iColumn] -= elements[iColumn];
@@ -377,7 +377,7 @@ int ClpFactorization::factorize(ClpSimplex *model,
         int *numberInColumn = numberInColumn_.array();
         CoinZeroN(numberInRow, numberRows_ + 1);
         CoinZeroN(numberInColumn, maximumColumnsExtra_ + 1);
-        double *elementU = elementU_.array();
+        FloatT *elementU = elementU_.array();
         int *indexRowU = indexRowU_.array();
         CoinBigIndex *startColumnU = startColumnU_.array();
         for (i = 0; i < numberRowBasic; i++) {
@@ -599,22 +599,22 @@ int ClpFactorization::factorize(ClpSimplex *model,
           }
         }
         delete[] isBasic;
-        double *columnLower = model->lowerRegion();
-        double *columnUpper = model->upperRegion();
-        double *columnActivity = model->solutionRegion();
-        double *rowLower = model->lowerRegion(0);
-        double *rowUpper = model->upperRegion(0);
-        double *rowActivity = model->solutionRegion(0);
+        FloatT *columnLower = model->lowerRegion();
+        FloatT *columnUpper = model->upperRegion();
+        FloatT *columnActivity = model->solutionRegion();
+        FloatT *rowLower = model->lowerRegion(0);
+        FloatT *rowUpper = model->upperRegion(0);
+        FloatT *rowActivity = model->solutionRegion(0);
         //redo basis - first take ALL columns out
         int iColumn;
-        double largeValue = model->largeValue();
+        FloatT largeValue = model->largeValue();
         for (iColumn = 0; iColumn < numberColumns; iColumn++) {
           if (model->getColumnStatus(iColumn) == ClpSimplex::basic) {
             // take out
             if (!valuesPass) {
-              double lower = columnLower[iColumn];
-              double upper = columnUpper[iColumn];
-              double value = columnActivity[iColumn];
+              FloatT lower = columnLower[iColumn];
+              FloatT upper = columnUpper[iColumn];
+              FloatT value = columnActivity[iColumn];
               if (lower > -largeValue || upper < largeValue) {
                 if (fabs(value - lower) < fabs(value - upper)) {
                   model->setColumnStatus(iColumn, ClpSimplex::atLowerBound);
@@ -726,9 +726,9 @@ int ClpFactorization::replaceColumn(const ClpSimplex *model,
   CoinIndexedVector *regionSparse,
   CoinIndexedVector *tableauColumn,
   int pivotRow,
-  double pivotCheck,
+  FloatT pivotCheck,
   bool checkBeforeModifying,
-  double acceptablePivot)
+  FloatT acceptablePivot)
 {
   int returnCode;
 #ifndef SLIM_CLP
@@ -802,16 +802,16 @@ int ClpFactorization::updateColumnFT(CoinIndexedVector *regionSparse,
   } else {
 #ifdef CHECK_NETWORK
     CoinIndexedVector *save = new CoinIndexedVector(*regionSparse2);
-    double *check = new double[numberRows_];
+    FloatT *check = new FloatT[numberRows_];
     int returnCode = CoinFactorization::updateColumnFT(regionSparse,
       regionSparse2);
     networkBasis_->updateColumn(regionSparse, save, -1);
     int i;
-    double *array = regionSparse2->denseVector();
+    FloatT *array = regionSparse2->denseVector();
     int *indices = regionSparse2->getIndices();
     int n = regionSparse2->getNumElements();
-    memset(check, 0, numberRows_ * sizeof(double));
-    double *array2 = save->denseVector();
+    memset(check, 0, numberRows_ * sizeof(FloatT));
+    FloatT *array2 = save->denseVector();
     int *indices2 = save->getIndices();
     int n2 = save->getNumElements();
     assert(n == n2);
@@ -820,13 +820,13 @@ int ClpFactorization::updateColumnFT(CoinIndexedVector *regionSparse,
         check[indices[i]] = array[i];
       }
       for (i = 0; i < n; i++) {
-        double value2 = array2[i];
+        FloatT value2 = array2[i];
         assert(check[indices2[i]] == value2);
       }
     } else {
       for (i = 0; i < numberRows_; i++) {
-        double value1 = array[i];
-        double value2 = array2[i];
+        FloatT value1 = array[i];
+        FloatT value2 = array2[i];
         assert(value1 == value2);
       }
     }
@@ -872,17 +872,17 @@ int ClpFactorization::updateColumn(CoinIndexedVector *regionSparse,
   } else {
 #ifdef CHECK_NETWORK
     CoinIndexedVector *save = new CoinIndexedVector(*regionSparse2);
-    double *check = new double[numberRows_];
+    FloatT *check = new FloatT[numberRows_];
     int returnCode = CoinFactorization::updateColumn(regionSparse,
       regionSparse2,
       noPermute);
     networkBasis_->updateColumn(regionSparse, save, -1);
     int i;
-    double *array = regionSparse2->denseVector();
+    FloatT *array = regionSparse2->denseVector();
     int *indices = regionSparse2->getIndices();
     int n = regionSparse2->getNumElements();
-    memset(check, 0, numberRows_ * sizeof(double));
-    double *array2 = save->denseVector();
+    memset(check, 0, numberRows_ * sizeof(FloatT));
+    FloatT *array2 = save->denseVector();
     int *indices2 = save->getIndices();
     int n2 = save->getNumElements();
     assert(n == n2);
@@ -891,13 +891,13 @@ int ClpFactorization::updateColumn(CoinIndexedVector *regionSparse,
         check[indices[i]] = array[i];
       }
       for (i = 0; i < n; i++) {
-        double value2 = array2[i];
+        FloatT value2 = array2[i];
         assert(check[indices2[i]] == value2);
       }
     } else {
       for (i = 0; i < numberRows_; i++) {
-        double value1 = array[i];
-        double value2 = array2[i];
+        FloatT value1 = array[i];
+        FloatT value2 = array2[i];
         assert(value1 == value2);
       }
     }
@@ -967,16 +967,16 @@ int ClpFactorization::updateColumnTranspose(CoinIndexedVector *regionSparse,
   } else {
 #ifdef CHECK_NETWORK
     CoinIndexedVector *save = new CoinIndexedVector(*regionSparse2);
-    double *check = new double[numberRows_];
+    FloatT *check = new FloatT[numberRows_];
     int returnCode = CoinFactorization::updateColumnTranspose(regionSparse,
       regionSparse2);
     networkBasis_->updateColumnTranspose(regionSparse, save);
     int i;
-    double *array = regionSparse2->denseVector();
+    FloatT *array = regionSparse2->denseVector();
     int *indices = regionSparse2->getIndices();
     int n = regionSparse2->getNumElements();
-    memset(check, 0, numberRows_ * sizeof(double));
-    double *array2 = save->denseVector();
+    memset(check, 0, numberRows_ * sizeof(FloatT));
+    FloatT *array2 = save->denseVector();
     int *indices2 = save->getIndices();
     int n2 = save->getNumElements();
     assert(n == n2);
@@ -985,13 +985,13 @@ int ClpFactorization::updateColumnTranspose(CoinIndexedVector *regionSparse,
         check[indices[i]] = array[i];
       }
       for (i = 0; i < n; i++) {
-        double value2 = array2[i];
+        FloatT value2 = array2[i];
         assert(check[indices2[i]] == value2);
       }
     } else {
       for (i = 0; i < numberRows_; i++) {
-        double value1 = array[i];
-        double value2 = array2[i];
+        FloatT value1 = array[i];
+        FloatT value2 = array2[i];
         assert(value1 == value2);
       }
     }
@@ -1172,7 +1172,7 @@ ClpFactorization::ClpFactorization()
   goDenseThreshold_ = -1;
   goSmallThreshold_ = -1;
   doStatistics_ = true;
-  memset(&shortestAverage_, 0, 3 * (sizeof(double) + sizeof(int)));
+  memset(&shortestAverage_, 0, 3 * (sizeof(FloatT) + sizeof(int)));
 }
 
 //-------------------------------------------------------------------
@@ -1254,7 +1254,7 @@ ClpFactorization::ClpFactorization(const ClpFactorization &rhs,
 #ifdef CLP_FACTORIZATION_INSTRUMENT
   factorization_instrument(1);
 #endif
-  memcpy(&shortestAverage_, &rhs.shortestAverage_, 3 * (sizeof(double) + sizeof(int)));
+  memcpy(&shortestAverage_, &rhs.shortestAverage_, 3 * (sizeof(FloatT) + sizeof(int)));
 }
 
 ClpFactorization::ClpFactorization(const CoinFactorization &rhs)
@@ -1276,7 +1276,7 @@ ClpFactorization::ClpFactorization(const CoinFactorization &rhs)
   goSmallThreshold_ = -1;
   doStatistics_ = true;
   assert(!coinFactorizationA_ || !coinFactorizationB_);
-  memset(&shortestAverage_, 0, 3 * (sizeof(double) + sizeof(int)));
+  memset(&shortestAverage_, 0, 3 * (sizeof(FloatT) + sizeof(int)));
 }
 
 ClpFactorization::ClpFactorization(const CoinOtherFactorization &rhs)
@@ -1299,7 +1299,7 @@ ClpFactorization::ClpFactorization(const CoinOtherFactorization &rhs)
   factorization_instrument(1);
 #endif
   assert(!coinFactorizationA_ || !coinFactorizationB_);
-  memset(&shortestAverage_, 0, 3 * (sizeof(double) + sizeof(int)));
+  memset(&shortestAverage_, 0, 3 * (sizeof(FloatT) + sizeof(int)));
 }
 
 //-------------------------------------------------------------------
@@ -1339,7 +1339,7 @@ ClpFactorization::operator=(const ClpFactorization &rhs)
     goDenseThreshold_ = rhs.goDenseThreshold_;
     goSmallThreshold_ = rhs.goSmallThreshold_;
     doStatistics_ = rhs.doStatistics_;
-    memcpy(&shortestAverage_, &rhs.shortestAverage_, 3 * (sizeof(double) + sizeof(int)));
+    memcpy(&shortestAverage_, &rhs.shortestAverage_, 3 * (sizeof(FloatT) + sizeof(int)));
     if (rhs.coinFactorizationA_) {
       if (coinFactorizationA_)
         *coinFactorizationA_ = *(rhs.coinFactorizationA_);
@@ -1446,16 +1446,16 @@ void ClpFactorization::forceOtherFactorization(int which)
 }
 #ifdef CLP_FACTORIZATION_NEW_TIMING
 #ifdef CLP_FACTORIZATION_INSTRUMENT
-extern double externalTimeStart;
-extern double timeInFactorize;
-extern double timeInUpdate;
-extern double timeInFactorizeFake;
-extern double timeInUpdateFake1;
-extern double timeInUpdateFake2;
-extern double timeInUpdateTranspose;
-extern double timeInUpdateFT;
-extern double timeInUpdateTwoFT;
-extern double timeInReplace;
+extern FloatT externalTimeStart;
+extern FloatT timeInFactorize;
+extern FloatT timeInUpdate;
+extern FloatT timeInFactorizeFake;
+extern FloatT timeInUpdateFake1;
+extern FloatT timeInUpdateFake2;
+extern FloatT timeInUpdateTranspose;
+extern FloatT timeInUpdateFT;
+extern FloatT timeInUpdateTwoFT;
+extern FloatT timeInReplace;
 extern int numberUpdate;
 extern int numberUpdateTranspose;
 extern int numberUpdateFT;
@@ -1464,20 +1464,20 @@ extern int numberReplace;
 extern int currentLengthR;
 extern int currentLengthU;
 extern int currentTakeoutU;
-extern double averageLengthR;
-extern double averageLengthL;
-extern double averageLengthU;
-extern double scaledLengthDense;
-extern double scaledLengthDenseSquared;
-extern double scaledLengthL;
-extern double scaledLengthR;
-extern double scaledLengthU;
+extern FloatT averageLengthR;
+extern FloatT averageLengthL;
+extern FloatT averageLengthU;
+extern FloatT scaledLengthDense;
+extern FloatT scaledLengthDenseSquared;
+extern FloatT scaledLengthL;
+extern FloatT scaledLengthR;
+extern FloatT scaledLengthU;
 extern int startLengthU;
 extern int endLengthU;
 extern int endLengthU2;
 extern int numberAdded;
 static int average[3];
-static double shortest;
+static FloatT shortest;
 static int ifPrint;
 #else
 #ifdef CLP_STATIC
@@ -1485,9 +1485,9 @@ static int endLengthU_;
 #endif
 #endif
 #ifdef CLP_STATIC
-static double shortestAverage_;
-static double totalInR_ = 0.0;
-static double totalInIncreasingU_ = 0.0;
+static FloatT shortestAverage_;
+static FloatT totalInR_ = 0.0;
+static FloatT totalInIncreasingU_ = 0.0;
 //static int lastR=0;
 //static int lastU=0;
 static int lastNumberPivots_ = 0;
@@ -1502,15 +1502,15 @@ static int effectiveStartNumberU_ = 0;
 #endif
 #ifdef CLP_USEFUL_PRINTOUT
 static bool readTwiddle = false;
-static double weightIncU = 1.0;
-static double weightR = 2.0;
-static double weightRest = 1.0;
-static double weightFactL = 30.0;
-static double weightFactDense = 0.1;
-static double weightNrows = 10.0;
-static double increaseNeeded = 1.1;
-static double constWeightIterate = 1.0;
-static double weightNrowsIterate = 3.0;
+static FloatT weightIncU = 1.0;
+static FloatT weightR = 2.0;
+static FloatT weightRest = 1.0;
+static FloatT weightFactL = 30.0;
+static FloatT weightFactDense = 0.1;
+static FloatT weightNrows = 10.0;
+static FloatT increaseNeeded = 1.1;
+static FloatT constWeightIterate = 1.0;
+static FloatT weightNrowsIterate = 3.0;
 #else
 #define weightIncU 1.0
 #define weightR 2.0
@@ -1556,7 +1556,7 @@ bool ClpFactorization::timeToRefactorize() const
       }
       lastNumberPivots_ = numberPivots;
       int numberDense = coinFactorizationA_->numberDense();
-      double nnd = numberDense * numberDense;
+      FloatT nnd = numberDense * numberDense;
       int lengthL = coinFactorizationA_->numberElementsL();
       int lengthR = coinFactorizationA_->numberElementsR();
       int numberRows = coinFactorizationA_->numberRows();
@@ -1566,13 +1566,13 @@ bool ClpFactorization::timeToRefactorize() const
       totalInIncreasingU_ += effectiveU;
       //lastR=lengthR;
       //lastU=lengthU;
-      double rest = lengthL + 0.05 * nnd;
-      double constWeightFactor = weightFactL * lengthL + weightFactDense * nnd
+      FloatT rest = lengthL + 0.05 * nnd;
+      FloatT constWeightFactor = weightFactL * lengthL + weightFactDense * nnd
         + weightNrows * numberRows;
-      double constWeightIterateX = constWeightIterate * (lengthL + endLengthU_)
+      FloatT constWeightIterateX = constWeightIterate * (lengthL + endLengthU_)
         + weightNrowsIterate * numberRows;
-      double variableWeight = weightIncU * totalInIncreasingU_ + weightR * totalInR_ + weightRest * rest;
-      double average = constWeightIterateX + (constWeightFactor + variableWeight) / static_cast< double >(numberPivots);
+      FloatT variableWeight = weightIncU * totalInIncreasingU_ + weightR * totalInR_ + weightRest * rest;
+      FloatT average = constWeightIterateX + (constWeightFactor + variableWeight) / static_cast< FloatT >(numberPivots);
 #if 0
       if ((numberPivots%20)==0&&!ifPrint3)
       printf("PIV %d nrow %d startU %d now %d L %d R %d dense %g average %g\n",
@@ -1621,18 +1621,18 @@ void ClpFactorization::statsRefactor(char when) const
 {
   int numberPivots = coinFactorizationA_->pivots();
   int numberDense = coinFactorizationA_->numberDense();
-  double nnd = numberDense * numberDense;
+  FloatT nnd = numberDense * numberDense;
   int lengthL = coinFactorizationA_->numberElementsL();
   int lengthR = coinFactorizationA_->numberElementsR();
   int numberRows = coinFactorizationA_->numberRows();
   int lengthU = coinFactorizationA_->numberElementsU() - (numberRows - numberDense);
-  double rest = lengthL + 0.05 * nnd;
-  double constWeightFactor = weightFactL * lengthL + weightFactDense * nnd
+  FloatT rest = lengthL + 0.05 * nnd;
+  FloatT constWeightFactor = weightFactL * lengthL + weightFactDense * nnd
     + weightNrows * numberRows;
-  double constWeightIterateX = constWeightIterate * (lengthL + endLengthU_)
+  FloatT constWeightIterateX = constWeightIterate * (lengthL + endLengthU_)
     + weightNrowsIterate * numberRows;
-  double variableWeight = weightIncU * totalInIncreasingU_ + weightR * totalInR_ + weightRest * rest;
-  double average = constWeightIterateX + (constWeightFactor + variableWeight) / static_cast< double >(numberPivots);
+  FloatT variableWeight = weightIncU * totalInIncreasingU_ + weightR * totalInR_ + weightRest * rest;
+  FloatT average = constWeightIterateX + (constWeightFactor + variableWeight) / static_cast< FloatT >(numberPivots);
   printf("PIV%c %d nrow %d startU %d now %d L %d R %d dense %g average %g - shortest %g\n",
     when, numberPivots, numberRows, effectiveStartNumberU_,
     lengthU, lengthL, lengthR, nnd, average, shortestAverage_);
@@ -1818,7 +1818,7 @@ scaledDense,scaledDense_2,scaledL,scaledR,scaledU\n");
         startColumnU[i] = -1;
 #endif
 #ifndef COIN_FAST_CODE
-      double slackValue;
+      FloatT slackValue;
       slackValue = coinFactorizationB_->slackValue();
 #else
 #define slackValue -1.0
@@ -1887,22 +1887,22 @@ scaledDense,scaledDense_2,scaledL,scaledR,scaledU\n");
         // Change pivotTemp to be correct list
         anyChanged = true;
         coinFactorizationB_->makeNonSingular(pivotTemp, numberColumns);
-        double *columnLower = model->lowerRegion();
-        double *columnUpper = model->upperRegion();
-        double *columnActivity = model->solutionRegion();
-        double *rowLower = model->lowerRegion(0);
-        double *rowUpper = model->upperRegion(0);
-        double *rowActivity = model->solutionRegion(0);
+        FloatT *columnLower = model->lowerRegion();
+        FloatT *columnUpper = model->upperRegion();
+        FloatT *columnActivity = model->solutionRegion();
+        FloatT *rowLower = model->lowerRegion(0);
+        FloatT *rowUpper = model->upperRegion(0);
+        FloatT *rowActivity = model->solutionRegion(0);
         //redo basis - first take ALL out
         int iColumn;
-        double largeValue = model->largeValue();
+        FloatT largeValue = model->largeValue();
         for (iColumn = 0; iColumn < numberColumns; iColumn++) {
           if (model->getColumnStatus(iColumn) == ClpSimplex::basic) {
             // take out
             if (!valuesPass) {
-              double lower = columnLower[iColumn];
-              double upper = columnUpper[iColumn];
-              double value = columnActivity[iColumn];
+              FloatT lower = columnLower[iColumn];
+              FloatT upper = columnUpper[iColumn];
+              FloatT value = columnActivity[iColumn];
               if (lower > -largeValue || upper < largeValue) {
                 if (fabs(value - lower) < fabs(value - upper)) {
                   model->setColumnStatus(iColumn, ClpSimplex::atLowerBound);
@@ -1924,9 +1924,9 @@ scaledDense,scaledDense_2,scaledL,scaledR,scaledU\n");
           if (model->getRowStatus(iRow) == ClpSimplex::basic) {
             // take out
             if (!valuesPass) {
-              double lower = columnLower[iRow];
-              double upper = columnUpper[iRow];
-              double value = columnActivity[iRow];
+              FloatT lower = columnLower[iRow];
+              FloatT upper = columnUpper[iRow];
+              FloatT value = columnActivity[iRow];
               if (lower > -largeValue || upper < largeValue) {
                 if (fabs(value - lower) < fabs(value - upper)) {
                   model->setRowStatus(iRow, ClpSimplex::atLowerBound);
@@ -1975,7 +1975,7 @@ scaledDense,scaledDense_2,scaledL,scaledR,scaledU\n");
     CoinIndexedVector region1(2 * numberRows);
     CoinIndexedVector region2B(2 * numberRows);
     int iPivot;
-    double *arrayB = region2B.denseVector();
+    FloatT *arrayB = region2B.denseVector();
     int i;
     for (iPivot = 0; iPivot < numberRows; iPivot++) {
       int iSequence = pivotVariable[iPivot];
@@ -2003,7 +2003,7 @@ scaledDense,scaledDense_2,scaledL,scaledR,scaledU\n");
     factorization_instrument(2);
 #endif
     if (anyChanged && model->algorithm() < 0 && solveType > 0) {
-      double dummyCost;
+      FloatT dummyCost;
       static_cast< ClpSimplexDual * >(model)->changeBounds(3,
         NULL, dummyCost);
     }
@@ -2044,18 +2044,18 @@ scaledDense,scaledDense_2,scaledL,scaledR,scaledU\n");
                          CoinIndexedVector * objArray = model->columnArray(1);
                          array->clear();
                          objArray->clear();
-                         double * cost = model->costRegion();
-                         double tolerance = model->primalTolerance();
-                         double offset = 0.0;
+                         FloatT * cost = model->costRegion();
+                         FloatT tolerance = model->primalTolerance();
+                         FloatT offset = 0.0;
                          for (i = 0; i < numberRows; i++) {
                               int iPivot = pivotVariable[i];
                               if (iPivot < numberColumns && isDense(iPivot)) {
                                    if (model->getColumnStatus(iPivot) == ClpSimplex::basic) {
                                         nStill++;
-                                        double value = model->solutionRegion()[iPivot];
-                                        double dual = model->dualRowSolution()[i];
-                                        double lower = model->lowerRegion()[iPivot];
-                                        double upper = model->upperRegion()[iPivot];
+                                        FloatT value = model->solutionRegion()[iPivot];
+                                        FloatT dual = model->dualRowSolution()[i];
+                                        FloatT lower = model->lowerRegion()[iPivot];
+                                        FloatT upper = model->upperRegion()[iPivot];
                                         ClpSimplex::Status status;
                                         if (fabs(value - lower) < tolerance) {
                                              status = ClpSimplex::atLowerBound;
@@ -2093,7 +2093,7 @@ scaledDense,scaledDense_2,scaledL,scaledR,scaledU\n");
                               array->clear();
                               int n = objArray->getNumElements();
                               int * indices = objArray->getIndices();
-                              double * elements = objArray->denseVector();
+                              FloatT * elements = objArray->denseVector();
                               for (i = 0; i < n; i++) {
                                    int iColumn = indices[i];
                                    cost[iColumn] -= elements[iColumn];
@@ -2218,7 +2218,7 @@ scaledDense,scaledDense_2,scaledL,scaledR,scaledU\n");
         int *indexRowU = coinFactorizationA_->indexRowU();
         int *startColumnU = coinFactorizationA_->startColumnU();
 #ifndef COIN_FAST_CODE
-        double slackValue = coinFactorizationA_->slackValue();
+        FloatT slackValue = coinFactorizationA_->slackValue();
 #endif
         for (i = 0; i < numberRowBasic; i++) {
           int iRow = pivotTemp[i];
@@ -2447,22 +2447,22 @@ scaledDense,scaledDense_2,scaledL,scaledR,scaledU\n");
           }
         }
 #endif
-        double *columnLower = model->lowerRegion();
-        double *columnUpper = model->upperRegion();
-        double *columnActivity = model->solutionRegion();
-        double *rowLower = model->lowerRegion(0);
-        double *rowUpper = model->upperRegion(0);
-        double *rowActivity = model->solutionRegion(0);
+        FloatT *columnLower = model->lowerRegion();
+        FloatT *columnUpper = model->upperRegion();
+        FloatT *columnActivity = model->solutionRegion();
+        FloatT *rowLower = model->lowerRegion(0);
+        FloatT *rowUpper = model->upperRegion(0);
+        FloatT *rowActivity = model->solutionRegion(0);
         //redo basis - first take ALL columns out
         int iColumn;
-        double largeValue = model->largeValue();
+        FloatT largeValue = model->largeValue();
         for (iColumn = 0; iColumn < numberColumns; iColumn++) {
           if (model->getColumnStatus(iColumn) == ClpSimplex::basic) {
             // take out
             if (!valuesPass) {
-              double lower = columnLower[iColumn];
-              double upper = columnUpper[iColumn];
-              double value = columnActivity[iColumn];
+              FloatT lower = columnLower[iColumn];
+              FloatT upper = columnUpper[iColumn];
+              FloatT value = columnActivity[iColumn];
               if (lower > -largeValue || upper < largeValue) {
                 if (fabs(value - lower) < fabs(value - upper)) {
                   model->setColumnStatus(iColumn, ClpSimplex::atLowerBound);
@@ -2575,9 +2575,9 @@ int ClpFactorization::replaceColumn(const ClpSimplex *model,
   CoinIndexedVector *regionSparse,
   CoinIndexedVector *tableauColumn,
   int pivotRow,
-  double pivotCheck,
+  FloatT pivotCheck,
   bool checkBeforeModifying,
-  double acceptablePivot)
+  FloatT acceptablePivot)
 {
 #ifndef SLIM_CLP
   if (!networkBasis_) {
@@ -2625,8 +2625,8 @@ int ClpFactorization::replaceColumn(const ClpSimplex *model,
           acceptablePivot);
 #else
         // fake btran alpha until I understand
-        double btranAlpha = model->alpha();
-        double ftAlpha = coinFactorizationA_->checkReplacePart1(regionSparse,
+        FloatT btranAlpha = model->alpha();
+        FloatT ftAlpha = coinFactorizationA_->checkReplacePart1(regionSparse,
           pivotRow);
         returnCode = coinFactorizationA_->checkReplacePart2(pivotRow,
           btranAlpha,
@@ -2660,7 +2660,7 @@ int ClpFactorization::replaceColumn(const ClpSimplex *model,
         CoinIndexedVector region2A(2 * numberRows);
         CoinIndexedVector region2B(2 * numberRows);
         int iPivot;
-        double *arrayB = region2B.denseVector();
+        FloatT *arrayB = region2B.denseVector();
         int *pivotVariable = model->pivotVariable();
         int i;
         for (iPivot = 0; iPivot < numberRows; iPivot++) {
@@ -2748,16 +2748,16 @@ int ClpFactorization::updateColumnFT(CoinIndexedVector *regionSparse,
   } else {
 #ifdef CHECK_NETWORK
     CoinIndexedVector *save = new CoinIndexedVector(*regionSparse2);
-    double *check = new double[coinFactorizationA_->numberRows()];
+    FloatT *check = new FloatT[coinFactorizationA_->numberRows()];
     int returnCode = coinFactorizationA_->updateColumnFT(regionSparse,
       regionSparse2);
     networkBasis_->updateColumn(regionSparse, save, -1);
     int i;
-    double *array = regionSparse2->denseVector();
+    FloatT *array = regionSparse2->denseVector();
     int *indices = regionSparse2->getIndices();
     int n = regionSparse2->getNumElements();
-    memset(check, 0, coinFactorizationA_->numberRows() * sizeof(double));
-    double *array2 = save->denseVector();
+    memset(check, 0, coinFactorizationA_->numberRows() * sizeof(FloatT));
+    FloatT *array2 = save->denseVector();
     int *indices2 = save->getIndices();
     int n2 = save->getNumElements();
     assert(n == n2);
@@ -2766,14 +2766,14 @@ int ClpFactorization::updateColumnFT(CoinIndexedVector *regionSparse,
         check[indices[i]] = array[i];
       }
       for (i = 0; i < n; i++) {
-        double value2 = array2[i];
+        FloatT value2 = array2[i];
         assert(check[indices2[i]] == value2);
       }
     } else {
       int numberRows = coinFactorizationA_->numberRows();
       for (i = 0; i < numberRows; i++) {
-        double value1 = array[i];
-        double value2 = array2[i];
+        FloatT value1 = array[i];
+        FloatT value2 = array2[i];
         assert(value1 == value2);
       }
     }
@@ -2831,17 +2831,17 @@ int ClpFactorization::updateColumn(CoinIndexedVector *regionSparse,
   } else {
 #ifdef CHECK_NETWORK
     CoinIndexedVector *save = new CoinIndexedVector(*regionSparse2);
-    double *check = new double[coinFactorizationA_->numberRows()];
+    FloatT *check = new FloatT[coinFactorizationA_->numberRows()];
     int returnCode = coinFactorizationA_->updateColumn(regionSparse,
       regionSparse2,
       noPermute);
     networkBasis_->updateColumn(regionSparse, save, -1);
     int i;
-    double *array = regionSparse2->denseVector();
+    FloatT *array = regionSparse2->denseVector();
     int *indices = regionSparse2->getIndices();
     int n = regionSparse2->getNumElements();
-    memset(check, 0, coinFactorizationA_->numberRows() * sizeof(double));
-    double *array2 = save->denseVector();
+    memset(check, 0, coinFactorizationA_->numberRows() * sizeof(FloatT));
+    FloatT *array2 = save->denseVector();
     int *indices2 = save->getIndices();
     int n2 = save->getNumElements();
     assert(n == n2);
@@ -2850,14 +2850,14 @@ int ClpFactorization::updateColumn(CoinIndexedVector *regionSparse,
         check[indices[i]] = array[i];
       }
       for (i = 0; i < n; i++) {
-        double value2 = array2[i];
+        FloatT value2 = array2[i];
         assert(check[indices2[i]] == value2);
       }
     } else {
       int numberRows = coinFactorizationA_->numberRows();
       for (i = 0; i < numberRows; i++) {
-        double value1 = array[i];
-        double value2 = array2[i];
+        FloatT value1 = array[i];
+        FloatT value2 = array2[i];
         assert(value1 == value2);
       }
     }
@@ -2970,7 +2970,7 @@ int ClpFactorization::updateColumnForDebug(CoinIndexedVector *regionSparse,
     return 0;
   coinFactorizationA_->setCollectStatistics(false);
   // above doesn't work any more - do by hand
-  double save[15];
+  FloatT save[15];
   memcpy(save, &coinFactorizationA_->ftranCountInput_, sizeof(save));
   int returnCode = coinFactorizationA_->updateColumn(regionSparse,
     regionSparse2,
@@ -3014,16 +3014,16 @@ int ClpFactorization::updateColumnTranspose(CoinIndexedVector *regionSparse,
   } else {
 #ifdef CHECK_NETWORK
     CoinIndexedVector *save = new CoinIndexedVector(*regionSparse2);
-    double *check = new double[coinFactorizationA_->numberRows()];
+    FloatT *check = new FloatT[coinFactorizationA_->numberRows()];
     int returnCode = coinFactorizationA_->updateColumnTranspose(regionSparse,
       regionSparse2);
     networkBasis_->updateColumnTranspose(regionSparse, save);
     int i;
-    double *array = regionSparse2->denseVector();
+    FloatT *array = regionSparse2->denseVector();
     int *indices = regionSparse2->getIndices();
     int n = regionSparse2->getNumElements();
-    memset(check, 0, coinFactorizationA_->numberRows() * sizeof(double));
-    double *array2 = save->denseVector();
+    memset(check, 0, coinFactorizationA_->numberRows() * sizeof(FloatT));
+    FloatT *array2 = save->denseVector();
     int *indices2 = save->getIndices();
     int n2 = save->getNumElements();
     assert(n == n2);
@@ -3032,14 +3032,14 @@ int ClpFactorization::updateColumnTranspose(CoinIndexedVector *regionSparse,
         check[indices[i]] = array[i];
       }
       for (i = 0; i < n; i++) {
-        double value2 = array2[i];
+        FloatT value2 = array2[i];
         assert(check[indices2[i]] == value2);
       }
     } else {
       int numberRows = coinFactorizationA_->numberRows();
       for (i = 0; i < numberRows; i++) {
-        double value1 = array[i];
-        double value2 = array2[i];
+        FloatT value1 = array[i];
+        FloatT value2 = array2[i];
         assert(value1 == value2);
       }
     }
@@ -3215,7 +3215,7 @@ void ClpFactorization::replaceColumn1(CoinIndexedVector *regionSparse,
 // Does replaceColumn - having already done btranU
 int ClpFactorization::replaceColumn2(CoinIndexedVector *regionSparse,
   int pivotRow,
-  double pivotCheck)
+  FloatT pivotCheck)
 {
   if (coinFactorizationA_)
     return coinFactorizationA_->replaceColumn2(regionSparse, pivotRow, pivotCheck);
@@ -3224,10 +3224,10 @@ int ClpFactorization::replaceColumn2(CoinIndexedVector *regionSparse,
 }
 #endif
 // Set tolerances to safer of existing and given
-void ClpFactorization::saferTolerances(double zeroValue,
-  double pivotValue)
+void ClpFactorization::saferTolerances(FloatT zeroValue,
+  FloatT pivotValue)
 {
-  double newValue;
+  FloatT newValue;
   // better to have small tolerance even if slower
   if (zeroValue > 0.0)
     newValue = zeroValue;

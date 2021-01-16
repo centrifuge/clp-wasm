@@ -54,21 +54,21 @@ remove_fixed_action::presolve(CoinPresolveMatrix *prob,
   int *fcols, int nfcols,
   const CoinPresolveAction *next)
 {
-  double *colels = prob->colels_;
+  FloatT *colels = prob->colels_;
   int *hrow = prob->hrow_;
   CoinBigIndex *mcstrt = prob->mcstrt_;
   int *hincol = prob->hincol_;
 
-  double *rowels = prob->rowels_;
+  FloatT *rowels = prob->rowels_;
   int *hcol = prob->hcol_;
   CoinBigIndex *mrstrt = prob->mrstrt_;
   int *hinrow = prob->hinrow_;
 
-  double *clo = prob->clo_;
-  double *rlo = prob->rlo_;
-  double *rup = prob->rup_;
-  double *sol = prob->sol_;
-  double *acts = prob->acts_;
+  FloatT *clo = prob->clo_;
+  FloatT *rlo = prob->rlo_;
+  FloatT *rup = prob->rup_;
+  FloatT *sol = prob->sol_;
+  FloatT *acts = prob->acts_;
 
   presolvehlink *clink = prob->clink_;
   presolvehlink *rlink = prob->rlink_;
@@ -100,7 +100,7 @@ remove_fixed_action::presolve(CoinPresolveMatrix *prob,
   }
   nfcols = n;
   // Allocate arrays to hold coefficients and associated row indices
-  double *els_action = new double[estsize];
+  FloatT *els_action = new FloatT[estsize];
   int *rows_action = new int[estsize];
   int actsize = 0;
   // faster to do all deletes in row copy at once
@@ -117,7 +117,7 @@ remove_fixed_action::presolve(CoinPresolveMatrix *prob,
 */
   for (ckc = 0; ckc < nfcols; ckc++) {
     int j = fcols[ckc];
-    double solj = clo[j];
+    FloatT solj = clo[j];
     CoinBigIndex kcs = mcstrt[j];
     CoinBigIndex kce = kcs + hincol[j];
     CoinBigIndex k;
@@ -140,7 +140,7 @@ remove_fixed_action::presolve(CoinPresolveMatrix *prob,
 */
     for (k = kcs; k < kce; k++) {
       int row = hrow[k];
-      double coeff = colels[k];
+      FloatT coeff = colels[k];
 
       els_action[actsize] = coeff;
       rstrt[row]++; // increase counts
@@ -273,7 +273,7 @@ remove_fixed_action::presolve(CoinPresolveMatrix *prob,
 
 remove_fixed_action::remove_fixed_action(int nactions,
   action *actions,
-  double *els_action,
+  FloatT *els_action,
   int *rows_action,
   const CoinPresolveAction *next)
   : CoinPresolveAction(next)
@@ -312,28 +312,28 @@ void remove_fixed_action::postsolve(CoinPostsolveMatrix *prob) const
   action *actions = actions_;
   const int nactions = nactions_;
 
-  double *colels = prob->colels_;
+  FloatT *colels = prob->colels_;
   int *hrow = prob->hrow_;
   CoinBigIndex *mcstrt = prob->mcstrt_;
   int *hincol = prob->hincol_;
   CoinBigIndex *link = prob->link_;
   CoinBigIndex &free_list = prob->free_list_;
 
-  double *clo = prob->clo_;
-  double *cup = prob->cup_;
-  double *rlo = prob->rlo_;
-  double *rup = prob->rup_;
+  FloatT *clo = prob->clo_;
+  FloatT *cup = prob->cup_;
+  FloatT *rlo = prob->rlo_;
+  FloatT *rup = prob->rup_;
 
-  double *sol = prob->sol_;
-  double *dcost = prob->cost_;
-  double *rcosts = prob->rcosts_;
+  FloatT *sol = prob->sol_;
+  FloatT *dcost = prob->cost_;
+  FloatT *rcosts = prob->rcosts_;
 
-  double *acts = prob->acts_;
-  double *rowduals = prob->rowduals_;
+  FloatT *acts = prob->acts_;
+  FloatT *rowduals = prob->rowduals_;
 
   unsigned char *colstat = prob->colstat_;
 
-  const double maxmin = prob->maxmin_;
+  const FloatT maxmin = prob->maxmin_;
 
 #if PRESOLVE_DEBUG > 0 || PRESOLVE_CONSISTENCY > 0
   char *cdone = prob->cdone_;
@@ -348,7 +348,7 @@ void remove_fixed_action::postsolve(CoinPostsolveMatrix *prob) const
   presolve_check_nbasic(prob);
 #endif
 
-  double *els_action = colels_;
+  FloatT *els_action = colels_;
   int *rows_action = colrows_;
   int end = actions[nactions].start;
 
@@ -360,7 +360,7 @@ void remove_fixed_action::postsolve(CoinPostsolveMatrix *prob) const
 */
   for (const action *f = &actions[nactions - 1]; actions <= f; f--) {
     int icol = f->col;
-    const double thesol = f->sol;
+    const FloatT thesol = f->sol;
 
 #if PRESOLVE_DEBUG > 0 || PRESOLVE_CONSISTENCY > 0
     if (cdone[icol] == FIXED_VARIABLE) {
@@ -378,11 +378,11 @@ void remove_fixed_action::postsolve(CoinPostsolveMatrix *prob) const
 
     CoinBigIndex cs = NO_LINK;
     int start = f->start;
-    double dj = maxmin * dcost[icol];
+    FloatT dj = maxmin * dcost[icol];
 
     for (int i = start; i < end; ++i) {
       int row = rows_action[i];
-      double coeff = els_action[i];
+      FloatT coeff = els_action[i];
 
       // pop free_list
       CoinBigIndex k = free_list;
@@ -461,8 +461,8 @@ const CoinPresolveAction *remove_fixed(CoinPresolveMatrix *prob,
 
   int *hincol = prob->hincol_;
 
-  double *clo = prob->clo_;
-  double *cup = prob->cup_;
+  FloatT *clo = prob->clo_;
+  FloatT *cup = prob->cup_;
 
   for (int i = 0; i < ncols; i++)
     if (hincol[i] > 0 && clo[i] == cup[i] && !prob->colProhibited2(i))
@@ -503,16 +503,16 @@ make_fixed_action::presolve(CoinPresolveMatrix *prob,
   const CoinPresolveAction *next)
 
 {
-  double *clo = prob->clo_;
-  double *cup = prob->cup_;
-  double *csol = prob->sol_;
+  FloatT *clo = prob->clo_;
+  FloatT *cup = prob->cup_;
+  FloatT *csol = prob->sol_;
 
-  double *colels = prob->colels_;
+  FloatT *colels = prob->colels_;
   int *hrow = prob->hrow_;
   CoinBigIndex *mcstrt = prob->mcstrt_;
   int *hincol = prob->hincol_;
 
-  double *acts = prob->acts_;
+  FloatT *acts = prob->acts_;
 
 #if PRESOLVE_DEBUG > 0 || PRESOLVE_CONSISTENCY > 0
 #if PRESOLVE_DEBUG > 0
@@ -548,7 +548,7 @@ make_fixed_action::presolve(CoinPresolveMatrix *prob,
     int j = fcols[ckc];
     if (prob->colProhibited2(j))
       abort();
-    double movement = 0;
+    FloatT movement = 0;
 
     action &f = actions[ckc];
 
@@ -620,9 +620,9 @@ void make_fixed_action::postsolve(CoinPostsolveMatrix *prob) const
   const int nactions = nactions_;
   const bool fix_to_lower = fix_to_lower_;
 
-  double *clo = prob->clo_;
-  double *cup = prob->cup_;
-  double *sol = prob->sol_;
+  FloatT *clo = prob->clo_;
+  FloatT *cup = prob->cup_;
+  FloatT *sol = prob->sol_;
   unsigned char *colstat = prob->colstat_;
 
 #if PRESOLVE_CONSISTENCY > 0 || PRESOLVE_DEBUG > 0
@@ -647,12 +647,12 @@ void make_fixed_action::postsolve(CoinPostsolveMatrix *prob) const
   for (int cnt = nactions - 1; cnt >= 0; cnt--) {
     const action *f = &actions[cnt];
     int icol = f->col;
-    double xj = sol[icol];
+    FloatT xj = sol[icol];
 
     assert(faction_->actions_[cnt].col == icol);
 
     if (fix_to_lower) {
-      double ub = f->bound;
+      FloatT ub = f->bound;
       cup[icol] = ub;
       if (colstat) {
         if (ub >= PRESOLVE_INF || xj != ub) {
@@ -661,7 +661,7 @@ void make_fixed_action::postsolve(CoinPostsolveMatrix *prob) const
         }
       }
     } else {
-      double lb = f->bound;
+      FloatT lb = f->bound;
       clo[icol] = lb;
       if (colstat) {
         if (lb <= -PRESOLVE_INF || xj != lb) {
@@ -710,8 +710,8 @@ const CoinPresolveAction *make_fixed(CoinPresolveMatrix *prob,
 
   int *hincol = prob->hincol_;
 
-  double *clo = prob->clo_;
-  double *cup = prob->cup_;
+  FloatT *clo = prob->clo_;
+  FloatT *cup = prob->cup_;
 
   for (int i = 0; i < ncols; i++) {
     if (hincol[i] > 0 && fabs(cup[i] - clo[i]) < ZTOLDP && !prob->colProhibited2(i)) {
@@ -754,24 +754,24 @@ const CoinPresolveAction *make_fixed(CoinPresolveMatrix *prob,
 */
 void transferCosts(CoinPresolveMatrix *prob)
 {
-  double *colels = prob->colels_;
+  FloatT *colels = prob->colels_;
   int *hrow = prob->hrow_;
   CoinBigIndex *mcstrt = prob->mcstrt_;
   int *hincol = prob->hincol_;
 
-  double *rowels = prob->rowels_;
+  FloatT *rowels = prob->rowels_;
   int *hcol = prob->hcol_;
   CoinBigIndex *mrstrt = prob->mrstrt_;
   int *hinrow = prob->hinrow_;
 
-  double *rlo = prob->rlo_;
-  double *rup = prob->rup_;
-  double *clo = prob->clo_;
-  double *cup = prob->cup_;
+  FloatT *rlo = prob->rlo_;
+  FloatT *rup = prob->rup_;
+  FloatT *clo = prob->clo_;
+  FloatT *cup = prob->cup_;
   int ncols = prob->ncols_;
-  double *cost = prob->cost_;
+  FloatT *cost = prob->cost_;
   unsigned char *integerType = prob->integerType_;
-  double bias = prob->dobias_;
+  FloatT bias = prob->dobias_;
 
 #if PRESOLVE_DEBUG > 0
   std::cout << "Entering transferCosts." << std::endl;
@@ -794,13 +794,13 @@ void transferCosts(CoinPresolveMatrix *prob)
       const CoinBigIndex &jsstrt = mcstrt[js];
       const int &i = hrow[jsstrt];
       if (rlo[i] == rup[i]) {
-        const double ratio = cost[js] / colels[jsstrt];
+        const FloatT ratio = cost[js] / colels[jsstrt];
         bias += rlo[i] * ratio;
         const CoinBigIndex &istrt = mrstrt[i];
         const CoinBigIndex iend = istrt + hinrow[i];
         for (CoinBigIndex jj = istrt; jj < iend; jj++) {
           int j = hcol[jj];
-          double aij = rowels[jj];
+          FloatT aij = rowels[jj];
           cost[j] -= ratio * aij;
         }
         cost[js] = 0.0;
@@ -846,11 +846,11 @@ void transferCosts(CoinPresolveMatrix *prob)
                   nThen++;
               }
               if (nThen > nNow) {
-                const double ratio = cost[js] / colels[jsstrt];
+                const FloatT ratio = cost[js] / colels[jsstrt];
                 bias += rlo[i] * ratio;
                 for (CoinBigIndex jj = istrt; jj < iend; jj++) {
                   int j = hcol[jj];
-                  double aij = rowels[jj];
+                  FloatT aij = rowels[jj];
                   cost[j] -= ratio * aij;
                 }
                 cost[js] = 0.0;

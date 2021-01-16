@@ -31,14 +31,14 @@
 "Bad combination of CLP_LONG_CHOLESKY and COIN_LONG_WORK"
 #endif
 #if CLP_LONG_CHOLESKY > 1
-  typedef long double longDouble;
+  typedef FloatT longDouble;
 #define CHOL_SMALL_VALUE 1.0e-15
 #elif CLP_LONG_CHOLESKY == 1
-typedef double longDouble;
+typedef FloatT longDouble;
 #define CHOL_SMALL_VALUE 1.0e-11
 #else
-typedef double longDouble;
-#define CHOL_SMALL_VALUE 1.0e-11
+typedef FloatT longDouble;
+#define CHOL_SMALL_VALUE ((FloatT)1.0e-11)
 #endif
 class ClpInterior;
 class ClpCholeskyDense;
@@ -104,17 +104,17 @@ public:
     return rowsDropped_;
   }
   /// choleskyCondition.
-  inline double choleskyCondition() const
+  inline FloatT choleskyCondition() const
   {
     return choleskyCondition_;
   }
   /// goDense i.e. use dense factoriaztion if > this (default 0.7).
-  inline double goDense() const
+  inline FloatT goDense() const
   {
     return goDense_;
   }
   /// goDense i.e. use dense factoriaztion if > this (default 0.7).
-  inline void setGoDense(double value)
+  inline void setGoDense(FloatT value)
   {
     goDense_ = value;
   }
@@ -168,15 +168,15 @@ public:
   {
     return integerParameters_[i];
   }
-  /// Set double parameter
-  inline void setDoubleParameter(int i, double value)
+  /// Set FloatT parameter
+  inline void setDoubleParameter(int i, FloatT value)
   {
-    doubleParameters_[i] = value;
+    FloatTParameters_[i] = value;
   }
-  /// get double parameter
-  inline double getDoubleParameter(int i)
+  /// get FloatT parameter
+  inline FloatT getDoubleParameter(int i)
   {
-    return doubleParameters_[i];
+    return FloatTParameters_[i];
   }
   //@}
 
@@ -255,9 +255,9 @@ protected:
   /// Doing full KKT (only used if default symbolic and factorization)
   bool doKKT_;
   /// Go dense at this fraction
-  double goDense_;
+  FloatT goDense_;
   /// choleskyCondition.
-  double choleskyCondition_;
+  FloatT choleskyCondition_;
   /// model.
   ClpInterior *model_;
   /// numberTrials.  Number of trials before rejection
@@ -284,7 +284,7 @@ protected:
   int *indexStart_;
   /// Diagonal
   longDouble *diagonal_;
-  /// double work array
+  /// FloatT work array
   longDouble *workDouble_;
   /// link array
   int *link_;
@@ -300,8 +300,8 @@ protected:
   int firstDense_;
   /// integerParameters
   int integerParameters_[64];
-  /// doubleParameters;
-  double doubleParameters_[64];
+  /// FloatTParameters;
+  FloatT FloatTParameters_[64];
   /// Row copy of matrix
   ClpMatrixBase *rowCopy_;
   /// Dense indicators

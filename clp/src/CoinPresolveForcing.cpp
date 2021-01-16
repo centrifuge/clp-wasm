@@ -27,15 +27,15 @@ namespace {
   bounds, from the common form ax <= b) for the row specified by the range
   krs, kre in els and hcol. Return the result in maxupp, maxdnp.
 */
-void implied_row_bounds(const double *els,
-  const double *clo, const double *cup,
+void implied_row_bounds(const FloatT *els,
+  const FloatT *clo, const FloatT *cup,
   const int *hcol, CoinBigIndex krs, CoinBigIndex kre,
-  double &maxupp, double &maxdnp)
+  FloatT &maxupp, FloatT &maxdnp)
 {
   bool posinf = false;
   bool neginf = false;
-  double maxup = 0.0;
-  double maxdown = 0.0;
+  FloatT maxup = 0.0;
+  FloatT maxdown = 0.0;
 
   /*
   Walk the row and add up the upper and lower bounds on the variables. Once
@@ -45,9 +45,9 @@ void implied_row_bounds(const double *els,
   for (CoinBigIndex kk = krs; kk < kre; kk++) {
 
     const int col = hcol[kk];
-    const double coeff = els[kk];
-    const double lb = clo[col];
-    const double ub = cup[col];
+    const FloatT coeff = els[kk];
+    const FloatT lb = clo[col];
+    const FloatT ub = cup[col];
 
     if (coeff > 0.0) {
       if (PRESOLVE_INF <= ub) {
@@ -155,31 +155,31 @@ forcing_constraint_action::presolve(CoinPresolveMatrix *prob,
   presolve_check_nbasic(prob);
 #endif
 #if COIN_PRESOLVE_TUNING
-  double startTime = 0.0;
+  FloatT startTime = 0.0;
   if (prob->tuning_) {
     startTime = CoinCpuTime();
   }
 #endif
 
   // Column solution and bounds
-  double *clo = prob->clo_;
-  double *cup = prob->cup_;
-  double *csol = prob->sol_;
+  FloatT *clo = prob->clo_;
+  FloatT *cup = prob->cup_;
+  FloatT *csol = prob->sol_;
 
   // Row-major representation
   const CoinBigIndex *mrstrt = prob->mrstrt_;
-  const double *rowels = prob->rowels_;
+  const FloatT *rowels = prob->rowels_;
   const int *hcol = prob->hcol_;
   const int *hinrow = prob->hinrow_;
   const int nrows = prob->nrows_;
 
-  const double *rlo = prob->rlo_;
-  const double *rup = prob->rup_;
+  const FloatT *rlo = prob->rlo_;
+  const FloatT *rup = prob->rup_;
 
-  const double tol = ZTOLDP;
-  const double inftol = prob->feasibilityTolerance_;
+  const FloatT tol = ZTOLDP;
+  const FloatT inftol = prob->feasibilityTolerance_;
   // for redundant rows be safe
-  const double inftol2 = 0.01 * prob->feasibilityTolerance_;
+  const FloatT inftol2 = 0.01 * prob->feasibilityTolerance_;
   const int ncols = prob->ncols_;
 
   int *fixed_cols = new int[ncols];
@@ -211,7 +211,7 @@ forcing_constraint_action::presolve(CoinPresolveMatrix *prob,
   bounds on the variables. If these are finite and incompatible with the given
   row bounds, we have infeasibility.
 */
-    double maxup, maxdown;
+    FloatT maxup, maxdown;
     implied_row_bounds(rowels, clo, cup, hcol, krs, kre, maxup, maxdown);
 #if PRESOLVE_DEBUG > 2
     std::cout
@@ -309,15 +309,15 @@ forcing_constraint_action::presolve(CoinPresolveMatrix *prob,
   from the start, variables fixed at u<j> from the end. Add the column to
   the list of columns to be processed further.
 */
-    double *bounds = new double[hinrow[irow]];
+    FloatT *bounds = new FloatT[hinrow[irow]];
     int *rowcols = new int[hinrow[irow]];
     CoinBigIndex lk = krs;
     CoinBigIndex uk = kre;
     for (CoinBigIndex k = krs; k < kre; k++) {
       const int j = hcol[k];
-      const double lj = clo[j];
-      const double uj = cup[j];
-      const double coeff = rowels[k];
+      const FloatT lj = clo[j];
+      const FloatT uj = cup[j];
+      const FloatT coeff = rowels[k];
       PRESOLVEASSERT(fabs(coeff) > ZTOLDP);
       /*
   If maxup is tight at L(i), then we want to force variables x<j> to the bound
@@ -412,7 +412,7 @@ forcing_constraint_action::presolve(CoinPresolveMatrix *prob,
     // delete arrays
     for (int i = 0; i < nactions; i++) {
       deleteAction(actions[i].rowcols, int *);
-      deleteAction(actions[i].bounds, double *);
+      deleteAction(actions[i].bounds, FloatT *);
     }
   }
 
@@ -421,7 +421,7 @@ forcing_constraint_action::presolve(CoinPresolveMatrix *prob,
   delete[] fixed_cols;
 
 #if COIN_PRESOLVE_TUNING
-  double thisTime = 0.0;
+  FloatT thisTime = 0.0;
   if (prob->tuning_)
     thisTime = CoinCpuTime();
 #endif
@@ -474,27 +474,27 @@ void forcing_constraint_action::postsolve(CoinPostsolveMatrix *prob) const
   const action *const actions = actions_;
   const int nactions = nactions_;
 
-  const double *colels = prob->colels_;
+  const FloatT *colels = prob->colels_;
   const int *hrow = prob->hrow_;
   const CoinBigIndex *mcstrt = prob->mcstrt_;
   const int *hincol = prob->hincol_;
   const CoinBigIndex *link = prob->link_;
 
-  double *clo = prob->clo_;
-  double *cup = prob->cup_;
-  double *rlo = prob->rlo_;
-  double *rup = prob->rup_;
+  FloatT *clo = prob->clo_;
+  FloatT *cup = prob->cup_;
+  FloatT *rlo = prob->rlo_;
+  FloatT *rup = prob->rup_;
 
-  double *rcosts = prob->rcosts_;
+  FloatT *rcosts = prob->rcosts_;
 
-  double *acts = prob->acts_;
-  double *rowduals = prob->rowduals_;
+  FloatT *acts = prob->acts_;
+  FloatT *rowduals = prob->rowduals_;
 
-  const double ztoldj = prob->ztoldj_;
-  const double ztolzb = prob->ztolzb_;
+  const FloatT ztoldj = prob->ztoldj_;
+  const FloatT ztolzb = prob->ztolzb_;
 
 #if PRESOLVE_DEBUG > 0 || PRESOLVE_CONSISTENCY > 0
-  const double *sol = prob->sol_;
+  const FloatT *sol = prob->sol_;
 #if PRESOLVE_DEBUG > 0
   std::cout
     << "Entering forcing_constraint_action::postsolve, "
@@ -514,7 +514,7 @@ void forcing_constraint_action::postsolve(CoinPostsolveMatrix *prob) const
     const int nup = f->nup;
     const int ninrow = nlo + nup;
     const int *rowcols = f->rowcols;
-    const double *bounds = f->bounds;
+    const FloatT *bounds = f->bounds;
 
 #if PRESOLVE_DEBUG > 1
     std::cout
@@ -535,9 +535,9 @@ void forcing_constraint_action::postsolve(CoinPostsolveMatrix *prob) const
     for (int k = 0; k < nlo; k++) {
       const int jcol = rowcols[k];
       PRESOLVEASSERT(fabs(sol[jcol] - clo[jcol]) <= ztolzb);
-      const double cbarj = rcosts[jcol];
-      const double olduj = cup[jcol];
-      const double newuj = bounds[k];
+      const FloatT cbarj = rcosts[jcol];
+      const FloatT olduj = cup[jcol];
+      const FloatT newuj = bounds[k];
       const bool change = (fabs(newuj - olduj) > ztolzb);
 
 #if PRESOLVE_DEBUG > 2
@@ -566,9 +566,9 @@ void forcing_constraint_action::postsolve(CoinPostsolveMatrix *prob) const
     for (int k = nlo; k < ninrow; k++) {
       const int jcol = rowcols[k];
       PRESOLVEASSERT(fabs(sol[jcol] - cup[jcol]) <= ztolzb);
-      const double cbarj = rcosts[jcol];
-      const double oldlj = clo[jcol];
-      const double newlj = bounds[k];
+      const FloatT cbarj = rcosts[jcol];
+      const FloatT oldlj = clo[jcol];
+      const FloatT newlj = bounds[k];
       const bool change = (fabs(newlj - oldlj) > ztolzb);
 
 #if PRESOLVE_DEBUG > 2
@@ -599,15 +599,15 @@ void forcing_constraint_action::postsolve(CoinPostsolveMatrix *prob) const
 
     if (dualfeas == false) {
       int joow = -1;
-      double yi = 0.0;
+      FloatT yi = 0.0;
       for (int k = 0; k < ninrow; k++) {
         int jcol = rowcols[k];
         CoinBigIndex kk = presolve_find_row2(irow, mcstrt[jcol],
           hincol[jcol], hrow, link);
-        const double &cbarj = rcosts[jcol];
+        const FloatT &cbarj = rcosts[jcol];
         const CoinPrePostsolveMatrix::Status statj = prob->getColumnStatus(jcol);
         if ((cbarj < -ztoldj && statj != CoinPrePostsolveMatrix::atUpperBound) || (cbarj > ztoldj && statj != CoinPrePostsolveMatrix::atLowerBound)) {
-          double yi_j = cbarj / colels[kk];
+          FloatT yi_j = cbarj / colels[kk];
           if (fabs(yi_j) > fabs(yi)) {
             joow = jcol;
             yi = yi_j;
@@ -662,9 +662,9 @@ void forcing_constraint_action::postsolve(CoinPostsolveMatrix *prob) const
         int jcol = rowcols[k];
         CoinBigIndex kk = presolve_find_row2(irow, mcstrt[jcol],
           hincol[jcol], hrow, link);
-        const double old_cbarj = rcosts[jcol];
+        const FloatT old_cbarj = rcosts[jcol];
         rcosts[jcol] -= yi * colels[kk];
-        const double new_cbarj = rcosts[jcol];
+        const FloatT new_cbarj = rcosts[jcol];
 
         if ((old_cbarj < 0) != (new_cbarj < 0)) {
           if (new_cbarj < -ztoldj && cup[jcol] < COIN_DBL_MAX)
@@ -707,7 +707,7 @@ forcing_constraint_action::~forcing_constraint_action()
     //delete [] actions_[i].rowcols; MS Visual C++ V6 can not compile
     //delete [] actions_[i].bounds; MS Visual C++ V6 can not compile
     deleteAction(actions_[i].rowcols, int *);
-    deleteAction(actions_[i].bounds, double *);
+    deleteAction(actions_[i].bounds, FloatT *);
   }
   // delete [] actions_; MS Visual C++ V6 can not compile
   deleteAction(actions_, action *);

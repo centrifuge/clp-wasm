@@ -95,12 +95,12 @@ inline void DIE(const char *) {}
 
   OSL had a fixed zero tolerance; we still use that here.
 */
-const double ZTOLDP = 1e-12;
+const FloatT ZTOLDP = 1e-12;
 /*! \brief Alternate zero tolerance
 
-  Use a different one if we are doing doubletons, etc.
+  Use a different one if we are doing FloatTtons, etc.
 */
-const double ZTOLDP2 = 1e-10;
+const FloatT ZTOLDP2 = 1e-10;
 
 /// The usual finite infinity
 #define PRESOLVE_INF COIN_DBL_MAX
@@ -240,7 +240,7 @@ class CoinWarmStartBasis;
 	   system.
       <li> During both pre- and postsolve, transforms can increase the number
 	   of coefficients in a row or column. (See the 
-	   variable substitution, doubleton, and tripleton transforms.)
+	   variable substitution, FloatTton, and tripleton transforms.)
     </ul>
 
     The first is addressed by the members #ncols0_, #nrows0_, and #nelems0_.
@@ -307,7 +307,7 @@ public:
     int ncols_,
     int nrows_,
     CoinBigIndex nelems_,
-    double bulkRatio);
+    FloatT bulkRatio);
 
   /// Destructor
   ~CoinPrePostsolveMatrix();
@@ -455,36 +455,36 @@ public:
   */
   //@{
   /// Set the objective function offset for the original system.
-  void setObjOffset(double offset);
+  void setObjOffset(FloatT offset);
   /*! \brief Set the objective sense (max/min)
 
     Coded as 1.0 for min, -1.0 for max.
     Yes, there's a method, and a matching attribute. No, you really
     don't want to set this to maximise.
   */
-  void setObjSense(double objSense);
+  void setObjSense(FloatT objSense);
   /// Set the primal feasibility tolerance
-  void setPrimalTolerance(double primTol);
+  void setPrimalTolerance(FloatT primTol);
   /// Set the dual feasibility tolerance
-  void setDualTolerance(double dualTol);
+  void setDualTolerance(FloatT dualTol);
   /// Set column lower bounds
-  void setColLower(const double *colLower, int lenParam);
+  void setColLower(const FloatT *colLower, int lenParam);
   /// Set column upper bounds
-  void setColUpper(const double *colUpper, int lenParam);
+  void setColUpper(const FloatT *colUpper, int lenParam);
   /// Set column solution
-  void setColSolution(const double *colSol, int lenParam);
+  void setColSolution(const FloatT *colSol, int lenParam);
   /// Set objective coefficients
-  void setCost(const double *cost, int lenParam);
+  void setCost(const FloatT *cost, int lenParam);
   /// Set reduced costs
-  void setReducedCost(const double *redCost, int lenParam);
+  void setReducedCost(const FloatT *redCost, int lenParam);
   /// Set row lower bounds
-  void setRowLower(const double *rowLower, int lenParam);
+  void setRowLower(const FloatT *rowLower, int lenParam);
   /// Set row upper bounds
-  void setRowUpper(const double *rowUpper, int lenParam);
+  void setRowUpper(const FloatT *rowUpper, int lenParam);
   /// Set row solution
-  void setRowPrice(const double *rowSol, int lenParam);
+  void setRowPrice(const FloatT *rowSol, int lenParam);
   /// Set row activity
-  void setRowActivity(const double *rowAct, int lenParam);
+  void setRowActivity(const FloatT *rowAct, int lenParam);
   //@}
 
   /*! \name Functions to retrieve problem and solution information */
@@ -520,52 +520,52 @@ public:
     return (hrow_);
   }
   /// Get vector of elements for column-major packed matrix
-  inline const double *getElementsByCol() const
+  inline const FloatT *getElementsByCol() const
   {
     return (colels_);
   }
   /// Get column lower bounds
-  inline const double *getColLower() const
+  inline const FloatT *getColLower() const
   {
     return (clo_);
   }
   /// Get column upper bounds
-  inline const double *getColUpper() const
+  inline const FloatT *getColUpper() const
   {
     return (cup_);
   }
   /// Get objective coefficients
-  inline const double *getCost() const
+  inline const FloatT *getCost() const
   {
     return (cost_);
   }
   /// Get row lower bounds
-  inline const double *getRowLower() const
+  inline const FloatT *getRowLower() const
   {
     return (rlo_);
   }
   /// Get row upper bounds
-  inline const double *getRowUpper() const
+  inline const FloatT *getRowUpper() const
   {
     return (rup_);
   }
   /// Get column solution (primal variable values)
-  inline const double *getColSolution() const
+  inline const FloatT *getColSolution() const
   {
     return (sol_);
   }
   /// Get row activity (constraint lhs values)
-  inline const double *getRowActivity() const
+  inline const FloatT *getRowActivity() const
   {
     return (acts_);
   }
   /// Get row solution (dual variables)
-  inline const double *getRowPrice() const
+  inline const FloatT *getRowPrice() const
   {
     return (rowduals_);
   }
   /// Get reduced costs
-  inline const double *getReducedCost() const
+  inline const FloatT *getReducedCost() const
   {
     return (rcosts_);
   }
@@ -640,7 +640,7 @@ public:
   */
   CoinBigIndex bulk0_;
   /// Ratio of bulk0_ to nelems0_; default is 2.
-  double bulkRatio_;
+  FloatT bulkRatio_;
   //@}
 
   /*! \name Problem representation
@@ -658,22 +658,22 @@ public:
   /// Row indices (positional correspondence with #colels_)
   int *hrow_;
   /// Coefficients (positional correspondence with #hrow_)
-  double *colels_;
+  FloatT *colels_;
 
   /// Objective coefficients
-  double *cost_;
+  FloatT *cost_;
   /// Original objective offset
-  double originalOffset_;
+  FloatT originalOffset_;
 
   /// Column (primal variable) lower bounds
-  double *clo_;
+  FloatT *clo_;
   /// Column (primal variable) upper bounds
-  double *cup_;
+  FloatT *cup_;
 
   /// Row (constraint) lower bounds
-  double *rlo_;
+  FloatT *rlo_;
   /// Row (constraint) upper bounds
-  double *rup_;
+  FloatT *rup_;
 
   /*! \brief Original column numbers
 
@@ -691,16 +691,16 @@ public:
   int *originalRow_;
 
   /// Primal feasibility tolerance
-  double ztolzb_;
+  FloatT ztolzb_;
   /// Dual feasibility tolerance
-  double ztoldj_;
+  FloatT ztoldj_;
 
   /*! \brief Maximization/minimization
 
     Yes, there's a variable here. No, you really don't want to set this to
     maximise. See the main notes for CoinPresolveMatrix.
   */
-  double maxmin_;
+  FloatT maxmin_;
   //@}
 
   /*! \name Problem solution information
@@ -723,25 +723,25 @@ public:
     If #sol_ exists, it is assumed that primal solution information should be
     updated and that #acts_ also exists.
   */
-  double *sol_;
+  FloatT *sol_;
   /*! \brief Vector of dual variable values
 
     If #rowduals_ exists, it is assumed that dual solution information should
     be updated and that #rcosts_ also exists.
   */
-  double *rowduals_;
+  FloatT *rowduals_;
   /*! \brief Vector of constraint left-hand-side values (row activity)
   
     Produced by evaluating constraints according to #sol_. Updated iff
     #sol_ exists.
   */
-  double *acts_;
+  FloatT *acts_;
   /*! \brief Vector of reduced costs
   
     Produced by evaluating dual constraints according to #rowduals_. Updated
     iff #rowduals_ exists.
   */
-  double *rcosts_;
+  FloatT *rcosts_;
 
   /*! \brief Status of primal variables
 
@@ -918,7 +918,7 @@ public:
     See Clp code for the definition.
   */
   CoinPresolveMatrix(int ncols0,
-    double maxmin,
+    FloatT maxmin,
     // end prepost members
 
     ClpSimplex *si,
@@ -927,8 +927,8 @@ public:
     int nrows,
     CoinBigIndex nelems,
     bool doStatus,
-    double nonLinearVariable,
-    double bulkRatio);
+    FloatT nonLinearVariable,
+    FloatT bulkRatio);
 
   /*! \brief Update the model held by a Clp OSI */
   void update_model(ClpSimplex *si,
@@ -940,14 +940,14 @@ public:
     See OSI code for the definition.
   */
   CoinPresolveMatrix(int ncols0,
-    double maxmin,
+    FloatT maxmin,
     // end prepost members
     OsiSolverInterface *si,
     // rowrep
     int nrows,
     CoinBigIndex nelems,
     bool doStatus,
-    double nonLinearVariable,
+    FloatT nonLinearVariable,
     const char *prohibited,
     const char *rowProhibited = NULL);
 
@@ -1035,7 +1035,7 @@ public:
     return (hcol_);
   }
   /// Get vector of elements for row-major packed matrix
-  inline const double *getElementsByRow() const
+  inline const FloatT *getElementsByRow() const
   {
     return (rowels_);
   }
@@ -1090,10 +1090,10 @@ public:
   //@}
 
   /// Objective function offset introduced during presolve
-  double dobias_;
+  FloatT dobias_;
 
   /// Adjust objective function constant offset
-  inline void change_bias(double change_amount)
+  inline void change_bias(FloatT change_amount)
   {
     dobias_ += change_amount;
 #if PRESOLVE_DEBUG > 2
@@ -1117,7 +1117,7 @@ public:
   /// Vector of row lengths
   int *hinrow_;
   /// Coefficients (positional correspondence with #hcol_)
-  double *rowels_;
+  FloatT *rowels_;
   /// Column indices (positional correspondence with #rowels_)
   int *hcol_;
   //@}
@@ -1135,17 +1135,17 @@ public:
   /// Say we want statistics - also set time
   void statistics();
   /// Start time of presolve
-  double startTime_;
+  FloatT startTime_;
 
   /// Bounds can be moved by this to retain feasibility
-  double feasibilityTolerance_;
+  FloatT feasibilityTolerance_;
   /// Return feasibility tolerance
-  inline double feasibilityTolerance()
+  inline FloatT feasibilityTolerance()
   {
     return (feasibilityTolerance_);
   }
   /// Set feasibility tolerance
-  inline void setFeasibilityTolerance(double val)
+  inline void setFeasibilityTolerance(FloatT val)
   {
     feasibilityTolerance_ = val;
   }
@@ -1282,22 +1282,22 @@ public:
   /// Preallocated scratch work array, 3*nrows_
   int *usefulRowInt_;
   /// Preallocated scratch work array, 2*nrows_
-  double *usefulRowDouble_;
+  FloatT *usefulRowDouble_;
   /// Preallocated scratch work array, 2*ncols_
   int *usefulColumnInt_;
   /// Preallocated scratch work array, ncols_
-  double *usefulColumnDouble_;
+  FloatT *usefulColumnDouble_;
   /// Array of random numbers (max row,column)
-  double *randomNumber_;
+  FloatT *randomNumber_;
 
   /// Work array for count of infinite contributions to row lhs upper bound
   int *infiniteUp_;
   /// Work array for sum of finite contributions to row lhs upper bound
-  double *sumUp_;
+  FloatT *sumUp_;
   /// Work array for count of infinite contributions to row lhs lower bound
   int *infiniteDown_;
   /// Work array for sum of finite contributions to row lhs lower bound
-  double *sumDown_;
+  FloatT *sumDown_;
   //@}
 
   /*! \brief Recompute row lhs bounds
@@ -1570,11 +1570,11 @@ public:
     int nrows0,
     CoinBigIndex nelems0,
 
-    double maxmin_,
+    FloatT maxmin_,
     // end prepost members
 
-    double *sol,
-    double *acts,
+    FloatT *sol,
+    FloatT *acts,
 
     unsigned char *colstat,
     unsigned char *rowstat);
@@ -1589,11 +1589,11 @@ public:
     int nrows0,
     CoinBigIndex nelems0,
 
-    double maxmin_,
+    FloatT maxmin_,
     // end prepost members
 
-    double *sol,
-    double *acts,
+    FloatT *sol,
+    FloatT *acts,
 
     unsigned char *colstat,
     unsigned char *rowstat);
@@ -1673,7 +1673,7 @@ void presolve_make_memlists(/*CoinBigIndex *starts,*/ int *lengths,
     You can use this directly, or use the inline wrappers presolve_expand_col
     and presolve_expand_row
 */
-bool presolve_expand_major(CoinBigIndex *majstrts, double *majels,
+bool presolve_expand_major(CoinBigIndex *majstrts, FloatT *majels,
   int *minndxs, int *majlens,
   presolvehlink *majlinks, int nmaj, int k);
 
@@ -1682,7 +1682,7 @@ bool presolve_expand_major(CoinBigIndex *majstrts, double *majels,
 	   one more coefficient
 */
 
-inline bool presolve_expand_col(CoinBigIndex *mcstrt, double *colels,
+inline bool presolve_expand_col(CoinBigIndex *mcstrt, FloatT *colels,
   int *hrow, int *hincol,
   presolvehlink *clink, int ncols, int colx)
 {
@@ -1695,7 +1695,7 @@ inline bool presolve_expand_col(CoinBigIndex *mcstrt, double *colels,
 	   more coefficient
 */
 
-inline bool presolve_expand_row(CoinBigIndex *mrstrt, double *rowels,
+inline bool presolve_expand_row(CoinBigIndex *mrstrt, FloatT *rowels,
   int *hcol, int *hinrow,
   presolvehlink *rlink, int nrows, int rowx)
 {
@@ -1857,7 +1857,7 @@ inline CoinBigIndex presolve_find_row3(int row, CoinBigIndex kcs, int collen,
 */
 inline void presolve_delete_from_major(int majndx, int minndx,
   const CoinBigIndex *majstrts,
-  int *majlens, int *minndxs, double *els)
+  int *majlens, int *minndxs, FloatT *els)
 {
   const CoinBigIndex ks = majstrts[majndx];
   const CoinBigIndex ke = ks + majlens[majndx];
@@ -1879,7 +1879,7 @@ inline void presolve_delete_from_major(int majndx, int minndx,
 */
 inline void presolve_delete_many_from_major(int majndx, char *marked,
   const CoinBigIndex *majstrts,
-  int *majlens, int *minndxs, double *els)
+  int *majlens, int *minndxs, FloatT *els)
 {
   const CoinBigIndex ks = majstrts[majndx];
   const CoinBigIndex ke = ks + majlens[majndx];
@@ -1909,7 +1909,7 @@ inline void presolve_delete_many_from_major(int majndx, char *marked,
 */
 inline void presolve_delete_from_col(int row, int col,
   const CoinBigIndex *mcstrt,
-  int *hincol, int *hrow, double *colels)
+  int *hincol, int *hrow, FloatT *colels)
 {
   presolve_delete_from_major(col, row, mcstrt, hincol, hrow, colels);
 }
@@ -1926,7 +1926,7 @@ inline void presolve_delete_from_col(int row, int col,
 */
 inline void presolve_delete_from_row(int row, int col,
   const CoinBigIndex *mrstrt,
-  int *hinrow, int *hcol, double *rowels)
+  int *hinrow, int *hcol, FloatT *rowels)
 {
   presolve_delete_from_major(row, col, mrstrt, hinrow, hcol, rowels);
 }
@@ -1982,11 +1982,11 @@ inline void presolve_delete_from_col2(int row, int col, CoinBigIndex *mcstrt,
     If \p tgt is specified, the entry with minor index == \p tgt is
     omitted from the copy.
 */
-double *presolve_dupmajor(const double *elems, const int *indices,
+FloatT *presolve_dupmajor(const FloatT *elems, const int *indices,
   int length, CoinBigIndex offset, int tgt = -1);
 
 /// Initialize a vector with random numbers
-void coin_init_random_vec(double *work, int n);
+void coin_init_random_vec(FloatT *work, int n);
 
 //@}
 

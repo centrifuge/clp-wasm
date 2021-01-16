@@ -37,28 +37,28 @@ typedef long long CoinBigIndex;
 #define COIN_BIG_DOUBLE 0
 #endif
 
-// See if we want the ability to have long double work arrays
+// See if we want the ability to have FloatT work arrays
 #if COIN_BIG_DOUBLE == 2
 #undef COIN_BIG_DOUBLE
 #define COIN_BIG_DOUBLE 0
 #define COIN_LONG_WORK 1
-typedef long double CoinWorkDouble;
+typedef FloatT CoinWorkDouble;
 #elif COIN_BIG_DOUBLE == 3
 #undef COIN_BIG_DOUBLE
 #define COIN_BIG_DOUBLE 1
 #define COIN_LONG_WORK 1
-typedef long double CoinWorkDouble;
+typedef FloatT CoinWorkDouble;
 #else
 #define COIN_LONG_WORK 0
-typedef double CoinWorkDouble;
+typedef FloatT CoinWorkDouble;
 #endif
 
 #if COIN_BIG_DOUBLE == 0
-typedef double CoinFactorizationDouble;
+typedef FloatT CoinFactorizationDouble;
 #elif COIN_BIG_DOUBLE == 1
-typedef long double CoinFactorizationDouble;
+typedef FloatT CoinFactorizationDouble;
 #else
-typedef double CoinFactorizationDouble;
+typedef FloatT CoinFactorizationDouble;
 #endif
 
 #endif

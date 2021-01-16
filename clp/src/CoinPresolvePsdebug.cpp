@@ -76,7 +76,7 @@ void no_majvec_dups(const char *majdones, const CoinBigIndex *majstrts,
 /*
   As the name implies: scan for explicit zeros.
 */
-void check_majvec_nozeros(const CoinBigIndex *majstrts, const double *majels,
+void check_majvec_nozeros(const CoinBigIndex *majstrts, const FloatT *majels,
   const int *majlens, int nmaj)
 
 {
@@ -160,9 +160,9 @@ void links_ok(presolvehlink *majlink, int *majstrts, int *majlens, int nmaj)
 */
 
 void matrix_consistent(const CoinBigIndex *mrstrt, const int *hinrow,
-  const int *hcol, const double *rowels,
+  const int *hcol, const FloatT *rowels,
   const CoinBigIndex *mcstrt, const int *hincol,
-  const int *hrow, const double *colels,
+  const int *hrow, const FloatT *colels,
   int nrows, int testvals,
   const char *ROW, const char *COL)
 {
@@ -437,7 +437,7 @@ void presolve_check_reduced_costs(const CoinPostsolveMatrix *postObj)
 {
 
   static bool warned = false;
-  static double *warned_rcosts = 0;
+  static FloatT *warned_rcosts = 0;
   static int allocSize = 0;
   static const CoinPostsolveMatrix *lastObj = 0;
 
@@ -466,7 +466,7 @@ void presolve_check_reduced_costs(const CoinPostsolveMatrix *postObj)
     lastObj = postObj;
   }
 
-  double *rcosts = postObj->rcosts_;
+  FloatT *rcosts = postObj->rcosts_;
 
   /*
   By tracking values in warned_rcosts, we can produce a single message the
@@ -476,32 +476,32 @@ void presolve_check_reduced_costs(const CoinPostsolveMatrix *postObj)
     warned = true;
     std::cout
       << "reduced cost" << std::endl;
-    warned_rcosts = new double[ncols0];
+    warned_rcosts = new FloatT[ncols0];
     CoinZeroN(warned_rcosts, ncols0);
   }
 
-  double *colels = postObj->colels_;
+  FloatT *colels = postObj->colels_;
   int *hrow = postObj->hrow_;
   int *mcstrt = postObj->mcstrt_;
   int *hincol = postObj->hincol_;
   CoinBigIndex *link = postObj->link_;
 
-  double *clo = postObj->clo_;
-  double *cup = postObj->cup_;
+  FloatT *clo = postObj->clo_;
+  FloatT *cup = postObj->cup_;
 
-  double *dcost = postObj->cost_;
+  FloatT *dcost = postObj->cost_;
 
-  double *sol = postObj->sol_;
+  FloatT *sol = postObj->sol_;
 
   char *cdone = postObj->cdone_;
   char *rdone = postObj->rdone_;
 
-  const double ztoldj = postObj->ztoldj_;
-  const double ztolzb = postObj->ztolzb_;
+  const FloatT ztoldj = postObj->ztoldj_;
+  const FloatT ztolzb = postObj->ztolzb_;
 
-  double *rowduals = postObj->rowduals_;
+  FloatT *rowduals = postObj->rowduals_;
 
-  double maxmin = postObj->maxmin_;
+  FloatT maxmin = postObj->maxmin_;
   std::string strMaxmin((maxmin < 0) ? "max" : "min");
   int checkCol = -1;
   /*
@@ -515,14 +515,14 @@ void presolve_check_reduced_costs(const CoinPostsolveMatrix *postObj)
     /*
   Check the stored reduced cost for accuracy. See note above w.r.t. maxmin.
 */
-    double dj = rcosts[j];
-    double wrndj = warned_rcosts[j];
+    FloatT dj = rcosts[j];
+    FloatT wrndj = warned_rcosts[j];
 
     {
       int ndx;
       CoinBigIndex k = mcstrt[j];
       int len = hincol[j];
-      double chkdj = maxmin * dcost[j];
+      FloatT chkdj = maxmin * dcost[j];
       if (j == checkCol)
         std::cout
           << "dj for " << j << " is " << dj << " - cost is " << chkdj
@@ -558,9 +558,9 @@ void presolve_check_reduced_costs(const CoinPostsolveMatrix *postObj)
   As a courtesy, show the reduced cost with the proper sign.
 */
     {
-      double xj = sol[j];
-      double lj = clo[j];
-      double uj = cup[j];
+      FloatT xj = sol[j];
+      FloatT lj = clo[j];
+      FloatT uj = cup[j];
 
       if (postObj->columnIsBasic(j)) {
         if (fabs(dj) > ztoldj && wrndj != dj) {
@@ -613,18 +613,18 @@ void presolve_check_duals(const CoinPostsolveMatrix *postObj)
 
   int nrows0 = postObj->nrows0_;
 
-  double *rowduals = postObj->rowduals_;
+  FloatT *rowduals = postObj->rowduals_;
 
-  double *acts = postObj->acts_;
-  double *rup = postObj->rup_;
-  double *rlo = postObj->rlo_;
+  FloatT *acts = postObj->acts_;
+  FloatT *rup = postObj->rup_;
+  FloatT *rlo = postObj->rlo_;
 
   char *rdone = postObj->rdone_;
 
-  const double ztoldj = postObj->ztoldj_;
-  const double ztolzb = postObj->ztolzb_;
+  const FloatT ztoldj = postObj->ztoldj_;
+  const FloatT ztolzb = postObj->ztolzb_;
 
-  double maxmin = postObj->maxmin_;
+  FloatT maxmin = postObj->maxmin_;
   std::string strMaxmin((maxmin < 0) ? "max" : "min");
 
   /*
@@ -641,14 +641,14 @@ void presolve_check_duals(const CoinPostsolveMatrix *postObj)
     if (rdone[i] == 0)
       continue;
 
-    double ui = rup[i];
-    double li = rlo[i];
+    FloatT ui = rup[i];
+    FloatT li = rlo[i];
 
     if (ui - li < 1.0e-6)
       continue;
 
-    double yi = rowduals[i];
-    double lhsi = acts[i];
+    FloatT yi = rowduals[i];
+    FloatT lhsi = acts[i];
     const char *statistr = postObj->rowStatusString(i);
 
     if (fabs(lhsi - li) < ztolzb) {
@@ -714,7 +714,7 @@ void presolve_check_sol(const CoinPresolveMatrix *preObj,
   int chkColSol, int chkRowAct, int chkStatus)
 
 {
-  double *colels = preObj->colels_;
+  FloatT *colels = preObj->colels_;
   int *hrow = preObj->hrow_;
   int *mcstrt = preObj->mcstrt_;
   int *hincol = preObj->hincol_;
@@ -729,22 +729,22 @@ void presolve_check_sol(const CoinPresolveMatrix *preObj,
   if (preObj->sol_ == 0)
     return;
 
-  double *csol = preObj->sol_;
-  double *acts = preObj->acts_;
-  double *clo = preObj->clo_;
-  double *cup = preObj->cup_;
-  double *rlo = preObj->rlo_;
-  double *rup = preObj->rup_;
+  FloatT *csol = preObj->sol_;
+  FloatT *acts = preObj->acts_;
+  FloatT *clo = preObj->clo_;
+  FloatT *cup = preObj->cup_;
+  FloatT *rlo = preObj->rlo_;
+  FloatT *rup = preObj->rup_;
 
-  double tol = preObj->ztolzb_;
+  FloatT tol = preObj->ztolzb_;
 
   if (chkStatus >= 2)
     chkRowAct = 2;
 
-  double *rsol = 0;
+  FloatT *rsol = 0;
   if (chkRowAct) {
-    rsol = new double[m];
-    memset(rsol, 0, m * sizeof(double));
+    rsol = new FloatT[m];
+    memset(rsol, 0, m * sizeof(FloatT));
   }
 
   /*
@@ -760,14 +760,14 @@ void presolve_check_sol(const CoinPresolveMatrix *preObj,
   for (int j = 0; j < n; ++j) {
     CoinBigIndex v = mcstrt[j];
     int colLen = hincol[j];
-    double xj = csol[j];
-    double lj = clo[j];
-    double uj = cup[j];
+    FloatT xj = csol[j];
+    FloatT lj = clo[j];
+    FloatT uj = cup[j];
 
     if (chkRowAct >= 1) {
       for (int u = 0; u < colLen; ++u) {
         int i = hrow[v];
-        double aij = colels[v];
+        FloatT aij = colels[v];
         v++;
         rsol[i] += aij * xj;
       }
@@ -842,10 +842,10 @@ void presolve_check_sol(const CoinPresolveMatrix *preObj,
   if (chkRowAct >= 1) {
     for (int i = 0; i < m; ++i) {
       if (hinrow[i]) {
-        double lhsi = acts[i];
-        double evali = rsol[i];
-        double li = rlo[i];
-        double ui = rup[i];
+        FloatT lhsi = acts[i];
+        FloatT evali = rsol[i];
+        FloatT li = rlo[i];
+        FloatT ui = rup[i];
 
         if (CoinIsnan(evali) || CoinIsnan(lhsi)) {
           printf("NaN RSOL: %d  : lb = %g eval = %g (expected %g) ub = %g\n",
@@ -924,7 +924,7 @@ void presolve_check_sol(const CoinPostsolveMatrix *postObj,
   int chkColSol, int chkRowAct, int chkStatus)
 
 {
-  double *colels = postObj->colels_;
+  FloatT *colels = postObj->colels_;
   int *hrow = postObj->hrow_;
   int *mcstrt = postObj->mcstrt_;
   int *hincol = postObj->hincol_;
@@ -933,21 +933,21 @@ void presolve_check_sol(const CoinPostsolveMatrix *postObj,
   int n = postObj->ncols_;
   int m = postObj->nrows_;
 
-  double *csol = postObj->sol_;
-  double *acts = postObj->acts_;
-  double *clo = postObj->clo_;
-  double *cup = postObj->cup_;
-  double *rlo = postObj->rlo_;
-  double *rup = postObj->rup_;
+  FloatT *csol = postObj->sol_;
+  FloatT *acts = postObj->acts_;
+  FloatT *clo = postObj->clo_;
+  FloatT *cup = postObj->cup_;
+  FloatT *rlo = postObj->rlo_;
+  FloatT *rup = postObj->rup_;
 
-  double tol = postObj->ztolzb_;
+  FloatT tol = postObj->ztolzb_;
 
   if (chkStatus >= 2)
     chkRowAct = 2;
-  double *rsol = 0;
+  FloatT *rsol = 0;
   if (chkRowAct >= 1) {
-    rsol = new double[m];
-    memset(rsol, 0, m * sizeof(double));
+    rsol = new FloatT[m];
+    memset(rsol, 0, m * sizeof(FloatT));
   }
 
   /*
@@ -962,14 +962,14 @@ void presolve_check_sol(const CoinPostsolveMatrix *postObj,
   for (int j = 0; j < n; ++j) {
     CoinBigIndex v = mcstrt[j];
     int colLen = hincol[j];
-    double xj = csol[j];
-    double lj = clo[j];
-    double uj = cup[j];
+    FloatT xj = csol[j];
+    FloatT lj = clo[j];
+    FloatT uj = cup[j];
 
     if (chkRowAct >= 1) {
       for (int u = 0; u < colLen; ++u) {
         int i = hrow[v];
-        double aij = colels[v];
+        FloatT aij = colels[v];
         v = link[v];
         rsol[i] += aij * xj;
       }
@@ -1041,10 +1041,10 @@ void presolve_check_sol(const CoinPostsolveMatrix *postObj,
   tol *= 1.0e4;
   if (chkRowAct >= 1) {
     for (int i = 0; i < m; ++i) {
-      double lhsi = acts[i];
-      double evali = rsol[i];
-      double li = rlo[i];
-      double ui = rup[i];
+      FloatT lhsi = acts[i];
+      FloatT evali = rsol[i];
+      FloatT li = rlo[i];
+      FloatT ui = rup[i];
 
       if (CoinIsnan(evali) || CoinIsnan(lhsi)) {
         printf("NaN RSOL: %d  : lb = %g eval = %g (expected %g) ub = %g\n",

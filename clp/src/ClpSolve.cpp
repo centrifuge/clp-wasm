@@ -52,9 +52,9 @@
 #include "AbcSimplexFactorization.hpp"
 #endif
 #include "CoinStructuredModel.hpp"
-double zz_slack_value = 0.0;
+FloatT zz_slack_value = 0.0;
 #ifdef CLP_USEFUL_PRINTOUT
-double debugDouble[10];
+FloatT debugDouble[10];
 int debugInt[24];
 #endif
 
@@ -87,13 +87,13 @@ private:
 
 private:
   /// Pointer to dense vector of structural variable upper bounds
-  double *colupper_;
+  FloatT *colupper_;
   /// Pointer to dense vector of structural variable lower bounds
-  double *collower_;
+  FloatT *collower_;
   /// Pointer to dense vector of objective coefficients
-  double *objcoeffs_;
+  FloatT *objcoeffs_;
   /// Pointer to dense vector of right hand sides
-  double *rhs_;
+  FloatT *rhs_;
   /// Pointer to dense vector of senses
   char *sense_;
 
@@ -103,8 +103,8 @@ private:
   CoinPackedMatrix colMatrix_;
 
 public:
-  lpHook(double *clb, double *cub, double *obj,
-    double *rhs, char *sense, const CoinPackedMatrix &mat);
+  lpHook(FloatT *clb, FloatT *cub, FloatT *obj,
+    FloatT *rhs, char *sense, const CoinPackedMatrix &mat);
   virtual ~lpHook();
 
 public:
@@ -124,8 +124,8 @@ public:
          @param pcost (OUT) the primal objective value of <code>x</code>
      */
   virtual int solve_subproblem(const VOL_dvector &dual, const VOL_dvector &rc,
-    double &lcost, VOL_dvector &x, VOL_dvector &v,
-    double &pcost);
+    FloatT &lcost, VOL_dvector &x, VOL_dvector &v,
+    FloatT &pcost);
   /** Starting from the primal vector x, run a heuristic to produce
          an integer solution
          @param x (IN) the primal vector
@@ -133,7 +133,7 @@ public:
          <code>DBL_MAX</code> here if no feas sol was found
      */
   virtual int heuristics(const VOL_problem &p,
-    const VOL_dvector &x, double &heur_val)
+    const VOL_dvector &x, FloatT &heur_val)
   {
     return 0;
   }
@@ -141,8 +141,8 @@ public:
 
 //#############################################################################
 
-lpHook::lpHook(double *clb, double *cub, double *obj,
-  double *rhs, char *sense,
+lpHook::lpHook(FloatT *clb, FloatT *cub, FloatT *obj,
+  FloatT *rhs, char *sense,
   const CoinPackedMatrix &mat)
 {
   colupper_ = cub;
@@ -176,8 +176,8 @@ int lpHook::compute_rc(const VOL_dvector &u, VOL_dvector &rc)
 //-----------------------------------------------------------------------------
 
 int lpHook::solve_subproblem(const VOL_dvector &dual, const VOL_dvector &rc,
-  double &lcost, VOL_dvector &x, VOL_dvector &v,
-  double &pcost)
+  FloatT &lcost, VOL_dvector &x, VOL_dvector &v,
+  FloatT &pcost)
 {
   int i;
   const int psize = x.size();
@@ -211,9 +211,9 @@ int lpHook::solve_subproblem(const VOL_dvector &dual, const VOL_dvector &rc,
 /** A quick inlined function to convert from lb/ub style constraint
     definition to sense/rhs/range style */
 inline void
-convertBoundToSense(const double lower, const double upper,
-  char &sense, double &right,
-  double &range)
+convertBoundToSense(const FloatT lower, const FloatT upper,
+  char &sense, FloatT &right,
+  FloatT &range)
 {
   range = 0.0;
   if (lower > -1.0e20) {
@@ -261,7 +261,7 @@ solveWithVolume(ClpSimplex *model, int numberPasses, int doIdiot)
   int psize = model->numberColumns();
   int dsize = model->numberRows();
   char *sense = new char[dsize];
-  double *rhs = new double[dsize];
+  FloatT *rhs = new FloatT[dsize];
 
   // Set the lb/ub on the duals
   volprob.dsize = dsize;
@@ -269,10 +269,10 @@ solveWithVolume(ClpSimplex *model, int numberPasses, int doIdiot)
   volprob.dual_lb.allocate(dsize);
   volprob.dual_ub.allocate(dsize);
   int i;
-  const double *rowLower = model->rowLower();
-  const double *rowUpper = model->rowUpper();
+  const FloatT *rowLower = model->rowLower();
+  const FloatT *rowUpper = model->rowUpper();
   for (i = 0; i < dsize; ++i) {
-    double range;
+    FloatT range;
     convertBoundToSense(rowLower[i], rowUpper[i],
       sense[i], rhs[i], range);
     switch (sense[i]) {
@@ -294,8 +294,8 @@ solveWithVolume(ClpSimplex *model, int numberPasses, int doIdiot)
     }
   }
   // Check bounds
-  double *saveLower = model->columnLower();
-  double *saveUpper = model->columnUpper();
+  FloatT *saveLower = model->columnLower();
+  FloatT *saveUpper = model->columnUpper();
   bool good = true;
   for (i = 0; i < psize; i++) {
     if (saveLower[i] < -1.0e20 || saveUpper[i] > 1.0e20) {
@@ -327,7 +327,7 @@ solveWithVolume(ClpSimplex *model, int numberPasses, int doIdiot)
 
   //printf("Best lagrangean value: %f\n", volprob.value);
 
-  double avg = 0;
+  FloatT avg = 0;
   for (i = 0; i < dsize; ++i) {
     switch (sense[i]) {
     case 'E':
@@ -395,15 +395,15 @@ static int numberTypes;
 #define MAX_COUNT 20
 #define MAX_FRACTION 101
 static char *types[MAX_TYPES];
-static double counts[MAX_TYPES][MAX_COUNT];
-static double countsFraction[MAX_TYPES][MAX_FRACTION];
-static double *currentCounts;
-static double *currentCountsFraction;
+static FloatT counts[MAX_TYPES][MAX_COUNT];
+static FloatT countsFraction[MAX_TYPES][MAX_FRACTION];
+static FloatT *currentCounts;
+static FloatT *currentCountsFraction;
 static int currentType;
-static double workMultiplier[MAX_TYPES];
-static double work[MAX_TYPES];
-static double currentWork;
-static double otherWork[MAX_TYPES];
+static FloatT workMultiplier[MAX_TYPES];
+static FloatT work[MAX_TYPES];
+static FloatT currentWork;
+static FloatT otherWork[MAX_TYPES];
 static int timesCalled[MAX_TYPES];
 static int timesStarted[MAX_TYPES];
 static int fractionDivider;
@@ -444,7 +444,7 @@ void instrument_start(const char *type, int numberRowsEtc)
   currentCountsFraction = &countsFraction[currentType][0];
   timesStarted[currentType]++;
   assert(trueNumberRows);
-  workMultiplier[currentType] += static_cast< double >(numberRowsEtc) / static_cast< double >(trueNumberRows);
+  workMultiplier[currentType] += static_cast< FloatT >(numberRowsEtc) / static_cast< FloatT >(trueNumberRows);
 }
 void instrument_add(int count)
 {
@@ -458,7 +458,7 @@ void instrument_add(int count)
   assert(count / fractionDivider >= 0 && count / fractionDivider < MAX_FRACTION);
   currentCountsFraction[count / fractionDivider]++;
 }
-void instrument_do(const char *type, double count)
+void instrument_do(const char *type, FloatT count)
 {
   int iType = -1;
   for (int i = 0; i < numberTypes; i++) {
@@ -480,7 +480,7 @@ void instrument_end()
   work[currentType] += currentWork;
   currentType = -1;
 }
-void instrument_end_and_adjust(double factor)
+void instrument_end_and_adjust(FloatT factor)
 {
   work[currentType] += currentWork * factor;
   currentType = -1;
@@ -517,7 +517,7 @@ void instrument_print()
       int largestFraction;
       int nBig = 0;
       for (largestFraction = MAX_FRACTION - 1; largestFraction >= 10; largestFraction--) {
-        double count = currentCountsFraction[largestFraction];
+        FloatT count = currentCountsFraction[largestFraction];
         if (count && largestFraction > 10)
           nBig++;
         if (nBig > 4)
@@ -527,7 +527,7 @@ void instrument_print()
       int lo = 0;
       for (int iChunk = 0; iChunk < largestFraction; iChunk += chunk) {
         int hi = CoinMin(lo + chunk * fractionDivider, trueNumberRows);
-        double sum = 0.0;
+        FloatT sum = 0.0;
         for (int i = iChunk; i < CoinMin(iChunk + chunk, MAX_FRACTION); i++)
           sum += currentCountsFraction[i];
         if (sum)
@@ -590,7 +590,7 @@ ClpSimplex::dealWithAbc(int solveType, int startUp,
     // temp
     if (fabs(this->primalTolerance() - 1.001e-6) < 0.999e-9) {
       int type = 1;
-      double diff = this->primalTolerance() - 1.001e-6;
+      FloatT diff = this->primalTolerance() - 1.001e-6;
       printf("Diff %g\n", diff);
       if (fabs(diff - 1.0e-10) < 1.0e-13)
         type = 2;
@@ -632,7 +632,7 @@ ClpSimplex::dealWithAbc(int solveType, int startUp,
         info.setReduceIterations(6);
         info.crash(200, abcModel2->messageHandler(), abcModel2->messagesPointer(), false);
         //memcpy(abcModel2->primalColumnSolution(),this->primalColumnSolution(),
-        //     this->numberColumns()*sizeof(double));
+        //     this->numberColumns()*sizeof(FloatT));
       }
 #endif
     }
@@ -693,8 +693,8 @@ ClpSimplex::dealWithAbc(int solveType, int startUp,
     //if (processTune>0&&processTune<8)
     //abcModel2->setMoreSpecialOptions(abcModel2->moreSpecialOptions()|131072*processTune);
 #if ABC_INSTRUMENT
-    double startTimeCpu = CoinCpuTime();
-    double startTimeElapsed = CoinGetTimeOfDay();
+    FloatT startTimeCpu = CoinCpuTime();
+    FloatT startTimeElapsed = CoinGetTimeOfDay();
 #if ABC_INSTRUMENT > 1
     memset(abcPricing, 0, sizeof(abcPricing));
     memset(abcPricingDense, 0, sizeof(abcPricing));
@@ -712,8 +712,8 @@ ClpSimplex::dealWithAbc(int solveType, int startUp,
     }
 #if ABC_INSTRUMENT
     if (solveType < 2) {
-      double timeCpu = CoinCpuTime() - startTimeCpu;
-      double timeElapsed = CoinGetTimeOfDay() - startTimeElapsed;
+      FloatT timeCpu = CoinCpuTime() - startTimeCpu;
+      FloatT timeElapsed = CoinGetTimeOfDay() - startTimeElapsed;
       sprintf(line, "Cpu time for %s (%d rows, %d columns %d elements) %g elapsed %g ratio %g - %d iterations",
         this->problemName().c_str(), this->numberRows(), this->numberColumns(),
         this->getNumElements(),
@@ -780,14 +780,14 @@ ClpSimplex::dealWithAbc(int solveType, int startUp,
     abcModel2->moveStatusToClp(this);
 #if 1
     if (!problemStatus_) {
-      double offset;
+      FloatT offset;
       CoinMemcpyN(this->objectiveAsObject()->gradient(this,
                     this->primalColumnSolution(), offset, true),
         numberColumns_, this->dualColumnSolution());
       this->clpMatrix()->transposeTimes(-1.0,
         this->dualRowSolution(),
         this->dualColumnSolution());
-      memset(this->primalRowSolution(), 0, numberRows_ * sizeof(double));
+      memset(this->primalRowSolution(), 0, numberRows_ * sizeof(FloatT));
       this->clpMatrix()->times(1.0,
         this->primalColumnSolution(),
         this->primalRowSolution());
@@ -853,9 +853,9 @@ int ClpSimplex::initialSolve(ClpSolve &options)
   int saveMaxIterations = maximumIterations();
   int finalStatus = -1;
   int numberIterations = 0;
-  double time1 = CoinCpuTime();
-  double timeX = time1;
-  double time2 = 0.0;
+  FloatT time1 = CoinCpuTime();
+  FloatT timeX = time1;
+  FloatT time2 = 0.0;
   ClpMatrixBase *saveMatrix = NULL;
   ClpObjective *savedObjective = NULL;
   int idiotOptions = 0;
@@ -881,10 +881,10 @@ int ClpSimplex::initialSolve(ClpSolve &options)
     // pretend linear
     savedObjective = objective_;
     // make up objective
-    double *obj = new double[numberColumns_];
+    FloatT *obj = new FloatT[numberColumns_];
     for (int i = 0; i < numberColumns_; i++) {
-      double l = fabs(columnLower_[i]);
-      double u = fabs(columnUpper_[i]);
+      FloatT l = fabs(columnLower_[i]);
+      FloatT u = fabs(columnUpper_[i]);
       obj[i] = 0.0;
       if (CoinMin(l, u) < 1.0e20) {
         if (l < u)
@@ -919,9 +919,9 @@ int ClpSimplex::initialSolve(ClpSolve &options)
   int printOptions = options.getSpecialOption(5);
   if ((printOptions & 1) != 0)
     pinfo->statistics();
-  double timePresolve = 0.0;
-  double timeIdiot = 0.0;
-  double timeCore = 0.0;
+  FloatT timePresolve = 0.0;
+  FloatT timeIdiot = 0.0;
+  FloatT timeCore = 0.0;
   eventHandler()->event(ClpEventHandler::presolveStart);
   int savePerturbation = perturbation_;
   int saveScaling = scalingFlag_;
@@ -1051,26 +1051,26 @@ int ClpSimplex::initialSolve(ClpSolve &options)
   debugInt[5] = model2->matrix()->getNumElements();
   // analyze
   {
-    double time1 = CoinCpuTime();
+    FloatT time1 = CoinCpuTime();
     int numberColumns = model2->numberColumns();
-    const double *columnLower = model2->columnLower();
-    const double *columnUpper = model2->columnUpper();
+    const FloatT *columnLower = model2->columnLower();
+    const FloatT *columnUpper = model2->columnUpper();
     int numberRows = model2->numberRows();
-    const double *rowLower = model2->rowLower();
-    const double *rowUpper = model2->rowUpper();
-    const double *objective = model2->objective();
+    const FloatT *rowLower = model2->rowLower();
+    const FloatT *rowUpper = model2->rowUpper();
+    const FloatT *objective = model2->objective();
     CoinPackedMatrix *matrix = model2->matrix();
     CoinBigIndex numberElements = matrix->getNumElements();
     const int *columnLength = matrix->getVectorLengths();
     //const CoinBigIndex * columnStart = matrix->getVectorStarts();
-    const double *elementByColumn = matrix->getElements();
+    const FloatT *elementByColumn = matrix->getElements();
     const int *row = matrix->getIndices();
     int *rowCount = new int[numberRows];
     memset(rowCount, 0, numberRows * sizeof(int));
     int n = CoinMax(2 * numberRows, numberElements);
     n = CoinMax(2 * numberColumns, n);
-    double *check = new double[n];
-    memcpy(check, elementByColumn, numberElements * sizeof(double));
+    FloatT *check = new FloatT[n];
+    memcpy(check, elementByColumn, numberElements * sizeof(FloatT));
     for (int i = 0; i < numberElements; i++) {
       check[i] = fabs(check[i]);
       rowCount[row[i]]++;
@@ -1092,7 +1092,7 @@ int ClpSimplex::initialSolve(ClpSolve &options)
     debugDouble[5] = check[n - 1];
     int nAtOne = 0;
     int nDifferent = 0;
-    double last = -COIN_DBL_MAX;
+    FloatT last = -COIN_DBL_MAX;
     for (int i = 0; i < n; i++) {
       if (fabs(last - check[i]) > 1.0e-12) {
         nDifferent++;
@@ -1107,7 +1107,7 @@ int ClpSimplex::initialSolve(ClpSolve &options)
     int nZero = 0;
     n = 0;
     for (int i = 0; i < numberRows; i++) {
-      double value = fabs(rowLower[i]);
+      FloatT value = fabs(rowLower[i]);
       if (!value)
         nZero++;
       else if (value != COIN_DBL_MAX)
@@ -1116,7 +1116,7 @@ int ClpSimplex::initialSolve(ClpSolve &options)
         nInf++;
     }
     for (int i = 0; i < numberRows; i++) {
-      double value = fabs(rowUpper[i]);
+      FloatT value = fabs(rowUpper[i]);
       if (!value)
         nZero++;
       else if (value != COIN_DBL_MAX)
@@ -1150,7 +1150,7 @@ int ClpSimplex::initialSolve(ClpSolve &options)
     nZero = 0;
     n = 0;
     for (int i = 0; i < numberColumns; i++) {
-      double value = fabs(objective[i]);
+      FloatT value = fabs(objective[i]);
       if (value)
         check[n++] = value;
       else
@@ -1182,7 +1182,7 @@ int ClpSimplex::initialSolve(ClpSolve &options)
     nZero = 0;
     n = 0;
     for (int i = 0; i < numberColumns; i++) {
-      double value = fabs(columnLower[i]);
+      FloatT value = fabs(columnLower[i]);
       if (!value)
         nZero++;
       else if (value != COIN_DBL_MAX)
@@ -1191,7 +1191,7 @@ int ClpSimplex::initialSolve(ClpSolve &options)
         nInf++;
     }
     for (int i = 0; i < numberColumns; i++) {
-      double value = fabs(columnUpper[i]);
+      FloatT value = fabs(columnUpper[i]);
       if (!value)
         nZero++;
       else if (value != COIN_DBL_MAX)
@@ -1200,8 +1200,8 @@ int ClpSimplex::initialSolve(ClpSolve &options)
         nInf++;
     }
     debugInt[17] = nInf;
-    double smallestColBound;
-    double largestColBound;
+    FloatT smallestColBound;
+    FloatT largestColBound;
     if (n) {
       std::sort(check, check + n);
       smallestColBound = check[0];
@@ -1280,7 +1280,7 @@ int ClpSimplex::initialSolve(ClpSolve &options)
     int numberColumns = model2->numberColumns();
     int numberRows = model2->numberRows();
     int numberColumnsOrig = this->numberColumns();
-    const double *obj = this->objective();
+    const FloatT *obj = this->objective();
     int nNon = 0;
     bool allOnes = true;
     for (int i = 0; i < numberColumnsOrig; i++) {
@@ -1303,12 +1303,12 @@ int ClpSimplex::initialSolve(ClpSolve &options)
       } else {
         // If rhs also rubbish then maybe
         int numberRowsOrig = this->numberRows();
-        const double *rowLower = this->rowLower();
-        const double *rowUpper = this->rowUpper();
-        double last = COIN_DBL_MAX;
+        const FloatT *rowLower = this->rowLower();
+        const FloatT *rowUpper = this->rowUpper();
+        FloatT last = COIN_DBL_MAX;
         int nDifferent = 0;
         for (int i = 0; i < numberRowsOrig; i++) {
-          double value = fabs(rowLower[i]);
+          FloatT value = fabs(rowLower[i]);
           if (value && value != COIN_DBL_MAX) {
             if (value != last) {
               nDifferent++;
@@ -1569,13 +1569,13 @@ int ClpSimplex::initialSolve(ClpSolve &options)
         // switch off sprint if very few with costs
         // or great variation in cost
         int iColumn;
-        const double *columnLower = model2->columnLower();
-        const double *columnUpper = model2->columnUpper();
-        const double *objective = model2->objective();
+        const FloatT *columnLower = model2->columnLower();
+        const FloatT *columnUpper = model2->columnUpper();
+        const FloatT *objective = model2->objective();
         int nObj = 0;
         int nFree = 0;
-        double smallestObj = COIN_DBL_MAX;
-        double largestObj = 0.0;
+        FloatT smallestObj = COIN_DBL_MAX;
+        FloatT largestObj = 0.0;
         for (iColumn = 0; iColumn < numberColumns; iColumn++) {
           if (columnLower[iColumn] < -1.0e10 && columnUpper[iColumn] > 1.0e10) {
             nFree++;
@@ -1594,13 +1594,13 @@ int ClpSimplex::initialSolve(ClpSolve &options)
         int nPasses = 0;
         // look at rhs
         int iRow;
-        double largest = 0.0;
-        double smallest = 1.0e30;
-        double largestGap = 0.0;
+        FloatT largest = 0.0;
+        FloatT smallest = 1.0e30;
+        FloatT largestGap = 0.0;
         int numberNotE = 0;
         bool notInteger = false;
         for (iRow = 0; iRow < numberRows; iRow++) {
-          double value1 = model2->rowLower_[iRow];
+          FloatT value1 = model2->rowLower_[iRow];
           if (value1 && value1 > -1.0e31) {
             largest = CoinMax(largest, fabs(value1));
             smallest = CoinMin(smallest, fabs(value1));
@@ -1609,7 +1609,7 @@ int ClpSimplex::initialSolve(ClpSolve &options)
               break;
             }
           }
-          double value2 = model2->rowUpper_[iRow];
+          FloatT value2 = model2->rowUpper_[iRow];
           if (value2 && value2 < 1.0e31) {
             largest = CoinMax(largest, fabs(value2));
             smallest = CoinMin(smallest, fabs(value2));
@@ -1741,8 +1741,8 @@ int ClpSimplex::initialSolve(ClpSolve &options)
 #ifdef CLP_USEFUL_PRINTOUT
     debugInt[6] = 1;
 #endif
-    double *saveLower = NULL;
-    double *saveUpper = NULL;
+    FloatT *saveLower = NULL;
+    FloatT *saveUpper = NULL;
     if (presolve == ClpSolve::presolveOn) {
       int numberInfeasibilities = model2->tightenPrimalBounds(0.0, 0);
       if (numberInfeasibilities) {
@@ -1754,10 +1754,10 @@ int ClpSimplex::initialSolve(ClpSolve &options)
       }
     } else if (numberRows_ + numberColumns_ > 5000) {
       // do anyway
-      saveLower = new double[numberRows_ + numberColumns_];
+      saveLower = new FloatT[numberRows_ + numberColumns_];
       CoinMemcpyN(model2->columnLower(), numberColumns_, saveLower);
       CoinMemcpyN(model2->rowLower(), numberRows_, saveLower + numberColumns_);
-      saveUpper = new double[numberRows_ + numberColumns_];
+      saveUpper = new FloatT[numberRows_ + numberColumns_];
       CoinMemcpyN(model2->columnUpper(), numberColumns_, saveUpper);
       CoinMemcpyN(model2->rowUpper(), numberRows_, saveUpper + numberColumns_);
       int numberInfeasibilities = model2->tightenPrimalBounds();
@@ -1791,18 +1791,18 @@ int ClpSimplex::initialSolve(ClpSolve &options)
       Idiot info(*model2);
       info.setStrategy(idiotOptions | info.getStrategy());
       // Get average number of elements per column
-      double ratio = static_cast< double >(numberElements) / static_cast< double >(numberColumns);
+      FloatT ratio = static_cast< FloatT >(numberElements) / static_cast< FloatT >(numberColumns);
       // look at rhs
       int iRow;
-      double largest = 0.0;
-      double smallest = 1.0e30;
+      FloatT largest = 0.0;
+      FloatT smallest = 1.0e30;
       for (iRow = 0; iRow < numberRows; iRow++) {
-        double value1 = model2->rowLower_[iRow];
+        FloatT value1 = model2->rowLower_[iRow];
         if (value1 && value1 > -1.0e31) {
           largest = CoinMax(largest, fabs(value1));
           smallest = CoinMin(smallest, fabs(value1));
         }
-        double value2 = model2->rowUpper_[iRow];
+        FloatT value2 = model2->rowUpper_[iRow];
         if (value2 && value2 < 1.0e31) {
           largest = CoinMax(largest, fabs(value2));
           smallest = CoinMin(smallest, fabs(value2));
@@ -1897,30 +1897,30 @@ int ClpSimplex::initialSolve(ClpSolve &options)
       }
     } else if (!numberNotE && 0) {
       // E so we can do in another way
-      double *pi = model2->dualRowSolution();
+      FloatT *pi = model2->dualRowSolution();
       int i;
       int numberColumns = model2->numberColumns();
       int numberRows = model2->numberRows();
-      double *saveObj = new double[numberColumns];
+      FloatT *saveObj = new FloatT[numberColumns];
       CoinMemcpyN(model2->objective(), numberColumns, saveObj);
       CoinMemcpyN(model2->objective(),
         numberColumns, model2->dualColumnSolution());
       model2->clpMatrix()->transposeTimes(-1.0, pi, model2->dualColumnSolution());
       CoinMemcpyN(model2->dualColumnSolution(),
         numberColumns, model2->objective());
-      const double *rowsol = model2->primalRowSolution();
-      double offset = 0.0;
+      const FloatT *rowsol = model2->primalRowSolution();
+      FloatT offset = 0.0;
       for (i = 0; i < numberRows; i++) {
         offset += pi[i] * rowsol[i];
       }
-      double value2;
+      FloatT value2;
       model2->getDblParam(ClpObjOffset, value2);
       //printf("Offset %g %g\n",offset,value2);
       model2->setDblParam(ClpObjOffset, value2 - offset);
       model2->setPerturbation(51);
       //model2->setRowObjective(pi);
       // zero out pi
-      //memset(pi,0,numberRows*sizeof(double));
+      //memset(pi,0,numberRows*sizeof(FloatT));
       // Could put some in basis - only partially tested
       model2->allSlackBasis();
       //model2->factorization()->maximumPivots(200);
@@ -1930,7 +1930,7 @@ int ClpSimplex::initialSolve(ClpSolve &options)
       model2->setDblParam(ClpObjOffset, value2);
       CoinMemcpyN(saveObj, numberColumns, model2->objective());
       // zero out pi
-      //memset(pi,0,numberRows*sizeof(double));
+      //memset(pi,0,numberRows*sizeof(FloatT));
       //model2->setRowObjective(pi);
       delete[] saveObj;
       //model2->dual(0);
@@ -1969,20 +1969,20 @@ int ClpSimplex::initialSolve(ClpSolve &options)
       Idiot info(*model2);
       info.setStrategy(idiotOptions | info.getStrategy());
       // Get average number of elements per column
-      double ratio = static_cast< double >(numberElements) / static_cast< double >(numberColumns);
+      FloatT ratio = static_cast< FloatT >(numberElements) / static_cast< FloatT >(numberColumns);
       // look at rhs
       int iRow;
-      double largest = 0.0;
-      double smallest = 1.0e30;
-      double largestGap = 0.0;
+      FloatT largest = 0.0;
+      FloatT smallest = 1.0e30;
+      FloatT largestGap = 0.0;
       int numberNotE = 0;
       for (iRow = 0; iRow < numberRows; iRow++) {
-        double value1 = model2->rowLower_[iRow];
+        FloatT value1 = model2->rowLower_[iRow];
         if (value1 && value1 > -1.0e31) {
           largest = CoinMax(largest, fabs(value1));
           smallest = CoinMin(smallest, fabs(value1));
         }
-        double value2 = model2->rowUpper_[iRow];
+        FloatT value2 = model2->rowUpper_[iRow];
         if (value2 && value2 < 1.0e31) {
           largest = CoinMax(largest, fabs(value2));
           smallest = CoinMin(smallest, fabs(value2));
@@ -2075,7 +2075,7 @@ int ClpSimplex::initialSolve(ClpSolve &options)
             }
           }
           if (ratio < 3.0) {
-            nPasses = static_cast< int >(ratio * static_cast< double >(nPasses) / 4.0); // probably not worth it
+            nPasses = static_cast< int >(ratio * static_cast< FloatT >(nPasses) / 4.0); // probably not worth it
           } else {
             nPasses = CoinMax(nPasses, 5);
           }
@@ -2086,7 +2086,7 @@ int ClpSimplex::initialSolve(ClpSolve &options)
             nPasses *= 2;
             nPasses = CoinMin(nPasses, 71);
           } else if (nPasses == 5 && ratio > 5.0) {
-            nPasses = static_cast< int >(static_cast< double >(nPasses) * (ratio / 5.0)); // increase if lots of elements per column
+            nPasses = static_cast< int >(static_cast< FloatT >(nPasses) * (ratio / 5.0)); // increase if lots of elements per column
           }
           if (nPasses <= 5 && !plusMinus)
             nPasses = 0;
@@ -2126,14 +2126,14 @@ int ClpSimplex::initialSolve(ClpSolve &options)
           //if (nPasses > 1900)
           //info.setWeightFactor(0.93);
           if (nPasses > 900) {
-            double reductions = nPasses / 6.0;
+            FloatT reductions = nPasses / 6.0;
             if (nPasses < 5000) {
               reductions /= 12.0;
             } else {
               reductions /= 13.0;
               info.setStartingWeight(1.0e4);
             }
-            double ratio = 1.0 / std::pow(10.0, (1.0 / reductions));
+            FloatT ratio = 1.0 / mp::pow(fd(10.0), (fd(1.0) / reductions));
             printf("%d passes reduction factor %g\n", nPasses, ratio);
             info.setWeightFactor(ratio);
           } else if (nPasses > 500) {
@@ -2176,17 +2176,17 @@ int ClpSimplex::initialSolve(ClpSolve &options)
       if (nPasses) {
         doCrash = 0;
 #if 0
-                    double * solution = model2->primalColumnSolution();
+                    FloatT * solution = model2->primalColumnSolution();
                     int iColumn;
-                    double * saveLower = new double[numberColumns];
+                    FloatT * saveLower = new FloatT[numberColumns];
                     CoinMemcpyN(model2->columnLower(), numberColumns, saveLower);
-                    double * saveUpper = new double[numberColumns];
+                    FloatT * saveUpper = new FloatT[numberColumns];
                     CoinMemcpyN(model2->columnUpper(), numberColumns, saveUpper);
                     printf("doing tighten before idiot\n");
                     model2->tightenPrimalBounds();
                     // Move solution
-                    double * columnLower = model2->columnLower();
-                    double * columnUpper = model2->columnUpper();
+                    FloatT * columnLower = model2->columnLower();
+                    FloatT * columnUpper = model2->columnUpper();
                     for (iColumn = 0; iColumn < numberColumns; iColumn++) {
                          if (columnLower[iColumn] > 0.0)
                               solution[iColumn] = columnLower[iColumn];
@@ -2217,10 +2217,10 @@ int ClpSimplex::initialSolve(ClpSolve &options)
           model2->scaling(0);
 #define CLP_DUAL_IDIOT
 #ifdef CLP_DUAL_IDIOT
-        bool doubleIdiot = false;
+        bool FloatTIdiot = false;
         if (nPasses == 99 && linearObjective)
-          doubleIdiot = true;
-        if (doubleIdiot) {
+          FloatTIdiot = true;
+        if (FloatTIdiot) {
           ClpSimplex *dualModel2 = static_cast< ClpSimplexOther * >(model2)->dualOfModel(1.0, 1.0);
           if (dualModel2) {
             printf("Dual of model has %d rows and %d columns\n",
@@ -2246,9 +2246,9 @@ int ClpSimplex::initialSolve(ClpSolve &options)
 #else
             // move duals and just copy primal
             memcpy(temp.dualRowSolution(), dualModel2->primalColumnSolution(),
-              numberRows * sizeof(double));
+              numberRows * sizeof(FloatT));
             memcpy(temp.primalColumnSolution(), model2->primalColumnSolution(),
-              numberColumns * sizeof(double));
+              numberColumns * sizeof(FloatT));
 #endif
             delete dualModel2;
             int numberRows = model2->numberRows();
@@ -2256,18 +2256,18 @@ int ClpSimplex::initialSolve(ClpSolve &options)
             ClpSimplex *tempModel[2];
             tempModel[0] = model2;
             tempModel[1] = &temp;
-            const double *primalColumn[2];
-            const double *dualRow[2];
-            double *dualColumn[2];
-            double *primalRow[2];
+            const FloatT *primalColumn[2];
+            const FloatT *dualRow[2];
+            FloatT *dualColumn[2];
+            FloatT *primalRow[2];
             for (int i = 0; i < 2; i++) {
               primalColumn[i] = tempModel[i]->primalColumnSolution();
               dualRow[i] = tempModel[i]->dualRowSolution();
               dualColumn[i] = tempModel[i]->dualColumnSolution();
               primalRow[i] = tempModel[i]->primalRowSolution();
               memcpy(dualColumn[i], model2->objective(),
-                numberColumns * sizeof(double));
-              memset(primalRow[i], 0, numberRows * sizeof(double));
+                numberColumns * sizeof(FloatT));
+              memset(primalRow[i], 0, numberRows * sizeof(FloatT));
               tempModel[i]->clpMatrix()->transposeTimes(-1.0,
                 dualRow[i],
                 dualColumn[i]);
@@ -2281,10 +2281,10 @@ int ClpSimplex::initialSolve(ClpSolve &options)
             }
             printf("What now\n");
           } else {
-            doubleIdiot = false;
+            FloatTIdiot = false;
           }
         }
-        if (!doubleIdiot)
+        if (!FloatTIdiot)
           info.crash(nPasses, model2->messageHandler(), model2->messagesPointer(),
             (objective_->type() < 2));
 #else
@@ -2309,19 +2309,19 @@ int ClpSimplex::initialSolve(ClpSolve &options)
           //int numberRows = model2->numberRows();
           int numberColumns = model2->numberColumns();
           // save duals
-          //double * saveDuals = CoinCopyOfArray(model2->dualRowSolution(),numberRows);
+          //FloatT * saveDuals = CoinCopyOfArray(model2->dualRowSolution(),numberRows);
           // for moment this only works on nug etc (i.e. all ==)
           // needs row objective
-          double *saveObj = CoinCopyOfArray(model2->objective(), numberColumns);
-          double *pi = model2->dualRowSolution();
+          FloatT *saveObj = CoinCopyOfArray(model2->objective(), numberColumns);
+          FloatT *pi = model2->dualRowSolution();
           model2->clpMatrix()->transposeTimes(-1.0, pi, model2->objective());
           // just primal values pass
-          double saveScale = model2->objectiveScale();
+          FloatT saveScale = model2->objectiveScale();
           model2->setObjectiveScale(1.0e-3);
           model2->primal(2);
           model2->writeMps("xx.mps");
-          double *solution = model2->primalColumnSolution();
-          double *upper = model2->columnUpper();
+          FloatT *solution = model2->primalColumnSolution();
+          FloatT *upper = model2->columnUpper();
           for (int i = 0; i < numberColumns; i++) {
             if (solution[i] < 100.0)
               upper[i] = 1000.0;
@@ -2353,7 +2353,7 @@ int ClpSimplex::initialSolve(ClpSolve &options)
           //model2->setNumberIterations(abcModel2->numberIterations()+model2->numberIterations());
           delete abcModel2;
 #endif
-          memcpy(model2->objective(), saveObj, numberColumns * sizeof(double));
+          memcpy(model2->objective(), saveObj, numberColumns * sizeof(FloatT));
           //delete [] saveDuals;
           delete[] saveObj;
           model2->dual(2);
@@ -2443,15 +2443,15 @@ int ClpSimplex::initialSolve(ClpSolve &options)
     ClpSimplex *originalModel2 = model2;
 
     // We will need arrays to choose variables.  These are too big but ..
-    double *weight = new double[numberRows + originalNumberColumns];
+    FloatT *weight = new FloatT[numberRows + originalNumberColumns];
     int *sort = new int[numberRows + originalNumberColumns];
     int numberSort = 0;
     // We are going to add slacks to get feasible.
     // initial list will just be artificials
     int iColumn;
-    const double *columnLower = model2->columnLower();
-    const double *columnUpper = model2->columnUpper();
-    double *columnSolution = model2->primalColumnSolution();
+    const FloatT *columnLower = model2->columnLower();
+    const FloatT *columnUpper = model2->columnUpper();
+    FloatT *columnSolution = model2->primalColumnSolution();
 
     // See if we have costed slacks
     int *negSlack = new int[numberRows + numberColumns];
@@ -2463,14 +2463,14 @@ int ClpSimplex::initialSolve(ClpSolve &options)
       negSlack[iRow] = -1;
       posSlack[iRow] = -1;
     }
-    const double *element = model2->matrix()->getElements();
+    const FloatT *element = model2->matrix()->getElements();
     const int *row = model2->matrix()->getIndices();
     const CoinBigIndex *columnStart = model2->matrix()->getVectorStarts();
     const int *columnLength = model2->matrix()->getVectorLengths();
     //bool allSlack = (numberRowsBasic==numberRows);
     for (iColumn = 0; iColumn < originalNumberColumns; iColumn++) {
       if (!columnSolution[iColumn] || fabs(columnSolution[iColumn]) > 1.0e20) {
-        double value = 0.0;
+        FloatT value = 0.0;
         if (columnLower[iColumn] > 0.0)
           value = columnLower[iColumn];
         else if (columnUpper[iColumn] < 0.0)
@@ -2508,14 +2508,14 @@ int ClpSimplex::initialSolve(ClpSolve &options)
       }
     }
     // now see what that does to row solution
-    const double *objective = model2->objective();
-    double *rowSolution = model2->primalRowSolution();
+    const FloatT *objective = model2->objective();
+    FloatT *rowSolution = model2->primalRowSolution();
     CoinZeroN(rowSolution, numberRows);
     model2->clpMatrix()->times(1.0, columnSolution, rowSolution);
     // See if we can adjust using costed slacks
-    double penalty = CoinMax(1.0e5, CoinMin(infeasibilityCost_ * 0.01, 1.0e10)) * optimizationDirection_;
-    const double *lower = model2->rowLower();
-    const double *upper = model2->rowUpper();
+    FloatT penalty = CoinMax(1.0e5, CoinMin(infeasibilityCost_ * 0.01, 1.0e10)) * optimizationDirection_;
+    const FloatT *lower = model2->rowLower();
+    const FloatT *upper = model2->rowUpper();
     for (iRow = 0; iRow < numberRows; iRow++) {
       if (lower[iRow] > rowSolution[iRow] + 1.0e-8) {
         int jColumn = posSlack[iRow];
@@ -2532,12 +2532,12 @@ int ClpSimplex::initialSolve(ClpSolve &options)
           if (nPos > 1) {
             CoinSort_2(weight, weight + nPos, sort);
             for (int i = 0; i < nPos; i++) {
-              double difference = lower[iRow] - rowSolution[iRow];
+              FloatT difference = lower[iRow] - rowSolution[iRow];
               jColumn = sort[i];
-              double elementValue = element[columnStart[jColumn]];
+              FloatT elementValue = element[columnStart[jColumn]];
               assert(elementValue > 0.0);
-              double value = columnSolution[jColumn];
-              double movement = CoinMin(difference / elementValue, columnUpper[jColumn] - value);
+              FloatT value = columnSolution[jColumn];
+              FloatT movement = CoinMin(difference / elementValue, columnUpper[jColumn] - value);
               columnSolution[jColumn] += movement;
               rowSolution[iRow] += movement * elementValue;
             }
@@ -2545,14 +2545,14 @@ int ClpSimplex::initialSolve(ClpSolve &options)
           }
           if (jColumn < 0 || columnSolution[jColumn])
             continue;
-          double difference = lower[iRow] - rowSolution[iRow];
-          double elementValue = element[columnStart[jColumn]];
+          FloatT difference = lower[iRow] - rowSolution[iRow];
+          FloatT elementValue = element[columnStart[jColumn]];
           if (elementValue > 0.0) {
-            double movement = CoinMin(difference / elementValue, columnUpper[jColumn]);
+            FloatT movement = CoinMin(difference / elementValue, columnUpper[jColumn]);
             columnSolution[jColumn] = movement;
             rowSolution[iRow] += movement * elementValue;
           } else {
-            double movement = CoinMax(difference / elementValue, columnLower[jColumn]);
+            FloatT movement = CoinMax(difference / elementValue, columnLower[jColumn]);
             columnSolution[jColumn] = movement;
             rowSolution[iRow] += movement * elementValue;
           }
@@ -2572,12 +2572,12 @@ int ClpSimplex::initialSolve(ClpSolve &options)
           if (nNeg > 1) {
             CoinSort_2(weight, weight + nNeg, sort);
             for (int i = 0; i < nNeg; i++) {
-              double difference = rowSolution[iRow] - upper[iRow];
+              FloatT difference = rowSolution[iRow] - upper[iRow];
               jColumn = sort[i];
-              double elementValue = element[columnStart[jColumn]];
+              FloatT elementValue = element[columnStart[jColumn]];
               assert(elementValue < 0.0);
-              double value = columnSolution[jColumn];
-              double movement = CoinMin(difference / -elementValue, columnUpper[jColumn] - value);
+              FloatT value = columnSolution[jColumn];
+              FloatT movement = CoinMin(difference / -elementValue, columnUpper[jColumn] - value);
               columnSolution[jColumn] += movement;
               rowSolution[iRow] += movement * elementValue;
             }
@@ -2585,14 +2585,14 @@ int ClpSimplex::initialSolve(ClpSolve &options)
           }
           if (jColumn < 0 || columnSolution[jColumn])
             continue;
-          double difference = upper[iRow] - rowSolution[iRow];
-          double elementValue = element[columnStart[jColumn]];
+          FloatT difference = upper[iRow] - rowSolution[iRow];
+          FloatT elementValue = element[columnStart[jColumn]];
           if (elementValue < 0.0) {
-            double movement = CoinMin(difference / elementValue, columnUpper[jColumn]);
+            FloatT movement = CoinMin(difference / elementValue, columnUpper[jColumn]);
             columnSolution[jColumn] = movement;
             rowSolution[iRow] += movement * elementValue;
           } else {
-            double movement = CoinMax(difference / elementValue, columnLower[jColumn]);
+            FloatT movement = CoinMax(difference / elementValue, columnLower[jColumn]);
             columnSolution[jColumn] = movement;
             rowSolution[iRow] += movement * elementValue;
           }
@@ -2609,11 +2609,11 @@ int ClpSimplex::initialSolve(ClpSolve &options)
     }
     CoinBigIndex *addStarts = new CoinBigIndex[nRow + 1];
     int *addRow = new int[nRow];
-    double *addElement = new double[nRow];
+    FloatT *addElement = new FloatT[nRow];
     addStarts[0] = 0;
     int numberArtificials = 0;
     int numberAdd = 0;
-    double *addCost = new double[numberRows];
+    FloatT *addCost = new FloatT[numberRows];
     for (iRow = 0; iRow < numberRows; iRow++) {
       if (lower[iRow] > rowSolution[iRow] + 1.0e-8) {
         addRow[numberAdd] = iRow;
@@ -2653,10 +2653,10 @@ int ClpSimplex::initialSolve(ClpSolve &options)
     delete[] addElement;
     delete[] addCost;
     // look at rhs to see if to perturb
-    double largest = 0.0;
-    double smallest = 1.0e30;
+    FloatT largest = 0.0;
+    FloatT smallest = 1.0e30;
     for (iRow = 0; iRow < numberRows; iRow++) {
-      double value;
+      FloatT value;
       value = fabs(model2->rowLower_[iRow]);
       if (value && value < 1.0e30) {
         largest = CoinMax(largest, value);
@@ -2668,20 +2668,20 @@ int ClpSimplex::initialSolve(ClpSolve &options)
         smallest = CoinMin(smallest, value);
       }
     }
-    double *saveLower = NULL;
-    double *saveUpper = NULL;
+    FloatT *saveLower = NULL;
+    FloatT *saveUpper = NULL;
     if (largest < -2.01 * smallest) { // switch off for now
       // perturb - so switch off standard
       model2->setPerturbation(100);
-      saveLower = new double[numberRows];
+      saveLower = new FloatT[numberRows];
       CoinMemcpyN(model2->rowLower_, numberRows, saveLower);
-      saveUpper = new double[numberRows];
+      saveUpper = new FloatT[numberRows];
       CoinMemcpyN(model2->rowUpper_, numberRows, saveUpper);
-      double *lower = model2->rowLower();
-      double *upper = model2->rowUpper();
+      FloatT *lower = model2->rowLower();
+      FloatT *upper = model2->rowUpper();
       for (iRow = 0; iRow < numberRows; iRow++) {
-        double lowerValue = lower[iRow], upperValue = upper[iRow];
-        double value = randomNumberGenerator_.randomDouble();
+        FloatT lowerValue = lower[iRow], upperValue = upper[iRow];
+        FloatT value = randomNumberGenerator_.randomDouble();
         if (upperValue > lowerValue + primalTolerance_) {
           if (lowerValue > -1.0e20 && lowerValue)
             lowerValue -= value * 1.0e-4 * fabs(lowerValue);
@@ -2704,13 +2704,13 @@ int ClpSimplex::initialSolve(ClpSolve &options)
     if (doSprint > 0)
       maxSprintPass = options.getExtraInfo(1);
     // but if big use to get ratio
-    double ratio = 3;
+    FloatT ratio = 3;
 #ifdef CLP_USEFUL_PRINTOUT
     debugInt[6] = 3;
     debugInt[7] = maxSprintPass;
 #endif
     if (maxSprintPass > 1000) {
-      ratio = static_cast< double >(maxSprintPass) * 0.0001;
+      ratio = static_cast< FloatT >(maxSprintPass) * 0.0001;
       ratio = CoinMax(ratio, 1.1);
       maxSprintPass = maxSprintPass % 1000;
 #ifdef COIN_DEVELOP
@@ -2718,7 +2718,7 @@ int ClpSimplex::initialSolve(ClpSolve &options)
 #endif
     }
     // Just take this number of columns in small problem
-    int smallNumberColumns = static_cast< int >(CoinMin(ratio * numberRows, static_cast< double >(numberColumns)));
+    int smallNumberColumns = static_cast< int >(CoinMin(ratio * numberRows, static_cast< FloatT >(numberColumns)));
     smallNumberColumns = CoinMax(smallNumberColumns, 3000);
     smallNumberColumns = CoinMin(smallNumberColumns, numberColumns);
     int saveSmallNumber = smallNumberColumns;
@@ -2752,10 +2752,10 @@ int ClpSimplex::initialSolve(ClpSolve &options)
     numberSort = CoinMin(numberSort, smallNumberColumns);
 
     int numberColumns = model2->numberColumns();
-    double *fullSolution = model2->primalColumnSolution();
+    FloatT *fullSolution = model2->primalColumnSolution();
 
     int iPass;
-    double lastObjective[] = { 1.0e31, 1.0e31 };
+    FloatT lastObjective[] = { 1.0e31, 1.0e31 };
     // It will be safe to allow dense
     model2->setInitialDenseFactorization(true);
 
@@ -2763,10 +2763,10 @@ int ClpSimplex::initialSolve(ClpSolve &options)
     int *whichRows = new int[numberRows];
     for (iRow = 0; iRow < numberRows; iRow++)
       whichRows[iRow] = iRow;
-    double originalOffset;
+    FloatT originalOffset;
     model2->getDblParam(ClpObjOffset, originalOffset);
     int totalIterations = 0;
-    double lastSumArtificials = COIN_DBL_MAX;
+    FloatT lastSumArtificials = COIN_DBL_MAX;
     int originalMaxSprintPass = maxSprintPass;
     maxSprintPass = 20; // so we do that many if infeasible
     for (iPass = 0; iPass < maxSprintPass; iPass++) {
@@ -2781,8 +2781,8 @@ int ClpSimplex::initialSolve(ClpSolve &options)
         small.defaultFactorizationFrequency();
       }
       // now see what variables left out do to row solution
-      double *rowSolution = model2->primalRowSolution();
-      double *sumFixed = new double[numberRows];
+      FloatT *rowSolution = model2->primalRowSolution();
+      FloatT *sumFixed = new FloatT[numberRows];
       CoinZeroN(sumFixed, numberRows);
       int iRow, iColumn;
       // zero out ones in small problem
@@ -2791,8 +2791,8 @@ int ClpSimplex::initialSolve(ClpSolve &options)
         fullSolution[kColumn] = 0.0;
       }
       // Get objective offset
-      const double *objective = model2->objective();
-      double offset = 0.0;
+      const FloatT *objective = model2->objective();
+      FloatT offset = 0.0;
       for (iColumn = 0; iColumn < originalNumberColumns; iColumn++)
         offset += fullSolution[iColumn] * objective[iColumn];
 #if 0
@@ -2807,8 +2807,8 @@ int ClpSimplex::initialSolve(ClpSolve &options)
       small.setDblParam(ClpObjOffset, originalOffset - offset);
       model2->clpMatrix()->times(1.0, fullSolution, sumFixed);
 
-      double *lower = small.rowLower();
-      double *upper = small.rowUpper();
+      FloatT *lower = small.rowLower();
+      FloatT *upper = small.rowUpper();
       for (iRow = 0; iRow < numberRows; iRow++) {
         if (lower[iRow] > -1.0e50)
           lower[iRow] -= sumFixed[iRow];
@@ -2856,13 +2856,13 @@ int ClpSimplex::initialSolve(ClpSolve &options)
               small.setProblemStatus(0);
             smallNumberColumns = saveSmallNumber;
             emergencyMode = false;
-            double *temp = new double[numberRows];
-            memset(temp, 0, numberRows * sizeof(double));
-            double *solution = small.primalColumnSolution();
+            FloatT *temp = new FloatT[numberRows];
+            memset(temp, 0, numberRows * sizeof(FloatT));
+            FloatT *solution = small.primalColumnSolution();
             small.matrix()->times(solution, temp);
-            double sumInf = 0.0;
-            double *lower = small.rowLower();
-            double *upper = small.rowUpper();
+            FloatT sumInf = 0.0;
+            FloatT *lower = small.rowLower();
+            FloatT *upper = small.rowUpper();
             for (int iRow = 0; iRow < numberRows; iRow++) {
               if (temp[iRow] > upper[iRow])
                 sumInf += temp[iRow] - upper[iRow];
@@ -2891,7 +2891,7 @@ int ClpSimplex::initialSolve(ClpSolve &options)
           int numberColumns = small.numberColumns();
           int numberRows = small.numberRows();
           // Use dual region
-          double *rhs = small.dualRowSolution();
+          FloatT *rhs = small.dualRowSolution();
           int *whichRow = new int[3 * numberRows];
           int *whichColumn = new int[2 * numberColumns];
           int nBound;
@@ -2948,7 +2948,7 @@ int ClpSimplex::initialSolve(ClpSolve &options)
           << CoinMessageEol;
       }
       // move solution back
-      const double *solution = small.primalColumnSolution();
+      const FloatT *solution = small.primalColumnSolution();
       for (iColumn = 0; iColumn < numberSort; iColumn++) {
         int kColumn = sort[iColumn];
         model2->setColumnStatus(kColumn, small.getColumnStatus(iColumn));
@@ -2958,29 +2958,29 @@ int ClpSimplex::initialSolve(ClpSolve &options)
         model2->setRowStatus(iRow, small.getRowStatus(iRow));
       CoinMemcpyN(small.primalRowSolution(),
         numberRows, model2->primalRowSolution());
-      double sumArtificials = 0.0;
+      FloatT sumArtificials = 0.0;
       for (i = 0; i < numberArtificials; i++)
         sumArtificials += fullSolution[i + originalNumberColumns];
       if (sumArtificials && iPass > 5 && sumArtificials >= lastSumArtificials) {
         // increase costs
-        double *cost = model2->objective() + originalNumberColumns;
-        double newCost = CoinMin(1.0e10, cost[0] * 1.5);
+        FloatT *cost = model2->objective() + originalNumberColumns;
+        FloatT newCost = CoinMin(1.0e10, cost[0] * 1.5);
         for (i = 0; i < numberArtificials; i++)
           cost[i] = newCost;
       }
       lastSumArtificials = sumArtificials;
       // get reduced cost for large problem
-      double *djs = model2->dualColumnSolution();
+      FloatT *djs = model2->dualColumnSolution();
       CoinMemcpyN(model2->objective(), numberColumns, djs);
       model2->clpMatrix()->transposeTimes(-1.0, small.dualRowSolution(), djs);
       int numberNegative = 0;
-      double sumNegative = 0.0;
+      FloatT sumNegative = 0.0;
       // now massage weight so all basic in plus good djs
       // first count and do basic
       numberSort = 0;
       for (iColumn = 0; iColumn < numberColumns; iColumn++) {
-        double dj = djs[iColumn] * optimizationDirection_;
-        double value = fullSolution[iColumn];
+        FloatT dj = djs[iColumn] * optimizationDirection_;
+        FloatT value = fullSolution[iColumn];
         if (model2->getColumnStatus(iColumn) == ClpSimplex::basic) {
           sort[numberSort++] = iColumn;
         } else if (dj < -dualTolerance_ && value < columnUpper[iColumn]) {
@@ -3007,8 +3007,8 @@ int ClpSimplex::initialSolve(ClpSolve &options)
       } else {
         lastObjective[1] = lastObjective[0];
         lastObjective[0] = small.objectiveValue() * optimizationDirection_;
-        double tolerance;
-        double averageNegDj = sumNegative / static_cast< double >(numberNegative + 1);
+        FloatT tolerance;
+        FloatT averageNegDj = sumNegative / static_cast< FloatT >(numberNegative + 1);
         if (numberNegative + numberSort > smallNumberColumns && false)
           tolerance = -dualTolerance_;
         else
@@ -3017,8 +3017,8 @@ int ClpSimplex::initialSolve(ClpSolve &options)
           tolerance = 1.0e100;
         int saveN = numberSort;
         for (iColumn = 0; iColumn < numberColumns; iColumn++) {
-          double dj = djs[iColumn] * optimizationDirection_;
-          double value = fullSolution[iColumn];
+          FloatT dj = djs[iColumn] * optimizationDirection_;
+          FloatT value = fullSolution[iColumn];
           if (model2->getColumnStatus(iColumn) != ClpSimplex::basic) {
             if (dj < -dualTolerance_ && value < columnUpper[iColumn])
               dj = dj;
@@ -3306,10 +3306,10 @@ int ClpSimplex::initialSolve(ClpSolve &options)
     timeX = time2;
     int maxIts = barrier.maximumBarrierIterations();
     int barrierStatus = barrier.status();
-    double gap = barrier.complementarityGap();
+    FloatT gap = barrier.complementarityGap();
     // get which variables are fixed
-    double *saveLower = NULL;
-    double *saveUpper = NULL;
+    FloatT *saveLower = NULL;
+    FloatT *saveUpper = NULL;
     ClpPresolve pinfo2;
     ClpSimplex *saveModel2 = NULL;
     bool extraPresolve = false;
@@ -3318,8 +3318,8 @@ int ClpSimplex::initialSolve(ClpSolve &options)
       int numberRows = barrier.numberRows();
       int numberColumns = barrier.numberColumns();
       int numberTotal = numberRows + numberColumns;
-      saveLower = new double[numberTotal];
-      saveUpper = new double[numberTotal];
+      saveLower = new FloatT[numberTotal];
+      saveUpper = new FloatT[numberTotal];
       CoinMemcpyN(barrier.columnLower(), numberColumns, saveLower);
       CoinMemcpyN(barrier.rowLower(), numberRows, saveLower + numberColumns);
       CoinMemcpyN(barrier.columnUpper(), numberColumns, saveUpper);
@@ -3332,13 +3332,13 @@ int ClpSimplex::initialSolve(ClpSolve &options)
       } else {
         // Fix
         int n = barrier.numberColumns();
-        double *lower = barrier.columnLower();
-        double *upper = barrier.columnUpper();
-        double *solution = barrier.primalColumnSolution();
+        FloatT *lower = barrier.columnLower();
+        FloatT *upper = barrier.columnUpper();
+        FloatT *solution = barrier.primalColumnSolution();
         int nFix = 0;
         for (int i = 0; i < n; i++) {
           if (barrier.fixedOrFree(i) && lower[i] < upper[i]) {
-            double value = solution[i];
+            FloatT value = solution[i];
             if (value < lower[i] + 1.0e-6 && value - lower[i] < upper[i] - value) {
               solution[i] = lower[i];
               upper[i] = lower[i];
@@ -3360,7 +3360,7 @@ int ClpSimplex::initialSolve(ClpSolve &options)
         nFix = 0;
         for (int i = 0; i < nr; i++) {
           if (barrier.fixedOrFree(i + n) && lower[i] < upper[i]) {
-            double value = solution[i];
+            FloatT value = solution[i];
             if (value < lower[i] + 1.0e-6 && value - lower[i] < upper[i] - value) {
               solution[i] = lower[i];
               upper[i] = lower[i];
@@ -3385,13 +3385,13 @@ int ClpSimplex::initialSolve(ClpSolve &options)
       } else {
         // Fix
         int n = barrier.numberColumns();
-        double *lower = barrier.columnLower();
-        double *upper = barrier.columnUpper();
-        double *solution = barrier.primalColumnSolution();
+        FloatT *lower = barrier.columnLower();
+        FloatT *upper = barrier.columnUpper();
+        FloatT *solution = barrier.primalColumnSolution();
         int nFix = 0;
         for (int i = 0; i < n; i++) {
           if (barrier.fixedOrFree(i) && lower[i] < upper[i]) {
-            double value = solution[i];
+            FloatT value = solution[i];
             if (value < lower[i] + 1.0e-8 && value - lower[i] < upper[i] - value) {
               solution[i] = lower[i];
               upper[i] = lower[i];
@@ -3416,7 +3416,7 @@ int ClpSimplex::initialSolve(ClpSolve &options)
         nFix = 0;
         for (int i = 0; i < nr; i++) {
           if (barrier.fixedOrFree(i + n) && lower[i] < upper[i]) {
-            double value = solution[i];
+            FloatT value = solution[i];
             if (value < lower[i] + 1.0e-5 && value - lower[i] < upper[i] - value) {
               solution[i] = lower[i];
               upper[i] = lower[i];
@@ -3439,10 +3439,10 @@ int ClpSimplex::initialSolve(ClpSolve &options)
 #ifdef BORROW
     int saveNumberIterations = barrier.numberIterations();
     barrier.returnModel(*model2);
-    double *rowPrimal = new double[numberRows];
-    double *columnPrimal = new double[numberColumns];
-    double *rowDual = new double[numberRows];
-    double *columnDual = new double[numberColumns];
+    FloatT *rowPrimal = new FloatT[numberRows];
+    FloatT *columnPrimal = new FloatT[numberColumns];
+    FloatT *rowDual = new FloatT[numberRows];
+    FloatT *columnDual = new FloatT[numberColumns];
     // move solutions other way
     CoinMemcpyN(model2->primalRowSolution(),
       numberRows, rowPrimal);
@@ -3453,10 +3453,10 @@ int ClpSimplex::initialSolve(ClpSolve &options)
     CoinMemcpyN(model2->dualColumnSolution(),
       numberColumns, columnDual);
 #else
-    double *rowPrimal = barrier.primalRowSolution();
-    double *columnPrimal = barrier.primalColumnSolution();
-    double *rowDual = barrier.dualRowSolution();
-    double *columnDual = barrier.dualColumnSolution();
+    FloatT *rowPrimal = barrier.primalRowSolution();
+    FloatT *columnPrimal = barrier.primalColumnSolution();
+    FloatT *rowDual = barrier.dualRowSolution();
+    FloatT *columnDual = barrier.dualColumnSolution();
     // move solutions
     CoinMemcpyN(rowPrimal,
       numberRows, model2->primalRowSolution());
@@ -3506,19 +3506,19 @@ int ClpSimplex::initialSolve(ClpSolve &options)
         if (!forceFixing) {
           int numberRows = model2->numberRows();
           int numberColumns = model2->numberColumns();
-          double *dsort = new double[numberColumns];
+          FloatT *dsort = new FloatT[numberColumns];
           int *sort = new int[numberColumns];
           int n = 0;
-          const double *columnLower = model2->columnLower();
-          const double *columnUpper = model2->columnUpper();
-          double *primalSolution = model2->primalColumnSolution();
-          const double *dualSolution = model2->dualColumnSolution();
-          double tolerance = 10.0 * primalTolerance_;
+          const FloatT *columnLower = model2->columnLower();
+          const FloatT *columnUpper = model2->columnUpper();
+          FloatT *primalSolution = model2->primalColumnSolution();
+          const FloatT *dualSolution = model2->dualColumnSolution();
+          FloatT tolerance = 10.0 * primalTolerance_;
           int i;
           for (i = 0; i < numberRows; i++)
             model2->setRowStatus(i, superBasic);
           for (i = 0; i < numberColumns; i++) {
-            double distance = CoinMin(columnUpper[i] - primalSolution[i],
+            FloatT distance = CoinMin(columnUpper[i] - primalSolution[i],
               primalSolution[i] - columnLower[i]);
             if (distance > tolerance) {
               if (fabs(dualSolution[i]) < 1.0e-5)
@@ -3545,7 +3545,7 @@ int ClpSimplex::initialSolve(ClpSolve &options)
           delete[] sort;
           delete[] dsort;
           // model2->allSlackBasis();
-          if (gap < 1.0e-3 * static_cast< double >(numberRows + numberColumns)) {
+          if (gap < 1.0e-3 * static_cast< FloatT >(numberRows + numberColumns)) {
             if (saveUpper) {
               int numberRows = model2->numberRows();
               int numberColumns = model2->numberColumns();
@@ -3570,7 +3570,7 @@ int ClpSimplex::initialSolve(ClpSolve &options)
         }
 #else
             // just primal values pass
-            double saveScale = model2->objectiveScale();
+            FloatT saveScale = model2->objectiveScale();
             model2->setObjectiveScale(1.0e-3);
             model2->primal(2);
             model2->setObjectiveScale(saveScale);
@@ -3586,18 +3586,18 @@ int ClpSimplex::initialSolve(ClpSolve &options)
             //model2->primal(1);
             // clean up reduced costs and flag variables
             {
-              double *dj = model2->dualColumnSolution();
-              double *cost = model2->objective();
-              double *saveCost = new double[numberColumns];
+              FloatT *dj = model2->dualColumnSolution();
+              FloatT *cost = model2->objective();
+              FloatT *saveCost = new FloatT[numberColumns];
               CoinMemcpyN(cost, numberColumns, saveCost);
-              double *saveLower = new double[numberColumns];
-              double *lower = model2->columnLower();
+              FloatT *saveLower = new FloatT[numberColumns];
+              FloatT *lower = model2->columnLower();
               CoinMemcpyN(lower, numberColumns, saveLower);
-              double *saveUpper = new double[numberColumns];
-              double *upper = model2->columnUpper();
+              FloatT *saveUpper = new FloatT[numberColumns];
+              FloatT *upper = model2->columnUpper();
               CoinMemcpyN(upper, numberColumns, saveUpper);
               int i;
-              double tolerance = 10.0 * dualTolerance_;
+              FloatT tolerance = 10.0 * dualTolerance_;
               for (i = 0; i < numberColumns; i++) {
                 if (model2->getStatus(i) == basic) {
                   dj[i] = 0.0;
@@ -3645,7 +3645,7 @@ int ClpSimplex::initialSolve(ClpSolve &options)
           CoinMemcpyN(columnPrimal,
             numberColumns, model2->primalColumnSolution());
         }
-        double saveScale = model2->objectiveScale();
+        FloatT saveScale = model2->objectiveScale();
         model2->setObjectiveScale(1.0e-3);
         model2->primal(2);
         model2->setObjectiveScale(saveScale);
@@ -3777,8 +3777,8 @@ int ClpSimplex::initialSolve(ClpSolve &options)
       rcode = 0;
 #endif
     if (finalStatus != 3 && rcode < 0 && (finalStatus || oldStatus == -1)) {
-      double sumPrimal = sumPrimalInfeasibilities_;
-      double sumDual = sumDualInfeasibilities_;
+      FloatT sumPrimal = sumPrimalInfeasibilities_;
+      FloatT sumDual = sumDualInfeasibilities_;
       if (sumDual > 1.0e-6 && sumPrimal > 1.0e-6)
         moreSpecialOptions_ &= ~2; // be safe and do final solve
       // ignore some parts of solution
@@ -3795,7 +3795,7 @@ int ClpSimplex::initialSolve(ClpSolve &options)
         if (finalStatus == 2) {
           if (sumDual > 1.0e-4) {
             // unbounded - get feasible first
-            double save = optimizationDirection_;
+            FloatT save = optimizationDirection_;
             optimizationDirection_ = 0.0;
             primal(1);
             optimizationDirection_ = save;
@@ -3896,7 +3896,7 @@ int ClpSimplex::initialSolve(ClpSolve &options)
   if (options.getSpecialOption(1) == 2 && options.getExtraInfo(1) > 1000000) {
     ClpObjective *savedObjective = objective_;
     // make up zero objective
-    double *obj = new double[numberColumns_];
+    FloatT *obj = new FloatT[numberColumns_];
     for (int i = 0; i < numberColumns_; i++)
       obj[i] = 0.0;
     objective_ = new ClpLinearObjective(obj, numberColumns_);
@@ -4246,34 +4246,34 @@ ClpSimplexProgress::operator=(const ClpSimplexProgress &rhs)
   }
   return *this;
 }
-// Seems to be something odd about exact comparison of doubles on linux
-static bool equalDouble(double value1, double value2)
+// Seems to be something odd about exact comparison of FloatTs on linux
+static bool equalDouble(FloatT value1, FloatT value2)
 {
-
-  union {
-    double d;
+  return value1 == value2;
+  /*union {
+    FloatT d;
     int i[2];
   } v1, v2;
   v1.d = value1;
   v2.d = value2;
-  if (sizeof(int) * 2 == sizeof(double))
+  if (sizeof(int) * 2 == sizeof(FloatT))
     return (v1.i[0] == v2.i[0] && v1.i[1] == v2.i[1]);
   else
-    return (v1.i[0] == v2.i[0]);
+    return (v1.i[0] == v2.i[0]);*/
 }
 int ClpSimplexProgress::looping()
 {
   if (!model_)
     return -1;
-  double objective;
+  FloatT objective;
   if (model_->algorithm() < 0) {
     objective = model_->rawObjectiveValue();
     objective -= model_->bestPossibleImprovement();
   } else {
     objective = model_->nonLinearCost()->feasibleReportCost();
   }
-  double infeasibility;
-  double realInfeasibility = 0.0;
+  FloatT infeasibility;
+  FloatT realInfeasibility = 0.0;
   int numberInfeasibilities;
   int iterationNumber = model_->numberIterations();
   //numberTimesFlagged_ = 0;
@@ -4455,19 +4455,19 @@ void ClpSimplexProgress::reset()
   oddState_ = 0;
 }
 // Returns previous objective (if -1) - current if (0)
-double
+FloatT
 ClpSimplexProgress::lastObjective(int back) const
 {
   return objective_[CLP_PROGRESS - 1 - back];
 }
 // Returns previous infeasibility (if -1) - current if (0)
-double
+FloatT
 ClpSimplexProgress::lastInfeasibility(int back) const
 {
   return realInfeasibility_[CLP_PROGRESS - 1 - back];
 }
 // Sets real primal infeasibility
-void ClpSimplexProgress::setInfeasibility(double value)
+void ClpSimplexProgress::setInfeasibility(FloatT value)
 {
   for (int i = 1; i < CLP_PROGRESS; i++)
     realInfeasibility_[i - 1] = realInfeasibility_[i];
@@ -4479,7 +4479,7 @@ int ClpSimplexProgress::numberInfeasibilities(int back) const
   return numberInfeasibilities_[CLP_PROGRESS - 1 - back];
 }
 // Modify objective e.g. if dual infeasible in dual
-void ClpSimplexProgress::modifyObjective(double value)
+void ClpSimplexProgress::modifyObjective(FloatT value)
 {
   objective_[CLP_PROGRESS - 1] = value;
 }
@@ -4542,7 +4542,7 @@ int ClpSimplexProgress::cycle(int in, int out, int wayIn, int wayOut)
                char wayThis = way_[i];
                int inThis = in_[i];
                int outThis = out_[i];
-               //double objThis = obj_[i];
+               //FloatT objThis = obj_[i];
                for(k = i + 1; k < CLP_CYCLE; k++) {
                     if (inThis == in_[k] && outThis == out_[k] && wayThis == way_[k]) {
                          int distance = k - i;
@@ -4573,7 +4573,7 @@ int ClpSimplexProgress::cycle(int in, int out, int wayIn, int wayOut)
     char way0 = way_[0];
     int in0 = in_[0];
     int out0 = out_[0];
-    //double obj0 = obj_[i];
+    //FloatT obj0 = obj_[i];
     for (int k = 1; k < CLP_CYCLE - 4; k++) {
       if (in0 == in_[k] && out0 == out_[k] && way0 == way_[k]) {
         nMatched++;
@@ -4718,8 +4718,8 @@ int ClpSimplex::loadProblem(CoinStructuredModel &coinModel,
   bool keepSolution)
 {
   unsigned char *status = NULL;
-  double *psol = NULL;
-  double *dsol = NULL;
+  FloatT *psol = NULL;
+  FloatT *dsol = NULL;
   int numberRows = coinModel.numberRows();
   int numberColumns = coinModel.numberColumns();
   int numberRowBlocks = coinModel.numberRowBlocks();
@@ -4728,19 +4728,19 @@ int ClpSimplex::loadProblem(CoinStructuredModel &coinModel,
   if (status_ && numberRows_ && numberRows_ == numberRows && numberColumns_ == numberColumns && keepSolution) {
     status = new unsigned char[numberRows_ + numberColumns_];
     CoinMemcpyN(status_, numberRows_ + numberColumns_, status);
-    psol = new double[numberRows_ + numberColumns_];
+    psol = new FloatT[numberRows_ + numberColumns_];
     CoinMemcpyN(columnActivity_, numberColumns_, psol);
     CoinMemcpyN(rowActivity_, numberRows_, psol + numberColumns_);
-    dsol = new double[numberRows_ + numberColumns_];
+    dsol = new FloatT[numberRows_ + numberColumns_];
     CoinMemcpyN(reducedCost_, numberColumns_, dsol);
     CoinMemcpyN(dual_, numberRows_, dsol + numberColumns_);
   }
   int returnCode = 0;
-  double *rowLower = new double[numberRows];
-  double *rowUpper = new double[numberRows];
-  double *columnLower = new double[numberColumns];
-  double *columnUpper = new double[numberColumns];
-  double *objective = new double[numberColumns];
+  FloatT *rowLower = new FloatT[numberRows];
+  FloatT *rowUpper = new FloatT[numberRows];
+  FloatT *columnLower = new FloatT[numberColumns];
+  FloatT *columnUpper = new FloatT[numberColumns];
+  FloatT *objective = new FloatT[numberColumns];
   int *integerType = new int[numberColumns];
   CoinBigIndex numberElements = 0;
   // Bases for blocks
@@ -4756,7 +4756,7 @@ int ClpSimplex::loadProblem(CoinStructuredModel &coinModel,
     CoinModel *block = coinModel.coinBlock(iBlock);
     numberElements += block->numberElements();
     //and set up elements etc
-    double *associated = block->associatedArray();
+    FloatT *associated = block->associatedArray();
     // If strings then do copies
     if (block->stringsExist())
       returnCode += block->createArrays(rowLower, rowUpper, columnLower, columnUpper,
@@ -4829,8 +4829,8 @@ int ClpSimplex::loadProblem(CoinStructuredModel &coinModel,
     int iColumnBase = columnBase[iColumnBlock];
     if (info.rhs) {
       int nRows = block->numberRows();
-      const double *lower = block->rowLowerArray();
-      const double *upper = block->rowUpperArray();
+      const FloatT *lower = block->rowLowerArray();
+      const FloatT *upper = block->rowUpperArray();
       for (int i = 0; i < nRows; i++) {
         int put = whichRow[i + iRowBase];
         rowLower[put] = lower[i];
@@ -4839,9 +4839,9 @@ int ClpSimplex::loadProblem(CoinStructuredModel &coinModel,
     }
     if (info.bounds) {
       int nColumns = block->numberColumns();
-      const double *lower = block->columnLowerArray();
-      const double *upper = block->columnUpperArray();
-      const double *obj = block->objectiveArray();
+      const FloatT *lower = block->columnLowerArray();
+      const FloatT *upper = block->columnUpperArray();
+      const FloatT *obj = block->objectiveArray();
       for (int i = 0; i < nColumns; i++) {
         int put = whichColumn[i + iColumnBase];
         columnLower[put] = lower[i];
@@ -4878,7 +4878,7 @@ int ClpSimplex::loadProblem(CoinStructuredModel &coinModel,
   // Space for elements
   int *row = new int[numberElements];
   int *column = new int[numberElements];
-  double *element = new double[numberElements];
+  FloatT *element = new FloatT[numberElements];
   numberElements = 0;
   for (int iBlock = 0; iBlock < numberElementBlocks; iBlock++) {
     CoinModel *block = coinModel.coinBlock(iBlock);
@@ -4915,14 +4915,14 @@ int ClpSimplex::loadProblem(CoinStructuredModel &coinModel,
       CoinPackedMatrix matrix2;
       const CoinPackedMatrix *matrix = block->packedMatrix();
       if (!matrix) {
-        double *associated = block->associatedArray();
+        FloatT *associated = block->associatedArray();
         block->createPackedMatrix(matrix2, associated);
         matrix = &matrix2;
       }
       // get matrix data pointers
       const int *row2 = matrix->getIndices();
       const CoinBigIndex *columnStart = matrix->getVectorStarts();
-      const double *elementByColumn = matrix->getElements();
+      const FloatT *elementByColumn = matrix->getElements();
       const int *columnLength = matrix->getVectorLengths();
       int n = matrix->getNumCols();
       assert(matrix->isColOrdered());
@@ -4967,18 +4967,18 @@ int ClpSimplex::loadProblem(CoinStructuredModel &coinModel,
     and returns scale factor used.  If positive unscales and also
     redoes dual stuff
 */
-double
-ClpSimplex::scaleObjective(double value)
+FloatT
+ClpSimplex::scaleObjective(FloatT value)
 {
-  double *obj = objective();
-  double largest = 0.0;
+  FloatT *obj = objective();
+  FloatT largest = 0.0;
   if (value < 0.0) {
     value = -value;
     for (int i = 0; i < numberColumns_; i++) {
       largest = CoinMax(largest, fabs(obj[i]));
     }
     if (largest > value) {
-      double scaleFactor = value / largest;
+      FloatT scaleFactor = value / largest;
       for (int i = 0; i < numberColumns_; i++) {
         obj[i] *= scaleFactor;
         reducedCost_[i] *= scaleFactor;
@@ -5050,7 +5050,7 @@ void *clp_parallelManager(void *stuff)
     int iPass = which[1];
     ClpSimplex *clpSimplex = reinterpret_cast< ClpSimplex * >(threadInfo->extraInfo);
     //CoinIndexedVector * array;
-    //double dummy;
+    //FloatT dummy;
     switch (type) {
       // dummy
     case 0:
@@ -5076,7 +5076,7 @@ void *clp_parallelManager(void *stuff)
 // Solve using Dantzig-Wolfe decomposition and maybe in parallel
 int ClpSimplex::solveDW(CoinStructuredModel *model, ClpSolve &options)
 {
-  double time1 = CoinCpuTime();
+  FloatT time1 = CoinCpuTime();
   int numberColumns = model->numberColumns();
   int numberRowBlocks = model->numberRowBlocks();
   int numberColumnBlocks = model->numberColumnBlocks();
@@ -5196,11 +5196,11 @@ int ClpSimplex::solveDW(CoinStructuredModel *model, ClpSolve &options)
         const CoinPackedMatrix *matrix
           = model->coinBlock(jBlock)->packedMatrix();
         // Get pointers to arrays
-        const double *rowLower;
-        const double *rowUpper;
-        const double *columnLower;
-        const double *columnUpper;
-        const double *objective;
+        const FloatT *rowLower;
+        const FloatT *rowUpper;
+        const FloatT *columnLower;
+        const FloatT *columnUpper;
+        const FloatT *objective;
         model->block(iRowBlock, iColumnBlock, rowLower, rowUpper,
           columnLower, columnUpper, objective);
         if (iColumnBlock != masterColumnBlock) {
@@ -5208,8 +5208,8 @@ int ClpSimplex::solveDW(CoinStructuredModel *model, ClpSolve &options)
           sub[kBlock].loadProblem(*matrix, columnLower, columnUpper,
             objective, rowLower, rowUpper);
           if (true) {
-            double *lower = sub[kBlock].columnLower();
-            double *upper = sub[kBlock].columnUpper();
+            FloatT *lower = sub[kBlock].columnLower();
+            FloatT *upper = sub[kBlock].columnUpper();
             int n = sub[kBlock].numberColumns();
             for (int i = 0; i < n; i++) {
               lower[i] = CoinMax(-1.0e8, lower[i]);
@@ -5217,7 +5217,7 @@ int ClpSimplex::solveDW(CoinStructuredModel *model, ClpSolve &options)
             }
           }
           if (optimizationDirection_ < 0.0) {
-            double *obj = sub[kBlock].objective();
+            FloatT *obj = sub[kBlock].objective();
             int n = sub[kBlock].numberColumns();
             for (int i = 0; i < n; i++)
               obj[i] = -obj[i];
@@ -5238,7 +5238,7 @@ int ClpSimplex::solveDW(CoinStructuredModel *model, ClpSolve &options)
           master.loadProblem(*matrix, columnLower, columnUpper,
             objective, rowLower, rowUpper);
           if (optimizationDirection_ < 0.0) {
-            double *obj = master.objective();
+            FloatT *obj = master.objective();
             int n = master.numberColumns();
             for (int i = 0; i < n; i++)
               obj[i] = -obj[i];
@@ -5259,16 +5259,16 @@ int ClpSimplex::solveDW(CoinStructuredModel *model, ClpSolve &options)
   int spaceNeeded = CoinMax(numberBlocks * (numberMasterRows + 1),
     2 * numberMasterRows);
   int *rowAdd = new int[spaceNeeded];
-  double *elementAdd = new double[spaceNeeded];
+  FloatT *elementAdd = new FloatT[spaceNeeded];
   spaceNeeded = numberBlocks;
   CoinBigIndex *columnAdd = new CoinBigIndex[spaceNeeded + 1];
-  double *objective = new double[spaceNeeded];
+  FloatT *objective = new FloatT[spaceNeeded];
   // Add in costed slacks
   int firstArtificial = master.numberColumns();
   int lastArtificial = firstArtificial;
   if (true) {
-    const double *lower = master.rowLower();
-    const double *upper = master.rowUpper();
+    const FloatT *lower = master.rowLower();
+    const FloatT *upper = master.rowUpper();
     int kCol = 0;
     for (int iRow = 0; iRow < numberMasterRows; iRow++) {
       if (lower[iRow] > -1.0e10) {
@@ -5285,7 +5285,7 @@ int ClpSimplex::solveDW(CoinStructuredModel *model, ClpSolve &options)
       delete[] columnAdd;
       delete[] objective;
       columnAdd = new CoinBigIndex[spaceNeeded + 1];
-      objective = new double[spaceNeeded];
+      objective = new FloatT[spaceNeeded];
     }
     for (int i = 0; i < kCol; i++) {
       columnAdd[i] = i;
@@ -5300,7 +5300,7 @@ int ClpSimplex::solveDW(CoinStructuredModel *model, ClpSolve &options)
   if (maxPass < 2)
     maxPass = 100;
   int iPass;
-  double lastObjective = 1.0e31;
+  FloatT lastObjective = 1.0e31;
   // Create convexity rows for proposals
   int numberMasterColumns = master.numberColumns();
   master.resize(numberMasterRows + numberBlocks, numberMasterColumns);
@@ -5319,8 +5319,8 @@ int ClpSimplex::solveDW(CoinStructuredModel *model, ClpSolve &options)
   int numberColumnsGenerated = numberBlocks;
   // fill in rhs and add in artificials
   {
-    double *rowLower = master.rowLower();
-    double *rowUpper = master.rowUpper();
+    FloatT *rowLower = master.rowLower();
+    FloatT *rowUpper = master.rowUpper();
     int iBlock;
     columnAdd[0] = 0;
     for (iBlock = 0; iBlock < numberBlocks; iBlock++) {
@@ -5339,7 +5339,7 @@ int ClpSimplex::solveDW(CoinStructuredModel *model, ClpSolve &options)
       columnAdd, rowAdd, elementAdd);
   }
   char generalPrint[200];
-  // and resize matrix to double check clp will be happy
+  // and resize matrix to FloatT check clp will be happy
   //master.matrix()->setDimensions(numberMasterRows+numberBlocks,
   //			 numberMasterColumns+numberBlocks);
   sprintf(generalPrint, "Time to decompose %.2f seconds", CoinCpuTime() - time1);
@@ -5370,11 +5370,11 @@ int ClpSimplex::solveDW(CoinStructuredModel *model, ClpSolve &options)
       master.writeMps("yy.mps");
     }
     // Correct artificials
-    double sumArtificials = 0.0;
+    FloatT sumArtificials = 0.0;
     if (iPass) {
-      double *upper = master.columnUpper();
-      double *solution = master.primalColumnSolution();
-      double *obj = master.objective();
+      FloatT *upper = master.columnUpper();
+      FloatT *solution = master.primalColumnSolution();
+      FloatT *obj = master.objective();
       sumArtificials = 0.0;
       for (int i = firstArtificial; i < lastArtificial; i++) {
         sumArtificials += solution[i];
@@ -5400,18 +5400,18 @@ int ClpSimplex::solveDW(CoinStructuredModel *model, ClpSolve &options)
         << CoinMessageEol;
     }
     // scale objective to be reasonable
-    double scaleFactor = master.scaleObjective(-1.0e9);
+    FloatT scaleFactor = master.scaleObjective(-1.0e9);
     {
-      double *dual = master.dualRowSolution();
+      FloatT *dual = master.dualRowSolution();
       int n = master.numberRows();
-      memset(dual, 0, n * sizeof(double));
-      double *solution = master.primalColumnSolution();
+      memset(dual, 0, n * sizeof(FloatT));
+      FloatT *solution = master.primalColumnSolution();
       master.clpMatrix()->times(1.0, solution, dual);
-      double sum = 0.0;
-      double *lower = master.rowLower();
-      double *upper = master.rowUpper();
+      FloatT sum = 0.0;
+      FloatT *lower = master.rowLower();
+      FloatT *upper = master.rowUpper();
       for (int iRow = 0; iRow < n; iRow++) {
-        double value = dual[iRow];
+        FloatT value = dual[iRow];
         if (value > upper[iRow])
           sum += value - upper[iRow];
         else if (value < lower[iRow])
@@ -5422,7 +5422,7 @@ int ClpSimplex::solveDW(CoinStructuredModel *model, ClpSolve &options)
       upper = master.columnUpper();
       n = master.numberColumns();
       for (int iColumn = 0; iColumn < n; iColumn++) {
-        double value = solution[iColumn];
+        FloatT value = solution[iColumn];
         if (value > upper[iColumn] + 1.0e-5)
           sum += value - upper[iColumn];
         else if (value < lower[iColumn] - 1.0e-5)
@@ -5439,7 +5439,7 @@ int ClpSimplex::solveDW(CoinStructuredModel *model, ClpSolve &options)
     // Correct artificials
     sumArtificials = 0.0;
     {
-      double *solution = master.primalColumnSolution();
+      FloatT *solution = master.primalColumnSolution();
       for (int i = firstArtificial; i < lastArtificial; i++) {
         sumArtificials += solution[i];
       }
@@ -5456,8 +5456,8 @@ int ClpSimplex::solveDW(CoinStructuredModel *model, ClpSolve &options)
       //master.primal(1);
       if (problemStatus == 2) {
         int numberColumns = master.numberColumns();
-        double *lower = master.columnLower();
-        double *upper = master.columnUpper();
+        FloatT *lower = master.columnLower();
+        FloatT *upper = master.columnUpper();
         for (int i = 0; i < numberColumns; i++) {
           lower[i] = CoinMax(lower[i], -1.0e10);
           upper[i] = CoinMin(upper[i], 1.0e10);
@@ -5502,7 +5502,7 @@ int ClpSimplex::solveDW(CoinStructuredModel *model, ClpSolve &options)
       master.deleteColumns(numberDelete, whichDelete);
       delete[] whichDelete;
     }
-    const double *dual = NULL;
+    const FloatT *dual = NULL;
     bool deleteDual = false;
     if (problemStatus == 0) {
       dual = master.dualRowSolution();
@@ -5516,14 +5516,14 @@ int ClpSimplex::solveDW(CoinStructuredModel *model, ClpSolve &options)
       assert(!iPass);
       dual = master.dualRowSolution();
       memset(master.dualRowSolution(),
-        0, (numberMasterRows + numberBlocks) * sizeof(double));
+        0, (numberMasterRows + numberBlocks) * sizeof(FloatT));
     } else {
       master.writeMps("unbounded.mps");
       abort();
     }
     // Scale back on first time
     if (!iPass) {
-      double *dual2 = master.dualRowSolution();
+      FloatT *dual2 = master.dualRowSolution();
       for (int i = 0; i < numberMasterRows + numberBlocks; i++) {
         dual2[i] *= 1.0e-7;
       }
@@ -5532,16 +5532,16 @@ int ClpSimplex::solveDW(CoinStructuredModel *model, ClpSolve &options)
     // Create objective for sub problems and solve
     columnAdd[0] = 0;
     int numberProposals = 0;
-    double **saveObj2 = new double *[numberBlocks];
+    FloatT **saveObj2 = new FloatT *[numberBlocks];
     for (iBlock = 0; iBlock < numberBlocks; iBlock++) {
       int numberColumns2 = sub[iBlock].numberColumns();
-      saveObj2[iBlock] = new double[numberColumns2];
+      saveObj2[iBlock] = new FloatT[numberColumns2];
     }
     for (iBlock = 0; iBlock < numberBlocks; iBlock++) {
       int numberColumns2 = sub[iBlock].numberColumns();
-      double *saveObj = saveObj2[iBlock];
-      double *objective2 = sub[iBlock].objective();
-      memcpy(saveObj, objective2, numberColumns2 * sizeof(double));
+      FloatT *saveObj = saveObj2[iBlock];
+      FloatT *objective2 = sub[iBlock].objective();
+      memcpy(saveObj, objective2, numberColumns2 * sizeof(FloatT));
       // new objective
       top[iBlock]->transposeTimes(dual, objective2);
       int i;
@@ -5553,7 +5553,7 @@ int ClpSimplex::solveDW(CoinStructuredModel *model, ClpSolve &options)
           objective2[i] = -objective2[i];
       }
       // scale objective to be reasonable
-      //double scaleFactor =
+      //FloatT scaleFactor =
       //   sub[iBlock].scaleObjective((sumArtificials > 1.0e-5) ? -1.0e-4 : -1.0e9);
 
       if (reducePrint)
@@ -5589,12 +5589,12 @@ int ClpSimplex::solveDW(CoinStructuredModel *model, ClpSolve &options)
 #endif
     for (iBlock = 0; iBlock < numberBlocks; iBlock++) {
       int numberColumns2 = sub[iBlock].numberColumns();
-      double *saveObj = saveObj2[iBlock];
-      double *objective2 = sub[iBlock].objective();
+      FloatT *saveObj = saveObj2[iBlock];
+      FloatT *objective2 = sub[iBlock].objective();
       int i;
       sub[iBlock].scaleObjective(scaleFactor);
       if (!sub[iBlock].isProvenOptimal() && !sub[iBlock].isProvenDualInfeasible()) {
-        memset(objective2, 0, numberColumns2 * sizeof(double));
+        memset(objective2, 0, numberColumns2 * sizeof(FloatT));
         sub[iBlock].primal();
         if (problemStatus == 0) {
           for (int i = 0; i < numberColumns2; i++)
@@ -5603,30 +5603,30 @@ int ClpSimplex::solveDW(CoinStructuredModel *model, ClpSolve &options)
           for (i = 0; i < numberColumns2; i++)
             objective2[i] = -objective2[i];
         }
-        double scaleFactor = sub[iBlock].scaleObjective(-1.0e9);
+        FloatT scaleFactor = sub[iBlock].scaleObjective(-1.0e9);
         sub[iBlock].primal(1);
         sub[iBlock].scaleObjective(scaleFactor);
       }
-      memcpy(objective2, saveObj, numberColumns2 * sizeof(double));
+      memcpy(objective2, saveObj, numberColumns2 * sizeof(FloatT));
       // get proposal
       if (sub[iBlock].numberIterations() || !iPass) {
-        double objValue = 0.0;
+        FloatT objValue = 0.0;
         CoinBigIndex start = columnAdd[numberProposals];
         // proposal
         if (sub[iBlock].isProvenOptimal()) {
-          const double *solution = sub[iBlock].primalColumnSolution();
+          const FloatT *solution = sub[iBlock].primalColumnSolution();
           top[iBlock]->times(solution, elementAdd + start);
           for (i = 0; i < numberColumns2; i++)
             objValue += solution[i] * saveObj[i];
           // See if good dj and pack down
           CoinBigIndex number = start;
-          double dj = objValue;
+          FloatT dj = objValue;
           if (problemStatus)
             dj = 0.0;
-          double smallest = 1.0e100;
-          double largest = 0.0;
+          FloatT smallest = 1.0e100;
+          FloatT largest = 0.0;
           for (i = 0; i < numberMasterRows; i++) {
-            double value = elementAdd[start + i];
+            FloatT value = elementAdd[start + i];
             if (fabs(value) > 1.0e-15) {
               dj -= dual[i] * value;
               smallest = CoinMin(smallest, fabs(value));
@@ -5655,17 +5655,17 @@ int ClpSimplex::solveDW(CoinStructuredModel *model, ClpSolve &options)
           }
         } else if (sub[iBlock].isProvenDualInfeasible()) {
           // use ray
-          const double *solution = sub[iBlock].unboundedRay();
+          const FloatT *solution = sub[iBlock].unboundedRay();
           top[iBlock]->times(solution, elementAdd + start);
           for (i = 0; i < numberColumns2; i++)
             objValue += solution[i] * saveObj[i];
           // See if good dj and pack down
           CoinBigIndex number = start;
-          double dj = objValue;
-          double smallest = 1.0e100;
-          double largest = 0.0;
+          FloatT dj = objValue;
+          FloatT smallest = 1.0e100;
+          FloatT largest = 0.0;
           for (i = 0; i < numberMasterRows; i++) {
-            double value = elementAdd[start + i];
+            FloatT value = elementAdd[start + i];
             if (fabs(value) > 1.0e-15) {
               dj -= dual[i] * value;
               smallest = CoinMin(smallest, fabs(value));
@@ -5710,18 +5710,18 @@ int ClpSimplex::solveDW(CoinStructuredModel *model, ClpSolve &options)
   //master.primal(1);
   loadProblem(*model);
   // now put back a good solution
-  double *lower = new double[numberMasterRows + numberBlocks];
-  double *upper = new double[numberMasterRows + numberBlocks];
+  FloatT *lower = new FloatT[numberMasterRows + numberBlocks];
+  FloatT *upper = new FloatT[numberMasterRows + numberBlocks];
   numberColumnsGenerated += numberMasterColumns;
-  double *sol = new double[numberColumnsGenerated];
-  const double *solution = master.primalColumnSolution();
-  const double *masterLower = master.rowLower();
-  const double *masterUpper = master.rowUpper();
-  double *fullSolution = primalColumnSolution();
-  const double *fullLower = columnLower();
-  const double *fullUpper = columnUpper();
-  const double *rowSolution = master.primalRowSolution();
-  double *fullRowSolution = primalRowSolution();
+  FloatT *sol = new FloatT[numberColumnsGenerated];
+  const FloatT *solution = master.primalColumnSolution();
+  const FloatT *masterLower = master.rowLower();
+  const FloatT *masterUpper = master.rowUpper();
+  FloatT *fullSolution = primalColumnSolution();
+  const FloatT *fullLower = columnLower();
+  const FloatT *fullUpper = columnUpper();
+  const FloatT *rowSolution = master.primalRowSolution();
+  FloatT *fullRowSolution = primalRowSolution();
   const int *rowBack = model->coinBlock(masterBlock)->originalRows();
   int numberRows2 = model->coinBlock(masterBlock)->numberRows();
   const int *columnBack = model->coinBlock(masterBlock)->originalColumns();
@@ -5755,16 +5755,16 @@ int ClpSimplex::solveDW(CoinStructuredModel *model, ClpSolve &options)
     CoinPackedMatrix topMatrix = *top[iBlock];
     topMatrix.reverseOrdering();
     // zero solution
-    memset(sol, 0, numberColumnsGenerated * sizeof(double));
+    memset(sol, 0, numberColumnsGenerated * sizeof(FloatT));
 
     for (int i = numberMasterColumns; i < numberColumnsGenerated; i++) {
       if (whichBlock[i - numberMasterColumns] == iBlock)
         sol[i] = solution[i];
     }
-    memset(lower, 0, (numberMasterRows + numberBlocks) * sizeof(double));
+    memset(lower, 0, (numberMasterRows + numberBlocks) * sizeof(FloatT));
     master.clpMatrix()->times(1.0, sol, lower);
     for (int iRow = 0; iRow < numberMasterRows; iRow++) {
-      double value = lower[iRow];
+      FloatT value = lower[iRow];
       if (masterUpper[iRow] < 1.0e20)
         upper[iRow] = value;
       else
@@ -5780,8 +5780,8 @@ int ClpSimplex::solveDW(CoinStructuredModel *model, ClpSolve &options)
       topMatrix.getIndices(),
       topMatrix.getElements());
     sub[iBlock].primal(1);
-    const double *subSolution = sub[iBlock].primalColumnSolution();
-    const double *subRowSolution = sub[iBlock].primalRowSolution();
+    const FloatT *subSolution = sub[iBlock].primalColumnSolution();
+    const FloatT *subRowSolution = sub[iBlock].primalRowSolution();
     // move solution
     for (int iRow = 0; iRow < numberRows2; iRow++) {
       int kRow = rowBack[iRow];
@@ -5844,16 +5844,16 @@ static ClpSimplex *deBound(ClpSimplex *oldModel)
   const int *row = matrix->getIndices();
   const int *columnLength = matrix->getVectorLengths();
   const CoinBigIndex *columnStart = matrix->getVectorStarts();
-  double *elementByColumn = matrix->getMutableElements();
+  FloatT *elementByColumn = matrix->getMutableElements();
   int numberColumns = model->numberColumns();
-  double *rowLower = model->rowLower();
-  double *rowUpper = model->rowUpper();
-  double *columnLower = model->columnLower();
-  double *columnUpper = model->columnUpper();
-  double *objective = model->objective();
-  double *change = new double[CoinMax(numberRows, numberColumns) + numberColumns];
+  FloatT *rowLower = model->rowLower();
+  FloatT *rowUpper = model->rowUpper();
+  FloatT *columnLower = model->columnLower();
+  FloatT *columnUpper = model->columnUpper();
+  FloatT *objective = model->objective();
+  FloatT *change = new FloatT[CoinMax(numberRows, numberColumns) + numberColumns];
   CoinBigIndex *rowStart = new CoinBigIndex[2 * numberColumns + 1];
-  memset(change, 0, numberRows * sizeof(double));
+  memset(change, 0, numberRows * sizeof(FloatT));
   // first swap ones with infinite lower bounds
   for (int iColumn = 0; iColumn < numberColumns; iColumn++) {
     if (columnLower[iColumn] == -COIN_DBL_MAX && columnUpper[iColumn] != COIN_DBL_MAX) {
@@ -5869,7 +5869,7 @@ static ClpSimplex *deBound(ClpSimplex *oldModel)
   // Out nonzero LB's
   for (int iColumn = 0; iColumn < numberColumns; iColumn++) {
     if (columnLower[iColumn]) {
-      double value = columnLower[iColumn];
+      FloatT value = columnLower[iColumn];
       for (CoinBigIndex j = columnStart[iColumn]; j < columnStart[iColumn]
              + columnLength[iColumn];
            j++) {
@@ -5879,7 +5879,7 @@ static ClpSimplex *deBound(ClpSimplex *oldModel)
     }
   }
   for (int iRow = 0; iRow < numberRows; iRow++) {
-    double value = change[iRow];
+    FloatT value = change[iRow];
     if (rowLower[iRow] > -COIN_DBL_MAX)
       rowLower[iRow] -= value;
     if (rowUpper[iRow] < COIN_DBL_MAX)
@@ -5894,7 +5894,7 @@ static ClpSimplex *deBound(ClpSimplex *oldModel)
       columnUpper[iColumn] = COIN_DBL_MAX;
     }
   }
-  double *elementNew = change + numberColumns;
+  FloatT *elementNew = change + numberColumns;
   for (int i = 0; i < nExtra; i++) {
     rowStart[i] = i;
     elementNew[i] = 1.0;
@@ -6049,7 +6049,7 @@ void CoinPthreadStuff::waitAllTasks()
 // Solve using Benders decomposition and maybe in parallel
 int ClpSimplex::solveBenders(CoinStructuredModel *model, ClpSolve &options)
 {
-  double time1 = CoinCpuTime();
+  FloatT time1 = CoinCpuTime();
   //ClpSimplex * xxxx = deBound(this);
   //xxxx->writeMps("nobounds.mps");
   //delete xxxx;
@@ -6173,11 +6173,11 @@ int ClpSimplex::solveBenders(CoinStructuredModel *model, ClpSolve &options)
         const CoinPackedMatrix *matrix
           = model->coinBlock(jBlock)->packedMatrix();
         // Get pointers to arrays
-        const double *columnLower;
-        const double *columnUpper;
-        const double *rowLower;
-        const double *rowUpper;
-        const double *objective;
+        const FloatT *columnLower;
+        const FloatT *columnUpper;
+        const FloatT *rowLower;
+        const FloatT *rowUpper;
+        const FloatT *objective;
         model->block(iRowBlock, iColumnBlock, rowLower, rowUpper,
           columnLower, columnUpper, objective);
         if (iRowBlock != masterRowBlock) {
@@ -6185,7 +6185,7 @@ int ClpSimplex::solveBenders(CoinStructuredModel *model, ClpSolve &options)
           sub[kBlock].loadProblem(*matrix, columnLower, columnUpper,
             objective, rowLower, rowUpper);
           if (optimizationDirection_ < 0.0) {
-            double *obj = sub[kBlock].objective();
+            FloatT *obj = sub[kBlock].objective();
             int n = sub[kBlock].numberColumns();
             for (int i = 0; i < n; i++)
               obj[i] = -obj[i];
@@ -6205,13 +6205,13 @@ int ClpSimplex::solveBenders(CoinStructuredModel *model, ClpSolve &options)
             int nRow = sub[kBlock].numberRows();
             CoinBigIndex *addStarts = new CoinBigIndex[2 * nRow + 1];
             int *addRow = new int[2 * nRow];
-            double *addElement = new double[2 * nRow];
+            FloatT *addElement = new FloatT[2 * nRow];
             addStarts[0] = 0;
             int numberArtificials = 0;
-            double penalty = 1.0e5;
-            double *addCost = new double[2 * nRow];
-            const double *lower = sub[kBlock].rowLower();
-            const double *upper = sub[kBlock].rowUpper();
+            FloatT penalty = 1.0e5;
+            FloatT *addCost = new FloatT[2 * nRow];
+            const FloatT *lower = sub[kBlock].rowLower();
+            const FloatT *upper = sub[kBlock].rowUpper();
             for (int iRow = 0; iRow < nRow; iRow++) {
               if (lower[iRow] > -1.0e20) {
                 addRow[numberArtificials] = iRow;
@@ -6246,7 +6246,7 @@ int ClpSimplex::solveBenders(CoinStructuredModel *model, ClpSolve &options)
           masterModel.loadProblem(*matrix, columnLower, columnUpper,
             objective, rowLower, rowUpper);
           if (optimizationDirection_ < 0.0) {
-            double *obj = masterModel.objective();
+            FloatT *obj = masterModel.objective();
             int n = masterModel.numberColumns();
             for (int i = 0; i < n; i++)
               obj[i] = -obj[i];
@@ -6267,15 +6267,15 @@ int ClpSimplex::solveBenders(CoinStructuredModel *model, ClpSolve &options)
     2 * numberMasterColumns);
   CoinBigIndex *columnAdd = new CoinBigIndex[spaceNeeded];
   int *indexColumnAdd = reinterpret_cast< int * >(columnAdd);
-  double *elementAdd = new double[spaceNeeded];
+  FloatT *elementAdd = new FloatT[spaceNeeded];
   spaceNeeded = numberBlocks;
   CoinBigIndex *rowAdd = new CoinBigIndex[2 * spaceNeeded + 1]; // temp for block info
   int *blockPrint = reinterpret_cast< int * >(rowAdd + spaceNeeded + 1);
-  double *objective = new double[spaceNeeded];
+  FloatT *objective = new FloatT[spaceNeeded];
   int logLevel = handler_->logLevel();
   //#define TEST_MODEL
 #ifdef TEST_MODEL
-  double goodValue = COIN_DBL_MAX;
+  FloatT goodValue = COIN_DBL_MAX;
   ClpSimplex goodModel;
   if (logLevel > 3) {
     // temp - create copy with master at front
@@ -6318,7 +6318,7 @@ int ClpSimplex::solveBenders(CoinStructuredModel *model, ClpSolve &options)
       whichColumn[i] = i;
     for (int i = 0; i < numberBlocks; i++)
       whichColumn[i + numberMasterColumns] = i + numberColumns_;
-    double *lower = new double[numberBlocks];
+    FloatT *lower = new FloatT[numberBlocks];
     // Add extra variables
     columnAdd[0] = 0;
     for (int iBlock = 0; iBlock < numberBlocks; iBlock++) {
@@ -6334,16 +6334,16 @@ int ClpSimplex::solveBenders(CoinStructuredModel *model, ClpSolve &options)
     goodModel.dual();
     goodValue = goodModel.objectiveValue();
 #if 0
-       double * obj = goodModel.objective();
+       FloatT * obj = goodModel.objective();
        for (int i=numberMasterColumns;i<numberMasterColumns+numberBlocks;i++)
 	 obj[i]=0.5;;
        for (int i=numberMasterColumns+numberBlocks;i<goodModel.numberColumns();i++)
 	 obj[i]*=0.5;
        // fix solution
        {
-	 double * lower = goodModel.columnLower();
-	 double * upper = goodModel.columnUpper();
-	 double * solution = goodModel.primalColumnSolution();
+	 FloatT * lower = goodModel.columnLower();
+	 FloatT * upper = goodModel.columnUpper();
+	 FloatT * solution = goodModel.primalColumnSolution();
 	 for (int i=0;i<numberMasterColumns;i++) {
 	   lower[i]=solution[i];
 	   upper[i]=solution[i];
@@ -6360,7 +6360,7 @@ int ClpSimplex::solveBenders(CoinStructuredModel *model, ClpSolve &options)
   if (maxPass < 2)
     maxPass = 100;
   int iPass;
-  double lastObjective = -1.0e31;
+  FloatT lastObjective = -1.0e31;
   // Create columns for proposals
   int numberMasterRows = masterModel.numberRows();
   //masterModel.resize(numberMasterColumns + numberBlocks, numberMasterRows);
@@ -6375,8 +6375,8 @@ int ClpSimplex::solveBenders(CoinStructuredModel *model, ClpSolve &options)
   // temp bounds
   if (0) {
     printf("temp bounds\n");
-    double *lower = masterModel.columnLower();
-    double *upper = masterModel.columnUpper();
+    FloatT *lower = masterModel.columnLower();
+    FloatT *upper = masterModel.columnUpper();
     for (int i = 0; i < numberMasterColumns; i++) {
       lower[i] = CoinMax(lower[i], -1.0e8);
       upper[i] = CoinMin(upper[i], 1.0e8);
@@ -6393,22 +6393,22 @@ int ClpSimplex::solveBenders(CoinStructuredModel *model, ClpSolve &options)
   memset(problemState, 0, numberBlocks * sizeof(int));
   int numberRowsGenerated = numberBlocks;
   // space for rhs modifications
-  double **modification = new double *[numberBlocks];
+  FloatT **modification = new FloatT *[numberBlocks];
   // Add extra variables
   columnAdd[0] = 0;
   for (int iBlock = 0; iBlock < numberBlocks; iBlock++) {
     int numberRows2 = sub[iBlock].numberRows();
     int numberColumns2 = sub[iBlock].numberColumns();
     int numberTotal2 = numberRows2 + numberColumns2;
-    modification[iBlock] = new double[2 * numberTotal2 + numberRows2];
-    double *save = modification[iBlock];
-    memcpy(save, sub[iBlock].rowLower(), numberRows2 * sizeof(double));
+    modification[iBlock] = new FloatT[2 * numberTotal2 + numberRows2];
+    FloatT *save = modification[iBlock];
+    memcpy(save, sub[iBlock].rowLower(), numberRows2 * sizeof(FloatT));
     save += numberRows2;
-    memcpy(save, sub[iBlock].columnLower(), numberColumns2 * sizeof(double));
+    memcpy(save, sub[iBlock].columnLower(), numberColumns2 * sizeof(FloatT));
     save += numberColumns2;
-    memcpy(save, sub[iBlock].rowUpper(), numberRows2 * sizeof(double));
+    memcpy(save, sub[iBlock].rowUpper(), numberRows2 * sizeof(FloatT));
     save += numberRows2;
-    memcpy(save, sub[iBlock].columnUpper(), numberColumns2 * sizeof(double));
+    memcpy(save, sub[iBlock].columnUpper(), numberColumns2 * sizeof(FloatT));
     objective[iBlock] = 1.0;
     columnAdd[iBlock + 1] = 0;
     when[iBlock] = -1;
@@ -6435,7 +6435,7 @@ int ClpSimplex::solveBenders(CoinStructuredModel *model, ClpSolve &options)
     printf("ixxxxxx %d\n", ixxxxxx);
   }
 #ifdef ADD_ARTIFICIALS
-  double **saveObjective = new double *[numberBlocks];
+  FloatT **saveObjective = new FloatT *[numberBlocks];
   for (int i = 0; i < numberBlocks; i++)
     saveObjective[i] = CoinCopyOfArray(sub[i].objective(),
       originalSubColumns[i]);
@@ -6453,15 +6453,15 @@ int ClpSimplex::solveBenders(CoinStructuredModel *model, ClpSolve &options)
       int numberRows2 = sub[iBlock].numberRows();
       int numberColumns2 = sub[iBlock].numberColumns();
       int numberTotal2 = numberRows2 + numberColumns2;
-      modification[iBlock] = new double[2 * numberTotal2 + numberRows2];
-      double *save = modification[iBlock];
-      memcpy(save, sub[iBlock].rowLower(), numberRows2 * sizeof(double));
+      modification[iBlock] = new FloatT[2 * numberTotal2 + numberRows2];
+      FloatT *save = modification[iBlock];
+      memcpy(save, sub[iBlock].rowLower(), numberRows2 * sizeof(FloatT));
       save += numberRows2;
-      memcpy(save, sub[iBlock].columnLower(), numberColumns2 * sizeof(double));
+      memcpy(save, sub[iBlock].columnLower(), numberColumns2 * sizeof(FloatT));
       save += numberColumns2;
-      memcpy(save, sub[iBlock].rowUpper(), numberRows2 * sizeof(double));
+      memcpy(save, sub[iBlock].rowUpper(), numberRows2 * sizeof(FloatT));
       save += numberRows2;
-      memcpy(save, sub[iBlock].columnUpper(), numberColumns2 * sizeof(double));
+      memcpy(save, sub[iBlock].columnUpper(), numberColumns2 * sizeof(FloatT));
     }
   }
 #ifdef ABC_INHERIT
@@ -6477,7 +6477,7 @@ int ClpSimplex::solveBenders(CoinStructuredModel *model, ClpSolve &options)
   //abcMaster.startThreads(numberCpu);
   //#define masterModel abcMaster
 #endif
-  double treatSubAsFeasible = 1.0e-6;
+  FloatT treatSubAsFeasible = 1.0e-6;
   int numberSubInfeasible = 0;
   bool canSkipSubSolve = false;
   int numberProposals = 999;
@@ -6489,7 +6489,7 @@ int ClpSimplex::solveBenders(CoinStructuredModel *model, ClpSolve &options)
     // Solve master - may be unbounded
     //masterModel.scaling(0);
     // get obj for debug
-    double objSum = masterModel.objectiveValue();
+    FloatT objSum = masterModel.objectiveValue();
     for (int i = 0; i < numberBlocks; i++)
       objSum += sub[i].objectiveValue();
     //printf("objsum %g\n",objSum);
@@ -6499,7 +6499,7 @@ int ClpSimplex::solveBenders(CoinStructuredModel *model, ClpSolve &options)
     }
     {
       // free up extra variables
-      double *lower = masterModel.columnLower();
+      FloatT *lower = masterModel.columnLower();
       int numberFreed = 0;
       for (int i = 0; i < numberBlocks; i++) {
         if (problemState[i] == 1) {
@@ -6549,29 +6549,29 @@ int ClpSimplex::solveBenders(CoinStructuredModel *model, ClpSolve &options)
 #else
       masterModel.primal();
 #endif
-      const double *fullLower = columnLower();
-      const double *fullUpper = columnUpper();
-      double *lower = masterModel.columnLower();
-      double *upper = masterModel.columnUpper();
-      double *solution = masterModel.primalColumnSolution();
+      const FloatT *fullLower = columnLower();
+      const FloatT *fullUpper = columnUpper();
+      FloatT *lower = masterModel.columnLower();
+      FloatT *upper = masterModel.columnUpper();
+      FloatT *solution = masterModel.primalColumnSolution();
       const int *columnBack = model->coinBlock(masterBlock)->originalColumns();
       if (!numberTimesUnbounded) {
         for (int iColumn = 0; iColumn < numberMasterColumns; iColumn++) {
           int kColumn = columnBack[iColumn];
-          double value = solution[iColumn];
-          double lowerValue = CoinMax(fullLower[kColumn],
+          FloatT value = solution[iColumn];
+          FloatT lowerValue = CoinMax(fullLower[kColumn],
             CoinMin(value, fullUpper[kColumn]) - trust);
           lower[iColumn] = lowerValue;
-          double upperValue = CoinMin(fullUpper[kColumn],
+          FloatT upperValue = CoinMin(fullUpper[kColumn],
             CoinMax(value, fullLower[kColumn]) + trust);
           upper[iColumn] = upperValue;
         }
 #ifdef TEST_MODEL
         if (logLevel > 3) {
           //use ones from solved
-          const double *solutionGood = goodModel.primalColumnSolution();
+          const FloatT *solutionGood = goodModel.primalColumnSolution();
           for (int iColumn = 0; iColumn < numberMasterColumns; iColumn++) {
-            double value = solutionGood[iColumn];
+            FloatT value = solutionGood[iColumn];
             lower[iColumn] = CoinMin(value, -trust);
             upper[iColumn] = CoinMax(value, trust);
           }
@@ -6592,11 +6592,11 @@ int ClpSimplex::solveBenders(CoinStructuredModel *model, ClpSolve &options)
     }
     if (numberTimesUnbounded > 1 && trust > 0.0) {
       assert(!masterStatus);
-      const double *fullLower = columnLower();
-      const double *fullUpper = columnUpper();
-      double *lower = masterModel.columnLower();
-      double *upper = masterModel.columnUpper();
-      //double * solution = masterModel.primalColumnSolution();
+      const FloatT *fullLower = columnLower();
+      const FloatT *fullUpper = columnUpper();
+      FloatT *lower = masterModel.columnLower();
+      FloatT *upper = masterModel.columnUpper();
+      //FloatT * solution = masterModel.primalColumnSolution();
       const int *columnBack = model->coinBlock(masterBlock)->originalColumns();
       int nTrusted = 0;
       for (int iColumn = 0; iColumn < numberMasterColumns; iColumn++) {
@@ -6687,7 +6687,7 @@ int ClpSimplex::solveBenders(CoinStructuredModel *model, ClpSolve &options)
       masterModel.deleteRows(numberDelete, whichDelete);
       delete[] whichDelete;
     }
-    double *primal = NULL;
+    FloatT *primal = NULL;
     bool deletePrimal = false;
     if (masterStatus == 0) {
       primal = masterModel.primalColumnSolution();
@@ -6701,14 +6701,14 @@ int ClpSimplex::solveBenders(CoinStructuredModel *model, ClpSolve &options)
         << generalPrint
         << CoinMessageEol;
 #if 0
-	       const double * primal2 = masterModel.primalColumnSolution();
+	       const FloatT * primal2 = masterModel.primalColumnSolution();
 #ifndef UNBOUNDED
 	       for (int i=0;i<numberMasterColumns;i++) {
 		 primal[i] = 1.0e-10*primal[i]+primal2[i];
 	       }
 #else
-	       double scaleFactor = innerProduct(primal,numberMasterColumns,primal);
-	       double scaleFactor2 = innerProduct(primal+numberMasterColumns,
+	       FloatT scaleFactor = innerProduct(primal,numberMasterColumns,primal);
+	       FloatT scaleFactor2 = innerProduct(primal+numberMasterColumns,
 						  numberBlocks,primal+numberMasterColumns);
 	       if (scaleFactor&&!scaleFactor2) {
 		 scaleFactor = 1.0/sqrt(scaleFactor);
@@ -6730,7 +6730,7 @@ int ClpSimplex::solveBenders(CoinStructuredModel *model, ClpSolve &options)
       assert(!iPass);
       primal = masterModel.primalColumnSolution();
       memset(masterModel.primalColumnSolution(),
-        0, numberMasterColumns * sizeof(double));
+        0, numberMasterColumns * sizeof(FloatT));
     } else {
       printf("Master infeasible - sum %g\n",
         masterModel.sumPrimalInfeasibilities());
@@ -6743,11 +6743,11 @@ int ClpSimplex::solveBenders(CoinStructuredModel *model, ClpSolve &options)
     if (masterStatus == 2) {
       // adjust variables with no elements
       const int *columnLength = masterModel.matrix()->getVectorLengths();
-      const double *lower = masterModel.columnLower();
-      const double *upper = masterModel.columnUpper();
-      const double *obj = masterModel.objective();
+      const FloatT *lower = masterModel.columnLower();
+      const FloatT *upper = masterModel.columnUpper();
+      const FloatT *obj = masterModel.objective();
       for (int i = 0; i < numberMasterColumns; i++) {
-        double value = primal[i];
+        FloatT value = primal[i];
         if (!columnLength[i]) {
           if (obj[i] < 0.0)
             value += 1.0e10;
@@ -6764,18 +6764,18 @@ int ClpSimplex::solveBenders(CoinStructuredModel *model, ClpSolve &options)
     for (iBlock = 0; iBlock < numberBlocks; iBlock++) {
 #ifdef ADD_ARTIFICIALS
       {
-        double *columnUpper2 = sub[iBlock].columnUpper();
-        double *obj = sub[iBlock].objective();
+        FloatT *columnUpper2 = sub[iBlock].columnUpper();
+        FloatT *obj = sub[iBlock].objective();
         int start = originalSubColumns[iBlock];
         int numberColumns2 = sub[iBlock].numberColumns();
         if (iFudge >= lowFudge && iFudge <= abs(highFudge)) {
           for (int i = start; i < numberColumns2; i++)
             columnUpper2[i] = COIN_DBL_MAX;
-          memset(obj, 0, originalSubColumns[iBlock] * sizeof(double));
+          memset(obj, 0, originalSubColumns[iBlock] * sizeof(FloatT));
         } else {
           for (int i = start; i < numberColumns2; i++)
             columnUpper2[i] = 0.0;
-          memcpy(obj, saveObjective[iBlock], originalSubColumns[iBlock] * sizeof(double));
+          memcpy(obj, saveObjective[iBlock], originalSubColumns[iBlock] * sizeof(FloatT));
           if (highFudge < 0) {
             sub[iBlock].allSlackBasis(true);
           }
@@ -6784,19 +6784,19 @@ int ClpSimplex::solveBenders(CoinStructuredModel *model, ClpSolve &options)
 #endif
       int numberRows2 = sub[iBlock].numberRows();
       int numberColumns2 = sub[iBlock].numberColumns();
-      double *saveLower = modification[iBlock];
-      double *lower2 = sub[iBlock].rowLower();
-      memcpy(lower2, saveLower, numberRows2 * sizeof(double));
-      double *saveColumnLower = saveLower + numberRows2;
-      double *columnLower2 = sub[iBlock].columnLower();
-      memcpy(columnLower2, saveColumnLower, numberColumns2 * sizeof(double));
-      double *saveUpper = saveColumnLower + numberColumns2;
-      double *upper2 = sub[iBlock].rowUpper();
-      memcpy(upper2, saveUpper, numberRows2 * sizeof(double));
-      double *saveColumnUpper = saveUpper + numberRows2;
-      double *columnUpper2 = sub[iBlock].columnUpper();
-      memcpy(columnUpper2, saveColumnUpper, numberColumns2 * sizeof(double));
-      double *lastMod = saveColumnUpper + numberColumns2;
+      FloatT *saveLower = modification[iBlock];
+      FloatT *lower2 = sub[iBlock].rowLower();
+      memcpy(lower2, saveLower, numberRows2 * sizeof(FloatT));
+      FloatT *saveColumnLower = saveLower + numberRows2;
+      FloatT *columnLower2 = sub[iBlock].columnLower();
+      memcpy(columnLower2, saveColumnLower, numberColumns2 * sizeof(FloatT));
+      FloatT *saveUpper = saveColumnLower + numberColumns2;
+      FloatT *upper2 = sub[iBlock].rowUpper();
+      memcpy(upper2, saveUpper, numberRows2 * sizeof(FloatT));
+      FloatT *saveColumnUpper = saveUpper + numberRows2;
+      FloatT *columnUpper2 = sub[iBlock].columnUpper();
+      memcpy(columnUpper2, saveColumnUpper, numberColumns2 * sizeof(FloatT));
+      FloatT *lastMod = saveColumnUpper + numberColumns2;
 #ifdef UNBOUNDED
       if (masterStatus == 2) {
         for (int i = 0; i < numberRows2; i++) {
@@ -6814,11 +6814,11 @@ int ClpSimplex::solveBenders(CoinStructuredModel *model, ClpSolve &options)
       }
 #endif
       // new rhs
-      double *rhs = sub[iBlock].dualRowSolution();
+      FloatT *rhs = sub[iBlock].dualRowSolution();
       CoinZeroN(rhs, numberRows2);
       first[iBlock]->times(primal, rhs);
       for (int i = 0; i < numberRows2; i++) {
-        double value = rhs[i];
+        FloatT value = rhs[i];
         if (lower2[i] > -1.0e30)
           lower2[i] -= value;
         if (upper2[i] < 1.0e30)
@@ -6827,12 +6827,12 @@ int ClpSimplex::solveBenders(CoinStructuredModel *model, ClpSolve &options)
       bool canSkip = false;
       if (canSkipSubSolve) {
         canSkip = true;
-        const double *rowSolution = sub[iBlock].primalRowSolution();
+        const FloatT *rowSolution = sub[iBlock].primalRowSolution();
         for (int i = 0; i < numberRows2; i++) {
-          double value = lastMod[i] - rhs[i];
+          FloatT value = lastMod[i] - rhs[i];
           if (fabs(value) > primalTolerance_) {
             // see if we can adjust
-            double rowValue = rowSolution[i];
+            FloatT rowValue = rowSolution[i];
             if (rowValue < lower2[i] - primalTolerance_
               || rowValue > upper2[i] + primalTolerance_) {
               canSkip = false;
@@ -6845,7 +6845,7 @@ int ClpSimplex::solveBenders(CoinStructuredModel *model, ClpSolve &options)
         }
       }
       if (!canSkip) {
-        memcpy(lastMod, rhs, numberRows2 * sizeof(double));
+        memcpy(lastMod, rhs, numberRows2 * sizeof(FloatT));
       } else {
         // mark
         sub[iBlock].setSecondaryStatus(99);
@@ -6897,7 +6897,7 @@ int ClpSimplex::solveBenders(CoinStructuredModel *model, ClpSolve &options)
         if (numberRows2 == numberRows2a && numberColumns2 == numberColumns2a) {
           memcpy(sub[iBlock].primalColumnSolution(),
             sub[0].primalColumnSolution(),
-            numberColumns2 * sizeof(double));
+            numberColumns2 * sizeof(FloatT));
           memcpy(sub[iBlock].statusArray(), sub[0].statusArray(),
             numberRows2 + numberColumns2);
         }
@@ -6917,7 +6917,7 @@ int ClpSimplex::solveBenders(CoinStructuredModel *model, ClpSolve &options)
           //int ix=sub[iBlock].secondaryStatus();
           int lastStatus = sub[iBlock].problemStatus();
           // was do dual unless unbounded
-          double saveTolerance = sub[iBlock].primalTolerance();
+          FloatT saveTolerance = sub[iBlock].primalTolerance();
           if (lastStatus == 0 || !iPass) {
             //if (lastStatus<2||!iPass) {
             //sub[iBlock].dual();
@@ -6940,7 +6940,7 @@ int ClpSimplex::solveBenders(CoinStructuredModel *model, ClpSolve &options)
             }
           } else if (lastStatus == 1) {
             // zero out objective
-            double saveScale = sub[iBlock].infeasibilityCost();
+            FloatT saveScale = sub[iBlock].infeasibilityCost();
             ClpObjective *saveObjective = sub[iBlock].objectiveAsObject();
             int numberColumns = sub[iBlock].numberColumns();
             ClpLinearObjective fake(NULL, numberColumns);
@@ -7062,21 +7062,21 @@ int ClpSimplex::solveBenders(CoinStructuredModel *model, ClpSolve &options)
         }
         if (sub[iBlock].problemStatus() && sub[iBlock].algorithm() < 0 && false) {
           int numberRows2 = sub[iBlock].numberRows();
-          double *ray = sub[iBlock].infeasibilityRay();
-          double *saveRay = CoinCopyOfArray(ray, numberRows2);
+          FloatT *ray = sub[iBlock].infeasibilityRay();
+          FloatT *saveRay = CoinCopyOfArray(ray, numberRows2);
 #if 0
 		int directionOut = sub[iBlock].directionOut();
 		sub[iBlock].allSlackBasis(true);
 		sub[iBlock].dual();
 		printf("old dir %d new %d\n",directionOut,sub[iBlock].directionOut());
 #else
-          double *obj = sub[iBlock].objective();
+          FloatT *obj = sub[iBlock].objective();
           int numberColumns2 = sub[iBlock].numberColumns();
-          double *saveObj = CoinCopyOfArray(obj, numberColumns2);
-          memset(obj, 0, numberColumns2 * sizeof(double));
+          FloatT *saveObj = CoinCopyOfArray(obj, numberColumns2);
+          memset(obj, 0, numberColumns2 * sizeof(FloatT));
           sub[iBlock].allSlackBasis(true);
           sub[iBlock].primal();
-          memcpy(obj, saveObj, numberColumns2 * sizeof(double));
+          memcpy(obj, saveObj, numberColumns2 * sizeof(FloatT));
           delete[] saveObj;
 #endif
           ray = sub[iBlock].infeasibilityRay();
@@ -7101,16 +7101,16 @@ int ClpSimplex::solveBenders(CoinStructuredModel *model, ClpSolve &options)
     for (iBlock = 0; iBlock < numberBlocks; iBlock++) {
       int numberRows2 = sub[iBlock].numberRows();
       int numberColumns2 = sub[iBlock].numberColumns();
-      double *saveLower = modification[iBlock];
-      double *lower2 = sub[iBlock].rowLower();
-      double *saveUpper = saveLower + numberRows2 + numberColumns2;
-      double *upper2 = sub[iBlock].rowUpper();
+      FloatT *saveLower = modification[iBlock];
+      FloatT *lower2 = sub[iBlock].rowLower();
+      FloatT *saveUpper = saveLower + numberRows2 + numberColumns2;
+      FloatT *upper2 = sub[iBlock].rowUpper();
       int typeRun = sub[iBlock].secondaryStatus();
       sub[iBlock].setSecondaryStatus(0);
       if (typeRun != 99) {
         if (0) {
-          double objValue = 0.0;
-          const double *solution = sub[iBlock].dualRowSolution();
+          FloatT objValue = 0.0;
+          const FloatT *solution = sub[iBlock].dualRowSolution();
           for (int i = 0; i < numberRows2; i++) {
             if (solution[i] < -dualTolerance_) {
               // at upper
@@ -7129,11 +7129,11 @@ int ClpSimplex::solveBenders(CoinStructuredModel *model, ClpSolve &options)
           problemState[iBlock] |= 4;
         // get proposal
         if (sub[iBlock].numberIterations() || (problemState[iBlock] & 4) != 0) {
-          double objValue = 0.0;
+          FloatT objValue = 0.0;
           int start = static_cast< int >(rowAdd[numberProposals]);
           // proposal
           if (sub[iBlock].isProvenOptimal()) {
-            double *solution = sub[iBlock].dualRowSolution();
+            FloatT *solution = sub[iBlock].dualRowSolution();
             first[iBlock]->transposeTimes(solution, elementAdd + start);
             for (int i = 0; i < numberRows2; i++) {
               if (sub[iBlock].getRowStatus(i) == basic)
@@ -7148,10 +7148,10 @@ int ClpSimplex::solveBenders(CoinStructuredModel *model, ClpSolve &options)
                 objValue += solution[i] * saveLower[i];
               }
             }
-            const double *dj = sub[iBlock].dualColumnSolution();
-            const double *columnLower = sub[iBlock].columnLower();
-            const double *columnUpper = sub[iBlock].columnUpper();
-            double objValue2 = 0.0;
+            const FloatT *dj = sub[iBlock].dualColumnSolution();
+            const FloatT *columnLower = sub[iBlock].columnLower();
+            const FloatT *columnUpper = sub[iBlock].columnUpper();
+            FloatT objValue2 = 0.0;
             int numberColumns2 = sub[iBlock].numberColumns();
             for (int i = 0; i < numberColumns2; i++) {
               if (logLevel > 2) {
@@ -7167,10 +7167,10 @@ int ClpSimplex::solveBenders(CoinStructuredModel *model, ClpSolve &options)
               }
             }
 #if 1
-            double objValue3 = 0.0;
-            const double *cost = sub[iBlock].objective();
+            FloatT objValue3 = 0.0;
+            const FloatT *cost = sub[iBlock].objective();
             for (int i = 0; i < numberColumns2; i++) {
-              double value = dj[i] - cost[i];
+              FloatT value = dj[i] - cost[i];
               if (sub[iBlock].getColumnStatus(i) == isFixed) {
                 objValue3 += columnLower[i] * value;
               } else if (sub[iBlock].getColumnStatus(i) == atLowerBound) {
@@ -7190,11 +7190,11 @@ int ClpSimplex::solveBenders(CoinStructuredModel *model, ClpSolve &options)
             //objValue=sub[iBlock].objectiveValue();
             // See if cuts off and pack down
             int number = start;
-            double infeas = -objValue;
-            double smallest = 1.0e100;
-            double largest = 0.0;
+            FloatT infeas = -objValue;
+            FloatT smallest = 1.0e100;
+            FloatT largest = 0.0;
             for (int i = 0; i < numberMasterColumns; i++) {
-              double value = elementAdd[start + i];
+              FloatT value = elementAdd[start + i];
               if (fabs(value) > 1.0e-12) {
                 infeas += primal[i] * value;
                 smallest = CoinMin(smallest, fabs(value));
@@ -7219,12 +7219,12 @@ int ClpSimplex::solveBenders(CoinStructuredModel *model, ClpSolve &options)
                 handler_->message(CLP_GENERAL2, messages_)
                   << generalPrint
                   << CoinMessageEol;
-                double target = 1.0e-12 * largest;
+                FloatT target = 1.0e-12 * largest;
                 smallest = largest;
                 int number2 = number - 1;
                 number = start;
                 for (int i = start; i < number2; i++) {
-                  double value = elementAdd[i];
+                  FloatT value = elementAdd[i];
                   if (fabs(value) > target) {
                     smallest = CoinMin(smallest, fabs(value));
                     indexColumnAdd[number] = indexColumnAdd[i];
@@ -7238,7 +7238,7 @@ int ClpSimplex::solveBenders(CoinStructuredModel *model, ClpSolve &options)
             // if smallest >1.0 then scale
             if ((smallest > 1.0e6 || fabs(objValue) > 0.01 * largeValue_)
               && number > start + 1) {
-              double scale = 1.0 / smallest;
+              FloatT scale = 1.0 / smallest;
               if (fabs(scale * objValue) > 0.01 * largeValue_) {
                 printf("** scale before obj scale %g\n", scale);
                 scale = (0.01 * largeValue_) / fabs(objValue);
@@ -7247,7 +7247,7 @@ int ClpSimplex::solveBenders(CoinStructuredModel *model, ClpSolve &options)
               objValue *= scale;
               infeas = -objValue;
               for (int i = start; i < number - 1; i++) {
-                double value = elementAdd[i] * scale;
+                FloatT value = elementAdd[i] * scale;
                 elementAdd[i] = value;
                 int iColumn = indexColumnAdd[i];
                 infeas -= primal[iColumn] * value;
@@ -7258,11 +7258,11 @@ int ClpSimplex::solveBenders(CoinStructuredModel *model, ClpSolve &options)
             }
             if (infeas < -1.0e-6 || (problemState[iBlock] & 4) != 0) {
               // take
-              // double check infeasibility
+              // FloatT check infeasibility
               if (logLevel > 3)
                 printf("objValue %g objectiveValue() %g\n",
                   objValue, sub[iBlock].objectiveValue());
-              double sum = 0.0;
+              FloatT sum = 0.0;
               for (int i = start; i < number; i++) {
                 int iColumn = indexColumnAdd[i];
                 sum += primal[iColumn] * elementAdd[i];
@@ -7279,30 +7279,30 @@ int ClpSimplex::solveBenders(CoinStructuredModel *model, ClpSolve &options)
             }
           } else if (sub[iBlock].isProvenPrimalInfeasible()) {
             // use ray
-            double *solution = sub[iBlock].infeasibilityRay();
+            FloatT *solution = sub[iBlock].infeasibilityRay();
             if (0) {
-              double trueOffset = 0.0;
+              FloatT trueOffset = 0.0;
               int numberRows = sub[iBlock].numberRows();
               int numberColumns = sub[iBlock].numberColumns();
-              double *farkas = new double[CoinMax(2 * numberColumns + numberRows, numberMasterColumns)];
-              double *bound = farkas + numberColumns;
-              double *effectiveRhs = bound + numberColumns;
+              FloatT *farkas = new FloatT[CoinMax(2 * numberColumns + numberRows, numberMasterColumns)];
+              FloatT *bound = farkas + numberColumns;
+              FloatT *effectiveRhs = bound + numberColumns;
               // get ray as user would
-              double *ray = solution; //sub[iBlock].infeasibilityRay();
+              FloatT *ray = solution; //sub[iBlock].infeasibilityRay();
               // get farkas row
-              memset(farkas, 0, (2 * numberColumns + numberRows) * sizeof(double));
+              memset(farkas, 0, (2 * numberColumns + numberRows) * sizeof(FloatT));
               // Looks to me as if ray should be flipped according to mosek
               sub[iBlock].clpMatrix()->transposeTimes(-1.0, ray, farkas);
               // now farkas has A_T_y
               // Put nonzero bounds in bound
-              const double *columnLower = sub[iBlock].columnLower();
-              const double *columnUpper = sub[iBlock].columnUpper();
+              const FloatT *columnLower = sub[iBlock].columnLower();
+              const FloatT *columnUpper = sub[iBlock].columnUpper();
               int numberBad = 0;
               // For sum in mosek
-              double ySum = 0.0;
+              FloatT ySum = 0.0;
               for (int i = 0; i < numberColumns; i++) {
-                double value = farkas[i];
-                double boundValue = 0.0;
+                FloatT value = farkas[i];
+                FloatT boundValue = 0.0;
                 if (sub[iBlock].getStatus(i) == ClpSimplex::basic) {
                   // treat as zero if small
                   if (fabs(value) < 1.0e-8) {
@@ -7339,8 +7339,8 @@ int ClpSimplex::solveBenders(CoinStructuredModel *model, ClpSolve &options)
                 // A_T_y + s_x_l -s_x_u == 0
                 // So if value >0 s_x_l->0 s_x_u->value
                 // otherwise s_x_l->-value, s_x_u->0
-                double s_x_l = 0.0;
-                double s_x_u = 0.0;
+                FloatT s_x_l = 0.0;
+                FloatT s_x_u = 0.0;
                 if (value > 0)
                   s_x_u = value;
                 else
@@ -7349,13 +7349,13 @@ int ClpSimplex::solveBenders(CoinStructuredModel *model, ClpSolve &options)
                 ySum -= columnUpper[i] * s_x_u;
                 bound[i] = boundValue;
               }
-              const double *rowLower = sub[iBlock].rowLower();
-              const double *rowUpper = sub[iBlock].rowUpper();
+              const FloatT *rowLower = sub[iBlock].rowLower();
+              const FloatT *rowUpper = sub[iBlock].rowUpper();
               //int pivotRow = sub[iBlock].spareIntArray_[3];
               //bool badPivot=pivotRow<0;
               for (int i = 0; i < numberRows; i++) {
-                double value = ray[i];
-                double rhsValue = 0.0;
+                FloatT value = ray[i];
+                FloatT rhsValue = 0.0;
                 if (sub[iBlock].getRowStatus(i) == ClpSimplex::basic) {
                   // treat as zero if small
                   if (fabs(value) < 1.0e-7) {
@@ -7385,10 +7385,10 @@ int ClpSimplex::solveBenders(CoinStructuredModel *model, ClpSolve &options)
                 if (!value)
                   rhsValue = 0.0;
                 // for mosek flip value back
-                double yvalue = -value;
+                FloatT yvalue = -value;
                 // -y + s_c_l - s_c_u==0
-                double s_c_l = 0.0;
-                double s_c_u = 0.0;
+                FloatT s_c_l = 0.0;
+                FloatT s_c_u = 0.0;
                 if (yvalue > 0)
                   s_c_l = yvalue;
                 else
@@ -7401,7 +7401,7 @@ int ClpSimplex::solveBenders(CoinStructuredModel *model, ClpSolve &options)
                     i, effectiveRhs[i]);
               }
               sub[iBlock].clpMatrix()->times(-1.0, bound, effectiveRhs);
-              double bSum = 0.0;
+              FloatT bSum = 0.0;
               for (int i = 0; i < numberRows; i++) {
                 bSum += effectiveRhs[i] * ray[i];
                 if (fabs(effectiveRhs[i]) > 1.0e10)
@@ -7423,12 +7423,12 @@ int ClpSimplex::solveBenders(CoinStructuredModel *model, ClpSolve &options)
 		      plus or minus! (temp2 * x - temp2 *x_bar) <= bSum
 		      first[iBlock]->transposeTimes(ray, temp2);
 		     */
-              memset(farkas, 0, numberColumns * sizeof(double));
+              memset(farkas, 0, numberColumns * sizeof(FloatT));
               first[iBlock]->transposeTimes(ray, farkas);
-              double offset = 0.0;
-              const double *masterSolution = masterModel.primalColumnSolution();
+              FloatT offset = 0.0;
+              const FloatT *masterSolution = masterModel.primalColumnSolution();
               for (int i = 0; i < numberMasterColumns; i++) {
-                double value = farkas[i];
+                FloatT value = farkas[i];
                 if (fabs(value) > 1.0e-9) {
                   offset += value * masterSolution[i];
                   if (logLevel > 2)
@@ -7476,16 +7476,16 @@ int ClpSimplex::solveBenders(CoinStructuredModel *model, ClpSolve &options)
             //objValue=-objValue;
             {
               int numberColumns2 = sub[iBlock].numberColumns();
-              double *temp = new double[numberColumns2];
-              memset(temp, 0, numberColumns2 * sizeof(double));
+              FloatT *temp = new FloatT[numberColumns2];
+              memset(temp, 0, numberColumns2 * sizeof(FloatT));
               sub[iBlock].clpMatrix()->transposeTimes(-1.0, solution, temp);
-              double loX = 0.0;
-              double upX = 0.0;
-              const double *lower = sub[iBlock].columnLower();
-              const double *upper = sub[iBlock].columnUpper();
-              const double *primal = sub[iBlock].primalColumnSolution();
+              FloatT loX = 0.0;
+              FloatT upX = 0.0;
+              const FloatT *lower = sub[iBlock].columnLower();
+              const FloatT *upper = sub[iBlock].columnUpper();
+              const FloatT *primal = sub[iBlock].primalColumnSolution();
               for (int i = 0; i < numberColumns2; i++) {
-                double value = temp[i];
+                FloatT value = temp[i];
                 if (sub[iBlock].getColumnStatus(i) == basic && fabs(value) < 1.0e-7)
                   value = 0.0;
                 if (logLevel > 2) {
@@ -7498,7 +7498,7 @@ int ClpSimplex::solveBenders(CoinStructuredModel *model, ClpSolve &options)
                 } else if (sub[iBlock].getStatus(i) == atUpperBound) {
                   upX += upper[i] * value;
                 } else if (sub[iBlock].getStatus(i) == basic) {
-                  double value2 = primal[i] * value;
+                  FloatT value2 = primal[i] * value;
                   if (logLevel > 2) {
                     if (fabs(value2) > 1.0e-3)
                       printf("Basic %d arrayval %g primal %g bounds %g %g\n",
@@ -7545,16 +7545,16 @@ int ClpSimplex::solveBenders(CoinStructuredModel *model, ClpSolve &options)
                 //temp->allSlackBasis();
                 temp->primal();
                 // use ray
-                double *solution = temp->infeasibilityRay();
+                FloatT *solution = temp->infeasibilityRay();
                 int numberRows2 = temp->numberRows();
                 // bug somewhere - if primal then flip
                 if (temp->algorithm_ > 0) {
                   for (int i = 0; i < numberRows2; i++)
                     solution[i] = -1.0e-5 * solution[i];
                 }
-                double objValue7 = 0.0;
-                const double *lower = temp->rowLower();
-                const double *upper = temp->rowUpper();
+                FloatT objValue7 = 0.0;
+                const FloatT *lower = temp->rowLower();
+                const FloatT *upper = temp->rowUpper();
                 for (int i = 0; i < numberRows2; i++) {
                   if (solution[i] < -dualTolerance_) {
                     // at upper
@@ -7579,15 +7579,15 @@ int ClpSimplex::solveBenders(CoinStructuredModel *model, ClpSolve &options)
                 //objValue=-objValue7;
                 //loX=1.0e-2*objValue;
                 //first[iBlock]->transposeTimes(solution, elementAdd + start);
-                double *temp2 = new double[numberMasterColumns];
-                memset(temp2, 0, numberMasterColumns * sizeof(double));
+                FloatT *temp2 = new FloatT[numberMasterColumns];
+                memset(temp2, 0, numberMasterColumns * sizeof(FloatT));
                 first[iBlock]->transposeTimes(solution, temp2);
-                double *temp3 = elementAdd + start;
+                FloatT *temp3 = elementAdd + start;
                 for (int i = 0; i < numberMasterColumns; i++) {
                   if (fabs(temp2[i] - temp3[i]) > 1.0e-4)
                     printf("** %d bound el %g nobound %g\n", i, temp3[i], temp2[i]);
                 }
-                memcpy(temp3, temp2, numberMasterColumns * sizeof(double));
+                memcpy(temp3, temp2, numberMasterColumns * sizeof(FloatT));
                 delete[] temp2;
                 delete temp;
               }
@@ -7601,11 +7601,11 @@ int ClpSimplex::solveBenders(CoinStructuredModel *model, ClpSolve &options)
             //printf("Not changing objValue from %g to %g\n",objValue,trueOffset);
             //printf("Changing objValue from %g to %g\n",objValue,trueOffset);
             //objValue=trueOffset;
-            double infeas = objValue;
-            double smallest = 1.0e100;
-            double largest = 0.0;
+            FloatT infeas = objValue;
+            FloatT smallest = 1.0e100;
+            FloatT largest = 0.0;
             for (int i = 0; i < numberMasterColumns; i++) {
-              double value = -elementAdd[start + i];
+              FloatT value = -elementAdd[start + i];
               if (fabs(value) > 1.0e-12) {
                 infeas -= primal[i] * value;
                 smallest = CoinMin(smallest, fabs(value));
@@ -7631,7 +7631,7 @@ int ClpSimplex::solveBenders(CoinStructuredModel *model, ClpSolve &options)
               int number2 = number - 1;
               number = start;
               for (int i = start; i < number2; i++) {
-                double value = elementAdd[i];
+                FloatT value = elementAdd[i];
                 if (fabs(value) > smallest) {
                   indexColumnAdd[number] = indexColumnAdd[i];
                   elementAdd[number++] = value;
@@ -7641,7 +7641,7 @@ int ClpSimplex::solveBenders(CoinStructuredModel *model, ClpSolve &options)
               elementAdd[number++] = -1.0;
             }
             if (infeas < -1.0e-6 || false) {
-              double sum = 0.0;
+              FloatT sum = 0.0;
               for (int i = start; i < number; i++) {
                 int iColumn = indexColumnAdd[i];
                 sum += primal[iColumn] * elementAdd[i];
@@ -7694,14 +7694,14 @@ int ClpSimplex::solveBenders(CoinStructuredModel *model, ClpSolve &options)
       }
 #ifdef TEST_MODEL
       if (logLevel > 3) {
-        const double *solution = goodModel.primalColumnSolution();
-        const double *solution2 = masterModel.primalColumnSolution();
+        const FloatT *solution = goodModel.primalColumnSolution();
+        const FloatT *solution2 = masterModel.primalColumnSolution();
         for (int i = 0; i < numberProposals; i++) {
-          double sum = 0.0;
-          double sum2 = 0.0;
+          FloatT sum = 0.0;
+          FloatT sum2 = 0.0;
           for (int j = rowAdd[i]; j < rowAdd[i + 1]; j++) {
             int iColumn = indexColumnAdd[j];
-            double value = elementAdd[j];
+            FloatT value = elementAdd[j];
             sum += value * solution[iColumn];
             sum2 += value * solution2[iColumn];
           }
@@ -7741,7 +7741,7 @@ int ClpSimplex::solveBenders(CoinStructuredModel *model, ClpSolve &options)
         if (goodModel.problemStatus() == 1 || goodModel.objectiveValue() > goodValue + 1.0e-5 * fabs(goodValue)) {
           int numberRows = goodModel.numberRows();
           int numberStart = numberRows - numberProposals;
-          double *upper = goodModel.rowUpper();
+          FloatT *upper = goodModel.rowUpper();
           for (int iRow = numberStart; iRow < numberRows; iRow++) {
             upper[iRow] = COIN_DBL_MAX;
           }
@@ -7766,16 +7766,16 @@ int ClpSimplex::solveBenders(CoinStructuredModel *model, ClpSolve &options)
               temp->allSlackBasis();
               temp->primal();
               // use ray
-              double *solution = temp->infeasibilityRay();
+              FloatT *solution = temp->infeasibilityRay();
               int numberRows2 = temp->numberRows();
               // bug somewhere - if primal then flip
               if (true) {
                 for (int i = 0; i < numberRows2; i++)
                   solution[i] = -1.0e-5 * solution[i];
               }
-              double objValue = 0.0;
-              const double *lower = temp->rowLower();
-              const double *upper = temp->rowUpper();
+              FloatT objValue = 0.0;
+              const FloatT *lower = temp->rowLower();
+              const FloatT *upper = temp->rowUpper();
               for (int i = 0; i < numberRows2; i++) {
                 if (solution[i] < -dualTolerance_) {
                   // at upper
@@ -7789,13 +7789,13 @@ int ClpSimplex::solveBenders(CoinStructuredModel *model, ClpSolve &options)
               }
               //printf("new objValue %g\n",objValue);
               int numberColumns2 = sub[iBlock].numberColumns();
-              double *temp2 = new double[numberColumns2];
-              memset(temp2, 0, numberColumns2 * sizeof(double));
+              FloatT *temp2 = new FloatT[numberColumns2];
+              memset(temp2, 0, numberColumns2 * sizeof(FloatT));
               sub[iBlock].clpMatrix()->transposeTimes(1.0, sub[iBlock].infeasibilityRay(), temp2);
-              double loX = 0.0;
-              double upX = 0.0;
-              const double *lower2 = sub[iBlock].columnLower();
-              const double *upper2 = sub[iBlock].columnUpper();
+              FloatT loX = 0.0;
+              FloatT upX = 0.0;
+              const FloatT *lower2 = sub[iBlock].columnLower();
+              const FloatT *upper2 = sub[iBlock].columnUpper();
               for (int i = 0; i < numberColumns2; i++) {
                 if (sub[iBlock].getColumnStatus(i) != basic && fabs(sub[iBlock].primalColumnSolution()[i]) > 1.0e-5)
                   printf("zz_inf %d has value %g\n", i, sub[iBlock].primalColumnSolution()[i]);
@@ -7806,7 +7806,7 @@ int ClpSimplex::solveBenders(CoinStructuredModel *model, ClpSolve &options)
                 }
               }
               printf("Offsets %g %g\n", loX, upX);
-              memset(temp2, 0, numberColumns2 * sizeof(double));
+              memset(temp2, 0, numberColumns2 * sizeof(FloatT));
               temp->clpMatrix()->transposeTimes(1.0, solution, temp2);
               loX = 0.0;
               upX = 0.0;
@@ -7828,16 +7828,16 @@ int ClpSimplex::solveBenders(CoinStructuredModel *model, ClpSolve &options)
             upper[iRow] = COIN_DBL_MAX;
           }
         }
-        double objValue = goodModel.objectiveValue();
-        const double *obj = goodModel.objective();
-        const double *solution = goodModel.primalColumnSolution();
-        double obj1 = 0.0;
+        FloatT objValue = goodModel.objectiveValue();
+        const FloatT *obj = goodModel.objective();
+        const FloatT *solution = goodModel.primalColumnSolution();
+        FloatT obj1 = 0.0;
         for (int i = 0; i < numberMasterColumns; i++)
           obj1 += obj[i] * solution[i];
-        double obj2 = 0.0;
+        FloatT obj2 = 0.0;
         for (int i = numberMasterColumns; i < numberMasterColumns + numberBlocks; i++)
           obj2 += obj[i] * solution[i];
-        double obj3 = 0.0;
+        FloatT obj3 = 0.0;
         for (int i = numberMasterColumns + numberBlocks; i < goodModel.numberColumns(); i++)
           obj3 += obj[i] * solution[i];
         //assert (fabs(goodValue-objValue)<1.0e-3+1.0e-7*fabs(goodValue));
@@ -7869,8 +7869,8 @@ int ClpSimplex::solveBenders(CoinStructuredModel *model, ClpSolve &options)
   if (!options.independentOption(1))
     loadProblem(*model);
   // now put back a good solution
-  const double *columnSolution = masterModel.primalColumnSolution();
-  double *fullColumnSolution = primalColumnSolution();
+  const FloatT *columnSolution = masterModel.primalColumnSolution();
+  FloatT *fullColumnSolution = primalColumnSolution();
   const int *columnBack = model->coinBlock(masterBlock)->originalColumns();
   int numberColumns2 = model->coinBlock(masterBlock)->numberColumns();
   const int *rowBack = model->coinBlock(masterBlock)->originalRows();
@@ -7896,7 +7896,7 @@ int ClpSimplex::solveBenders(CoinStructuredModel *model, ClpSolve &options)
     int numberColumns2 = model->coinBlock(kBlock)->numberColumns();
     const int *rowBack = model->coinBlock(kBlock)->originalRows();
     int numberRows2 = model->coinBlock(kBlock)->numberRows();
-    const double *subColumnSolution = sub[iBlock].primalColumnSolution();
+    const FloatT *subColumnSolution = sub[iBlock].primalColumnSolution();
     for (int iColumn = 0; iColumn < numberColumns2; iColumn++) {
       int kColumn = columnBack[iColumn];
       setColumnStatus(kColumn, sub[iBlock].getColumnStatus(iColumn));
@@ -7915,13 +7915,13 @@ int ClpSimplex::solveBenders(CoinStructuredModel *model, ClpSolve &options)
   for (int iColumn = 0; iColumn < numberColumns_; iColumn++)
     assert(fullColumnSolution[iColumn] != COIN_DBL_MAX);
 #endif
-  double *fullSolution = primalRowSolution();
+  FloatT *fullSolution = primalRowSolution();
   CoinZeroN(fullSolution, numberRows_);
   times(1.0, fullColumnSolution, fullSolution);
   int numberRowBasic = 0;
 #ifndef NDEBUG
   int numberInfeasibilities = 0;
-  double sumInfeasibilities = 0.0;
+  FloatT sumInfeasibilities = 0.0;
 #endif
   for (int iRow = 0; iRow < numberRows_; iRow++) {
     if (getRowStatus(iRow) == ClpSimplex::basic)

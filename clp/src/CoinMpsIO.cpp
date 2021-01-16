@@ -29,25 +29,25 @@
 
 namespace {
 
-const double fraction[] = { 1.0, 1.0e-1, 1.0e-2, 1.0e-3, 1.0e-4, 1.0e-5, 1.0e-6, 1.0e-7, 1.0e-8,
+const FloatT fraction[] = { 1.0, 1.0e-1, 1.0e-2, 1.0e-3, 1.0e-4, 1.0e-5, 1.0e-6, 1.0e-7, 1.0e-8,
   1.0e-9, 1.0e-10, 1.0e-11, 1.0e-12, 1.0e-13, 1.0e-14, 1.0e-15, 1.0e-16,
   1.0e-17, 1.0e-18, 1.0e-19, 1.0e-20, 1.0e-21, 1.0e-22, 1.0e-23 };
 
-const double exponent[] = { 1.0e-9, 1.0e-8, 1.0e-7, 1.0e-6, 1.0e-5, 1.0e-4, 1.0e-3, 1.0e-2, 1.0e-1,
+const FloatT exponent[] = { 1.0e-9, 1.0e-8, 1.0e-7, 1.0e-6, 1.0e-5, 1.0e-4, 1.0e-3, 1.0e-2, 1.0e-1,
   1.0, 1.0e1, 1.0e2, 1.0e3, 1.0e4, 1.0e5, 1.0e6, 1.0e7, 1.0e8, 1.0e9 };
 
 } // end file-local namespace
-double CoinMpsCardReader::osi_strtod(char *ptr, char **output, int type)
+FloatT CoinMpsCardReader::osi_strtod(char *ptr, char **output, int type)
 {
 
-  double value = 0.0;
+  FloatT value = 0.0;
   char *save = ptr;
 
   // take off leading white space
   while (*ptr == ' ' || *ptr == '\t')
     ptr++;
   if (!type) {
-    double sign1 = 1.0;
+    FloatT sign1 = 1.0;
     // do + or -
     if (*ptr == '-') {
       sign1 = -1.0;
@@ -70,7 +70,7 @@ double CoinMpsCardReader::osi_strtod(char *ptr, char **output, int type)
     if (value < 1.0e30) {
       if (thisChar == '.') {
         // do fraction
-        double value2 = 0.0;
+        FloatT value2 = 0.0;
         int nfrac = 0;
         while (nfrac < 24) {
           thisChar = *ptr;
@@ -137,7 +137,7 @@ double CoinMpsCardReader::osi_strtod(char *ptr, char **output, int type)
     value *= sign1;
   } else {
     // ieee - 3 bytes go to 2
-    assert(sizeof(double) == 8 * sizeof(char));
+    assert(sizeof(FloatT) == 8 * sizeof(char));
     assert(sizeof(unsigned short) == 2 * sizeof(char));
     unsigned short shortValue[4];
     *output = ptr + 12; // say okay
@@ -200,15 +200,15 @@ double CoinMpsCardReader::osi_strtod(char *ptr, char **output, int type)
         shortValue[i] = thisValue;
       }
     }
-    memcpy(&value, shortValue, sizeof(double));
+    memcpy(&value, shortValue, sizeof(FloatT));
   }
   return value;
 }
 // for strings
-double CoinMpsCardReader::osi_strtod(char *ptr, char **output)
+FloatT CoinMpsCardReader::osi_strtod(char *ptr, char **output)
 {
   char *save = ptr;
-  double value = -1.0e100;
+  FloatT value = -1.0e100;
   if (!stringsAllowed_) {
     *output = save;
   } else {
@@ -387,7 +387,7 @@ CoinMpsCardReader::readToNextSection()
             freeFormat_ = true;
             // see if intel
             ieeeFormat_ = 1;
-            double value = 1.0;
+            FloatT value = 1.0;
             char x[8];
             memcpy(x, &value, 8);
             if (x[0] == 63) {
@@ -403,7 +403,7 @@ CoinMpsCardReader::readToNextSection()
           } else if (strstr(nextBlank, "IEEE")) {
             // see if intel
             ieeeFormat_ = 1;
-            double value = 1.0;
+            FloatT value = 1.0;
             char x[8];
             memcpy(x, &value, 8);
             if (x[0] == 63) {
@@ -1374,14 +1374,14 @@ CoinMpsIO::findHash(const char *name, int section) const
 //------------------------------------------------------------------
 // Get value for infinity
 //------------------------------------------------------------------
-double CoinMpsIO::getInfinity() const
+FloatT CoinMpsIO::getInfinity() const
 {
   return infinity_;
 }
 //------------------------------------------------------------------
 // Set value for infinity
 //------------------------------------------------------------------
-void CoinMpsIO::setInfinity(double value)
+void CoinMpsIO::setInfinity(FloatT value)
 {
   if (value >= 1.020) {
     infinity_ = value;
@@ -1484,7 +1484,7 @@ int CoinMpsIO::dealWithFileName(const char *filename, const char *extension,
   return goodFile;
 }
 /* objective offset - this is RHS entry for objective row */
-double CoinMpsIO::objectiveOffset() const
+FloatT CoinMpsIO::objectiveOffset() const
 {
   return objectiveOffset_;
 }
@@ -1596,7 +1596,7 @@ int CoinMpsIO::readMps(int &numberSets, CoinSet **&sets)
   }
   CoinBigIndex *start;
   COINRowIndex *row;
-  double *element;
+  FloatT *element;
   objectiveOffset_ = 0.0;
 
   int numberErrors = 0;
@@ -1738,10 +1738,10 @@ int CoinMpsIO::readMps(int &numberSets, CoinSet **&sets)
     COINMpsType *columnType = reinterpret_cast< COINMpsType * >(malloc(maxColumns * sizeof(COINMpsType)));
     char **columnName = reinterpret_cast< char ** >(malloc(maxColumns * sizeof(char *)));
 
-    objective_ = reinterpret_cast< double * >(malloc(maxColumns * sizeof(double)));
+    objective_ = reinterpret_cast< FloatT * >(malloc(maxColumns * sizeof(FloatT)));
     start = reinterpret_cast< CoinBigIndex * >(malloc((maxColumns + 1) * sizeof(CoinBigIndex)));
     row = reinterpret_cast< COINRowIndex * >(malloc(maxElements * sizeof(COINRowIndex)));
-    element = reinterpret_cast< double * >(malloc(maxElements * sizeof(double)));
+    element = reinterpret_cast< FloatT * >(malloc(maxElements * sizeof(FloatT)));
     // for duplicates
     CoinBigIndex *rowUsed = new CoinBigIndex[numberRows_];
 
@@ -1787,7 +1787,7 @@ int CoinMpsIO::readMps(int &numberSets, CoinSet **&sets)
             columnType = reinterpret_cast< COINMpsType * >(realloc(columnType, maxColumns * sizeof(COINMpsType)));
             columnName = reinterpret_cast< char ** >(realloc(columnName, maxColumns * sizeof(char *)));
 
-            objective_ = reinterpret_cast< double * >(realloc(objective_, maxColumns * sizeof(double)));
+            objective_ = reinterpret_cast< FloatT * >(realloc(objective_, maxColumns * sizeof(FloatT)));
             start = reinterpret_cast< CoinBigIndex * >(realloc(start,
               (maxColumns + 1) * sizeof(CoinBigIndex)));
           }
@@ -1811,13 +1811,13 @@ int CoinMpsIO::readMps(int &numberSets, CoinSet **&sets)
           if (numberElements_ == maxElements) {
             maxElements = (3 * maxElements) / 2 + 1000;
             row = reinterpret_cast< COINRowIndex * >(realloc(row, maxElements * sizeof(COINRowIndex)));
-            element = reinterpret_cast< double * >(realloc(element, maxElements * sizeof(double)));
+            element = reinterpret_cast< FloatT * >(realloc(element, maxElements * sizeof(FloatT)));
           }
           // get row number
           COINRowIndex irow = findHash(cardReader_->rowName(), 0);
 
           if (irow >= 0) {
-            double value = cardReader_->value();
+            FloatT value = cardReader_->value();
 
             // check for duplicates
             if (irow == numberRows_) {
@@ -1935,29 +1935,29 @@ int CoinMpsIO::readMps(int &numberSets, CoinSet **&sets)
       columnName =
 
         reinterpret_cast< char ** >(realloc(columnName, numberColumns_ * sizeof(char *)));
-      objective_ = reinterpret_cast< double * >(realloc(objective_, numberColumns_ * sizeof(double)));
+      objective_ = reinterpret_cast< FloatT * >(realloc(objective_, numberColumns_ * sizeof(FloatT)));
     } else {
       columnType = reinterpret_cast< COINMpsType * >(realloc(columnType,
         sizeof(COINMpsType)));
       columnName =
 
         reinterpret_cast< char ** >(realloc(columnName, sizeof(char *)));
-      objective_ = reinterpret_cast< double * >(realloc(objective_, sizeof(double)));
+      objective_ = reinterpret_cast< FloatT * >(realloc(objective_, sizeof(FloatT)));
     }
     start = reinterpret_cast< CoinBigIndex * >(realloc(start, (numberColumns_ + 1) * sizeof(CoinBigIndex)));
     if (numberElements_) {
       row = reinterpret_cast< COINRowIndex * >(realloc(row, numberElements_ * sizeof(COINRowIndex)));
-      element = reinterpret_cast< double * >(realloc(element, numberElements_ * sizeof(double)));
+      element = reinterpret_cast< FloatT * >(realloc(element, numberElements_ * sizeof(FloatT)));
     } else {
       row = reinterpret_cast< COINRowIndex * >(realloc(row, sizeof(COINRowIndex)));
-      element = reinterpret_cast< double * >(realloc(element, sizeof(double)));
+      element = reinterpret_cast< FloatT * >(realloc(element, sizeof(FloatT)));
     }
     if (numberRows_) {
-      rowlower_ = reinterpret_cast< double * >(malloc(numberRows_ * sizeof(double)));
-      rowupper_ = reinterpret_cast< double * >(malloc(numberRows_ * sizeof(double)));
+      rowlower_ = reinterpret_cast< FloatT * >(malloc(numberRows_ * sizeof(FloatT)));
+      rowupper_ = reinterpret_cast< FloatT * >(malloc(numberRows_ * sizeof(FloatT)));
     } else {
-      rowlower_ = reinterpret_cast< double * >(malloc(sizeof(double)));
-      rowupper_ = reinterpret_cast< double * >(malloc(sizeof(double)));
+      rowlower_ = reinterpret_cast< FloatT * >(malloc(sizeof(FloatT)));
+      rowupper_ = reinterpret_cast< FloatT * >(malloc(sizeof(FloatT)));
     }
     for (i = 0; i < numberRows_; i++) {
       rowlower_[i] = -infinity_;
@@ -1991,7 +1991,7 @@ int CoinMpsIO::readMps(int &numberSets, CoinSet **&sets)
         // get row number
         irow = findHash(cardReader_->rowName(), 0);
         if (irow >= 0) {
-          double value = cardReader_->value();
+          FloatT value = cardReader_->value();
 
           // check for duplicates
           if (irow == numberRows_) {
@@ -2090,7 +2090,7 @@ int CoinMpsIO::readMps(int &numberSets, CoinSet **&sets)
           // get row number
           irow = findHash(cardReader_->rowName(), 0);
           if (irow >= 0) {
-            double value = cardReader_->value();
+            FloatT value = cardReader_->value();
 
             // check for duplicates
             if (irow == numberRows_) {
@@ -2151,9 +2151,9 @@ int CoinMpsIO::readMps(int &numberSets, CoinSet **&sets)
       COINRowIndex irow;
 
       for (irow = 0; irow < numberRows_; irow++) {
-        double lo = rowlower_[irow];
-        double up = rowupper_[irow];
-        double up2 = rowupper_[irow]; //range
+        FloatT lo = rowlower_[irow];
+        FloatT up = rowupper_[irow];
+        FloatT up2 = rowupper_[irow]; //range
 
         switch (rowType[irow]) {
         case COIN_E_ROW:
@@ -2200,11 +2200,11 @@ int CoinMpsIO::readMps(int &numberSets, CoinSet **&sets)
     free(rowType);
     // default bounds
     if (numberColumns_) {
-      collower_ = reinterpret_cast< double * >(malloc(numberColumns_ * sizeof(double)));
-      colupper_ = reinterpret_cast< double * >(malloc(numberColumns_ * sizeof(double)));
+      collower_ = reinterpret_cast< FloatT * >(malloc(numberColumns_ * sizeof(FloatT)));
+      colupper_ = reinterpret_cast< FloatT * >(malloc(numberColumns_ * sizeof(FloatT)));
     } else {
-      collower_ = reinterpret_cast< double * >(malloc(sizeof(double)));
-      colupper_ = reinterpret_cast< double * >(malloc(sizeof(double)));
+      collower_ = reinterpret_cast< FloatT * >(malloc(sizeof(FloatT)));
+      colupper_ = reinterpret_cast< FloatT * >(malloc(sizeof(FloatT)));
     }
     for (i = 0; i < numberColumns_; i++) {
       collower_[i] = 0.0;
@@ -2250,7 +2250,7 @@ int CoinMpsIO::readMps(int &numberSets, CoinSet **&sets)
         COINColumnIndex icolumn = findHash(cardReader_->rowName(), 1);
 
         if (icolumn >= 0) {
-          double value = cardReader_->value();
+          FloatT value = cardReader_->value();
           bool ifError = false;
 
           switch (cardReader_->mpsType()) {
@@ -2333,7 +2333,7 @@ int CoinMpsIO::readMps(int &numberSets, CoinSet **&sets)
               ifError = true;
             } else if (integerType_[icolumn]) {
               // Allow so people can easily put FX's at end
-              double value2 = floor(value);
+              FloatT value2 = floor(value);
               if (fabs(value2 - value) > 1.0e-12 || value2 < collower_[icolumn] || value2 > colupper_[icolumn]) {
                 ifError = true;
               } else {
@@ -2570,7 +2570,7 @@ int CoinMpsIO::readMps(int &numberSets, CoinSet **&sets)
       int numberInSet = 0;
       int iType = -1;
       int *which = new int[numberColumns_];
-      double *weights = new double[numberColumns_];
+      FloatT *weights = new FloatT[numberColumns_];
       CoinSet **setsA = new CoinSet *[numberColumns_];
       while (cardReader_->nextField() == COIN_SOS_SECTION) {
         if (cardReader_->mpsType() == COIN_S1_BOUND || cardReader_->mpsType() == COIN_S2_BOUND) {
@@ -2587,7 +2587,7 @@ int CoinMpsIO::readMps(int &numberSets, CoinSet **&sets)
         COINColumnIndex icolumn = findHash(cardReader_->columnName(), 1);
         if (icolumn >= 0) {
           //integerType_[icolumn]=2;
-          double value = cardReader_->value();
+          FloatT value = cardReader_->value();
           if (value == -1.0e100)
             value = atof(cardReader_->rowName()); // try from row name
           which[numberInSet] = icolumn;
@@ -2634,16 +2634,16 @@ int CoinMpsIO::readMps(int &numberSets, CoinSet **&sets)
             colupper_[icolumn] = MAX_INTEGER;
           // clean up to allow for bad reads on 1.0e2 etc
           if (colupper_[icolumn] < 1.0e10) {
-            double value = colupper_[icolumn];
-            double value2 = floor(value + 0.5);
+            FloatT value = colupper_[icolumn];
+            FloatT value2 = floor(value + 0.5);
             if (value != value2) {
               if (fabs(value - value2) < 1.0e-5)
                 colupper_[icolumn] = value2;
             }
           }
           if (collower_[icolumn] > -1.0e10) {
-            double value = collower_[icolumn];
-            double value2 = floor(value + 0.5);
+            FloatT value = collower_[icolumn];
+            FloatT value2 = floor(value + 0.5);
             if (value != value2) {
               if (fabs(value - value2) < 1.0e-5)
                 collower_[icolumn] = value2;
@@ -2675,8 +2675,8 @@ int CoinMpsIO::readMps(int &numberSets, CoinSet **&sets)
 
     numberElements_ = i; // done this way in case numberElements_ long
 
-    rowlower_ = reinterpret_cast< double * >(malloc(numberRows_ * sizeof(double)));
-    rowupper_ = reinterpret_cast< double * >(malloc(numberRows_ * sizeof(double)));
+    rowlower_ = reinterpret_cast< FloatT * >(malloc(numberRows_ * sizeof(FloatT)));
+    rowupper_ = reinterpret_cast< FloatT * >(malloc(numberRows_ * sizeof(FloatT)));
     for (i = 0; i < numberRows_; i++) {
       int j;
 
@@ -2687,12 +2687,12 @@ int CoinMpsIO::readMps(int &numberSets, CoinSet **&sets)
 
       assert(i == j);
     }
-    collower_ = reinterpret_cast< double * >(malloc(numberColumns_ * sizeof(double)));
-    colupper_ = reinterpret_cast< double * >(malloc(numberColumns_ * sizeof(double)));
-    objective_ = reinterpret_cast< double * >(malloc(numberColumns_ * sizeof(double)));
+    collower_ = reinterpret_cast< FloatT * >(malloc(numberColumns_ * sizeof(FloatT)));
+    colupper_ = reinterpret_cast< FloatT * >(malloc(numberColumns_ * sizeof(FloatT)));
+    objective_ = reinterpret_cast< FloatT * >(malloc(numberColumns_ * sizeof(FloatT)));
     start = reinterpret_cast< CoinBigIndex * >(malloc((numberColumns_ + 1) * sizeof(CoinBigIndex)));
     row = reinterpret_cast< COINRowIndex * >(malloc(numberElements_ * sizeof(COINRowIndex)));
-    element = reinterpret_cast< double * >(malloc(numberElements_ * sizeof(double)));
+    element = reinterpret_cast< FloatT * >(malloc(numberElements_ * sizeof(FloatT)));
 
     start[0] = 0;
     numberElements_ = 0;
@@ -2817,18 +2817,18 @@ int CoinMpsIO::readGMPL(const char *modelName, const char *dataName,
   int iRow, iColumn;
   CoinBigIndex *start = new CoinBigIndex[numberRows_ + 1];
   int *index = new int[numberElements_];
-  double *element = new double[numberElements_];
+  FloatT *element = new FloatT[numberElements_];
   // Row stuff
-  rowlower_ = reinterpret_cast< double * >(malloc(numberRows_ * sizeof(double)));
-  rowupper_ = reinterpret_cast< double * >(malloc(numberRows_ * sizeof(double)));
+  rowlower_ = reinterpret_cast< FloatT * >(malloc(numberRows_ * sizeof(FloatT)));
+  rowupper_ = reinterpret_cast< FloatT * >(malloc(numberRows_ * sizeof(FloatT)));
   // and objective
-  objective_ = reinterpret_cast< double * >(malloc(numberColumns_ * sizeof(double)));
+  objective_ = reinterpret_cast< FloatT * >(malloc(numberColumns_ * sizeof(FloatT)));
   problemName_ = CoinStrdup(glp_get_prob_name(cbc_glp_prob));
   int kRow = 0;
   start[0] = 0;
   numberElements_ = 0;
   // spare space for checking
-  double *el = new double[numberColumns_];
+  FloatT *el = new FloatT[numberColumns_];
   int *ind = new int[numberColumns_];
   char **names = NULL;
   if (keepNames) {
@@ -2838,7 +2838,7 @@ int CoinMpsIO::readGMPL(const char *modelName, const char *dataName,
   }
   for (iRow = 0; iRow < numberRows_; iRow++) {
     int number = glp_get_mat_row(cbc_glp_prob, iRow + 1, ind - 1, el - 1);
-    double rowLower, rowUpper;
+    FloatT rowLower, rowUpper;
     int rowType;
     rowLower = glp_get_row_lb(cbc_glp_prob, iRow + 1);
     rowUpper = glp_get_row_ub(cbc_glp_prob, iRow + 1);
@@ -2897,8 +2897,8 @@ int CoinMpsIO::readGMPL(const char *modelName, const char *dataName,
   delete[] start;
   delete[] index;
   // Now do columns
-  collower_ = reinterpret_cast< double * >(malloc(numberColumns_ * sizeof(double)));
-  colupper_ = reinterpret_cast< double * >(malloc(numberColumns_ * sizeof(double)));
+  collower_ = reinterpret_cast< FloatT * >(malloc(numberColumns_ * sizeof(FloatT)));
+  colupper_ = reinterpret_cast< FloatT * >(malloc(numberColumns_ * sizeof(FloatT)));
   integerType_ = reinterpret_cast< char * >(malloc(numberColumns_ * sizeof(char)));
   if (keepNames) {
     names = reinterpret_cast< char ** >(malloc(numberColumns_ * sizeof(char *)));
@@ -2907,8 +2907,8 @@ int CoinMpsIO::readGMPL(const char *modelName, const char *dataName,
   }
   int numberIntegers = 0;
   for (iColumn = 0; iColumn < numberColumns_; iColumn++) {
-    double columnLower = glp_get_col_lb(cbc_glp_prob, iColumn + 1);
-    double columnUpper = glp_get_col_ub(cbc_glp_prob, iColumn + 1);
+    FloatT columnLower = glp_get_col_lb(cbc_glp_prob, iColumn + 1);
+    FloatT columnUpper = glp_get_col_ub(cbc_glp_prob, iColumn + 1);
     int columnType = glp_get_col_type(cbc_glp_prob, iColumn + 1);
     switch (columnType) {
     case GLP_LO:
@@ -3106,14 +3106,14 @@ int CoinMpsIO::readGms(int & /*numberSets*/, CoinSet **& /*sets*/)
   }
 
   objectiveOffset_ = 0.0;
-  rowlower_ = reinterpret_cast< double * >(malloc(numberRows_ * sizeof(double)));
-  rowupper_ = reinterpret_cast< double * >(malloc(numberRows_ * sizeof(double)));
-  collower_ = reinterpret_cast< double * >(malloc(numberColumns_ * sizeof(double)));
-  colupper_ = reinterpret_cast< double * >(malloc(numberColumns_ * sizeof(double)));
-  objective_ = reinterpret_cast< double * >(malloc(numberColumns_ * sizeof(double)));
+  rowlower_ = reinterpret_cast< FloatT * >(malloc(numberRows_ * sizeof(FloatT)));
+  rowupper_ = reinterpret_cast< FloatT * >(malloc(numberRows_ * sizeof(FloatT)));
+  collower_ = reinterpret_cast< FloatT * >(malloc(numberColumns_ * sizeof(FloatT)));
+  colupper_ = reinterpret_cast< FloatT * >(malloc(numberColumns_ * sizeof(FloatT)));
+  objective_ = reinterpret_cast< FloatT * >(malloc(numberColumns_ * sizeof(FloatT)));
   CoinBigIndex *start = reinterpret_cast< CoinBigIndex * >(malloc((numberRows_ + 1) * sizeof(CoinBigIndex)));
   COINColumnIndex *column = reinterpret_cast< COINRowIndex * >(malloc(numberElements_ * sizeof(COINRowIndex)));
-  double *element = reinterpret_cast< double * >(malloc(numberElements_ * sizeof(double)));
+  FloatT *element = reinterpret_cast< FloatT * >(malloc(numberElements_ * sizeof(FloatT)));
   COINMpsType *rowType = reinterpret_cast< COINMpsType * >(malloc(numberRows_ * sizeof(COINMpsType)));
   char **rowName = reinterpret_cast< char ** >(malloc(numberRows_ * sizeof(char *)));
   COINMpsType *columnType = reinterpret_cast< COINMpsType * >(malloc(numberColumns_ * sizeof(COINMpsType)));
@@ -3234,7 +3234,7 @@ int CoinMpsIO::readGms(int & /*numberSets*/, CoinSet **& /*sets*/)
     rowType[i] = COIN_N_ROW;
   }
   startHash(rowName, numberRows_, 0);
-  const double largeElement = 1.0e14;
+  const FloatT largeElement = 1.0e14;
   int numberTiny = 0;
   int numberLarge = 0;
   // For now expect just equations so do loop
@@ -3262,7 +3262,7 @@ int CoinMpsIO::readGms(int & /*numberSets*/, CoinSet **& /*sets*/)
       int iColumn = findHash(cardReader_->columnName(), 1);
       if (iColumn >= 0) {
         column[numberElements_] = iColumn;
-        double value = cardReader_->value();
+        FloatT value = cardReader_->value();
         if (fabs(value) < smallElement_)
           numberTiny++;
         else if (fabs(value) > largeElement)
@@ -3285,7 +3285,7 @@ int CoinMpsIO::readGms(int & /*numberSets*/, CoinSet **& /*sets*/)
           assert(iColumn >= 0);
           char temp2[100];
           temp2[0] = '\0';
-          double value = cardReader_->value();
+          FloatT value = cardReader_->value();
           if (value && value != 1.0)
             sprintf(temp2, "%g*", value);
           if (allowStringElements_ == 1)
@@ -3342,7 +3342,7 @@ int CoinMpsIO::readGms(int & /*numberSets*/, CoinSet **& /*sets*/)
         // bound
         char *next = strchr(dot + 1, '=');
         assert(next);
-        double value = atof(next + 1);
+        FloatT value = atof(next + 1);
         if (!strncmp(dot + 1, "fx", 2)) {
           collower_[iColumn] = value;
           colupper_[iColumn] = value;
@@ -3366,7 +3366,7 @@ int CoinMpsIO::readGms(int & /*numberSets*/, CoinSet **& /*sets*/)
         // bound
         next = strchr(dot + 1, '=');
         assert(next);
-        double value = atof(next + 1);
+        FloatT value = atof(next + 1);
         if (!strncmp(dot + 1, "fx", 2)) {
           collower_[iColumn] = value;
           abort();
@@ -3400,7 +3400,7 @@ int CoinMpsIO::readGms(int & /*numberSets*/, CoinSet **& /*sets*/)
     }
     numberHash_[1]--;
     numberColumns_--;
-    double multiplier = minimize ? 1.0 : -1.0;
+    FloatT multiplier = minimize ? 1.0 : -1.0;
     // but swap
     multiplier *= -1.0;
     int iRow;
@@ -3527,7 +3527,7 @@ int CoinMpsIO::readGms(int & /*numberSets*/, CoinSet **& /*sets*/)
    Use "stdin" or "-" to read from stdin.
 */
 int CoinMpsIO::readBasis(const char *filename, const char *extension,
-  double *solution, unsigned char *rowStatus, unsigned char *columnStatus,
+  FloatT *solution, unsigned char *rowStatus, unsigned char *columnStatus,
   const std::vector< std::string > &colnames, int numberColumns,
   const std::vector< std::string > &rownames, int numberRows)
 {
@@ -3610,7 +3610,7 @@ int CoinMpsIO::readBasis(const char *filename, const char *extension,
         iColumn = -1;
     }
     if (iColumn >= 0) {
-      double value = cardReader_->value();
+      FloatT value = cardReader_->value();
       if (solution && value > -1.0e50)
         solution[iColumn] = value;
       int iRow = -1;
@@ -3726,7 +3726,7 @@ convertRowName(int formatType, const char *name, char outputRow[100])
    3 - IEEE hex - not INTEL
 */
 static void
-convertDouble(int section, int formatType, double value, char outputValue[24],
+convertDouble(int section, int formatType, FloatT value, char outputValue[24],
   const char *name, char outputRow[100])
 {
   convertRowName(formatType, name, outputRow);
@@ -3739,7 +3739,7 @@ convertDouble(int section, int formatType, double value, char outputValue[24],
    2 - IEEE hex - INTEL
    3 - IEEE hex - not INTEL
 */
-void CoinConvertDouble(int section, int formatType, double value, char outputValue[24])
+void CoinConvertDouble(int section, int formatType, FloatT value, char outputValue[24])
 {
   if (formatType == 0) {
     bool stripZeros = true;
@@ -3860,10 +3860,10 @@ void CoinConvertDouble(int section, int formatType, double value, char outputVal
   } else {
     // IEEE
     // ieee - 3 bytes go to 2
-    assert(sizeof(double) == 8 * sizeof(char));
+    assert(sizeof(FloatT) == 8 * sizeof(char));
     assert(sizeof(unsigned short) == 2 * sizeof(char));
     unsigned short shortValue[4];
-    memcpy(shortValue, &value, sizeof(double));
+    memcpy(shortValue, &value, sizeof(FloatT));
     outputValue[12] = '\0';
     if (formatType == 2) {
       // INTEL
@@ -4150,7 +4150,7 @@ int CoinMpsIO::writeMps(const char *filename, int compression,
   // See if INTEL if IEEE
   if ((formatType & 7) == 2) {
     // test intel here and add 1 if not intel
-    double value = 1.0;
+    FloatT value = 1.0;
     char x[8];
     memcpy(x, &value, 8);
     if (x[0] == 63) {
@@ -4171,8 +4171,8 @@ int CoinMpsIO::writeMps(const char *filename, int compression,
   // But massage if looks odd
   char *sense = new char[numberRows_];
   memcpy(sense, getRowSense(), numberRows_);
-  const double *rowLower = getRowLower();
-  const double *rowUpper = getRowUpper();
+  const FloatT *rowLower = getRowLower();
+  const FloatT *rowUpper = getRowUpper();
 
   for (i = 0; i < numberRows_; i++) {
     line = " ";
@@ -4201,14 +4201,14 @@ int CoinMpsIO::writeMps(const char *filename, int compression,
   writeString(output, "COLUMNS\n");
 
   bool ifBounds = false;
-  double largeValue = infinity_;
+  FloatT largeValue = infinity_;
   largeValue = 1.0e30; // safer
 
-  const double *columnLower = getColLower();
-  const double *columnUpper = getColUpper();
-  const double *objective = getObjCoefficients();
+  const FloatT *columnLower = getColLower();
+  const FloatT *columnUpper = getColUpper();
+  const FloatT *objective = getObjCoefficients();
   const CoinPackedMatrix *matrix = getMatrixByCol();
-  const double *elements = matrix->getElements();
+  const FloatT *elements = matrix->getElements();
   const int *rows = matrix->getIndices();
   const CoinBigIndex *starts = matrix->getVectorStarts();
   const int *lengths = matrix->getVectorLengths();
@@ -4228,7 +4228,7 @@ int CoinMpsIO::writeMps(const char *filename, int compression,
   }
   // Arrays so we can put out rows in order
   int *tempRow = new int[numberRows_];
-  double *tempValue = new double[numberRows_];
+  FloatT *tempValue = new FloatT[numberRows_];
 
   // Through columns (only put out if elements or objective value)
   for (i = 0; i < numberColumns_; i++) {
@@ -4280,7 +4280,7 @@ int CoinMpsIO::writeMps(const char *filename, int compression,
       CoinSort_2(tempRow, tempRow + numberEntries, tempValue);
       for (j = 0; j < numberEntries; j++) {
         int jRow = tempRow[j];
-        double value = tempValue[j];
+        FloatT value = tempValue[j];
         if (value && !stringRow[jRow]) {
           convertDouble(0, formatType, value,
             outputValue[numberFields],
@@ -4312,7 +4312,7 @@ int CoinMpsIO::writeMps(const char *filename, int compression,
       int iColumn = nextColumnString;
       int iRow = nextRowString;
       while (iColumn == nextColumnString) {
-        double value = 1.0;
+        FloatT value = 1.0;
         convertDouble(0, formatType, value,
           outputValue[0],
           rowNames[nextRowString],
@@ -4356,7 +4356,7 @@ int CoinMpsIO::writeMps(const char *filename, int compression,
     }
   }
   for (i = 0; i < numberRows_; i++) {
-    double value;
+    FloatT value;
     switch (sense[i]) {
     case 'E':
       value = rowLower[i];
@@ -4412,7 +4412,7 @@ int CoinMpsIO::writeMps(const char *filename, int compression,
     numberFields = 0;
     for (i = 0; i < numberRows_; i++) {
       if (sense[i] == 'R') {
-        double value = rowUpper[i] - rowLower[i];
+        FloatT value = rowUpper[i] - rowLower[i];
         if (value < 1.0e30) {
           convertDouble(1, formatType, value,
             outputValue[numberFields],
@@ -4510,8 +4510,8 @@ int CoinMpsIO::writeMps(const char *filename, int compression,
       if (objective[i] || lengths[i]) {
         // see if bound will be needed
         if (columnLower[i] || columnUpper[i] < largeValue || isInteger(i)) {
-          double lowerValue = columnLower[i];
-          double upperValue = columnUpper[i];
+          FloatT lowerValue = columnLower[i];
+          FloatT upperValue = columnUpper[i];
           if (isInteger(i)) {
             // Old argument - what are correct ranges for integer variables
             lowerValue = CoinMax(lowerValue, -MAX_INTEGER);
@@ -4519,7 +4519,7 @@ int CoinMpsIO::writeMps(const char *filename, int compression,
           }
           int numberFields = 1;
           std::string header[2];
-          double value[2];
+          FloatT value[2];
           if (lowerValue <= -largeValue) {
             // FR or MI
             if (upperValue >= largeValue && !isInteger(i)) {
@@ -4621,13 +4621,13 @@ int CoinMpsIO::writeMps(const char *filename, int compression,
     const int *columnQuadratic = quadratic->getIndices();
     const CoinBigIndex *columnQuadraticStart = quadratic->getVectorStarts();
     const int *columnQuadraticLength = quadratic->getVectorLengths();
-    const double *quadraticElement = quadratic->getElements();
+    const FloatT *quadraticElement = quadratic->getElements();
     for (int iColumn = 0; iColumn < numberColumns_; iColumn++) {
       int numberFields = 0;
       for (CoinBigIndex j = columnQuadraticStart[iColumn];
            j < columnQuadraticStart[iColumn] + columnQuadraticLength[iColumn]; j++) {
         int jColumn = columnQuadratic[j];
-        double elementValue = quadraticElement[j];
+        FloatT elementValue = quadraticElement[j];
         convertDouble(0, formatType, elementValue,
           outputValue[numberFields],
           columnNames[jColumn],
@@ -4661,7 +4661,7 @@ int CoinMpsIO::writeMps(const char *filename, int compression,
       writeString(output, (type == 1) ? " S1\n" : " S2\n");
       int n = setInfo[i].numberEntries();
       const int *which = setInfo[i].which();
-      const double *weights = setInfo[i].weights();
+      const FloatT *weights = setInfo[i].weights();
 
       for (int j = 0; j < n; j++) {
         int k = which[j];
@@ -4735,11 +4735,11 @@ CoinBigIndex CoinMpsIO::getNumElements() const
 //------------------------------------------------------------------
 // Get pointer to column lower and upper bounds.
 //------------------------------------------------------------------
-const double *CoinMpsIO::getColLower() const
+const FloatT *CoinMpsIO::getColLower() const
 {
   return collower_;
 }
-const double *CoinMpsIO::getColUpper() const
+const FloatT *CoinMpsIO::getColUpper() const
 {
   return colupper_;
 }
@@ -4747,11 +4747,11 @@ const double *CoinMpsIO::getColUpper() const
 //------------------------------------------------------------------
 // Get pointer to row lower and upper bounds.
 //------------------------------------------------------------------
-const double *CoinMpsIO::getRowLower() const
+const FloatT *CoinMpsIO::getRowLower() const
 {
   return rowlower_;
 }
-const double *CoinMpsIO::getRowUpper() const
+const FloatT *CoinMpsIO::getRowUpper() const
 {
   return rowupper_;
 }
@@ -4759,9 +4759,9 @@ const double *CoinMpsIO::getRowUpper() const
 /** A quick inlined function to convert from lb/ub style constraint
     definition to sense/rhs/range style */
 inline void
-CoinMpsIO::convertBoundToSense(const double lower, const double upper,
-  char &sense, double &right,
-  double &range) const
+CoinMpsIO::convertBoundToSense(const FloatT lower, const FloatT upper,
+  char &sense, FloatT &right,
+  FloatT &range) const
 {
   range = 0.0;
   if (lower > -infinity_) {
@@ -4792,9 +4792,9 @@ CoinMpsIO::convertBoundToSense(const double lower, const double upper,
 /** A quick inlined function to convert from sense/rhs/range stryle constraint
     definition to lb/ub style */
 inline void
-CoinMpsIO::convertSenseToBound(const char sense, const double right,
-  const double range,
-  double &lower, double &upper) const
+CoinMpsIO::convertSenseToBound(const char sense, const FloatT right,
+  const FloatT range,
+  FloatT &lower, FloatT &upper) const
 {
   switch (sense) {
   case 'E':
@@ -4828,7 +4828,7 @@ const char *CoinMpsIO::getRowSense() const
     int nr = numberRows_;
     rowsense_ = reinterpret_cast< char * >(malloc(nr * sizeof(char)));
 
-    double dum1, dum2;
+    FloatT dum1, dum2;
     int i;
     for (i = 0; i < nr; i++) {
       convertBoundToSense(rowlower_[i], rowupper_[i], rowsense_[i], dum1, dum2);
@@ -4840,15 +4840,15 @@ const char *CoinMpsIO::getRowSense() const
 //------------------------------------------------------------------
 // Get the rhs of rows.
 //------------------------------------------------------------------
-const double *CoinMpsIO::getRightHandSide() const
+const FloatT *CoinMpsIO::getRightHandSide() const
 {
   if (rhs_ == NULL) {
 
     int nr = numberRows_;
-    rhs_ = reinterpret_cast< double * >(malloc(nr * sizeof(double)));
+    rhs_ = reinterpret_cast< FloatT * >(malloc(nr * sizeof(FloatT)));
 
     char dum1;
-    double dum2;
+    FloatT dum2;
     int i;
     for (i = 0; i < nr; i++) {
       convertBoundToSense(rowlower_[i], rowupper_[i], dum1, rhs_[i], dum2);
@@ -4861,16 +4861,16 @@ const double *CoinMpsIO::getRightHandSide() const
 // Get the range of rows.
 // Length of returned vector is getNumRows();
 //------------------------------------------------------------------
-const double *CoinMpsIO::getRowRange() const
+const FloatT *CoinMpsIO::getRowRange() const
 {
   if (rowrange_ == NULL) {
 
     int nr = numberRows_;
-    rowrange_ = reinterpret_cast< double * >(malloc(nr * sizeof(double)));
+    rowrange_ = reinterpret_cast< FloatT * >(malloc(nr * sizeof(FloatT)));
     std::fill(rowrange_, rowrange_ + nr, 0.0);
 
     char dum1;
-    double dum2;
+    FloatT dum2;
     int i;
     for (i = 0; i < nr; i++) {
       convertBoundToSense(rowlower_[i], rowupper_[i], dum1, dum2, rowrange_[i]);
@@ -4879,7 +4879,7 @@ const double *CoinMpsIO::getRowRange() const
   return rowrange_;
 }
 
-const double *CoinMpsIO::getObjCoefficients() const
+const FloatT *CoinMpsIO::getObjCoefficients() const
 {
   return objective_;
 }
@@ -4908,10 +4908,10 @@ const CoinPackedMatrix *CoinMpsIO::getMatrixByCol() const
 // Save the data ...
 //------------------------------------------------------------------
 void CoinMpsIO::setMpsDataWithoutRowAndColNames(
-  const CoinPackedMatrix &m, const double infinity,
-  const double *collb, const double *colub,
-  const double *obj, const char *integrality,
-  const double *rowlb, const double *rowub)
+  const CoinPackedMatrix &m, const FloatT infinity,
+  const FloatT *collb, const FloatT *colub,
+  const FloatT *obj, const char *integrality,
+  const FloatT *rowlb, const FloatT *rowub)
 {
   freeAll();
   if (m.isColOrdered()) {
@@ -4927,11 +4927,11 @@ void CoinMpsIO::setMpsDataWithoutRowAndColNames(
   infinity_ = infinity;
   objectiveOffset_ = 0;
 
-  rowlower_ = reinterpret_cast< double * >(malloc(numberRows_ * sizeof(double)));
-  rowupper_ = reinterpret_cast< double * >(malloc(numberRows_ * sizeof(double)));
-  collower_ = reinterpret_cast< double * >(malloc(numberColumns_ * sizeof(double)));
-  colupper_ = reinterpret_cast< double * >(malloc(numberColumns_ * sizeof(double)));
-  objective_ = reinterpret_cast< double * >(malloc(numberColumns_ * sizeof(double)));
+  rowlower_ = reinterpret_cast< FloatT * >(malloc(numberRows_ * sizeof(FloatT)));
+  rowupper_ = reinterpret_cast< FloatT * >(malloc(numberRows_ * sizeof(FloatT)));
+  collower_ = reinterpret_cast< FloatT * >(malloc(numberColumns_ * sizeof(FloatT)));
+  colupper_ = reinterpret_cast< FloatT * >(malloc(numberColumns_ * sizeof(FloatT)));
+  objective_ = reinterpret_cast< FloatT * >(malloc(numberColumns_ * sizeof(FloatT)));
   std::copy(rowlb, rowlb + numberRows_, rowlower_);
   std::copy(rowub, rowub + numberRows_, rowupper_);
   std::copy(collb, collb + numberColumns_, collower_);
@@ -5018,7 +5018,7 @@ void CoinMpsIO::setMpsDataColAndRowNames(
     }
   }
 #else
-  const double *objective = getObjCoefficients();
+  const FloatT *objective = getObjCoefficients();
   const CoinPackedMatrix *matrix = getMatrixByCol();
   const int *lengths = matrix->getVectorLengths();
   int k = 0;
@@ -5077,10 +5077,10 @@ void CoinMpsIO::setMpsDataColAndRowNames(
   }
 }
 
-void CoinMpsIO::setMpsData(const CoinPackedMatrix &m, const double infinity,
-  const double *collb, const double *colub,
-  const double *obj, const char *integrality,
-  const double *rowlb, const double *rowub,
+void CoinMpsIO::setMpsData(const CoinPackedMatrix &m, const FloatT infinity,
+  const FloatT *collb, const FloatT *colub,
+  const FloatT *obj, const char *integrality,
+  const FloatT *rowlb, const FloatT *rowub,
   char const *const *const colnames,
   char const *const *const rownames)
 {
@@ -5088,10 +5088,10 @@ void CoinMpsIO::setMpsData(const CoinPackedMatrix &m, const double infinity,
   setMpsDataColAndRowNames(colnames, rownames);
 }
 
-void CoinMpsIO::setMpsData(const CoinPackedMatrix &m, const double infinity,
-  const double *collb, const double *colub,
-  const double *obj, const char *integrality,
-  const double *rowlb, const double *rowub,
+void CoinMpsIO::setMpsData(const CoinPackedMatrix &m, const FloatT infinity,
+  const FloatT *collb, const FloatT *colub,
+  const FloatT *obj, const char *integrality,
+  const FloatT *rowlb, const FloatT *rowub,
   const std::vector< std::string > &colnames,
   const std::vector< std::string > &rownames)
 {
@@ -5099,18 +5099,18 @@ void CoinMpsIO::setMpsData(const CoinPackedMatrix &m, const double infinity,
   setMpsDataColAndRowNames(colnames, rownames);
 }
 
-void CoinMpsIO::setMpsData(const CoinPackedMatrix &m, const double infinity,
-  const double *collb, const double *colub,
-  const double *obj, const char *integrality,
-  const char *rowsen, const double *rowrhs,
-  const double *rowrng,
+void CoinMpsIO::setMpsData(const CoinPackedMatrix &m, const FloatT infinity,
+  const FloatT *collb, const FloatT *colub,
+  const FloatT *obj, const char *integrality,
+  const char *rowsen, const FloatT *rowrhs,
+  const FloatT *rowrng,
   char const *const *const colnames,
   char const *const *const rownames)
 {
   const int numrows = m.getNumRows();
 
-  double *rlb = numrows ? new double[numrows] : 0;
-  double *rub = numrows ? new double[numrows] : 0;
+  FloatT *rlb = numrows ? new FloatT[numrows] : 0;
+  FloatT *rub = numrows ? new FloatT[numrows] : 0;
 
   for (int i = 0; i < numrows; ++i) {
     convertSenseToBound(rowsen[i], rowrhs[i], rowrng[i], rlb[i], rub[i]);
@@ -5121,18 +5121,18 @@ void CoinMpsIO::setMpsData(const CoinPackedMatrix &m, const double infinity,
   delete[] rub;
 }
 
-void CoinMpsIO::setMpsData(const CoinPackedMatrix &m, const double infinity,
-  const double *collb, const double *colub,
-  const double *obj, const char *integrality,
-  const char *rowsen, const double *rowrhs,
-  const double *rowrng,
+void CoinMpsIO::setMpsData(const CoinPackedMatrix &m, const FloatT infinity,
+  const FloatT *collb, const FloatT *colub,
+  const FloatT *obj, const char *integrality,
+  const char *rowsen, const FloatT *rowrhs,
+  const FloatT *rowrng,
   const std::vector< std::string > &colnames,
   const std::vector< std::string > &rownames)
 {
   const int numrows = m.getNumRows();
 
-  double *rlb = numrows ? new double[numrows] : 0;
-  double *rub = numrows ? new double[numrows] : 0;
+  FloatT *rlb = numrows ? new FloatT[numrows] : 0;
+  FloatT *rub = numrows ? new FloatT[numrows] : 0;
 
   for (int i = 0; i < numrows; ++i) {
     convertSenseToBound(rowsen[i], rowrhs[i], rowrng[i], rlb[i], rub[i]);
@@ -5421,18 +5421,18 @@ void CoinMpsIO::gutsOfCopy(const CoinMpsIO &rhs)
   numberColumns_ = rhs.numberColumns_;
   convertObjective_ = rhs.convertObjective_;
   if (rhs.rowlower_) {
-    rowlower_ = reinterpret_cast< double * >(malloc(numberRows_ * sizeof(double)));
-    rowupper_ = reinterpret_cast< double * >(malloc(numberRows_ * sizeof(double)));
-    memcpy(rowlower_, rhs.rowlower_, numberRows_ * sizeof(double));
-    memcpy(rowupper_, rhs.rowupper_, numberRows_ * sizeof(double));
+    rowlower_ = reinterpret_cast< FloatT * >(malloc(numberRows_ * sizeof(FloatT)));
+    rowupper_ = reinterpret_cast< FloatT * >(malloc(numberRows_ * sizeof(FloatT)));
+    memcpy(rowlower_, rhs.rowlower_, numberRows_ * sizeof(FloatT));
+    memcpy(rowupper_, rhs.rowupper_, numberRows_ * sizeof(FloatT));
   }
   if (rhs.collower_) {
-    collower_ = reinterpret_cast< double * >(malloc(numberColumns_ * sizeof(double)));
-    colupper_ = reinterpret_cast< double * >(malloc(numberColumns_ * sizeof(double)));
-    objective_ = reinterpret_cast< double * >(malloc(numberColumns_ * sizeof(double)));
-    memcpy(collower_, rhs.collower_, numberColumns_ * sizeof(double));
-    memcpy(colupper_, rhs.colupper_, numberColumns_ * sizeof(double));
-    memcpy(objective_, rhs.objective_, numberColumns_ * sizeof(double));
+    collower_ = reinterpret_cast< FloatT * >(malloc(numberColumns_ * sizeof(FloatT)));
+    colupper_ = reinterpret_cast< FloatT * >(malloc(numberColumns_ * sizeof(FloatT)));
+    objective_ = reinterpret_cast< FloatT * >(malloc(numberColumns_ * sizeof(FloatT)));
+    memcpy(collower_, rhs.collower_, numberColumns_ * sizeof(FloatT));
+    memcpy(colupper_, rhs.colupper_, numberColumns_ * sizeof(FloatT));
+    memcpy(objective_, rhs.objective_, numberColumns_ * sizeof(FloatT));
   }
   if (rhs.integerType_) {
     integerType_ = reinterpret_cast< char * >(malloc(numberColumns_ * sizeof(char)));
@@ -5600,7 +5600,7 @@ void CoinMpsIO::newLanguage(CoinMessages::Language language)
    Returns number of errors
 */
 int CoinMpsIO::readQuadraticMps(const char *filename,
-  CoinBigIndex *&columnStart, int *&column2, double *&elements,
+  CoinBigIndex *&columnStart, int *&column2, FloatT *&elements,
   int checkSymmetry)
 {
   // Deal with filename - +1 if new, 0 if same as before, -1 if error
@@ -5647,7 +5647,7 @@ int CoinMpsIO::readQuadraticMps(const char *filename,
   // Use malloc so can use realloc
   int *column = reinterpret_cast< int * >(malloc(maximumNonZeros * sizeof(int)));
   int *column2Temp = reinterpret_cast< int * >(malloc(maximumNonZeros * sizeof(int)));
-  double *elementTemp = reinterpret_cast< double * >(malloc(maximumNonZeros * sizeof(double)));
+  FloatT *elementTemp = reinterpret_cast< FloatT * >(malloc(maximumNonZeros * sizeof(FloatT)));
 
   startHash(1);
   int numberElements = 0;
@@ -5660,7 +5660,7 @@ int CoinMpsIO::readQuadraticMps(const char *filename,
           maximumNonZeros = (3 * maximumNonZeros) / 2 + 1000;
           column = reinterpret_cast< COINColumnIndex * >(realloc(column, maximumNonZeros * sizeof(COINColumnIndex)));
           column2Temp = reinterpret_cast< COINColumnIndex * >(realloc(column2Temp, maximumNonZeros * sizeof(COINColumnIndex)));
-          elementTemp = reinterpret_cast< double * >(realloc(elementTemp, maximumNonZeros * sizeof(double)));
+          elementTemp = reinterpret_cast< FloatT * >(realloc(elementTemp, maximumNonZeros * sizeof(FloatT)));
         }
         // get indices
         COINColumnIndex iColumn1 = findHash(cardReader_->columnName(), 1);
@@ -5668,7 +5668,7 @@ int CoinMpsIO::readQuadraticMps(const char *filename,
 
         if (iColumn1 >= 0) {
           if (iColumn2 >= 0) {
-            double value = cardReader_->value();
+            FloatT value = cardReader_->value();
             column[numberElements] = iColumn1;
             column2Temp[numberElements] = iColumn2;
             elementTemp[numberElements++] = value;
@@ -5763,7 +5763,7 @@ int CoinMpsIO::readQuadraticMps(const char *filename,
     columnStart[i + 1] = number;
   }
   column2 = new int[numberElements];
-  elements = new double[numberElements];
+  elements = new FloatT[numberElements];
 
   // Get column ordering
   for (i = 0; i < numberElements; i++) {
@@ -5793,7 +5793,7 @@ int CoinMpsIO::readQuadraticMps(const char *filename,
       } else {
         // duplicate
         CoinBigIndex iOther = count[iColumn2];
-        double value = elements[iOther] + elements[j];
+        FloatT value = elements[iOther] + elements[j];
         elements[iOther] = value;
         elements[j] = 0.0;
       }
@@ -5801,7 +5801,7 @@ int CoinMpsIO::readQuadraticMps(const char *filename,
     for (j = start; j < columnStart[i + 1]; j++) {
       int iColumn2 = column2[j];
       count[iColumn2] = -1;
-      double value = elements[j];
+      FloatT value = elements[j];
       if (value) {
         column2[number] = iColumn2;
         elements[number++] = value;
@@ -6133,13 +6133,13 @@ CoinSet::~CoinSet()
   delete[] weights_;
 }
 // Constructor
-CoinSosSet::CoinSosSet(int numberEntries, const int *which, const double *weights, int type)
+CoinSosSet::CoinSosSet(int numberEntries, const int *which, const FloatT *weights, int type)
   : CoinSet(numberEntries, which)
 {
-  weights_ = new double[numberEntries_];
-  memcpy(weights_, weights, numberEntries_ * sizeof(double));
+  weights_ = new FloatT[numberEntries_];
+  memcpy(weights_, weights, numberEntries_ * sizeof(FloatT));
   setType_ = type;
-  double last = weights_[0];
+  FloatT last = weights_[0];
   int i;
   bool allSame = true;
   for (i = 1; i < numberEntries_; i++) {

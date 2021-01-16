@@ -295,7 +295,7 @@ int CoinFactorization::factorize(
   const CoinPackedMatrix &matrix,
   int rowIsBasic[],
   int columnIsBasic[],
-  double areaFactor)
+  FloatT areaFactor)
 {
   // maybe for speed will be better to leave as many regions as possible
   gutsOfDestructor();
@@ -308,7 +308,7 @@ int CoinFactorization::factorize(
   const int *row = matrix.getIndices();
   const CoinBigIndex *columnStart = matrix.getVectorStarts();
   const int *columnLength = matrix.getVectorLengths();
-  const double *element = matrix.getElements();
+  const FloatT *element = matrix.getElements();
   int numberRows = matrix.getNumRows();
   if (!numberRows)
     return 0;
@@ -424,9 +424,9 @@ int CoinFactorization::factorize(
   int maximumU,
   const int indicesRow[],
   const int indicesColumn[],
-  const double elements[],
+  const FloatT elements[],
   int permutation[],
-  double areaFactor)
+  FloatT areaFactor)
 {
   gutsOfDestructor();
   gutsOfInitialize(2);
@@ -483,7 +483,7 @@ int CoinFactorization::factorizePart1(int numberOfRows,
   int *indicesRow[],
   int *indicesColumn[],
   CoinFactorizationDouble *elements[],
-  double areaFactor)
+  FloatT areaFactor)
 {
   // maybe for speed will be better to leave as many regions as possible
   gutsOfDestructor();
@@ -820,7 +820,7 @@ void CoinFactorization::preProcess(int state,
           int largest = first;
           int iRowSave = indexRow[first];
           CoinFactorizationDouble valueSave = element[first];
-          double valueLargest = fabs(valueSave);
+          FloatT valueLargest = fabs(valueSave);
           int iLook = numberInRow[iRowSave];
 
           numberInRow[iRowSave] = iLook + 1;
@@ -832,7 +832,7 @@ void CoinFactorization::preProcess(int state,
             numberInRow[iRow] = iLook + 1;
             indexColumn[startRow[iRow] + iLook] = iColumn;
             CoinFactorizationDouble value = element[k];
-            double valueAbs = fabs(value);
+            FloatT valueAbs = fabs(value);
 
             if (valueAbs > valueLargest) {
               valueLargest = valueAbs;
@@ -908,7 +908,7 @@ void CoinFactorization::preProcess(int state,
         int first = startColumn[iColumn];
         int largest = -1;
 
-        double valueLargest = -1.0;
+        FloatT valueLargest = -1.0;
         int nOther = 0;
         k = first;
         int end = first + number;
@@ -918,7 +918,7 @@ void CoinFactorization::preProcess(int state,
           CoinFactorizationDouble value = element[k];
           if (numberInRow[iRow] >= 0) {
             numberInRow[iRow]++;
-            double valueAbs = fabs(value);
+            FloatT valueAbs = fabs(value);
             if (valueAbs > valueLargest) {
               valueLargest = valueAbs;
               largest = nOther;
@@ -1007,24 +1007,24 @@ void CoinFactorization::preProcess(int state,
   } /* endswitch */
 }
 #ifdef CLP_FACTORIZATION_INSTRUMENT
-double externalTimeStart = 0.0;
-double timeInFactorize = 0.0;
-double timeInUpdate = 0.0;
-double timeInFactorizeFake = 0.0;
-double timeInUpdateFake1 = 0.0;
-double timeInUpdateFake2 = 0.0;
-double timeInUpdateTranspose = 0.0;
-double timeInUpdateFT = 0.0;
-double timeInUpdateTwoFT = 0.0;
-double timeInReplace = 0.0;
-double averageLengthR = 0.0;
-double averageLengthL = 0.0;
-double averageLengthU = 0.0;
-double scaledLengthDense = 0.0;
-double scaledLengthDenseSquared = 0.0;
-double scaledLengthL = 0.0;
-double scaledLengthR = 0.0;
-double scaledLengthU = 0.0;
+FloatT externalTimeStart = 0.0;
+FloatT timeInFactorize = 0.0;
+FloatT timeInUpdate = 0.0;
+FloatT timeInFactorizeFake = 0.0;
+FloatT timeInUpdateFake1 = 0.0;
+FloatT timeInUpdateFake2 = 0.0;
+FloatT timeInUpdateTranspose = 0.0;
+FloatT timeInUpdateFT = 0.0;
+FloatT timeInUpdateTwoFT = 0.0;
+FloatT timeInReplace = 0.0;
+FloatT averageLengthR = 0.0;
+FloatT averageLengthL = 0.0;
+FloatT averageLengthU = 0.0;
+FloatT scaledLengthDense = 0.0;
+FloatT scaledLengthDenseSquared = 0.0;
+FloatT scaledLengthL = 0.0;
+FloatT scaledLengthR = 0.0;
+FloatT scaledLengthU = 0.0;
 int numberUpdate = 1;
 int numberUpdateTranspose = 0;
 int numberUpdateFT = 0;
@@ -1044,9 +1044,9 @@ int CoinFactorization::factor()
 {
 #ifdef CLP_FACTORIZATION_INSTRUMENT
   int nUse = numberUpdate + numberUpdateTranspose + numberUpdateFT + 2 * numberUpdateTwoFT + numberReplace;
-  double dUse = timeInUpdate + timeInUpdateTranspose + timeInUpdateFT + timeInUpdateTwoFT + timeInReplace;
+  FloatT dUse = timeInUpdate + timeInUpdateTranspose + timeInUpdateFT + timeInUpdateTwoFT + timeInReplace;
   printf("%.18g time in factorization, using %.18g (%d) -average %.18g\n",
-    timeInFactorize, dUse, nUse, dUse / static_cast< double >(nUse));
+    timeInFactorize, dUse, nUse, dUse / static_cast< FloatT >(nUse));
   //collectStatistics_=true;
   int *startColumnU = startColumnU_.array();
   int numberSlacksX = 0;
@@ -1070,7 +1070,7 @@ int CoinFactorization::factor()
     btranAverageAfterR_, btranAverageAfterL_);
   printf("lengthRend %d lengthUend %d takeoutU %d\n",
     currentLengthR, currentLengthU, currentTakeoutU);
-  double timeStart = externalTimeStart;
+  FloatT timeStart = externalTimeStart;
   timeInFactorize = 0.0;
   timeInUpdate = 0.0;
   timeInUpdateTranspose = 0.0;
@@ -1380,14 +1380,14 @@ bool CoinFactorization::pivotColumnSingleton(int pivotRow,
           //find new largest element
           int iRowSave = indexRowU[start + 1];
           CoinFactorizationDouble valueSave = elementU[start + 1];
-          double valueLargest = fabs(valueSave);
+          FloatT valueLargest = fabs(valueSave);
           int end = start + numberInColumn[iColumn];
           int largest = start + 1;
 
           int k;
           for (k = start + 2; k < end; k++) {
             CoinFactorizationDouble value = elementU[k];
-            double valueAbs = fabs(value);
+            FloatT valueAbs = fabs(value);
 
             if (valueAbs > valueLargest) {
               valueLargest = valueAbs;
@@ -2052,7 +2052,7 @@ void CoinFactorization::cleanup()
     needed = 2 * numberRows_;
   }
   if (numberInColumnPlus_.array()) {
-    // Need double the space for R
+    // Need FloatT the space for R
     space = space / 2;
     startColumnR_.conditionalNew(maximumPivots_ + 1 + maximumColumnsExtra_ + 1);
     int *startR = startColumnR_.array() + maximumPivots_ + 1;
@@ -2085,14 +2085,14 @@ void CoinFactorization::cleanup()
   numberR_ = 0;
 }
 // Returns areaFactor but adjusted for dense
-double
+FloatT
 CoinFactorization::adjustedAreaFactor() const
 {
-  double factor = areaFactor_;
+  FloatT factor = areaFactor_;
   if (numberDense_ && areaFactor_ > 1.0) {
-    double dense = numberDense_;
+    FloatT dense = numberDense_;
     dense *= dense;
-    double withoutDense = totalElements_ - dense + 1.0;
+    FloatT withoutDense = totalElements_ - dense + 1.0;
     factor *= 1.0 + dense / withoutDense;
   }
   return factor;
@@ -2263,7 +2263,7 @@ bool CoinFactorization::pivotOneOtherRow(int pivotRow,
       int endColumn = startColumn + numberInColumn[iColumn];
       int iRow = indexRowU[startColumn];
       CoinFactorizationDouble value = elementU[startColumn];
-      double largest;
+      FloatT largest;
       bool foundOther = false;
 
       //leave room for pivot
@@ -2334,7 +2334,7 @@ bool CoinFactorization::pivotOneOtherRow(int pivotRow,
               indexRowU[put] = iRow;
               elementU[put] = value;
               ;
-              double absValue = fabs(value);
+              FloatT absValue = fabs(value);
 
               if (absValue > largest) {
                 largest = absValue;
@@ -2368,7 +2368,7 @@ bool CoinFactorization::pivotOneOtherRow(int pivotRow,
             indexRowU[put] = iRow;
             elementU[put] = value;
             ;
-            double absValue = fabs(value);
+            FloatT absValue = fabs(value);
 
             if (absValue > largest) {
               largest = absValue;
@@ -2390,7 +2390,7 @@ bool CoinFactorization::pivotOneOtherRow(int pivotRow,
       numberInColumnPlus[iColumn]++;
       startColumnU[iColumn]++;
       otherElement = otherElement - thisPivotValue * otherMultiplier;
-      double absValue = fabs(otherElement);
+      FloatT absValue = fabs(otherElement);
 
       if (absValue > zeroTolerance_) {
         if (!foundOther) {

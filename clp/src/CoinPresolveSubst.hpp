@@ -41,17 +41,17 @@ private:
   subst_constraint_action &operator=(const subst_constraint_action &rhs);
 
   struct action {
-    double *rlos;
-    double *rups;
+    FloatT *rlos;
+    FloatT *rups;
 
-    double *coeffxs;
+    FloatT *coeffxs;
     int *rows;
 
     int *ninrowxs;
     int *rowcolsxs;
-    double *rowelsxs;
+    FloatT *rowelsxs;
 
-    const double *costsx;
+    const FloatT *costsx;
     int col;
     int rowy;
 
@@ -89,14 +89,14 @@ public:
   virtual ~subst_constraint_action();
 };
 
-/*static*/ void implied_bounds(const double *els,
-  const double *clo, const double *cup,
+/*static*/ void implied_bounds(const FloatT *els,
+  const FloatT *clo, const FloatT *cup,
   const int *hcol,
   CoinBigIndex krs, CoinBigIndex kre,
-  double *maxupp, double *maxdownp,
+  FloatT *maxupp, FloatT *maxdownp,
   int jcol,
-  double rlo, double rup,
-  double *iclb, double *icub);
+  FloatT rlo, FloatT rup,
+  FloatT *iclb, FloatT *icub);
 #endif
 
 /* vi: softtabstop=2 shiftwidth=2 expandtab tabstop=2

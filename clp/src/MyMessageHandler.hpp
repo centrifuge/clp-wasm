@@ -22,7 +22,7 @@
 */
 class ClpSimplex;
 
-typedef std::vector< double > StdVectorDouble;
+typedef std::vector< FloatT > StdVectorDouble;
 
 class MyMessageHandler : public CoinMessageHandler {
 

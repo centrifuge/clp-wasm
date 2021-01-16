@@ -124,8 +124,8 @@ public:
          status and number of iterations
      */
   int strongBranching(int numberVariables, const int *variables,
-    double *newLower, double *newUpper,
-    double **outputSolution,
+    FloatT *newLower, FloatT *newUpper,
+    FloatT **outputSolution,
     int *outputStatus, int *outputIterations,
     bool stopOnFirstInfeasible = true,
     bool alwaysFinish = false,
@@ -152,7 +152,7 @@ public:
 
          If givenPi not NULL then in values pass
       */
-  int whileIterating(double *&givenPi, int ifValuesPass);
+  int whileIterating(FloatT *&givenPi, int ifValuesPass);
   /** The duals are updated by the given arrays.
          Returns number of infeasibilities.
          After rowArray and columnArray will just have those which
@@ -163,15 +163,15 @@ public:
   int updateDualsInDual(CoinIndexedVector *rowArray,
     CoinIndexedVector *columnArray,
     CoinIndexedVector *outputArray,
-    double theta,
-    double &objectiveChange,
+    FloatT theta,
+    FloatT &objectiveChange,
     bool fullRecompute);
   /** The duals are updated by the given arrays.
          This is in values pass - so no changes to primal is made
      */
   void updateDualsInValuesPass(CoinIndexedVector *rowArray,
     CoinIndexedVector *columnArray,
-    double theta);
+    FloatT theta);
   /** While updateDualsInDual sees what effect is of flip
          this does actual flipping.
      */
@@ -188,18 +188,18 @@ public:
          variables are being flipped.
          Returns best possible pivot value
      */
-  double dualColumn(CoinIndexedVector *rowArray,
+  FloatT dualColumn(CoinIndexedVector *rowArray,
     CoinIndexedVector *columnArray,
     CoinIndexedVector *spareArray,
     CoinIndexedVector *spareArray2,
-    double accpetablePivot,
+    FloatT accpetablePivot,
     CoinBigIndex *dubiousWeights);
   /// Does first bit of dualColumn
   int dualColumn0(const CoinIndexedVector *rowArray,
     const CoinIndexedVector *columnArray,
     CoinIndexedVector *spareArray,
-    double acceptablePivot,
-    double &upperReturn, double &badFree);
+    FloatT acceptablePivot,
+    FloatT &upperReturn, FloatT &badFree);
   /**
          Row array has row part of pivot row
          Column array has column part.
@@ -208,7 +208,7 @@ public:
      */
   void checkPossibleValuesMove(CoinIndexedVector *rowArray,
     CoinIndexedVector *columnArray,
-    double acceptablePivot);
+    FloatT acceptablePivot);
   /**
          Row array has row part of pivot row
          Column array has column part.
@@ -217,12 +217,12 @@ public:
      */
   void checkPossibleCleanup(CoinIndexedVector *rowArray,
     CoinIndexedVector *columnArray,
-    double acceptablePivot);
+    FloatT acceptablePivot);
   /**
          This sees if we can move duals in dual values pass.
          This is done before any pivoting
      */
-  void doEasyOnesInValuesPass(double *givenReducedCosts);
+  void doEasyOnesInValuesPass(FloatT *givenReducedCosts);
   /**
          Chooses dual pivot row
          Would be faster with separate region to scan
@@ -243,7 +243,7 @@ public:
          If 2 sets to original (just changed)
      */
   int changeBounds(int initialize, CoinIndexedVector *outputArray,
-    double &changeCost);
+    FloatT &changeCost);
   /// Just checks if any fake bounds active - if so returns number
   int checkFakeBounds() const;
   /** As changeBounds but just changes new bounds for a single variable.
@@ -254,7 +254,7 @@ public:
   /** Checks if tentative optimal actually means unbounded in dual
          Returns -3 if not, 2 if is unbounded */
   int checkUnbounded(CoinIndexedVector *ray, CoinIndexedVector *spare,
-    double changeCost);
+    FloatT changeCost);
   /**  Refactorizes if necessary
           Checks if finished.  Updates status.
           lastCleaned refers to iteration at which some objective/feasibility
@@ -265,7 +265,7 @@ public:
            - 2 restoring from saved
      */
   void statusOfProblemInDual(int &lastCleaned, int type,
-    double *givenDjs, ClpDataSave &saveData,
+    FloatT *givenDjs, ClpDataSave &saveData,
     int ifValuesPass);
   /** Perturbs problem (method depends on perturbation())
          returns nonzero if should go to dual */
@@ -289,9 +289,9 @@ public:
   int nextSuperBasic();
   /** Startup part of dual (may be extended to other algorithms)
          returns 0 if good, 1 if bad */
-  int startupSolve(int ifValuesPass, double *saveDuals, int startFinishOptions);
+  int startupSolve(int ifValuesPass, FloatT *saveDuals, int startFinishOptions);
   void finishSolve(int startFinishOptions);
-  void gutsOfDual(int ifValuesPass, double *&saveDuals, int initialStatus,
+  void gutsOfDual(int ifValuesPass, FloatT *&saveDuals, int initialStatus,
     ClpDataSave &saveData);
   //int dual2(int ifValuesPass,int startFinishOptions=0);
   void resetFakeBounds(int type);

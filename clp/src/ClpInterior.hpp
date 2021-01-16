@@ -25,38 +25,38 @@ class ClpLsqr;
 class ClpPdcoBase;
 /// ******** DATA to be moved into protected section of ClpInterior
 typedef struct {
-  double atolmin;
-  double r3norm;
-  double LSdamp;
-  double *deltay;
+  FloatT atolmin;
+  FloatT r3norm;
+  FloatT LSdamp;
+  FloatT *deltay;
 } Info;
 /// ******** DATA to be moved into protected section of ClpInterior
 
 typedef struct {
-  double atolold;
-  double atolnew;
-  double r3ratio;
+  FloatT atolold;
+  FloatT atolnew;
+  FloatT r3ratio;
   int istop;
   int itncg;
 } Outfo;
 /// ******** DATA to be moved into protected section of ClpInterior
 
 typedef struct {
-  double gamma;
-  double delta;
+  FloatT gamma;
+  FloatT delta;
   int MaxIter;
-  double FeaTol;
-  double OptTol;
-  double StepTol;
-  double x0min;
-  double z0min;
-  double mu0;
+  FloatT FeaTol;
+  FloatT OptTol;
+  FloatT StepTol;
+  FloatT x0min;
+  FloatT z0min;
+  FloatT mu0;
   int LSmethod; // 1=Cholesky    2=QR    3=LSQR
   int LSproblem; // See below
   int LSQRMaxIter;
-  double LSQRatol1; // Initial  atol
-  double LSQRatol2; // Smallest atol (unless atol1 is smaller)
-  double LSQRconlim;
+  FloatT LSQRatol1; // Initial  atol
+  FloatT LSQRatol2; // Smallest atol (unless atol1 is smaller)
+  FloatT LSQRconlim;
   int wait;
 } Options;
 class Lsqr;
@@ -108,33 +108,33 @@ public:
            </ul>
        */
   void loadProblem(const ClpMatrixBase &matrix,
-    const double *collb, const double *colub,
-    const double *obj,
-    const double *rowlb, const double *rowub,
-    const double *rowObjective = NULL);
+    const FloatT *collb, const FloatT *colub,
+    const FloatT *obj,
+    const FloatT *rowlb, const FloatT *rowub,
+    const FloatT *rowObjective = NULL);
   void loadProblem(const CoinPackedMatrix &matrix,
-    const double *collb, const double *colub,
-    const double *obj,
-    const double *rowlb, const double *rowub,
-    const double *rowObjective = NULL);
+    const FloatT *collb, const FloatT *colub,
+    const FloatT *obj,
+    const FloatT *rowlb, const FloatT *rowub,
+    const FloatT *rowObjective = NULL);
 
   /** Just like the other loadProblem() method except that the matrix is
        given in a standard column major ordered format (without gaps). */
   void loadProblem(const int numcols, const int numrows,
     const CoinBigIndex *start, const int *index,
-    const double *value,
-    const double *collb, const double *colub,
-    const double *obj,
-    const double *rowlb, const double *rowub,
-    const double *rowObjective = NULL);
+    const FloatT *value,
+    const FloatT *collb, const FloatT *colub,
+    const FloatT *obj,
+    const FloatT *rowlb, const FloatT *rowub,
+    const FloatT *rowObjective = NULL);
   /// This one is for after presolve to save memory
   void loadProblem(const int numcols, const int numrows,
     const CoinBigIndex *start, const int *index,
-    const double *value, const int *length,
-    const double *collb, const double *colub,
-    const double *obj,
-    const double *rowlb, const double *rowub,
-    const double *rowObjective = NULL);
+    const FloatT *value, const int *length,
+    const FloatT *collb, const FloatT *colub,
+    const FloatT *obj,
+    const FloatT *rowlb, const FloatT *rowub,
+    const FloatT *rowObjective = NULL);
   /// Read an mps file from the given filename
   int readMps(const char *filename,
     bool keepNames = false,

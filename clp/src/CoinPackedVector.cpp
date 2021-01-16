@@ -52,7 +52,7 @@ CoinPackedVector::operator=(const CoinPackedVectorBase &rhs)
 //#############################################################################
 #if 0
 void
-CoinPackedVector::assignVector(int size, int*& inds, double*& elems,
+CoinPackedVector::assignVector(int size, int*& inds, FloatT*& elems,
 			      bool testForDuplicateIndex)
 {
    clear();
@@ -72,7 +72,7 @@ CoinPackedVector::assignVector(int size, int*& inds, double*& elems,
    }
 }
 #else
-void CoinPackedVector::assignVector(int size, int *&inds, double *&elems,
+void CoinPackedVector::assignVector(int size, int *&inds, FloatT *&elems,
   bool testForDuplicateIndex)
 {
   clear();
@@ -109,7 +109,7 @@ void CoinPackedVector::assignVector(int size, int *&inds, double *&elems,
 
 //#############################################################################
 
-void CoinPackedVector::setVector(int size, const int *inds, const double *elems,
+void CoinPackedVector::setVector(int size, const int *inds, const FloatT *elems,
   bool testForDuplicateIndex)
 {
   clear();
@@ -118,7 +118,7 @@ void CoinPackedVector::setVector(int size, const int *inds, const double *elems,
 
 //#############################################################################
 
-void CoinPackedVector::setConstant(int size, const int *inds, double value,
+void CoinPackedVector::setConstant(int size, const int *inds, FloatT value,
   bool testForDuplicateIndex)
 {
   clear();
@@ -127,7 +127,7 @@ void CoinPackedVector::setConstant(int size, const int *inds, double value,
 
 //#############################################################################
 
-void CoinPackedVector::setFull(int size, const double *elems,
+void CoinPackedVector::setFull(int size, const FloatT *elems,
   bool testForDuplicateIndex)
 {
   // Clear out any values presently stored
@@ -150,7 +150,7 @@ void CoinPackedVector::setFull(int size, const double *elems,
 /* Indices are not specified and are taken to be 0,1,...,size-1,
     but only where non zero*/
 
-void CoinPackedVector::setFullNonZero(int size, const double *elems,
+void CoinPackedVector::setFullNonZero(int size, const FloatT *elems,
   bool testForDuplicateIndex)
 {
   // Clear out any values presently stored
@@ -176,7 +176,7 @@ void CoinPackedVector::setFullNonZero(int size, const double *elems,
 
 //#############################################################################
 
-void CoinPackedVector::setElement(int index, double element)
+void CoinPackedVector::setElement(int index, FloatT element)
 {
 #ifndef COIN_FAST_CODE
   if (index >= nElements_)
@@ -189,7 +189,7 @@ void CoinPackedVector::setElement(int index, double element)
 
 //#############################################################################
 
-void CoinPackedVector::insert(int index, double element)
+void CoinPackedVector::insert(int index, FloatT element)
 {
   const int s = nElements_;
   if (testForDuplicateIndex()) {
@@ -226,7 +226,7 @@ void CoinPackedVector::append(const CoinPackedVectorBase &caboose)
     reserve(CoinMax(s + cs, 2 * capacity_));
 
   const int *cind = caboose.getIndices();
-  const double *celem = caboose.getElements();
+  const FloatT *celem = caboose.getElements();
   CoinDisjointCopyN(cind, cs, indices_ + s);
   CoinDisjointCopyN(celem, cs, elements_ + s);
   CoinIotaN(origIndices_ + s, cs, s);
@@ -273,7 +273,7 @@ void CoinPackedVector::truncate(int n)
 
 //#############################################################################
 
-void CoinPackedVector::operator+=(double value)
+void CoinPackedVector::operator+=(FloatT value)
 {
   for (int i = 0; i < nElements_; i++)
     elements_[i] += value;
@@ -281,7 +281,7 @@ void CoinPackedVector::operator+=(double value)
 
 //-----------------------------------------------------------------------------
 
-void CoinPackedVector::operator-=(double value)
+void CoinPackedVector::operator-=(FloatT value)
 {
   for (int i = 0; i < nElements_; i++)
     elements_[i] -= value;
@@ -289,7 +289,7 @@ void CoinPackedVector::operator-=(double value)
 
 //-----------------------------------------------------------------------------
 
-void CoinPackedVector::operator*=(double value)
+void CoinPackedVector::operator*=(FloatT value)
 {
   for (int i = 0; i < nElements_; i++)
     elements_[i] *= value;
@@ -297,7 +297,7 @@ void CoinPackedVector::operator*=(double value)
 
 //-----------------------------------------------------------------------------
 
-void CoinPackedVector::operator/=(double value)
+void CoinPackedVector::operator/=(FloatT value)
 {
   for (int i = 0; i < nElements_; i++)
     elements_[i] /= value;
@@ -322,12 +322,12 @@ void CoinPackedVector::reserve(int n)
   // save pointers to existing data
   int *tempIndices = indices_;
   int *tempOrigIndices = origIndices_;
-  double *tempElements = elements_;
+  FloatT *tempElements = elements_;
 
   // allocate new space
   indices_ = new int[capacity_];
   origIndices_ = new int[capacity_];
-  elements_ = new double[capacity_];
+  elements_ = new FloatT[capacity_];
 
   // copy data to new space
   if (nElements_ > 0) {
@@ -360,7 +360,7 @@ CoinPackedVector::CoinPackedVector(bool testForDuplicateIndex)
 //-----------------------------------------------------------------------------
 
 CoinPackedVector::CoinPackedVector(int size,
-  const int *inds, const double *elems,
+  const int *inds, const FloatT *elems,
   bool testForDuplicateIndex)
   : CoinPackedVectorBase()
   , indices_(NULL)
@@ -376,7 +376,7 @@ CoinPackedVector::CoinPackedVector(int size,
 //-----------------------------------------------------------------------------
 
 CoinPackedVector::CoinPackedVector(int size,
-  const int *inds, double value,
+  const int *inds, FloatT value,
   bool testForDuplicateIndex)
   : CoinPackedVectorBase()
   , indices_(NULL)
@@ -392,7 +392,7 @@ CoinPackedVector::CoinPackedVector(int size,
 //-----------------------------------------------------------------------------
 
 CoinPackedVector::CoinPackedVector(int capacity, int size,
-  int *&inds, double *&elems,
+  int *&inds, FloatT *&elems,
   bool /*testForDuplicateIndex*/)
   : CoinPackedVectorBase()
   , indices_(inds)
@@ -410,7 +410,7 @@ CoinPackedVector::CoinPackedVector(int capacity, int size,
 
 //-----------------------------------------------------------------------------
 
-CoinPackedVector::CoinPackedVector(int size, const double *element,
+CoinPackedVector::CoinPackedVector(int size, const FloatT *element,
   bool testForDuplicateIndex)
   : CoinPackedVectorBase()
   , indices_(NULL)
@@ -462,7 +462,7 @@ CoinPackedVector::~CoinPackedVector()
 //#############################################################################
 
 void CoinPackedVector::gutsOfSetVector(int size,
-  const int *inds, const double *elems,
+  const int *inds, const FloatT *elems,
   bool testForDuplicateIndex,
   const char *method)
 {
@@ -487,7 +487,7 @@ void CoinPackedVector::gutsOfSetVector(int size,
 //-----------------------------------------------------------------------------
 
 void CoinPackedVector::gutsOfSetConstant(int size,
-  const int *inds, double value,
+  const int *inds, FloatT value,
   bool testForDuplicateIndex,
   const char *method)
 {

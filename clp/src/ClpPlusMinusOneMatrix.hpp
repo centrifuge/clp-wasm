@@ -40,7 +40,7 @@ public:
       might be gaps in this list, entries that do not belong to any
       major-dimension vector. To get the actual elements one should look at
       this vector together with vectorStarts and vectorLengths. */
-  virtual const double *getElements() const;
+  virtual const FloatT *getElements() const;
   /** A vector containing the minor indices of the elements in the packed
           matrix. Note that there might be gaps in this list, entries that do not
           belong to any major-dimension vector. To get the actual elements one
@@ -75,7 +75,7 @@ public:
          If 0 then rows, 1 if columns */
   virtual int appendMatrix(int number, int type,
     const CoinBigIndex *starts, const int *index,
-    const double *element, int numberOther = -1);
+    const FloatT *element, int numberOther = -1);
 #endif
   /** Returns a new matrix in reverse order without gaps */
   virtual ClpMatrixBase *reverseOrderedCopy() const;
@@ -98,8 +98,8 @@ public:
   /** Returns largest and smallest elements of both signs.
          Largest refers to largest absolute value.
      */
-  virtual void rangeOfElements(double &smallestNegative, double &largestNegative,
-    double &smallestPositive, double &largestPositive);
+  virtual void rangeOfElements(FloatT &smallestNegative, FloatT &largestNegative,
+    FloatT &smallestPositive, FloatT &largestPositive);
   /** Unpacks a column into an CoinIndexedvector
       */
   virtual void unpack(const ClpSimplex *model, CoinIndexedVector *rowArray,
@@ -114,10 +114,10 @@ public:
   /** Adds multiple of a column into an CoinIndexedvector
          You can use quickAdd to add to vector */
   virtual void add(const ClpSimplex *model, CoinIndexedVector *rowArray,
-    int column, double multiplier) const;
+    int column, FloatT multiplier) const;
   /** Adds multiple of a column into an array */
-  virtual void add(const ClpSimplex *model, double *array,
-    int column, double multiplier) const;
+  virtual void add(const ClpSimplex *model, FloatT *array,
+    int column, FloatT multiplier) const;
   /// Allow any parts of a created CoinMatrix to be deleted
   virtual void releasePackedMatrix() const;
   /** Set the dimensions of the matrix. In effect, append new empty
@@ -135,28 +135,28 @@ public:
   /** Return <code>y + A * scalar *x</code> in <code>y</code>.
          @pre <code>x</code> must be of size <code>numColumns()</code>
          @pre <code>y</code> must be of size <code>numRows()</code> */
-  virtual void times(double scalar,
-    const double *x, double *y) const;
+  virtual void times(FloatT scalar,
+    const FloatT *x, FloatT *y) const;
   /// And for scaling
-  virtual void times(double scalar,
-    const double *x, double *y,
-    const double *rowScale,
-    const double *columnScale) const;
+  virtual void times(FloatT scalar,
+    const FloatT *x, FloatT *y,
+    const FloatT *rowScale,
+    const FloatT *columnScale) const;
   /** Return <code>y + x * scalar * A</code> in <code>y</code>.
          @pre <code>x</code> must be of size <code>numRows()</code>
          @pre <code>y</code> must be of size <code>numColumns()</code> */
-  virtual void transposeTimes(double scalar,
-    const double *x, double *y) const;
+  virtual void transposeTimes(FloatT scalar,
+    const FloatT *x, FloatT *y) const;
   /// And for scaling
-  virtual void transposeTimes(double scalar,
-    const double *x, double *y,
-    const double *rowScale,
-    const double *columnScale, double *spare = NULL) const;
+  virtual void transposeTimes(FloatT scalar,
+    const FloatT *x, FloatT *y,
+    const FloatT *rowScale,
+    const FloatT *columnScale, FloatT *spare = NULL) const;
   /** Return <code>x * scalar * A + y</code> in <code>z</code>.
      Can use y as temporary array (will be empty at end)
      Note - If x packed mode - then z packed mode
      Squashes small elements and knows about ClpSimplex */
-  virtual void transposeTimes(const ClpSimplex *model, double scalar,
+  virtual void transposeTimes(const ClpSimplex *model, FloatT scalar,
     const CoinIndexedVector *x,
     CoinIndexedVector *y,
     CoinIndexedVector *z) const;
@@ -165,7 +165,7 @@ public:
      Note - If x packed mode - then z packed mode
      Squashes small elements and knows about ClpSimplex.
      This version uses row copy*/
-  virtual void transposeTimesByRow(const ClpSimplex *model, double scalar,
+  virtual void transposeTimesByRow(const ClpSimplex *model, FloatT scalar,
     const CoinIndexedVector *x,
     CoinIndexedVector *y,
     CoinIndexedVector *z) const;
@@ -187,19 +187,19 @@ public:
     const CoinIndexedVector *pi1, CoinIndexedVector *dj1,
     const CoinIndexedVector *pi2,
     CoinIndexedVector *spare,
-    double *infeas, double *reducedCost,
-    double referenceIn, double devex,
+    FloatT *infeas, FloatT *reducedCost,
+    FloatT referenceIn, FloatT devex,
     // Array for exact devex to say what is in reference framework
     unsigned int *reference,
-    double *weights, double scaleFactor);
+    FloatT *weights, FloatT scaleFactor);
   /// Updates second array for steepest and does devex weights
   virtual void subsetTimes2(const ClpSimplex *model,
     CoinIndexedVector *dj1,
     const CoinIndexedVector *pi2, CoinIndexedVector *dj2,
-    double referenceIn, double devex,
+    FloatT referenceIn, FloatT devex,
     // Array for exact devex to say what is in reference framework
     unsigned int *reference,
-    double *weights, double scaleFactor);
+    FloatT *weights, FloatT scaleFactor);
   //@}
 
   /**@name Other */
@@ -260,7 +260,7 @@ public:
   /// Says whether it can do partial pricing
   virtual bool canDoPartialPricing() const;
   /// Partial pricing
-  virtual void partialPricing(ClpSimplex *model, double start, double end,
+  virtual void partialPricing(ClpSimplex *model, FloatT start, FloatT end,
     int &bestSequence, int &numberWanted);
   //@}
 
@@ -340,7 +340,7 @@ public:
       might be gaps in this list, entries that do not belong to any
       major-dimension vector. To get the actual elements one should look at
       this vector together with vectorStarts and vectorLengths. */
-  virtual const double *getElements() const;
+  virtual const FloatT *getElements() const;
   /** A vector containing the minor indices of the elements in the packed
           matrix. Note that there might be gaps in this list, entries that do not
           belong to any major-dimension vector. To get the actual elements one
@@ -375,8 +375,8 @@ public:
   /** Returns largest and smallest elements of both signs.
          Largest refers to largest absolute value.
      */
-  virtual void rangeOfElements(double &smallestNegative, double &largestNegative,
-    double &smallestPositive, double &largestPositive);
+  virtual void rangeOfElements(FloatT &smallestNegative, FloatT &largestNegative,
+    FloatT &smallestPositive, FloatT &largestPositive);
   /** Unpacks a column into an CoinIndexedvector
       */
   virtual void unpack(const ClpSimplex *model, CoinIndexedVector *rowArray,
@@ -391,10 +391,10 @@ public:
   /** Adds multiple of a column into an CoinIndexedvector
          You can use quickAdd to add to vector */
   virtual void add(const ClpSimplex *model, CoinIndexedVector *rowArray,
-    int column, double multiplier) const;
+    int column, FloatT multiplier) const;
   /** Adds multiple of a column into an array */
-  virtual void add(const ClpSimplex *model, double *array,
-    int column, double multiplier) const;
+  virtual void add(const ClpSimplex *model, FloatT *array,
+    int column, FloatT multiplier) const;
   /// Allow any parts of a created CoinMatrix to be deleted
   virtual void releasePackedMatrix() const;
   /** Set the dimensions of the matrix. In effect, append new empty
@@ -412,28 +412,28 @@ public:
   /** Return <code>y + A * scalar *x</code> in <code>y</code>.
          @pre <code>x</code> must be of size <code>numColumns()</code>
          @pre <code>y</code> must be of size <code>numRows()</code> */
-  virtual void times(double scalar,
-    const double *x, double *y) const;
+  virtual void times(FloatT scalar,
+    const FloatT *x, FloatT *y) const;
   /// And for scaling
-  virtual void times(double scalar,
-    const double *x, double *y,
-    const double *rowScale,
-    const double *columnScale) const;
+  virtual void times(FloatT scalar,
+    const FloatT *x, FloatT *y,
+    const FloatT *rowScale,
+    const FloatT *columnScale) const;
   /** Return <code>y + x * scalar * A</code> in <code>y</code>.
          @pre <code>x</code> must be of size <code>numRows()</code>
          @pre <code>y</code> must be of size <code>numColumns()</code> */
-  virtual void transposeTimes(double scalar,
-    const double *x, double *y) const;
+  virtual void transposeTimes(FloatT scalar,
+    const FloatT *x, FloatT *y) const;
   /// And for scaling
-  virtual void transposeTimes(double scalar,
-    const double *x, double *y,
-    const double *rowScale,
-    const double *columnScale, double *spare = NULL) const;
+  virtual void transposeTimes(FloatT scalar,
+    const FloatT *x, FloatT *y,
+    const FloatT *rowScale,
+    const FloatT *columnScale, FloatT *spare = NULL) const;
   /** Return <code>x * scalar * A + y</code> in <code>z</code>.
      Can use y as temporary array (will be empty at end)
      Note - If x packed mode - then z packed mode
      Squashes small elements and knows about ClpSimplex */
-  virtual void transposeTimes(const ClpSimplex *model, double scalar,
+  virtual void transposeTimes(const ClpSimplex *model, FloatT scalar,
     const CoinIndexedVector *x,
     CoinIndexedVector *y,
     CoinIndexedVector *z) const;
@@ -442,7 +442,7 @@ public:
      Note - If x packed mode - then z packed mode
      Squashes small elements and knows about ClpSimplex.
      This version uses row copy*/
-  virtual void transposeTimesByRow(const ClpSimplex *model, double scalar,
+  virtual void transposeTimesByRow(const ClpSimplex *model, FloatT scalar,
     const CoinIndexedVector *x,
     CoinIndexedVector *y,
     CoinIndexedVector *z) const;
@@ -467,19 +467,19 @@ public:
     const CoinIndexedVector *pi1, CoinIndexedVector *dj1,
     const CoinIndexedVector *pi2,
     CoinIndexedVector *spare,
-    double *infeas, double *reducedCost,
-    double referenceIn, double devex,
+    FloatT *infeas, FloatT *reducedCost,
+    FloatT referenceIn, FloatT devex,
     // Array for exact devex to say what is in reference framework
     unsigned int *reference,
-    double *weights, double scaleFactor);
+    FloatT *weights, FloatT scaleFactor);
   /// Updates second array for steepest and does devex weights
   virtual void subsetTimes2(const ClpSimplex *model,
     CoinIndexedVector *dj1,
     const CoinIndexedVector *pi2, CoinIndexedVector *dj2,
-    double referenceIn, double devex,
+    FloatT referenceIn, FloatT devex,
     // Array for exact devex to say what is in reference framework
     unsigned int *reference,
-    double *weights, double scaleFactor);
+    FloatT *weights, FloatT scaleFactor);
   //@}
 
   /**@name Other */
@@ -508,11 +508,11 @@ public:
   ClpPoolMatrix(const CoinPackedMatrix &);
   /// Constructor from arrays
   ClpPoolMatrix(int numberRows, int numberColumns,
-    const int *indices, const double *elements,
+    const int *indices, const FloatT *elements,
     const CoinBigIndex *columnStart);
   /// Constructor from arrays - handing over ownership
   ClpPoolMatrix(int numberColumns, CoinBigIndex *columnStart,
-    poolInfo *stuff, double *elements);
+    poolInfo *stuff, FloatT *elements);
   /** Subset constructor (without gaps).  Duplicates are allowed
          and order is as given */
   ClpPoolMatrix(const ClpPoolMatrix &wholeModel,
@@ -530,7 +530,7 @@ public:
   /// Says whether it can do partial pricing
   virtual bool canDoPartialPricing() const;
   /// Partial pricing
-  virtual void partialPricing(ClpSimplex *model, double start, double end,
+  virtual void partialPricing(ClpSimplex *model, FloatT start, FloatT end,
     int &bestSequence, int &numberWanted);
   //@}
 
@@ -544,7 +544,7 @@ protected:
   mutable ClpPackedMatrix *matrix_;
   mutable int *lengths_;
   /// Unique values
-  double *COIN_RESTRICT elements_;
+  FloatT *COIN_RESTRICT elements_;
   /// Column starts
   CoinBigIndex *COIN_RESTRICT columnStart_;
   /// Rows and values

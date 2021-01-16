@@ -39,15 +39,15 @@ CoinPresolveMonitor::CoinPresolveMonitor(const CoinPresolveMatrix *mtx,
 
   if (isRow) {
     origVec_ = extractRow(k, mtx);
-    const double *blow = mtx->getRowLower();
+    const FloatT *blow = mtx->getRowLower();
     lb_ = blow[k];
-    const double *b = mtx->getRowUpper();
+    const FloatT *b = mtx->getRowUpper();
     ub_ = b[k];
   } else {
     origVec_ = extractCol(k, mtx);
-    const double *lb = mtx->getColLower();
+    const FloatT *lb = mtx->getColLower();
     lb_ = lb[k];
-    const double *ub = mtx->getColUpper();
+    const FloatT *ub = mtx->getColUpper();
     ub_ = ub[k];
   }
   origVec_->sortIncrIndex();
@@ -64,15 +64,15 @@ CoinPresolveMonitor::CoinPresolveMonitor(const CoinPostsolveMatrix *mtx,
 
   if (isRow) {
     origVec_ = extractRow(k, mtx);
-    const double *blow = mtx->getRowLower();
+    const FloatT *blow = mtx->getRowLower();
     lb_ = blow[k];
-    const double *b = mtx->getRowUpper();
+    const FloatT *b = mtx->getRowUpper();
     ub_ = b[k];
   } else {
     origVec_ = extractCol(k, mtx);
-    const double *lb = mtx->getColLower();
+    const FloatT *lb = mtx->getColLower();
     lb_ = lb[k];
-    const double *ub = mtx->getColUpper();
+    const FloatT *ub = mtx->getColUpper();
     ub_ = ub[k];
   }
   origVec_->sortIncrIndex();
@@ -87,7 +87,7 @@ CoinPackedVector *CoinPresolveMonitor::extractRow(int i,
 {
   const CoinBigIndex *rowStarts = mtx->getRowStarts();
   const int *colIndices = mtx->getColIndicesByRow();
-  const double *coeffs = mtx->getElementsByRow();
+  const FloatT *coeffs = mtx->getElementsByRow();
   const int rowLen = mtx->hinrow_[i];
   const CoinBigIndex &ii = rowStarts[i];
   return (new CoinPackedVector(rowLen, &colIndices[ii], &coeffs[ii]));
@@ -104,7 +104,7 @@ CoinPackedVector *CoinPresolveMonitor::extractCol(int j,
   const CoinBigIndex *colStarts = mtx->getColStarts();
   const int *colLens = mtx->getColLengths();
   const int *rowIndices = mtx->getRowIndicesByCol();
-  const double *coeffs = mtx->getElementsByCol();
+  const FloatT *coeffs = mtx->getElementsByCol();
   const CoinBigIndex &jj = colStarts[j];
   return (new CoinPackedVector(colLens[j], &rowIndices[jj], &coeffs[jj]));
 }
@@ -119,7 +119,7 @@ CoinPackedVector *CoinPresolveMonitor::extractRow(int i,
 {
   const CoinBigIndex *colStarts = mtx->getColStarts();
   const int *colLens = mtx->getColLengths();
-  const double *coeffs = mtx->getElementsByCol();
+  const FloatT *coeffs = mtx->getElementsByCol();
   const int *rowIndices = mtx->getRowIndicesByCol();
   const CoinBigIndex *colLinks = mtx->link_;
 
@@ -145,7 +145,7 @@ CoinPackedVector *CoinPresolveMonitor::extractCol(int j,
 {
   const CoinBigIndex *colStarts = mtx->getColStarts();
   const int *colLens = mtx->getColLengths();
-  const double *coeffs = mtx->getElementsByCol();
+  const FloatT *coeffs = mtx->getElementsByCol();
   const int *rowIndices = mtx->getRowIndicesByCol();
   const CoinBigIndex *colLinks = mtx->link_;
 
@@ -169,8 +169,8 @@ CoinPackedVector *CoinPresolveMonitor::extractCol(int j,
 void CoinPresolveMonitor::checkAndTell(const CoinPresolveMatrix *mtx)
 {
   CoinPackedVector *curVec = 0;
-  const double *lbs = 0;
-  const double *ubs = 0;
+  const FloatT *lbs = 0;
+  const FloatT *ubs = 0;
   if (isRow_) {
     lbs = mtx->getRowLower();
     ubs = mtx->getRowUpper();
@@ -191,8 +191,8 @@ void CoinPresolveMonitor::checkAndTell(const CoinPresolveMatrix *mtx)
 void CoinPresolveMonitor::checkAndTell(const CoinPostsolveMatrix *mtx)
 {
   CoinPackedVector *curVec = 0;
-  const double *lbs = 0;
-  const double *ubs = 0;
+  const FloatT *lbs = 0;
+  const FloatT *ubs = 0;
   if (isRow_) {
     lbs = mtx->getRowLower();
     ubs = mtx->getRowUpper();
@@ -217,7 +217,7 @@ void CoinPresolveMonitor::checkAndTell(const CoinPostsolveMatrix *mtx)
   capabilities.
 */
 void CoinPresolveMonitor::checkAndTell(CoinPackedVector *curVec,
-  double lb, double ub)
+  FloatT lb, FloatT ub)
 {
   curVec->sortIncrIndex();
 
@@ -269,8 +269,8 @@ void CoinPresolveMonitor::checkAndTell(CoinPackedVector *curVec,
 
   for (int k = 0; k < uniqLen; k++) {
     int j = mergedIndices[k];
-    double aij_orig = 0.0;
-    double aij_cur = 0.0;
+    FloatT aij_orig = 0.0;
+    FloatT aij_cur = 0.0;
     bool inOrig = false;
     bool inCur = false;
     if (origVec_->findIndex(j) >= 0) {

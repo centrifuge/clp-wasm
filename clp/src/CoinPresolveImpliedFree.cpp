@@ -22,10 +22,10 @@
 #include "CoinPresolvePsdebug.hpp"
 #endif
 int check_row(CoinBigIndex *mrstrt,
-  double *rowels, int *hcol, int *hinrow,
-  double coeff_factor, double kill_ratio, int irowx, int irowy, int &numberBadElements)
+  FloatT *rowels, int *hcol, int *hinrow,
+  FloatT coeff_factor, FloatT kill_ratio, int irowx, int irowy, int &numberBadElements)
 {
-  const double tolerance = kill_ratio * coeff_factor;
+  const FloatT tolerance = kill_ratio * coeff_factor;
   CoinBigIndex krsy = mrstrt[irowy];
   CoinBigIndex krey = krsy + hinrow[irowy];
   CoinBigIndex krsx = mrstrt[irowx];
@@ -37,7 +37,7 @@ int check_row(CoinBigIndex *mrstrt,
     int j = hcol[krowy];
     while (krowx < krex && hcol[krowx] < j)
       krowx++;
-    double newcoeff;
+    FloatT newcoeff;
     if (krowx < krex && hcol[krowx] == j) {
       newcoeff = rowels[krowx] + rowels[krowy] * coeff_factor;
     } else {
@@ -128,7 +128,7 @@ const CoinPresolveAction *implied_free_action::presolve(
   const int startEmptyRows = prob->countEmptyRows();
   const int startEmptyColumns = prob->countEmptyCols();
 #if COIN_PRESOLVE_TUNING > 0
-  double startTime = 0.0;
+  FloatT startTime = 0.0;
   if (prob->tuning_)
     startTime = CoinCpuTime();
 #endif
@@ -143,23 +143,23 @@ const CoinPresolveAction *implied_free_action::presolve(
   const CoinBigIndex *rowStarts = prob->mrstrt_;
   int *rowLengths = prob->hinrow_;
   const int *colIndices = prob->hcol_;
-  const double *rowCoeffs = prob->rowels_;
+  const FloatT *rowCoeffs = prob->rowels_;
   presolvehlink *rlink = prob->rlink_;
 
   CoinBigIndex *colStarts = prob->mcstrt_;
   int *colLengths = prob->hincol_;
   int *rowIndices = prob->hrow_;
-  double *colCoeffs = prob->colels_;
+  FloatT *colCoeffs = prob->colels_;
   presolvehlink *clink = prob->clink_;
 
   /*
   Column bounds, row bounds, cost, integrality.
 */
-  double *clo = prob->clo_;
-  double *cup = prob->cup_;
-  double *rlo = prob->rlo_;
-  double *rup = prob->rup_;
-  double *cost = prob->cost_;
+  FloatT *clo = prob->clo_;
+  FloatT *cup = prob->cup_;
+  FloatT *rlo = prob->rlo_;
+  FloatT *rup = prob->rup_;
+  FloatT *cost = prob->cost_;
   const unsigned char *integerType = prob->integerType_;
 
   /*
@@ -175,7 +175,7 @@ const CoinPresolveAction *implied_free_action::presolve(
   /*
   Defaults to 0.0.
 */
-  const double feasTol = prob->feasibilityTolerance_;
+  const FloatT feasTol = prob->feasibilityTolerance_;
 
 #if 0  
 /*
@@ -231,8 +231,8 @@ const CoinPresolveAction *implied_free_action::presolve(
 */
   int *infiniteDown = new int[m];
   int *infiniteUp = new int[m];
-  double *maxDown = new double[m];
-  double *maxUp = new double[m];
+  FloatT *maxDown = new FloatT[m];
+  FloatT *maxUp = new FloatT[m];
   /*
   Overload infiniteUp with row status codes:
   -1: L(i)/U(i) not yet computed,
@@ -265,9 +265,9 @@ const CoinPresolveAction *implied_free_action::presolve(
 
 // Can't go on without a suitable finite infinity, can we?
 #ifdef USE_SMALL_LARGE
-  const double large = 1.0e10;
+  const FloatT large = 1.0e10;
 #else
-  const double large = 1.0e20;
+  const FloatT large = 1.0e20;
 #endif
 
   /*
@@ -323,10 +323,10 @@ const CoinPresolveAction *implied_free_action::presolve(
     const bool singletonCol = (tgtcol_len == 1);
     bool possibleRow = false;
     bool singletonRow = false;
-    double ait_max = 20 * ZTOLDP2;
+    FloatT ait_max = 20 * ZTOLDP2;
     /*
   If this is a singleton column, the only concern is that the row is not a
-  singleton row (that has its own, simpler, transform: slack_doubleton). But
+  singleton row (that has its own, simpler, transform: slack_FloatTton). But
   make sure we're not dealing with some tiny a(it).
 
   Note that there's no point in marking a singleton row. By definition, we
@@ -350,7 +350,7 @@ const CoinPresolveAction *implied_free_action::presolve(
           singletonRow = true;
           break;
         }
-        const double abs_ait = fabs(colCoeffs[kcol]);
+        const FloatT abs_ait = fabs(colCoeffs[kcol]);
         ait_max = CoinMax(ait_max, abs_ait);
         if (fabs(rlo[i] - rup[i]) < feasTol && abs_ait > .1 * ait_max) {
           possibleRow = true;
@@ -379,10 +379,10 @@ const CoinPresolveAction *implied_free_action::presolve(
       << ") " << cup[tgtcol] << ", c(" << tgtcol << ") " << cost[tgtcol]
       << "." << std::endl;
 #endif
-    const double lt = clo[tgtcol];
-    const double ut = cup[tgtcol];
-    double impliedLow = -COIN_DBL_MAX;
-    double impliedHigh = COIN_DBL_MAX;
+    const FloatT lt = clo[tgtcol];
+    const FloatT ut = cup[tgtcol];
+    FloatT impliedLow = -COIN_DBL_MAX;
+    FloatT impliedHigh = COIN_DBL_MAX;
     int subst_ndx = -1;
     int subst_len = n;
     for (CoinBigIndex kcol = kcs; kcol < kce; ++kcol) {
@@ -392,10 +392,10 @@ const CoinPresolveAction *implied_free_action::presolve(
       if (infiniteUp[i] <= -2)
         continue;
 
-      const double ait = colCoeffs[kcol];
+      const FloatT ait = colCoeffs[kcol];
       const int leni = rowLengths[i];
-      const double rloi = rlo[i];
-      const double rupi = rup[i];
+      const FloatT rloi = rlo[i];
+      const FloatT rupi = rup[i];
       /*
   A suitable row for substitution must
     * be an equality;
@@ -411,17 +411,17 @@ const CoinPresolveAction *implied_free_action::presolve(
 */
       int infUi = 0;
       int infLi = 0;
-      double maxUi = 0.0;
-      double maxLi = 0.0;
+      FloatT maxUi = 0.0;
+      FloatT maxLi = 0.0;
       const CoinBigIndex krs = rowStarts[i];
       const CoinBigIndex kre = krs + leni;
 
       if (infiniteUp[i] == -1) {
         for (CoinBigIndex krow = krs; krow < kre; ++krow) {
-          const double aik = rowCoeffs[krow];
+          const FloatT aik = rowCoeffs[krow];
           const int k = colIndices[krow];
-          const double lk = clo[k];
-          const double uk = cup[k];
+          const FloatT lk = clo[k];
+          const FloatT uk = cup[k];
           if (aik > 0.0) {
             if (uk < large)
               maxUi += uk * aik;
@@ -442,8 +442,8 @@ const CoinPresolveAction *implied_free_action::presolve(
               ++infUi;
           }
         }
-        const double maxUinf = maxUi + infUi * 1.0e31;
-        const double maxLinf = maxLi - infLi * 1.0e31;
+        const FloatT maxUinf = maxUi + infUi * 1.0e31;
+        const FloatT maxLinf = maxLi - infLi * 1.0e31;
         if (maxUinf <= rupi + feasTol && maxLinf >= rloi - feasTol) {
           infiniteUp[i] = -2;
         } else if (maxUinf < rloi - feasTol && !fixInfeasibility) {
@@ -509,8 +509,8 @@ const CoinPresolveAction *implied_free_action::presolve(
   L(i) or U(i) is very large. If the new bound is very large, force it to
   infinity.
 */
-      double ltprime = -COIN_DBL_MAX;
-      double utprime = COIN_DBL_MAX;
+      FloatT ltprime = -COIN_DBL_MAX;
+      FloatT utprime = COIN_DBL_MAX;
       if (ait > 0.0) {
         if (rloi > -large) {
           if (!infUi) {
@@ -598,7 +598,7 @@ const CoinPresolveAction *implied_free_action::presolve(
         bool allOnes = true;
         for (CoinBigIndex krow = krs; krow < kre; ++krow) {
           const int j = colIndices[krow];
-          const double scaled_aij = rowCoeffs[krow] / ait;
+          const FloatT scaled_aij = rowCoeffs[krow] / ait;
           if (fabs(scaled_aij) != 1.0)
             allOnes = false;
           if (!integerType[j] || fabs(scaled_aij - floor(scaled_aij + 0.5)) > feasTol) {
@@ -687,22 +687,22 @@ const CoinPresolveAction *implied_free_action::presolve(
     const int tgtrow_len = rowLengths[tgtrow];
 
     const CoinBigIndex kcs = colStarts[tgtcol];
-    const double tgtcol_coeff = colCoeffs[kcs];
-    const double tgtcol_cost = cost[tgtcol];
+    const FloatT tgtcol_coeff = colCoeffs[kcs];
+    const FloatT tgtcol_cost = cost[tgtcol];
 
     const CoinBigIndex krs = rowStarts[tgtrow];
     const CoinBigIndex kre = krs + tgtrow_len;
     if (tgtcol_cost != 0.0) {
       // Check costs don't make unstable
-      //double minOldCost=COIN_DBL_MAX;
-      double maxOldCost = 0.0;
-      //double minNewCost=COIN_DBL_MAX;
-      double maxNewCost = 0.0;
+      //FloatT minOldCost=COIN_DBL_MAX;
+      FloatT maxOldCost = 0.0;
+      //FloatT minNewCost=COIN_DBL_MAX;
+      FloatT maxNewCost = 0.0;
       for (CoinBigIndex krow = krs; krow < kre; krow++) {
         const int j = colIndices[krow];
         if (j != tgtcol) {
-          double oldCost = cost[j];
-          double newCost = oldCost - (tgtcol_cost * rowCoeffs[krow]) / tgtcol_coeff;
+          FloatT oldCost = cost[j];
+          FloatT newCost = oldCost - (tgtcol_cost * rowCoeffs[krow]) / tgtcol_coeff;
           oldCost = fabs(oldCost);
           newCost = fabs(newCost);
           //minOldCost=CoinMin(minOldCost,oldCost);
@@ -752,10 +752,10 @@ const CoinPresolveAction *implied_free_action::presolve(
   Fortunately, the objective coefficients are not affected by this.
 */
     if (tgtcol_cost != 0.0) {
-      double tgtrow_rhs = rup[tgtrow];
+      FloatT tgtrow_rhs = rup[tgtrow];
       if (fabs(rlo[tgtrow] - rup[tgtrow]) > feasTol) {
-        const double rlot = rlo[tgtrow];
-        const double rupt = rup[tgtrow];
+        const FloatT rlot = rlo[tgtrow];
+        const FloatT rupt = rup[tgtrow];
         if (rlot > -COIN_DBL_MAX && rupt < COIN_DBL_MAX) {
           if ((tgtcol_cost * tgtcol_coeff) > 0)
             tgtrow_rhs = rlot;
@@ -766,7 +766,7 @@ const CoinPresolveAction *implied_free_action::presolve(
         }
       }
       assert(fabs(tgtrow_rhs) <= large);
-      double *save_costs = new double[tgtrow_len];
+      FloatT *save_costs = new FloatT[tgtrow_len];
 
       for (CoinBigIndex krow = krs; krow < kre; krow++) {
         const int j = colIndices[krow];
@@ -835,12 +835,12 @@ const CoinPresolveAction *implied_free_action::presolve(
       */
       CoinBigIndex *rowStarts = prob->mrstrt_;
       int *rowLengths = prob->hinrow_;
-      double *rowCoeffs = prob->rowels_;
+      FloatT *rowCoeffs = prob->rowels_;
       int *colIndices = prob->hcol_;
 
       CoinBigIndex *colStarts = prob->mcstrt_;
       int *colLengths = prob->hincol_;
-      double *colCoeffs = prob->colels_;
+      FloatT *colCoeffs = prob->colels_;
       int *rowIndices = prob->hrow_;
 
       /*
@@ -892,7 +892,7 @@ const CoinPresolveAction *implied_free_action::presolve(
 	  implied_free identified two candidate pairs to eliminate the same column. If
 	  we've already processed one of them, we could be in trouble.
 	*/
-        double tgtcoeff = 0.0;
+        FloatT tgtcoeff = 0.0;
         bool dealBreaker = false;
         for (CoinBigIndex kcol = tgtcs; kcol < tgtce; ++kcol) {
           const int i = rowIndices[kcol];
@@ -900,7 +900,7 @@ const CoinPresolveAction *implied_free_action::presolve(
             dealBreaker = true;
             break;
           }
-          const double aij = colCoeffs[kcol];
+          const FloatT aij = colCoeffs[kcol];
           if (fabs(aij) <= ZTOLDP2) {
             dealBreaker = true;
             break;
@@ -923,7 +923,7 @@ const CoinPresolveAction *implied_free_action::presolve(
 	*/
         dealBreaker = false;
         for (CoinBigIndex kcol = tgtcs; kcol < tgtce; ++kcol) {
-          const double coeff_factor = fabs(colCoeffs[kcol] / tgtcoeff);
+          const FloatT coeff_factor = fabs(colCoeffs[kcol] / tgtcoeff);
           if (coeff_factor > 10.0)
             dealBreaker = true;
         }
@@ -953,7 +953,7 @@ const CoinPresolveAction *implied_free_action::presolve(
 
         // kill small if wanted
         int relax = (prob->presolveOptions() & 0x60000) >> 17;
-        double tolerance = 1.0e-12;
+        FloatT tolerance = 1.0e-12;
         for (int i = 0; i < relax; i++)
           tolerance *= 10.0;
 
@@ -970,8 +970,8 @@ const CoinPresolveAction *implied_free_action::presolve(
           if (i == tgtrow)
             continue;
 
-          double ait = colCoeffs[colndx];
-          double coeff_factor = -ait / tgtcoeff;
+          FloatT ait = colCoeffs[colndx];
+          FloatT coeff_factor = -ait / tgtcoeff;
 
           CoinBigIndex krs = rowStarts[i];
           CoinBigIndex kre = krs + rowLengths[i];
@@ -1025,7 +1025,7 @@ const CoinPresolveAction *implied_free_action::presolve(
   }
 
 #if COIN_PRESOLVE_TUNING > 0
-  double thisTime = 0.0;
+  FloatT thisTime = 0.0;
   if (prob->tuning_)
     thisTime = CoinCpuTime();
 #endif
@@ -1112,32 +1112,32 @@ void implied_free_action::postsolve(CoinPostsolveMatrix *prob) const
   CoinBigIndex *colStarts = prob->mcstrt_;
   int *colLengths = prob->hincol_;
   int *rowIndices = prob->hrow_;
-  double *colCoeffs = prob->colels_;
+  FloatT *colCoeffs = prob->colels_;
   CoinBigIndex *link = prob->link_;
   CoinBigIndex &free_list = prob->free_list_;
   /*
   Column bounds, row bounds, and cost.
 */
-  double *clo = prob->clo_;
-  double *cup = prob->cup_;
-  double *rlo = prob->rlo_;
-  double *rup = prob->rup_;
-  double *cost = prob->cost_;
+  FloatT *clo = prob->clo_;
+  FloatT *cup = prob->cup_;
+  FloatT *rlo = prob->rlo_;
+  FloatT *rup = prob->rup_;
+  FloatT *cost = prob->cost_;
   /*
   Solution, reduced costs, duals, row activity.
 */
-  double *sol = prob->sol_;
-  double *rcosts = prob->rcosts_;
-  double *acts = prob->acts_;
-  double *rowduals = prob->rowduals_;
+  FloatT *sol = prob->sol_;
+  FloatT *rcosts = prob->rcosts_;
+  FloatT *acts = prob->acts_;
+  FloatT *rowduals = prob->rowduals_;
   /*
   In your dreams ... hardwired to minimisation.
 */
-  const double maxmin = 1.0;
+  const FloatT maxmin = 1.0;
   /*
   And a suitably small infinity.
 */
-  const double large = 1.0e20;
+  const FloatT large = 1.0e20;
   /*
   Open a loop to restore the row and column for each action. Start by
   unpacking the action. There won't be saved costs if the original cost c(t)
@@ -1148,9 +1148,9 @@ void implied_free_action::postsolve(CoinPostsolveMatrix *prob) const
     const int tgtrow = f->row;
     const int tgtcol = f->col;
     const int tgtrow_len = f->ninrow;
-    const double *tgtrow_coeffs = f->rowels;
+    const FloatT *tgtrow_coeffs = f->rowels;
     const int *tgtrow_cols = reinterpret_cast< const int * >(tgtrow_coeffs + tgtrow_len);
-    const double *saved_costs = f->costs;
+    const FloatT *saved_costs = f->costs;
 
 #if PRESOLVE_DEBUG > 2
     std::cout
@@ -1166,11 +1166,11 @@ void implied_free_action::postsolve(CoinPostsolveMatrix *prob) const
   coefficient count. While we're restoring the row, pick off the coefficient
   for x(t) and calculate the row activity.
 */
-    double tgt_coeff = 0.0;
-    double tgtrow_act = 0.0;
+    FloatT tgt_coeff = 0.0;
+    FloatT tgtrow_act = 0.0;
     for (int krow = 0; krow < tgtrow_len; krow++) {
       const int j = tgtrow_cols[krow];
-      const double atj = tgtrow_coeffs[krow];
+      const FloatT atj = tgtrow_coeffs[krow];
 
       assert(free_list >= 0 && free_list < prob->bulk0_);
       CoinBigIndex kk = free_list;
@@ -1216,7 +1216,7 @@ void implied_free_action::postsolve(CoinPostsolveMatrix *prob) const
   algorithmic error or numerical inaccuracy. You'll get a warning if
   debugging is enabled.
 */
-    double xt_lo, xt_up;
+    FloatT xt_lo, xt_up;
     if (tgt_coeff > 0) {
       xt_lo = (rlo[tgtrow] - tgtrow_act) / tgt_coeff;
       xt_up = (rup[tgtrow] - tgtrow_act) / tgt_coeff;
@@ -1224,8 +1224,8 @@ void implied_free_action::postsolve(CoinPostsolveMatrix *prob) const
       xt_lo = (rup[tgtrow] - tgtrow_act) / tgt_coeff;
       xt_up = (rlo[tgtrow] - tgtrow_act) / tgt_coeff;
     }
-    const double lt = clo[tgtcol];
-    const double ut = cup[tgtcol];
+    const FloatT lt = clo[tgtcol];
+    const FloatT ut = cup[tgtcol];
 
 #if PRESOLVE_DEBUG > 0 || PRESOLVE_CONSISTENCY > 0
     bool chklo = true;
@@ -1276,8 +1276,8 @@ void implied_free_action::postsolve(CoinPostsolveMatrix *prob) const
   dual >= 0 ==> reduced cost <= 0 ==> NBUB ==> finite rlo
   dual <= 0 ==> reduced cost >= 0 ==> NBLB ==> finite rup
 */
-    const double ct = maxmin * cost[tgtcol];
-    double possibleDual = ct / tgt_coeff;
+    const FloatT ct = maxmin * cost[tgtcol];
+    FloatT possibleDual = ct / tgt_coeff;
     rowduals[tgtrow] = possibleDual;
     if (possibleDual >= 0 && rlo[tgtrow] > -large) {
       sol[tgtcol] = (rlo[tgtrow] - tgtrow_act) / tgt_coeff;
@@ -1328,11 +1328,11 @@ void implied_free_action::postsolve(CoinPostsolveMatrix *prob) const
     for (int krow = 0; krow < tgtrow_len; krow++) {
       const int j = tgtrow_cols[krow];
       const int lenj = colLengths[j];
-      double dj = cost[j];
+      FloatT dj = cost[j];
       CoinBigIndex kcol = colStarts[j];
       for (int cntj = 0; cntj < lenj; ++cntj) {
         const int i = rowIndices[kcol];
-        const double aij = colCoeffs[kcol];
+        const FloatT aij = colCoeffs[kcol];
         dj -= rowduals[i] * aij;
         kcol = link[kcol];
       }
@@ -1362,8 +1362,8 @@ implied_free_action::~implied_free_action()
 {
   int i;
   for (i = 0; i < nactions_; i++) {
-    deleteAction(actions_[i].rowels, double *);
-    deleteAction(actions_[i].costs, double *);
+    deleteAction(actions_[i].rowels, FloatT *);
+    deleteAction(actions_[i].costs, FloatT *);
   }
   deleteAction(actions_, action *);
 }

@@ -49,12 +49,12 @@ public:
   /** Adds multiple of a column into an CoinIndexedvector
          You can use quickAdd to add to vector */
   virtual void add(const ClpSimplex *model, CoinIndexedVector *rowArray,
-    int column, double multiplier) const;
+    int column, FloatT multiplier) const;
   /** Adds multiple of a column into an array */
-  virtual void add(const ClpSimplex *model, double *array,
-    int column, double multiplier) const;
+  virtual void add(const ClpSimplex *model, FloatT *array,
+    int column, FloatT multiplier) const;
   /// Partial pricing
-  virtual void partialPricing(ClpSimplex *model, double start, double end,
+  virtual void partialPricing(ClpSimplex *model, FloatT start, FloatT end,
     int &bestSequence, int &numberWanted);
   /// Returns number of hidden rows e.g. gub
   virtual int hiddenRows() const;
@@ -68,7 +68,7 @@ public:
      Can use y as temporary array (will be empty at end)
      Note - If x packed mode - then z packed mode
      Squashes small elements and knows about ClpSimplex */
-  virtual void transposeTimes(const ClpSimplex *model, double scalar,
+  virtual void transposeTimes(const ClpSimplex *model, FloatT scalar,
     const CoinIndexedVector *x,
     CoinIndexedVector *y,
     CoinIndexedVector *z) const;
@@ -77,7 +77,7 @@ public:
      Note - If x packed mode - then z packed mode
      Squashes small elements and knows about ClpSimplex.
      This version uses row copy*/
-  virtual void transposeTimesByRow(const ClpSimplex *model, double scalar,
+  virtual void transposeTimesByRow(const ClpSimplex *model, FloatT scalar,
     const CoinIndexedVector *x,
     CoinIndexedVector *y,
     CoinIndexedVector *z) const;
@@ -110,7 +110,7 @@ public:
          mode=4  - Modify before updateTranspose in partial pricing
      */
   virtual void dualExpanded(ClpSimplex *model, CoinIndexedVector *array,
-    double *other, int mode);
+    FloatT *other, int mode);
   /**
          mode=0  - Create list of non-key basics in pivotVariable_ using
                    number as numberBasic in and out
@@ -132,13 +132,13 @@ public:
   /**
         update information for a pivot (and effective rhs)
      */
-  virtual int updatePivot(ClpSimplex *model, double oldInValue, double oldOutValue);
+  virtual int updatePivot(ClpSimplex *model, FloatT oldInValue, FloatT oldOutValue);
   /// Sets up an effective RHS and does gub crash if needed
   virtual void useEffectiveRhs(ClpSimplex *model, bool cheapest = true);
   /** Returns effective RHS offset if it is being used.  This is used for long problems
          or big gub or anywhere where going through full columns is
          expensive.  This may re-compute */
-  virtual double *rhsOffset(ClpSimplex *model, bool forceRefresh = false,
+  virtual FloatT *rhsOffset(ClpSimplex *model, bool forceRefresh = false,
     bool check = false);
   /** This is local to Gub to allow synchronization:
          mode=0 when status of basis is good
@@ -187,7 +187,7 @@ public:
          real constructor*/
   ClpGubMatrix(ClpPackedMatrix *matrix, int numberSets,
     const int *start, const int *end,
-    const double *lower, const double *upper,
+    const FloatT *lower, const FloatT *upper,
     const unsigned char *status = NULL);
 
   ClpGubMatrix &operator=(const ClpGubMatrix &);
@@ -248,11 +248,11 @@ public:
     iStat = static_cast< unsigned char >(iStat & ~24);
     status_[sequence] = iStat;
   }
-  inline double weight(int sequence) const
+  inline FloatT weight(int sequence) const
   {
     int iStat = status_[sequence] & 31;
     iStat = iStat >> 3;
-    return static_cast< double >(iStat - 1);
+    return static_cast< FloatT >(iStat - 1);
   }
   /// Starts
   inline int *start() const
@@ -265,12 +265,12 @@ public:
     return end_;
   }
   /// Lower bounds on sets
-  inline double *lower() const
+  inline FloatT *lower() const
   {
     return lower_;
   }
   /// Upper bounds on sets
-  inline double *upper() const
+  inline FloatT *upper() const
   {
     return upper_;
   }
@@ -298,23 +298,23 @@ protected:
         The data members are protected to allow access for derived classes. */
   //@{
   /// Sum of dual infeasibilities
-  double sumDualInfeasibilities_;
+  FloatT sumDualInfeasibilities_;
   /// Sum of primal infeasibilities
-  double sumPrimalInfeasibilities_;
+  FloatT sumPrimalInfeasibilities_;
   /// Sum of Dual infeasibilities using tolerance based on error in duals
-  double sumOfRelaxedDualInfeasibilities_;
+  FloatT sumOfRelaxedDualInfeasibilities_;
   /// Sum of Primal infeasibilities using tolerance based on error in primals
-  double sumOfRelaxedPrimalInfeasibilities_;
+  FloatT sumOfRelaxedPrimalInfeasibilities_;
   /// Infeasibility weight when last full pass done
-  double infeasibilityWeight_;
+  FloatT infeasibilityWeight_;
   /// Starts
   int *start_;
   /// End
   int *end_;
   /// Lower bounds on sets
-  double *lower_;
+  FloatT *lower_;
   /// Upper bounds on sets
-  double *upper_;
+  FloatT *upper_;
   /// Status of slacks
   mutable unsigned char *status_;
   /// Saved status of slacks
@@ -326,7 +326,7 @@ protected:
   /// Backward pointer to pivot row !!!
   int *backToPivotRow_;
   /// Change in costs for keys
-  double *changeCost_;
+  FloatT *changeCost_;
   /// Key variable of set
   mutable int *keyVariable_;
   /** Next basic variable in set - starts at key and end with -(set+1).

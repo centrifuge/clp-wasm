@@ -51,7 +51,7 @@ Here is a sample usage:
 @verbatim
     const int ne = 4;
     int inx[ne] =   {  1,   4,  0,   2 }
-    double el[ne] = { 10., 40., 1., 50. }
+    FloatT el[ne] = { 10., 40., 1., 50. }
 
     // Create vector and set its valuex1
     CoinIndexedVector r(ne,inx,el);
@@ -112,15 +112,15 @@ public:
   /// Get indices of elements
   inline const int *getIndices() const { return indices_; }
   /// Get element values
-  // ** No longer supported virtual const double * getElements() const ;
+  // ** No longer supported virtual const FloatT * getElements() const ;
   /// Get indices of elements
   inline int *getIndices() { return indices_; }
   /** Get the vector as a dense vector. This is normal storage method.
        The user should not not delete [] this.
    */
-  inline double *denseVector() const { return elements_; }
+  inline FloatT *denseVector() const { return elements_; }
   /// For very temporary use when user needs to borrow a dense vector
-  inline void setDenseVector(double *array)
+  inline void setDenseVector(FloatT *array)
   {
     elements_ = array;
   }
@@ -131,7 +131,7 @@ public:
   }
   /** Access the i'th element of the full storage vector.
    */
-  double &operator[](int i) const;
+  FloatT &operator[](int i) const;
 
   //@}
 
@@ -163,11 +163,11 @@ public:
   /** Copy the contents of one vector into another.  If multiplier is 1
        It is the equivalent of = but if vectors are same size does
        not re-allocate memory just clears and copies */
-  void copy(const CoinIndexedVector &rhs, double multiplier = 1.0);
+  void copy(const CoinIndexedVector &rhs, FloatT multiplier = 1.0);
 
   /** Borrow ownership of the arguments to this vector.
        Size is the length of the unpacked elements vector. */
-  void borrowVector(int size, int numberIndices, int *inds, double *elems);
+  void borrowVector(int size, int numberIndices, int *inds, FloatT *elems);
 
   /** Return ownership of the arguments to this vector.
        State after is empty .
@@ -178,29 +178,29 @@ public:
        NumberIndices is the length of both the indices and elements vectors.
        The indices and elements vectors are copied into this class instance's
        member data. Assumed to have no duplicates */
-  void setVector(int numberIndices, const int *inds, const double *elems);
+  void setVector(int numberIndices, const int *inds, const FloatT *elems);
 
   /** Set vector size, indices, and elements.
        Size is the length of the unpacked elements vector.
        The indices and elements vectors are copied into this class instance's
        member data. We do not check for duplicate indices */
-  void setVector(int size, int numberIndices, const int *inds, const double *elems);
+  void setVector(int size, int numberIndices, const int *inds, const FloatT *elems);
 
   /** Elements set to have the same scalar value */
-  void setConstant(int size, const int *inds, double elems);
+  void setConstant(int size, const int *inds, FloatT elems);
 
   /** Indices are not specified and are taken to be 0,1,...,size-1 */
-  void setFull(int size, const double *elems);
+  void setFull(int size, const FloatT *elems);
 
   /** Set an existing element in the indexed vector
        The first argument is the "index" into the elements() array
    */
-  void setElement(int index, double element);
+  void setElement(int index, FloatT element);
 
   /// Insert an element into the vector
-  void insert(int index, double element);
+  void insert(int index, FloatT element);
   /// Insert a nonzero element into the vector
-  inline void quickInsert(int index, double element)
+  inline void quickInsert(int index, FloatT element)
   {
     assert(!elements_[index]);
     indices_[nElements_++] = index;
@@ -209,11 +209,11 @@ public:
   }
   /** Insert or if exists add an element into the vector
        Any resulting zero elements will be made tiny */
-  void add(int index, double element);
+  void add(int index, FloatT element);
   /** Insert or if exists add an element into the vector
        Any resulting zero elements will be made tiny.
        This version does no checking */
-  inline void quickAdd(int index, double element)
+  inline void quickAdd(int index, FloatT element)
   {
     if (elements_[index]) {
       element += elements_[index];
@@ -232,7 +232,7 @@ public:
        Any resulting zero elements will be made tiny.
        This knows element is nonzero
        This version does no checking */
-  inline void quickAddNonZero(int index, double element)
+  inline void quickAddNonZero(int index, FloatT element)
   {
     assert(element);
     if (elements_[index]) {
@@ -257,11 +257,11 @@ public:
   }
   /** set all small values to zero and return number remaining
       - < tolerance => 0.0 */
-  int clean(double tolerance);
+  int clean(FloatT tolerance);
   /// Same but packs down
-  int cleanAndPack(double tolerance);
+  int cleanAndPack(FloatT tolerance);
   /// Same but packs down and is safe (i.e. if order is odd)
-  int cleanAndPackSafe(double tolerance);
+  int cleanAndPackSafe(FloatT tolerance);
   /// Mark as packed
   inline void setPacked()
   {
@@ -284,24 +284,24 @@ public:
   int scan(int start, int end);
   /** Scan dense region and set up indices (returns number found).
       Only ones >= tolerance */
-  int scan(double tolerance);
+  int scan(FloatT tolerance);
   /** Scan dense region from start to < end and set up indices
        returns number found.  Only >= tolerance
    */
-  int scan(int start, int end, double tolerance);
+  int scan(int start, int end, FloatT tolerance);
   /// These are same but pack down
   int scanAndPack();
   int scanAndPack(int start, int end);
-  int scanAndPack(double tolerance);
-  int scanAndPack(int start, int end, double tolerance);
+  int scanAndPack(FloatT tolerance);
+  int scanAndPack(int start, int end, FloatT tolerance);
   /// Create packed array
   void createPacked(int number, const int *indices,
-    const double *elements);
+    const FloatT *elements);
   /// Create unpacked array
   void createUnpacked(int number, const int *indices,
-    const double *elements);
+    const FloatT *elements);
   /// Create unpacked singleton
-  void createOneUnpackedElement(int index, double element);
+  void createOneUnpackedElement(int index, FloatT element);
   /// This is mainly for testing - goes from packed to indexed
   void expand();
 #ifndef CLP_NO_VECTOR
@@ -324,13 +324,13 @@ public:
   /**@name Arithmetic operators. */
   //@{
   /// add <code>value</code> to every entry
-  void operator+=(double value);
+  void operator+=(FloatT value);
   /// subtract <code>value</code> from every entry
-  void operator-=(double value);
+  void operator-=(FloatT value);
   /// multiply every entry by <code>value</code>
-  void operator*=(double value);
+  void operator*=(FloatT value);
   /// divide every entry by <code>value</code> (** 0 vanishes)
-  void operator/=(double value);
+  void operator/=(FloatT value);
   //@}
 
   /**@name Comparison operators on two indexed vectors */
@@ -348,7 +348,7 @@ public:
   /// Not equal
   bool operator!=(const CoinIndexedVector &rhs) const;
   /// Equal with a tolerance (returns -1 or position of inequality).
-  int isApproximatelyEqual(const CoinIndexedVector &rhs, double tolerance = 1.0e-8) const;
+  int isApproximatelyEqual(const CoinIndexedVector &rhs, FloatT tolerance = 1.0e-8) const;
   //@}
 
   /**@name Index methods */
@@ -453,13 +453,13 @@ public:
   //@{
   /** Default constructor */
   CoinIndexedVector();
-  /** Alternate Constructors - set elements to vector of doubles */
-  CoinIndexedVector(int size, const int *inds, const double *elems);
+  /** Alternate Constructors - set elements to vector of FloatTs */
+  CoinIndexedVector(int size, const int *inds, const FloatT *elems);
   /** Alternate Constructors - set elements to same scalar value */
-  CoinIndexedVector(int size, const int *inds, double element);
+  CoinIndexedVector(int size, const int *inds, FloatT element);
   /** Alternate Constructors - construct full storage with indices 0 through
        size-1. */
-  CoinIndexedVector(int size, const double *elements);
+  CoinIndexedVector(int size, const FloatT *elements);
   /** Alternate Constructors - just size */
   CoinIndexedVector(int size);
   /** Copy constructor. */
@@ -479,14 +479,14 @@ private:
   //@{
   /// Copy internal data
   void gutsOfSetVector(int size,
-    const int *inds, const double *elems);
+    const int *inds, const FloatT *elems);
   void gutsOfSetVector(int size, int numberIndices,
-    const int *inds, const double *elems);
+    const int *inds, const FloatT *elems);
   void gutsOfSetPackedVector(int size, int numberIndices,
-    const int *inds, const double *elems);
+    const int *inds, const FloatT *elems);
   ///
   void gutsOfSetConstant(int size,
-    const int *inds, double value);
+    const int *inds, FloatT value);
   //@}
 
 protected:
@@ -495,7 +495,7 @@ protected:
   /// Vector indices
   int *indices_;
   ///Vector elements
-  double *elements_;
+  FloatT *elements_;
   /// Size of indices and packed elements vectors
   int nElements_;
   /// Amount of memory allocated for indices_, and elements_.
@@ -673,7 +673,7 @@ protected:
   int alignment_;
   //@}
 };
-/// double * version
+/// FloatT * version
 
 class CoinDoubleArrayWithLength : public CoinArrayWithLength {
 
@@ -683,12 +683,12 @@ public:
   /// Get the size
   inline CoinBigIndex getSize() const
   {
-    return size_ / CoinSizeofAsInt(double);
+    return size_ / CoinSizeofAsInt(FloatT);
   }
   /// Get Array
-  inline double *array() const
+  inline FloatT *array() const
   {
-    return reinterpret_cast< double * >((size_ > -2) ? array_ : NULL);
+    return reinterpret_cast< FloatT * >((size_ > -2) ? array_ : NULL);
   }
   //@}
 
@@ -697,16 +697,16 @@ public:
   /// Set the size
   inline void setSize(int value)
   {
-    size_ = value * CoinSizeofAsInt(double);
+    size_ = value * CoinSizeofAsInt(FloatT);
   }
   //@}
 
   /**@name Condition methods */
   //@{
   /// Conditionally gets new array
-  inline double *conditionalNew(CoinBigIndex sizeWanted)
+  inline FloatT *conditionalNew(CoinBigIndex sizeWanted)
   {
-    return reinterpret_cast< double * >(CoinArrayWithLength::conditionalNew(sizeWanted >= 0 ? static_cast< long long >((sizeWanted)*CoinSizeofAsInt(double)) : -1));
+    return reinterpret_cast< FloatT * >(CoinArrayWithLength::conditionalNew(sizeWanted >= 0 ? static_cast< long long >((sizeWanted)*CoinSizeofAsInt(FloatT)) : -1));
   }
   //@}
 
@@ -721,7 +721,7 @@ public:
   /** Alternate Constructor - length in bytes - size_ -1 */
   inline CoinDoubleArrayWithLength(int size)
   {
-    array_ = new char[size * CoinSizeofAsInt(double)];
+    array_ = new char[size * CoinSizeofAsInt(FloatT)];
     size_ = -1;
   }
   /** Alternate Constructor - length in bytes 
@@ -729,7 +729,7 @@ public:
       1 size_ set to size and zeroed
   */
   inline CoinDoubleArrayWithLength(int size, int mode)
-    : CoinArrayWithLength(size * CoinSizeofAsInt(double), mode)
+    : CoinArrayWithLength(size * CoinSizeofAsInt(FloatT), mode)
   {
   }
   /** Copy constructor. */
@@ -837,12 +837,12 @@ public:
   /// Get the size
   inline CoinBigIndex getSize() const
   {
-    return size_ / CoinSizeofAsInt(long double);
+    return size_ / CoinSizeofAsInt(FloatT);
   }
   /// Get Array
-  inline long double *array() const
+  inline FloatT *array() const
   {
-    return reinterpret_cast< long double * >((size_ > -2) ? array_ : NULL);
+    return reinterpret_cast< FloatT * >((size_ > -2) ? array_ : NULL);
   }
   //@}
 
@@ -851,16 +851,16 @@ public:
   /// Set the size
   inline void setSize(int value)
   {
-    size_ = value * CoinSizeofAsInt(long double);
+    size_ = value * CoinSizeofAsInt(FloatT);
   }
   //@}
 
   /**@name Condition methods */
   //@{
   /// Conditionally gets new array
-  inline long double *conditionalNew(CoinBigIndex sizeWanted)
+  inline FloatT *conditionalNew(CoinBigIndex sizeWanted)
   {
-    return reinterpret_cast< long double * >(CoinArrayWithLength::conditionalNew(sizeWanted >= 0 ? static_cast< long long >((sizeWanted)*CoinSizeofAsInt(long double)) : -1));
+    return reinterpret_cast< FloatT * >(CoinArrayWithLength::conditionalNew(sizeWanted >= 0 ? static_cast< long long >((sizeWanted)*CoinSizeofAsInt(FloatT)) : -1));
   }
   //@}
 
@@ -875,7 +875,7 @@ public:
   /** Alternate Constructor - length in bytes - size_ -1 */
   inline CoinFactorizationLongDoubleArrayWithLength(int size)
   {
-    array_ = new char[size * CoinSizeofAsInt(long double)];
+    array_ = new char[size * CoinSizeofAsInt(FloatT)];
     size_ = -1;
   }
   /** Alternate Constructor - length in bytes 
@@ -883,7 +883,7 @@ public:
       1 size_ set to size and zeroed
   */
   inline CoinFactorizationLongDoubleArrayWithLength(int size, int mode)
-    : CoinArrayWithLength(size * CoinSizeofAsInt(long double), mode)
+    : CoinArrayWithLength(size * CoinSizeofAsInt(FloatT), mode)
   {
   }
   /** Copy constructor. */
@@ -1377,7 +1377,7 @@ public:
   inline void checkClean() {};
 #endif
   /// Scan dense region and set up indices (returns number found)
-  int scan(int partition, double tolerance = 0.0);
+  int scan(int partition, FloatT tolerance = 0.0);
   /** Scan dense region from start to < end and set up indices
        returns number found
    */
@@ -1395,13 +1395,13 @@ public:
   //@{
   /** Default constructor */
   CoinPartitionedVector();
-  /** Alternate Constructors - set elements to vector of doubles */
-  CoinPartitionedVector(int size, const int *inds, const double *elems);
+  /** Alternate Constructors - set elements to vector of FloatTs */
+  CoinPartitionedVector(int size, const int *inds, const FloatT *elems);
   /** Alternate Constructors - set elements to same scalar value */
-  CoinPartitionedVector(int size, const int *inds, double element);
+  CoinPartitionedVector(int size, const int *inds, FloatT element);
   /** Alternate Constructors - construct full storage with indices 0 through
        size-1. */
-  CoinPartitionedVector(int size, const double *elements);
+  CoinPartitionedVector(int size, const FloatT *elements);
   /** Alternate Constructors - just size */
   CoinPartitionedVector(int size);
   /** Copy constructor. */
@@ -1424,7 +1424,7 @@ protected:
   int numberPartitions_;
   //@}
 };
-inline double *roundUpDouble(double *address)
+inline FloatT *roundUpDouble(FloatT *address)
 {
   // align on 64 byte boundary
   CoinInt64 xx = reinterpret_cast< CoinInt64 >(address);

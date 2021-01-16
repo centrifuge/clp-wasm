@@ -86,13 +86,13 @@ public:
   /// Updates two arrays for steepest
   int transposeTimes2(const CoinIndexedVector *pi1, CoinIndexedVector *dj1,
     const CoinIndexedVector *pi2, CoinIndexedVector *dj2,
-    CoinIndexedVector *spare, double scaleFactor);
+    CoinIndexedVector *spare, FloatT scaleFactor);
 
   /// Updates weights - part 1 - also checks accuracy
   virtual void updateWeights(CoinIndexedVector *input);
 
   /// Checks accuracy - just for debug
-  void checkAccuracy(int sequence, double relativeTolerance,
+  void checkAccuracy(int sequence, FloatT relativeTolerance,
     CoinIndexedVector *rowArray1,
     CoinIndexedVector *rowArray2);
 
@@ -138,7 +138,7 @@ public:
     return infeasible_;
   }
   /// Weights
-  inline const double *weights() const
+  inline const FloatT *weights() const
   {
     return weights_;
   }
@@ -222,15 +222,15 @@ public:
 protected:
   ///@name Protected member data
   // Update weight
-  double devex_;
+  FloatT devex_;
   /// weight array
-  double *weights_;
+  FloatT *weights_;
   /// square of infeasibility array (just for infeasible columns)
   CoinIndexedVector *infeasible_;
   /// alternate weight array (so we can unroll)
   CoinIndexedVector *alternateWeights_;
   /// save weight array (so we can use checkpoint)
-  double *savedWeights_;
+  FloatT *savedWeights_;
   // Array for exact devex to say what is in reference framework
   unsigned int *reference_;
   /** Status

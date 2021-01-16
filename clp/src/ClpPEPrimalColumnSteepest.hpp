@@ -38,7 +38,7 @@ public:
          but only part of the nonbasic variables are scanned.
          This can be faster on very easy problems.
      */
-  ClpPEPrimalColumnSteepest(double psi = 0.5, int mode = 3);
+  ClpPEPrimalColumnSteepest(FloatT psi = 0.5, int mode = 3);
 
   /// Copy constructor
   ClpPEPrimalColumnSteepest(const ClpPEPrimalColumnSteepest &rhs);
@@ -78,7 +78,7 @@ public:
   virtual void updateWeights(CoinIndexedVector *input);
   //---------------------------------------------------------------------------
   // Psi
-  inline double psi() const
+  inline FloatT psi() const
   {
     return psi_;
   }
@@ -89,7 +89,7 @@ private:
 
   /* psi is the factor used in the bi-dimensional pricing, it is < 1 and
        1/psi grows with the priority given to compatible variables */
-  double psi_;
+  FloatT psi_;
 
   /* useful counters for the update of the set of compatible variables */
   int iCurrent_;

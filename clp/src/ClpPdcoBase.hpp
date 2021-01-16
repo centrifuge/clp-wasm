@@ -27,15 +27,15 @@ class ClpPdcoBase {
 public:
   /**@name Virtual methods that the derived classes must provide */
   //@{
-  virtual void matVecMult(ClpInterior *model, int mode, double *x, double *y) const = 0;
+  virtual void matVecMult(ClpInterior *model, int mode, FloatT *x, FloatT *y) const = 0;
 
-  virtual void getGrad(ClpInterior *model, CoinDenseVector< double > &x, CoinDenseVector< double > &grad) const = 0;
+  virtual void getGrad(ClpInterior *model, CoinDenseVector< FloatT > &x, CoinDenseVector< FloatT > &grad) const = 0;
 
-  virtual void getHessian(ClpInterior *model, CoinDenseVector< double > &x, CoinDenseVector< double > &H) const = 0;
+  virtual void getHessian(ClpInterior *model, CoinDenseVector< FloatT > &x, CoinDenseVector< FloatT > &H) const = 0;
 
-  virtual double getObj(ClpInterior *model, CoinDenseVector< double > &x) const = 0;
+  virtual FloatT getObj(ClpInterior *model, CoinDenseVector< FloatT > &x) const = 0;
 
-  virtual void matPrecon(ClpInterior *model, double delta, double *x, double *y) const = 0;
+  virtual void matPrecon(ClpInterior *model, FloatT delta, FloatT *x, FloatT *y) const = 0;
 
   //@}
   //@{
@@ -58,7 +58,7 @@ public:
     return 1;
   };
   /// Returns d1 as scalar
-  inline double getD1() const
+  inline FloatT getD1() const
   {
     return d1_;
   };
@@ -68,7 +68,7 @@ public:
     return 1;
   };
   /// Returns d2 as scalar
-  inline double getD2() const
+  inline FloatT getD2() const
   {
     return d2_;
   };
@@ -97,8 +97,8 @@ protected:
         The data members are protected to allow access for derived classes. */
   //@{
   /// Should be dense vectors
-  double d1_;
-  double d2_;
+  FloatT d1_;
+  FloatT d2_;
   /// type (may be useful)
   int type_;
   //@}

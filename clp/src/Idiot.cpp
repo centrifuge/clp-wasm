@@ -42,12 +42,12 @@ djTol - only look at variables with dj better than this => 0.01*djExit
 #define IDIOT_FIX_TOLERANCE 1e-6
 #define SMALL_IDIOT_FIX_TOLERANCE 1e-10
 int Idiot::dropping(IdiotResult result,
-  double tolerance,
-  double small,
+  FloatT tolerance,
+  FloatT small,
   int *nbad)
 {
   if (result.infeas <= small) {
-    double value = CoinMax(fabs(result.objval), fabs(result.dropThis)) + 1.0;
+    FloatT value = CoinMax(fabs(result.objval), fabs(result.dropThis)) + 1.0;
     if (result.dropThis > tolerance * value) {
       *nbad = 0;
       return 1;
@@ -66,10 +66,10 @@ int Idiot::dropping(IdiotResult result,
 }
 // Deals with whenUsed and slacks
 int Idiot::cleanIteration(int iteration, int ordinaryStart, int ordinaryEnd,
-  double *colsol, const double *lower, const double *upper,
-  const double *rowLower, const double *rowUpper,
-  const double *cost, const double *element, double fixTolerance,
-  double &objValue, double &infValue, double &maxInfeasibility)
+  FloatT *colsol, const FloatT *lower, const FloatT *upper,
+  const FloatT *rowLower, const FloatT *rowUpper,
+  const FloatT *cost, const FloatT *element, FloatT fixTolerance,
+  FloatT &objValue, FloatT &infValue, FloatT &maxInfeasibility)
 {
   int n = 0;
   if ((strategy_ & 16384) == 0) {
@@ -95,8 +95,8 @@ int Idiot::cleanIteration(int iteration, int ordinaryStart, int ordinaryEnd,
     int *posSlack = whenUsed_ + ncols;
     int *negSlack = posSlack + nrows;
     int *nextSlack = negSlack + nrows;
-    double *rowsol = reinterpret_cast< double * >(nextSlack + ncols);
-    memset(rowsol, 0, nrows * sizeof(double));
+    FloatT *rowsol = reinterpret_cast< FloatT * >(nextSlack + ncols);
+    memset(rowsol, 0, nrows * sizeof(FloatT));
 #ifdef OSI_IDIOT
     const CoinPackedMatrix *matrix = model_->getMatrixByCol();
 #else
@@ -107,7 +107,7 @@ int Idiot::cleanIteration(int iteration, int ordinaryStart, int ordinaryEnd,
     const int *row = matrix->getIndices();
     const CoinBigIndex *columnStart = matrix->getVectorStarts();
     const int *columnLength = matrix->getVectorLengths();
-    //const double * element = matrix->getElements();
+    //const FloatT * element = matrix->getElements();
     int i;
     objValue = 0.0;
     infValue = 0.0;
@@ -126,7 +126,7 @@ int Idiot::cleanIteration(int iteration, int ordinaryStart, int ordinaryEnd,
         } else {
           colsol[i] = lower[i];
         }
-        double value = colsol[i];
+        FloatT value = colsol[i];
         if (value) {
           objValue += cost[i] * value;
           CoinBigIndex j;
@@ -139,19 +139,19 @@ int Idiot::cleanIteration(int iteration, int ordinaryStart, int ordinaryEnd,
     }
     // temp fix for infinite lbs - just limit to -1000
     for (i = 0; i < nrows; i++) {
-      double rowSave = rowsol[i];
+      FloatT rowSave = rowsol[i];
       int iCol;
       iCol = posSlack[i];
       if (iCol >= 0) {
         // slide all slack down
-        double rowValue = rowsol[i];
+        FloatT rowValue = rowsol[i];
         CoinBigIndex j = columnStart[iCol];
-        double lowerValue = CoinMax(CoinMin(colsol[iCol], 0.0) - 1000.0, lower[iCol]);
+        FloatT lowerValue = CoinMax(CoinMin(colsol[iCol], 0.0) - 1000.0, lower[iCol]);
         rowSave += (colsol[iCol] - lowerValue) * element[j];
         colsol[iCol] = lowerValue;
         while (nextSlack[iCol] >= 0) {
           iCol = nextSlack[iCol];
-          double lowerValue = CoinMax(CoinMin(colsol[iCol], 0.0) - 1000.0, lower[iCol]);
+          FloatT lowerValue = CoinMax(CoinMin(colsol[iCol], 0.0) - 1000.0, lower[iCol]);
           j = columnStart[iCol];
           rowSave += (colsol[iCol] - lowerValue) * element[j];
           colsol[iCol] = lowerValue;
@@ -159,18 +159,18 @@ int Idiot::cleanIteration(int iteration, int ordinaryStart, int ordinaryEnd,
         iCol = posSlack[i];
         while (rowValue < rowLower[i] && iCol >= 0) {
           // want to increase
-          double distance = rowLower[i] - rowValue;
-          double value = element[columnStart[iCol]];
-          double thisCost = cost[iCol];
+          FloatT distance = rowLower[i] - rowValue;
+          FloatT value = element[columnStart[iCol]];
+          FloatT thisCost = cost[iCol];
           if (distance <= value * (upper[iCol] - colsol[iCol])) {
             // can get there
-            double movement = distance / value;
+            FloatT movement = distance / value;
             objValue += movement * thisCost;
             rowValue = rowLower[i];
             colsol[iCol] += movement;
           } else {
             // can't get there
-            double movement = upper[iCol] - colsol[iCol];
+            FloatT movement = upper[iCol] - colsol[iCol];
             objValue += movement * thisCost;
             rowValue += movement * value;
             colsol[iCol] = upper[iCol];
@@ -181,19 +181,19 @@ int Idiot::cleanIteration(int iteration, int ordinaryStart, int ordinaryEnd,
           // may want to carry on - because of cost?
           while (iCol >= 0 && cost[iCol] < 0 && rowValue < rowUpper[i]) {
             // want to increase
-            double distance = rowUpper[i] - rowValue;
-            double value = element[columnStart[iCol]];
-            double thisCost = cost[iCol];
+            FloatT distance = rowUpper[i] - rowValue;
+            FloatT value = element[columnStart[iCol]];
+            FloatT thisCost = cost[iCol];
             if (distance <= value * (upper[iCol] - colsol[iCol])) {
               // can get there
-              double movement = distance / value;
+              FloatT movement = distance / value;
               objValue += movement * thisCost;
               rowValue = rowUpper[i];
               colsol[iCol] += movement;
               iCol = -1;
             } else {
               // can't get there
-              double movement = upper[iCol] - colsol[iCol];
+              FloatT movement = upper[iCol] - colsol[iCol];
               objValue += movement * thisCost;
               rowValue += movement * value;
               colsol[iCol] = upper[iCol];
@@ -210,33 +210,33 @@ int Idiot::cleanIteration(int iteration, int ordinaryStart, int ordinaryEnd,
       iCol = negSlack[i];
       if (iCol >= 0) {
         // slide all slack down
-        double rowValue = rowsol[i];
+        FloatT rowValue = rowsol[i];
         CoinBigIndex j = columnStart[iCol];
-        double lowerValue = CoinMax(CoinMin(colsol[iCol], 0.0) - 1000.0, lower[iCol]);
+        FloatT lowerValue = CoinMax(CoinMin(colsol[iCol], 0.0) - 1000.0, lower[iCol]);
         rowSave += (colsol[iCol] - lowerValue) * element[j];
         colsol[iCol] = lowerValue;
         while (nextSlack[iCol] >= 0) {
           iCol = nextSlack[iCol];
           j = columnStart[iCol];
-          double lowerValue = CoinMax(CoinMin(colsol[iCol], 0.0) - 1000.0, lower[iCol]);
+          FloatT lowerValue = CoinMax(CoinMin(colsol[iCol], 0.0) - 1000.0, lower[iCol]);
           rowSave += (colsol[iCol] - lowerValue) * element[j];
           colsol[iCol] = lowerValue;
         }
         iCol = negSlack[i];
         while (rowValue > rowUpper[i] && iCol >= 0) {
           // want to increase
-          double distance = -(rowUpper[i] - rowValue);
-          double value = -element[columnStart[iCol]];
-          double thisCost = cost[iCol];
+          FloatT distance = -(rowUpper[i] - rowValue);
+          FloatT value = -element[columnStart[iCol]];
+          FloatT thisCost = cost[iCol];
           if (distance <= value * (upper[iCol] - lower[iCol])) {
             // can get there
-            double movement = distance / value;
+            FloatT movement = distance / value;
             objValue += movement * thisCost;
             rowValue = rowUpper[i];
             colsol[iCol] += movement;
           } else {
             // can't get there
-            double movement = upper[iCol] - lower[iCol];
+            FloatT movement = upper[iCol] - lower[iCol];
             objValue += movement * thisCost;
             rowValue -= movement * value;
             colsol[iCol] = upper[iCol];
@@ -247,19 +247,19 @@ int Idiot::cleanIteration(int iteration, int ordinaryStart, int ordinaryEnd,
           // may want to carry on - because of cost?
           while (iCol >= 0 && cost[iCol] < 0 && rowValue > rowLower[i]) {
             // want to increase
-            double distance = -(rowLower[i] - rowValue);
-            double value = -element[columnStart[iCol]];
-            double thisCost = cost[iCol];
+            FloatT distance = -(rowLower[i] - rowValue);
+            FloatT value = -element[columnStart[iCol]];
+            FloatT thisCost = cost[iCol];
             if (distance <= value * (upper[iCol] - colsol[iCol])) {
               // can get there
-              double movement = distance / value;
+              FloatT movement = distance / value;
               objValue += movement * thisCost;
               rowValue = rowLower[i];
               colsol[iCol] += movement;
               iCol = -1;
             } else {
               // can't get there
-              double movement = upper[iCol] - colsol[iCol];
+              FloatT movement = upper[iCol] - colsol[iCol];
               objValue += movement * thisCost;
               rowValue -= movement * value;
               colsol[iCol] = upper[iCol];
@@ -273,7 +273,7 @@ int Idiot::cleanIteration(int iteration, int ordinaryStart, int ordinaryEnd,
         }
         rowsol[i] = rowValue;
       }
-      double infeasibility = CoinMax(CoinMax(0.0, rowLower[i] - rowsol[i]), rowsol[i] - rowUpper[i]);
+      FloatT infeasibility = CoinMax(CoinMax(0.0, rowLower[i] - rowsol[i]), rowsol[i] - rowUpper[i]);
       infValue += infeasibility;
       maxInfeasibility = CoinMax(maxInfeasibility, infeasibility);
       // just change
@@ -297,8 +297,8 @@ static int countCostedSlacks(OsiSolverInterface *model)
   const int *row = matrix->getIndices();
   const CoinBigIndex *columnStart = matrix->getVectorStarts();
   const int *columnLength = matrix->getVectorLengths();
-  const double *element = matrix->getElements();
-  const double *rowupper = model->getRowUpper();
+  const FloatT *element = matrix->getElements();
+  const FloatT *rowupper = model->getRowUpper();
   int nrows = model->getNumRows();
   int ncols = model->getNumCols();
   int slackStart = ncols - nrows;
@@ -338,9 +338,9 @@ void Idiot::crash(int numberPass, CoinMessageHandler *handler,
 {
   // lightweight options
   int numberColumns = model_->getNumCols();
-  const double *objective = model_->getObjCoefficients();
+  const FloatT *objective = model_->getObjCoefficients();
   int nnzero = 0;
-  double sum = 0.0;
+  FloatT sum = 0.0;
   int i;
   for (i = 0; i < numberColumns; i++) {
     if (objective[i]) {
@@ -348,11 +348,11 @@ void Idiot::crash(int numberPass, CoinMessageHandler *handler,
       nnzero++;
     }
   }
-  sum /= static_cast< double >(nnzero + 1);
+  sum /= static_cast< FloatT >(nnzero + 1);
   if (maxIts_ == 5)
     maxIts_ = 2;
   if (numberPass <= 0)
-    majorIterations_ = static_cast< int >(2 + log10(static_cast< double >(numberColumns + 1)));
+    majorIterations_ = static_cast< int >(2 + log10(static_cast< FloatT >(numberColumns + 1)));
   else
     majorIterations_ = numberPass;
   // If mu not changed then compute
@@ -375,7 +375,7 @@ void Idiot::crash(int numberPass, CoinMessageHandler *handler,
     solve2(handler, messages);
 #ifndef OSI_IDIOT
   if (doCrossover) {
-    double averageInfeas = model_->sumPrimalInfeasibilities() / static_cast< double >(model_->numberRows());
+    FloatT averageInfeas = model_->sumPrimalInfeasibilities() / static_cast< FloatT >(model_->numberRows());
     if ((averageInfeas < 0.01 && (strategy_ & 512) != 0) || (strategy_ & 8192) != 0)
       crossOver(16 + 1);
     else
@@ -392,13 +392,13 @@ void Idiot::solve()
 void Idiot::solve2(CoinMessageHandler *handler, const CoinMessages *messages)
 {
   int strategy = 0;
-  double d2;
+  FloatT d2;
   int i, n;
   int allOnes = 1;
   int iteration = 0;
   int iterationTotal = 0;
   int nTry = 0; /* number of tries at same weight */
-  double fixTolerance = IDIOT_FIX_TOLERANCE;
+  FloatT fixTolerance = IDIOT_FIX_TOLERANCE;
   int maxBigIts = maxBigIts_;
   int maxIts = maxIts_;
   int logLevel = logLevel_;
@@ -412,32 +412,32 @@ void Idiot::solve2(CoinMessageHandler *handler, const CoinMessages *messages)
     else
       logLevel = 7;
   }
-  double djExit = djTolerance_;
-  double djFlag = 1.0 + 100.0 * djExit;
-  double djTol = 0.00001;
-  double mu = mu_;
-  double drop = drop_;
+  FloatT djExit = djTolerance_;
+  FloatT djFlag = 1.0 + 100.0 * djExit;
+  FloatT djTol = 0.00001;
+  FloatT mu = mu_;
+  FloatT drop = drop_;
   int maxIts2 = maxIts2_;
-  double factor = muFactor_;
-  double smallInfeas = smallInfeas_;
-  double reasonableInfeas = reasonableInfeas_;
-  double stopMu = stopMu_;
-  double maxmin, offset;
-  double lastWeighted = 1.0e50;
-  double exitDrop = exitDrop_;
-  double fakeSmall = smallInfeas;
-  double firstInfeas;
+  FloatT factor = muFactor_;
+  FloatT smallInfeas = smallInfeas_;
+  FloatT reasonableInfeas = reasonableInfeas_;
+  FloatT stopMu = stopMu_;
+  FloatT maxmin, offset;
+  FloatT lastWeighted = 1.0e50;
+  FloatT exitDrop = exitDrop_;
+  FloatT fakeSmall = smallInfeas;
+  FloatT firstInfeas;
   int badIts = 0;
   int slackStart, ordStart, ordEnd;
   int checkIteration = 0;
   int lambdaIteration = 0;
   int belowReasonable = 0; /* set if ever gone below reasonable infeas */
-  double bestWeighted = 1.0e60;
-  double bestFeasible = 1.0e60; /* best solution while feasible */
+  FloatT bestWeighted = 1.0e60;
+  FloatT bestFeasible = 1.0e60; /* best solution while feasible */
   IdiotResult result, lastResult;
   int saveStrategy = strategy_;
   const int strategies[] = { 0, 2, 128 };
-  double saveLambdaScale = 0.0;
+  FloatT saveLambdaScale = 0.0;
   if ((saveStrategy & 128) != 0) {
     fixTolerance = SMALL_IDIOT_FIX_TOLERANCE;
   }
@@ -451,37 +451,37 @@ void Idiot::solve2(CoinMessageHandler *handler, const CoinMessages *messages)
   const int *row = matrix->getIndices();
   const CoinBigIndex *columnStart = matrix->getVectorStarts();
   const int *columnLength = matrix->getVectorLengths();
-  const double *element = matrix->getElements();
+  const FloatT *element = matrix->getElements();
   int nrows = model_->getNumRows();
   int ncols = model_->getNumCols();
-  double *rowsol, *colsol;
-  double *pi, *dj;
+  FloatT *rowsol, *colsol;
+  FloatT *pi, *dj;
 #ifndef OSI_IDIOT
-  double *cost = model_->objective();
-  double *lower = model_->columnLower();
-  double *upper = model_->columnUpper();
+  FloatT *cost = model_->objective();
+  FloatT *lower = model_->columnLower();
+  FloatT *upper = model_->columnUpper();
 #else
-  double *cost = new double[ncols];
+  FloatT *cost = new FloatT[ncols];
   CoinMemcpyN(model_->getObjCoefficients(), ncols, cost);
-  const double *lower = model_->getColLower();
-  const double *upper = model_->getColUpper();
+  const FloatT *lower = model_->getColLower();
+  const FloatT *upper = model_->getColUpper();
 #endif
-  const double *elemXX;
-  double *saveSol;
-  double *rowupper = new double[nrows]; // not const as modified
+  const FloatT *elemXX;
+  FloatT *saveSol;
+  FloatT *rowupper = new FloatT[nrows]; // not const as modified
   CoinMemcpyN(model_->getRowUpper(), nrows, rowupper);
-  double *rowlower = new double[nrows]; // not const as modified
+  FloatT *rowlower = new FloatT[nrows]; // not const as modified
   CoinMemcpyN(model_->getRowLower(), nrows, rowlower);
   CoinThreadRandom *randomNumberGenerator = model_->randomNumberGenerator();
   int *whenUsed;
-  double *lambda;
-  saveSol = new double[ncols];
-  lambda = new double[nrows];
-  rowsol = new double[nrows];
-  colsol = new double[ncols];
+  FloatT *lambda;
+  saveSol = new FloatT[ncols];
+  lambda = new FloatT[nrows];
+  rowsol = new FloatT[nrows];
+  colsol = new FloatT[ncols];
   CoinMemcpyN(model_->getColSolution(), ncols, colsol);
-  pi = new double[nrows];
-  dj = new double[ncols];
+  pi = new FloatT[nrows];
+  dj = new FloatT[ncols];
 #ifndef OSI_IDIOT
   bool fixAfterSome = false; //(model_->specialOptions()&8388608)!=0;
   int exitAfter = 50; //(model_->specialOptions()&8388608)!=0 ? 50 : 1000000;
@@ -508,7 +508,7 @@ void Idiot::solve2(CoinMessageHandler *handler, const CoinMessages *messages)
     printf("%d slacks\n", numberSlacks);
 #endif
     oddSlacks = true;
-    int extra = static_cast< int >(nrows * sizeof(double) / sizeof(int));
+    int extra = static_cast< int >(nrows * sizeof(FloatT) / sizeof(int));
     whenUsed_ = new int[2 * ncols + 2 * nrows + extra];
     int *posSlack = whenUsed_ + ncols;
     int *negSlack = posSlack + nrows;
@@ -632,7 +632,7 @@ void Idiot::solve2(CoinMessageHandler *handler, const CoinMessages *messages)
     maxIts2 = maxIts;
   strategy = strategy_;
   strategy &= 3;
-  memset(lambda, 0, nrows * sizeof(double));
+  memset(lambda, 0, nrows * sizeof(FloatT));
   slackStart = countCostedSlacks(model_);
   // redo in case odd matrix
   row = matrix->getIndices();
@@ -682,17 +682,17 @@ void Idiot::solve2(CoinMessageHandler *handler, const CoinMessages *messages)
     if (scaled) {
 #define IDIOT_SCALE 2
 #ifndef IDIOT_SCALE
-      const double *rowScale = model_->rowScale();
+      const FloatT *rowScale = model_->rowScale();
 #else
-      double *rowScale = model_->mutableRowScale();
+      FloatT *rowScale = model_->mutableRowScale();
 #endif
-      const double *columnScale = model_->columnScale();
-      double *oldLower = lower;
-      double *oldUpper = upper;
-      double *oldCost = cost;
-      lower = new double[ncols];
-      upper = new double[ncols];
-      cost = new double[ncols];
+      const FloatT *columnScale = model_->columnScale();
+      FloatT *oldLower = lower;
+      FloatT *oldUpper = upper;
+      FloatT *oldCost = cost;
+      lower = new FloatT[ncols];
+      upper = new FloatT[ncols];
+      cost = new FloatT[ncols];
       CoinMemcpyN(oldLower, ncols, lower);
       CoinMemcpyN(oldUpper, ncols, upper);
       CoinMemcpyN(oldCost, ncols, cost);
@@ -704,7 +704,7 @@ void Idiot::solve2(CoinMessageHandler *handler, const CoinMessages *messages)
       }
 #endif
       for (icol = 0; icol < ncols; icol++) {
-        double multiplier = 1.0 / columnScale[icol];
+        FloatT multiplier = 1.0 / columnScale[icol];
         if (lower[icol] > -1.0e50)
           lower[icol] *= multiplier;
         if (upper[icol] < 1.0e50)
@@ -713,10 +713,10 @@ void Idiot::solve2(CoinMessageHandler *handler, const CoinMessages *messages)
         cost[icol] *= columnScale[icol];
 #if IDIOT_SCALE < 0
         CoinBigIndex j;
-        double scale = columnScale[i];
+        FloatT scale = columnScale[i];
         for (j = columnStart[i]; j < columnStart[i] + columnLength[i]; j++) {
           int jrow = row[j];
-          double scaledValue = fabs(scale * element[j]);
+          FloatT scaledValue = fabs(scale * element[j]);
           rowlower[jrow] = CoinMin(rowlower[jrow], scaledValue);
           rowupper[jrow] = CoinMax(rowupper[jrow], scaledValue);
         }
@@ -724,14 +724,14 @@ void Idiot::solve2(CoinMessageHandler *handler, const CoinMessages *messages)
       }
 #ifdef IDIOT_SCALE
 #if IDIOT_SCALE > 1 || IDIOT_SCALE < -1
-      const double *rowLower = model_->rowLower();
-      const double *rowUpper = model_->rowUpper();
+      const FloatT *rowLower = model_->rowLower();
+      const FloatT *rowUpper = model_->rowUpper();
 #endif
       for (irow = 0; irow < nrows; irow++) {
 #if IDIOT_SCALE < 0
-        double multiplier = 1.0 / sqrt(rowlower[irow] * rowupper[irow]);
+        FloatT multiplier = 1.0 / sqrt(rowlower[irow] * rowupper[irow]);
 #else
-        double multiplier = rowScale[irow];
+        FloatT multiplier = rowScale[irow];
 #endif
 #if IDIOT_SCALE > 1 || IDIOT_SCALE < -1
 #define EQUALITY_MULTIPLIER 2
@@ -748,7 +748,7 @@ void Idiot::solve2(CoinMessageHandler *handler, const CoinMessages *messages)
 #endif
       CoinMemcpyN(model_->rowLower(), nrows, rowlower);
       for (irow = 0; irow < nrows; irow++) {
-        double multiplier = rowScale[irow];
+        FloatT multiplier = rowScale[irow];
         if (rowlower[irow] > -1.0e50)
           rowlower[irow] *= multiplier;
         if (rowupper[irow] < 1.0e50)
@@ -756,10 +756,10 @@ void Idiot::solve2(CoinMessageHandler *handler, const CoinMessages *messages)
         rowsol[irow] *= multiplier;
       }
       CoinBigIndex length = columnStart[ncols - 1] + columnLength[ncols - 1];
-      double *elemYY = new double[length];
+      FloatT *elemYY = new FloatT[length];
       for (i = 0; i < ncols; i++) {
         CoinBigIndex j;
-        double scale = columnScale[i];
+        FloatT scale = columnScale[i];
         for (j = columnStart[i]; j < columnStart[i] + columnLength[i]; j++) {
           int irow = row[j];
           elemYY[j] = element[j] * scale * rowScale[irow];
@@ -776,7 +776,7 @@ void Idiot::solve2(CoinMessageHandler *handler, const CoinMessages *messages)
   }
   for (i = 0; i < ncols; i++) {
     CoinBigIndex j;
-    double dd = columnLength[i];
+    FloatT dd = columnLength[i];
     dd = cost[i] / dd;
     for (j = columnStart[i]; j < columnStart[i] + columnLength[i]; j++) {
       int irow = row[j];
@@ -791,7 +791,7 @@ void Idiot::solve2(CoinMessageHandler *handler, const CoinMessages *messages)
   }
   d2 *= 2.0; /* for luck */
 
-  d2 = d2 / static_cast< double >(4 * nrows + 8000);
+  d2 = d2 / static_cast< FloatT >(4 * nrows + 8000);
   d2 *= 0.5; /* halve with more flexible method */
   if (d2 < 5.0)
     d2 = 5.0;
@@ -816,7 +816,7 @@ void Idiot::solve2(CoinMessageHandler *handler, const CoinMessages *messages)
     0, mu, drop,
     maxmin, offset, strategy, djTol, djExit, djFlag, randomNumberGenerator);
   // update whenUsed_
-  double maxInfeasibility = COIN_DBL_MAX;
+  FloatT maxInfeasibility = COIN_DBL_MAX;
   n = cleanIteration(iteration, ordStart, ordEnd,
     colsol, lower, upper,
     rowlower, rowupper,
@@ -825,7 +825,7 @@ void Idiot::solve2(CoinMessageHandler *handler, const CoinMessages *messages)
     int *posSlack = whenUsed_ + ncols;
     int *negSlack = posSlack + nrows;
     int *nextSlack = negSlack + nrows;
-    double *rowsol2 = reinterpret_cast< double * >(nextSlack + ncols);
+    FloatT *rowsol2 = reinterpret_cast< FloatT * >(nextSlack + ncols);
     for (i = 0; i < nrows; i++)
       rowsol[i] += rowsol2[i];
   }
@@ -851,9 +851,9 @@ void Idiot::solve2(CoinMessageHandler *handler, const CoinMessages *messages)
     reasonableInfeas = 0.5 * firstInfeas;
   if (lastResult.infeas < reasonableInfeas)
     lastResult.infeas = reasonableInfeas;
-  double keepinfeas = 1.0e31;
-  double lastInfeas = 1.0e31;
-  double bestInfeas = 1.0e31;
+  FloatT keepinfeas = 1.0e31;
+  FloatT lastInfeas = 1.0e31;
+  FloatT bestInfeas = 1.0e31;
   while ((mu > stopMu && lastResult.infeas > smallInfeas) || (lastResult.infeas <= smallInfeas && dropping(lastResult, exitDrop, smallInfeas, &badIts)) || checkIteration < 2 || lambdaIteration < lambdaIterations_) {
     if (lastResult.infeas <= exitFeasibility_)
       break;
@@ -871,7 +871,7 @@ void Idiot::solve2(CoinMessageHandler *handler, const CoinMessages *messages)
       strategy |= 256;
     if ((saveStrategy & 4) != 0 && iteration > 2) {
       /* go to relative tolerances */
-      double weighted = 10.0 + fabs(lastWeighted);
+      FloatT weighted = 10.0 + fabs(lastWeighted);
       djExit = djTolerance_ * weighted;
       djFlag = 2.0 * djExit;
       drop = drop_ * weighted;
@@ -891,13 +891,13 @@ void Idiot::solve2(CoinMessageHandler *handler, const CoinMessages *messages)
       int *posSlack = whenUsed_ + ncols;
       int *negSlack = posSlack + nrows;
       int *nextSlack = negSlack + nrows;
-      double *rowsol2 = reinterpret_cast< double * >(nextSlack + ncols);
+      FloatT *rowsol2 = reinterpret_cast< FloatT * >(nextSlack + ncols);
       for (i = 0; i < nrows; i++)
         rowsol[i] += rowsol2[i];
     } else {
       maxInfeasibility = 0.0;
       for (i = 0; i < nrows; i++) {
-        double infeasibility = CoinMax(CoinMax(0.0, rowlower[i] - rowsol[i]), rowsol[i] - rowupper[i]);
+        FloatT infeasibility = CoinMax(CoinMax(0.0, rowlower[i] - rowsol[i]), rowsol[i] - rowupper[i]);
         maxInfeasibility = CoinMax(maxInfeasibility, infeasibility);
       }
     }
@@ -951,7 +951,7 @@ void Idiot::solve2(CoinMessageHandler *handler, const CoinMessages *messages)
                 model_->setColumnStatus(i, ClpSimplex::isFixed);
               } else {
                 cost[i] = 0.0;
-                double gap = upper[i] - lower[i];
+                FloatT gap = upper[i] - lower[i];
                 if (colsol[i] > upper[i] - 0.25 * gap) {
                   cost[i] = gap / (colsol[i] - upper[i]);
                 } else if (colsol[i] < lower[i] + 0.25 * gap) {
@@ -1005,7 +1005,7 @@ void Idiot::solve2(CoinMessageHandler *handler, const CoinMessages *messages)
     if (majorIterations_ > 100 && majorIterations_ < 200) {
       if (iteration == majorIterations_ - 100) {
         // redo
-        double muX = mu * 10.0;
+        FloatT muX = mu * 10.0;
         bestInfeas = 1.0e3;
         mu = muX;
         nTry = 0;
@@ -1013,7 +1013,7 @@ void Idiot::solve2(CoinMessageHandler *handler, const CoinMessages *messages)
     }
     if (iteration) {
       /* this code is in to force it to terminate sometime */
-      double changeMu = factor;
+      FloatT changeMu = factor;
       if ((saveStrategy & 64) != 0) {
         keepinfeas = 0.0; /* switch off ranga's increase */
         fakeSmall = smallInfeas;
@@ -1037,17 +1037,17 @@ void Idiot::solve2(CoinMessageHandler *handler, const CoinMessages *messages)
 #define LAMBDA
 #ifdef LAMBDA
           if ((saveStrategy & 2048) == 0) {
-            memset(lambda, 0, nrows * sizeof(double));
+            memset(lambda, 0, nrows * sizeof(FloatT));
           }
 #else
-          memset(lambda, 0, nrows * sizeof(double));
+          memset(lambda, 0, nrows * sizeof(FloatT));
 #endif
         } else {
           nTry++;
         }
       } else if (lambdaIterations_ >= 0) {
         /* update lambda  */
-        double scale = 1.0 / mu;
+        FloatT scale = 1.0 / mu;
         int i, nnz = 0;
         saveLambdaScale = scale;
         lambdaIteration++;
@@ -1075,7 +1075,7 @@ void Idiot::solve2(CoinMessageHandler *handler, const CoinMessages *messages)
           }
           for (i = 0; i < ncols; i++) {
             CoinBigIndex j;
-            double value = cost[i] * maxmin;
+            FloatT value = cost[i] * maxmin;
             for (j = columnStart[i]; j < columnStart[i] + columnLength[i]; j++) {
               int irow = row[j];
               value += element[j] * lambda[irow];
@@ -1100,7 +1100,7 @@ void Idiot::solve2(CoinMessageHandler *handler, const CoinMessages *messages)
           result.weighted = 1.0e31;
         }
 #ifdef DEBUG
-        double trueCost = 0.0;
+        FloatT trueCost = 0.0;
         for (i = 0; i < ncols; i++) {
           int j;
           trueCost += cost[i] * colsol[i];
@@ -1136,8 +1136,8 @@ void Idiot::solve2(CoinMessageHandler *handler, const CoinMessages *messages)
 #ifndef OSI_IDIOT
   if (scaled) {
     // Scale solution and free arrays
-    const double *rowScale = model_->rowScale();
-    const double *columnScale = model_->columnScale();
+    const FloatT *rowScale = model_->rowScale();
+    const FloatT *columnScale = model_->columnScale();
     int icol, irow;
     for (icol = 0; icol < ncols; icol++) {
       colsol[icol] *= columnScale[icol];
@@ -1150,7 +1150,7 @@ void Idiot::solve2(CoinMessageHandler *handler, const CoinMessages *messages)
     }
     // Don't know why getting Microsoft problems
 #if defined(_MSC_VER)
-    delete[](double *) elemXX;
+    delete[](FloatT *) elemXX;
 #else
     delete[] elemXX;
 #endif
@@ -1171,11 +1171,11 @@ void Idiot::solve2(CoinMessageHandler *handler, const CoinMessages *messages)
 #define TRYTHIS
 #ifdef TRYTHIS
   if ((saveStrategy & 2048) != 0) {
-    double offset;
+    FloatT offset;
     model_->getDblParam(OsiObjOffset, offset);
     for (i = 0; i < ncols; i++) {
       CoinBigIndex j;
-      double djval = cost[i] * maxmin;
+      FloatT djval = cost[i] * maxmin;
       for (j = columnStart[i]; j < columnStart[i] + columnLength[i]; j++) {
         int irow = row[j];
         djval -= element[j] * lambda[irow];
@@ -1214,19 +1214,19 @@ void Idiot::solve2(CoinMessageHandler *handler, const CoinMessages *messages)
   model_->setSumPrimalInfeasibilities(lastResult.infeas);
 #endif
   // Put back more feasible solution
-  double saveInfeas[] = { 0.0, 0.0 };
+  FloatT saveInfeas[] = { 0.0, 0.0 };
   for (int iSol = 0; iSol < 3; iSol++) {
-    const double *solution = iSol ? colsol : saveSol;
+    const FloatT *solution = iSol ? colsol : saveSol;
     if (iSol == 2 && saveInfeas[0] < saveInfeas[1]) {
       // put back best solution
       CoinMemcpyN(saveSol, ncols, colsol);
     }
-    double large = 0.0;
+    FloatT large = 0.0;
     int i;
-    memset(rowsol, 0, nrows * sizeof(double));
+    memset(rowsol, 0, nrows * sizeof(FloatT));
     for (i = 0; i < ncols; i++) {
       CoinBigIndex j;
-      double value = solution[i];
+      FloatT value = solution[i];
       for (j = columnStart[i]; j < columnStart[i] + columnLength[i]; j++) {
         int irow = row[j];
         rowsol[irow] += element[j] * value;
@@ -1234,11 +1234,11 @@ void Idiot::solve2(CoinMessageHandler *handler, const CoinMessages *messages)
     }
     for (i = 0; i < nrows; i++) {
       if (rowsol[i] > rowupper[i]) {
-        double diff = rowsol[i] - rowupper[i];
+        FloatT diff = rowsol[i] - rowupper[i];
         if (diff > large)
           large = diff;
       } else if (rowsol[i] < rowlower[i]) {
-        double diff = rowlower[i] - rowsol[i];
+        FloatT diff = rowlower[i] - rowsol[i];
         if (diff > large)
           large = diff;
       }
@@ -1254,7 +1254,7 @@ void Idiot::solve2(CoinMessageHandler *handler, const CoinMessages *messages)
   }
   for (i = 0; i < ncols; i++) {
     CoinBigIndex j;
-    double djval = cost[i] * maxmin;
+    FloatT djval = cost[i] * maxmin;
     for (j = columnStart[i]; j < columnStart[i] + columnLength[i]; j++) {
       int irow = row[j];
       djval -= element[j] * pi[irow];
@@ -1262,7 +1262,7 @@ void Idiot::solve2(CoinMessageHandler *handler, const CoinMessages *messages)
     dj[i] = djval;
   }
   if ((strategy_ & 1024) != 0) {
-    double ratio = static_cast< double >(ncols) / static_cast< double >(nrows);
+    FloatT ratio = static_cast< FloatT >(ncols) / static_cast< FloatT >(nrows);
     COIN_DETAIL_PRINT(printf("col/row ratio %g infeas ratio %g\n", ratio, lastResult.infeas / firstInfeas));
     if (lastResult.infeas > 0.01 * firstInfeas * ratio) {
       strategy_ &= (~1024);
@@ -1301,64 +1301,64 @@ void Idiot::crossOver(int mode)
     model_->allSlackBasis();
     return;
   }
-  double fixTolerance = IDIOT_FIX_TOLERANCE;
+  FloatT fixTolerance = IDIOT_FIX_TOLERANCE;
 #ifdef COIN_DEVELOP
-  double startTime = CoinCpuTime();
+  FloatT startTime = CoinCpuTime();
 #endif
   ClpSimplex *saveModel = NULL;
   ClpMatrixBase *matrix = model_->clpMatrix();
   const int *row = matrix->getIndices();
   const CoinBigIndex *columnStart = matrix->getVectorStarts();
   const int *columnLength = matrix->getVectorLengths();
-  const double *element = matrix->getElements();
-  const double *rowupper = model_->getRowUpper();
+  const FloatT *element = matrix->getElements();
+  const FloatT *rowupper = model_->getRowUpper();
   model_->eventHandler()->event(ClpEventHandler::startOfCrossover);
   int nrows = model_->getNumRows();
   int ncols = model_->getNumCols();
-  double *rowsol, *colsol;
+  FloatT *rowsol, *colsol;
   // different for Osi
-  double *lower = model_->columnLower();
-  double *upper = model_->columnUpper();
-  const double *rowlower = model_->getRowLower();
+  FloatT *lower = model_->columnLower();
+  FloatT *upper = model_->columnUpper();
+  const FloatT *rowlower = model_->getRowLower();
   int *whenUsed = whenUsed_;
   rowsol = model_->primalRowSolution();
   colsol = model_->primalColumnSolution();
   ;
-  double *cost = model_->objective();
+  FloatT *cost = model_->objective();
   int slackEnd, ordStart, ordEnd;
   int slackStart = countCostedSlacks(model_);
 
   int addAll = mode & 7;
   int presolve = 0;
 
-  double djTolerance = djTolerance_;
+  FloatT djTolerance = djTolerance_;
   if (djTolerance > 0.0 && djTolerance < 1.0)
     djTolerance = 1.0;
   int iteration;
   int i, n = 0;
-  double ratio = 1.0;
-  double objValue = 0.0;
+  FloatT ratio = 1.0;
+  FloatT objValue = 0.0;
   if ((strategy_ & 128) != 0) {
     fixTolerance = SMALL_IDIOT_FIX_TOLERANCE;
   }
   if ((mode & 16) != 0 && addAll < 3)
     presolve = 1;
-  double *saveUpper = NULL;
-  double *saveLower = NULL;
-  double *saveRowUpper = NULL;
-  double *saveRowLower = NULL;
+  FloatT *saveUpper = NULL;
+  FloatT *saveLower = NULL;
+  FloatT *saveRowUpper = NULL;
+  FloatT *saveRowLower = NULL;
   bool allowInfeasible = ((strategy_ & 8192) != 0) || (majorIterations_ > 1000000);
   if (addAll < 3) {
-    saveUpper = new double[ncols];
-    saveLower = new double[ncols];
+    saveUpper = new FloatT[ncols];
+    saveLower = new FloatT[ncols];
     CoinMemcpyN(upper, ncols, saveUpper);
     CoinMemcpyN(lower, ncols, saveLower);
     if (allowInfeasible) {
-      saveRowUpper = new double[nrows];
-      saveRowLower = new double[nrows];
+      saveRowUpper = new FloatT[nrows];
+      saveRowLower = new FloatT[nrows];
       CoinMemcpyN(rowupper, nrows, saveRowUpper);
       CoinMemcpyN(rowlower, nrows, saveRowLower);
-      double averageInfeas = model_->sumPrimalInfeasibilities() / static_cast< double >(model_->numberRows());
+      FloatT averageInfeas = model_->sumPrimalInfeasibilities() / static_cast< FloatT >(model_->numberRows());
       fixTolerance = CoinMax(fixTolerance, 1.0e-5 * averageInfeas);
     }
   }
@@ -1377,10 +1377,10 @@ void Idiot::crossOver(int mode)
     ordEnd = ncols;
   }
   /* get correct rowsol (without known slacks) */
-  memset(rowsol, 0, nrows * sizeof(double));
+  memset(rowsol, 0, nrows * sizeof(FloatT));
   for (i = ordStart; i < ordEnd; i++) {
     CoinBigIndex j;
-    double value = colsol[i];
+    FloatT value = colsol[i];
     if (value < lower[i] + fixTolerance) {
       value = lower[i];
       colsol[i] = value;
@@ -1400,12 +1400,12 @@ void Idiot::crossOver(int mode)
       rowsol[i] *= ratio;
     }
     for (i = ordStart; i < ordEnd; i++) {
-      double value = colsol[i] * ratio;
+      FloatT value = colsol[i] * ratio;
       colsol[i] = value;
       objValue += value * cost[i];
     }
     for (i = 0; i < nrows; i++) {
-      double value = rowlower[i] - rowsol[i];
+      FloatT value = rowlower[i] - rowsol[i];
       colsol[i + slackStart] = value;
       objValue += value * cost[i + slackStart];
     }
@@ -1462,7 +1462,7 @@ void Idiot::crossOver(int mode)
              you can change second part as much as you want */
 #ifndef LACI_TRY // was #if 1
     // Array for sorting out slack values
-    double *ratio = new double[ncols];
+    FloatT *ratio = new FloatT[ncols];
     int *which = new int[ncols];
     for (i = 0; i < nrows; i++) {
       if (posSlack[i] >= 0 || negSlack[i] >= 0) {
@@ -1471,10 +1471,10 @@ void Idiot::crossOver(int mode)
         int nMinus = 0;
         bool possible = true;
         // Get sum
-        double sum = 0.0;
+        FloatT sum = 0.0;
         iCol = posSlack[i];
         while (iCol >= 0) {
-          double value = element[columnStart[iCol]];
+          FloatT value = element[columnStart[iCol]];
           sum += value * colsol[iCol];
           if (lower[iCol]) {
             possible = false;
@@ -1486,7 +1486,7 @@ void Idiot::crossOver(int mode)
         }
         iCol = negSlack[i];
         while (iCol >= 0) {
-          double value = -element[columnStart[iCol]];
+          FloatT value = -element[columnStart[iCol]];
           sum -= value * colsol[iCol];
           if (lower[iCol]) {
             possible = false;
@@ -1503,19 +1503,19 @@ void Idiot::crossOver(int mode)
         if (possible) {
           // Amount contributed by other varaibles
           sum = rowsol[i] - sum;
-          double lo = rowlower[i];
+          FloatT lo = rowlower[i];
           if (lo > -1.0e20)
             lo -= sum;
-          double up = rowupper[i];
+          FloatT up = rowupper[i];
           if (up < 1.0e20)
             up -= sum;
           //printf("row bounds %g %g\n",lo,up);
           if (0) {
-            double sum = 0.0;
-            double x = 0.0;
+            FloatT sum = 0.0;
+            FloatT x = 0.0;
             for (int k = 0; k < ncols; k++) {
               CoinBigIndex j;
-              double value = colsol[k];
+              FloatT value = colsol[k];
               x += value * cost[k];
               for (j = columnStart[k]; j < columnStart[k] + columnLength[k]; j++) {
                 int irow = row[j];
@@ -1561,7 +1561,7 @@ void Idiot::crossOver(int mode)
             // Add in positive
             iCol = posSlack[i];
             while (iCol >= 0) {
-              double value = element[columnStart[iCol]];
+              FloatT value = element[columnStart[iCol]];
               ratio[n] = cost[iCol] / value;
               which[n++] = iCol;
               iCol = nextSlack[iCol];
@@ -1569,7 +1569,7 @@ void Idiot::crossOver(int mode)
             CoinSort_2(ratio, ratio + n, which);
             for (int i = 0; i < n; i++) {
               iCol = which[i];
-              double value = element[columnStart[iCol]];
+              FloatT value = element[columnStart[iCol]];
               if (lo >= upper[iCol] * value) {
                 value *= upper[iCol];
                 sum += value;
@@ -1592,7 +1592,7 @@ void Idiot::crossOver(int mode)
             // Add in negative
             iCol = negSlack[i];
             while (iCol >= 0) {
-              double value = -element[columnStart[iCol]];
+              FloatT value = -element[columnStart[iCol]];
               ratio[n] = cost[iCol] / value;
               which[n++] = iCol;
               iCol = nextSlack[iCol];
@@ -1600,7 +1600,7 @@ void Idiot::crossOver(int mode)
             CoinSort_2(ratio, ratio + n, which);
             for (int i = 0; i < n; i++) {
               iCol = which[i];
-              double value = -element[columnStart[iCol]];
+              FloatT value = -element[columnStart[iCol]];
               if (lo >= upper[iCol] * value) {
                 value *= upper[iCol];
                 sum += value;
@@ -1619,11 +1619,11 @@ void Idiot::crossOver(int mode)
             }
           }
           if (0) {
-            double sum2 = 0.0;
-            double x = 0.0;
+            FloatT sum2 = 0.0;
+            FloatT x = 0.0;
             for (int k = 0; k < ncols; k++) {
               CoinBigIndex j;
-              double value = colsol[k];
+              FloatT value = colsol[k];
               x += value * cost[k];
               for (j = columnStart[k]; j < columnStart[k] + columnLength[k]; j++) {
                 int irow = row[j];
@@ -1708,7 +1708,7 @@ void Idiot::crossOver(int mode)
     }
 #endif
   }
-  double maxmin;
+  FloatT maxmin;
   if (model_->getObjSense() == -1.0) {
     maxmin = -1.0;
   } else {
@@ -1731,15 +1731,15 @@ void Idiot::crossOver(int mode)
     for (i = 0; i < ncols; i++) {
       if (columnLength[i] == 1 && upper[i] > lower[i] + 1.0e-5) {
         CoinBigIndex j = columnStart[i];
-        double value = element[j];
+        FloatT value = element[j];
         int irow = row[j];
-        double rlo = rowlower[irow];
-        double rup = rowupper[irow];
-        double clo = lower[i];
-        double cup = upper[i];
-        double csol = colsol[i];
+        FloatT rlo = rowlower[irow];
+        FloatT rup = rowupper[irow];
+        FloatT clo = lower[i];
+        FloatT cup = upper[i];
+        FloatT csol = colsol[i];
         /* adjust towards feasibility */
-        double move = 0.0;
+        FloatT move = 0.0;
         if (rowsol[irow] > rup) {
           move = (rup - rowsol[irow]) / value;
           if (value > 0.0) {
@@ -1812,29 +1812,29 @@ void Idiot::crossOver(int mode)
     allowInfeasible = true;
   if ((strategy_ & 65536) != 0)
     justValuesPass = true;
-  //double * saveBounds=NULL;
+  //FloatT * saveBounds=NULL;
   if (addAll < 3) {
     ClpPresolve pinfo;
     if (presolve) {
-      double *rhs = new double[nrows];
-      double *saveBounds = new double[2 * ncols];
+      FloatT *rhs = new FloatT[nrows];
+      FloatT *saveBounds = new FloatT[2 * ncols];
       char line[200];
-      memcpy(saveBounds, lower, ncols * sizeof(double));
-      memcpy(saveBounds + ncols, upper, ncols * sizeof(double));
+      memcpy(saveBounds, lower, ncols * sizeof(FloatT));
+      memcpy(saveBounds + ncols, upper, ncols * sizeof(FloatT));
       if (allowInfeasible) {
         // fix up so will be feasible
-        const double *dual = model_->dualRowSolution();
+        const FloatT *dual = model_->dualRowSolution();
         for (i = 0; i < nrows; i++)
           rhs[i] = fabs(dual[i]);
         std::sort(rhs, rhs + nrows);
         int nSmall = nrows;
         int nMedium = nrows;
-        double largest = rhs[nrows - 1];
-        double small = CoinMax(1.0e-4, 1.0e-5 * largest);
+        FloatT largest = rhs[nrows - 1];
+        FloatT small = CoinMax(1.0e-4, 1.0e-5 * largest);
         small = CoinMin(small, 1.0e-2);
-        double medium = small * 100.0;
-        double *rowupper = model_->rowUpper();
-        double *rowlower = model_->rowLower();
+        FloatT medium = small * 100.0;
+        FloatT *rowupper = model_->rowUpper();
+        FloatT *rowlower = model_->rowLower();
         // if tiny then drop row??
         for (i = 0; i < nrows; i++) {
           if (rhs[i] >= small) {
@@ -1850,7 +1850,7 @@ void Idiot::crossOver(int mode)
         }
         printf("%d < %g, %d < %g, %d <= %g\n",
           nSmall, small, nMedium - nSmall, medium, nrows - nMedium, largest);
-        memset(rhs, 0, nrows * sizeof(double));
+        memset(rhs, 0, nrows * sizeof(FloatT));
         int nFixed = 0;
         for (i = 0; i < ncols; i++) {
           if (colsol[i] < lower[i] + 1.0e-8) {
@@ -1866,7 +1866,7 @@ void Idiot::crossOver(int mode)
         model_->clpMatrix()->times(1.0, colsol, rhs);
         saveRowUpper = CoinCopyOfArray(rowupper, nrows);
         saveRowLower = CoinCopyOfArray(rowlower, nrows);
-        double sum = 0.0;
+        FloatT sum = 0.0;
         for (i = 0; i < nrows; i++) {
           if (rhs[i] > rowupper[i]) {
             sum += rhs[i] - rowupper[i];
@@ -1875,8 +1875,8 @@ void Idiot::crossOver(int mode)
             sum += rowlower[i] - rhs[i];
           }
         }
-        double averageInfeasibility = sum / nrows;
-        double check = CoinMin(1.0e-3, 0.1 * averageInfeasibility);
+        FloatT averageInfeasibility = sum / nrows;
+        FloatT check = CoinMin(1.0e-3, 0.1 * averageInfeasibility);
         int nFixedRows = 0;
         int nFreed = 0;
 #define MESS_UP 0
@@ -1917,7 +1917,7 @@ void Idiot::crossOver(int mode)
         sprintf(line, "sum of infeasibilities %g - %d fixed rows, %d fixed columns - might free %d rows",
           sum, nFixedRows, nFixed, nFreed);
       } else {
-        memset(rhs, 0, nrows * sizeof(double));
+        memset(rhs, 0, nrows * sizeof(FloatT));
         int nFixed = 0;
         for (i = 0; i < ncols; i++) {
           if (colsol[i] < lower[i] + 1.0e-8) {
@@ -1931,7 +1931,7 @@ void Idiot::crossOver(int mode)
           }
         }
         model_->clpMatrix()->times(1.0, colsol, rhs);
-        double sum = 0.0;
+        FloatT sum = 0.0;
         for (i = 0; i < nrows; i++) {
           if (rhs[i] > rowupper[i]) {
             sum += rhs[i] - rowupper[i];
@@ -1941,7 +1941,7 @@ void Idiot::crossOver(int mode)
           }
         }
 
-        double averageInfeasibility = sum / nrows;
+        FloatT averageInfeasibility = sum / nrows;
         sprintf(line, "sum of infeasibilities %g - average %g, %d fixed columns",
           sum, averageInfeasibility, nFixed);
       }
@@ -1954,23 +1954,23 @@ void Idiot::crossOver(int mode)
       pinfo.setPresolveActions(pinfo.presolveActions() | 16384);
       model_ = pinfo.presolvedModel(*model_, 1.0e-8, false, 5);
       if (saveBounds) {
-        memcpy(saveModel->columnLower(), saveBounds, ncols * sizeof(double));
-        memcpy(saveModel->columnUpper(), saveBounds + ncols, ncols * sizeof(double));
+        memcpy(saveModel->columnLower(), saveBounds, ncols * sizeof(FloatT));
+        memcpy(saveModel->columnUpper(), saveBounds + ncols, ncols * sizeof(FloatT));
         delete[] saveBounds;
       }
       if (model_ && (strategy_ & 262144) != 0) {
         int nrows = model_->getNumRows();
         int ncols = model_->getNumCols();
-        double *lower = model_->columnLower();
-        double *upper = model_->columnUpper();
-        const double *rowlower = model_->getRowLower();
-        const double *rowupper = model_->getRowUpper();
-        double *rowsol = model_->primalRowSolution();
-        double *colsol = model_->primalColumnSolution();
+        FloatT *lower = model_->columnLower();
+        FloatT *upper = model_->columnUpper();
+        const FloatT *rowlower = model_->getRowLower();
+        const FloatT *rowupper = model_->getRowUpper();
+        FloatT *rowsol = model_->primalRowSolution();
+        FloatT *colsol = model_->primalColumnSolution();
         ;
         int ninbas = 0;
         int *which = new int[2 * ncols + nrows];
-        double *dj = model_->dualColumnSolution();
+        FloatT *dj = model_->dualColumnSolution();
         for (int i = 0; i < ncols; i++) {
           dj[i] = -CoinMin(upper[i] - colsol[i], colsol[i] - lower[i]);
           which[i] = i;
@@ -1991,7 +1991,7 @@ void Idiot::crossOver(int mode)
         factor.setDenseThreshold(0);
         int status = -1;
         // If initial is too dense - then all-slack may be better
-        double areaFactor = 1.0; // was 4.0
+        FloatT areaFactor = 1.0; // was 4.0
         const CoinPackedMatrix *matrix = model_->matrix();
         while (status) {
           status = factor.factorize(*matrix, rowIsBasic, columnIsBasic, areaFactor);
@@ -2255,13 +2255,13 @@ Idiot::Idiot()
   dropEnoughFeasibility_ = 0.02;
   dropEnoughWeighted_ = 0.01;
   // adjust
-  double nrows = 10000.0;
-  int baseIts = static_cast< int >(sqrt(static_cast< double >(nrows)));
+  FloatT nrows = 10000.0;
+  int baseIts = static_cast< int >(sqrt(static_cast< FloatT >(nrows)));
   baseIts = baseIts / 10;
   baseIts *= 10;
   maxIts2_ = 200 + baseIts + 5;
   maxIts2_ = 100;
-  reasonableInfeas_ = static_cast< double >(nrows) * 0.05;
+  reasonableInfeas_ = static_cast< FloatT >(nrows) * 0.05;
   lightWeight_ = 0;
 }
 // Constructor from model
@@ -2291,17 +2291,17 @@ Idiot::Idiot(OsiSolverInterface &model)
   dropEnoughFeasibility_ = 0.02;
   dropEnoughWeighted_ = 0.01;
   // adjust
-  double nrows;
+  FloatT nrows;
   if (model_)
     nrows = model_->getNumRows();
   else
     nrows = 10000.0;
-  int baseIts = static_cast< int >(sqrt(static_cast< double >(nrows)));
+  int baseIts = static_cast< int >(sqrt(static_cast< FloatT >(nrows)));
   baseIts = baseIts / 10;
   baseIts *= 10;
   maxIts2_ = 200 + baseIts + 5;
   maxIts2_ = 100;
-  reasonableInfeas_ = static_cast< double >(nrows) * 0.05;
+  reasonableInfeas_ = static_cast< FloatT >(nrows) * 0.05;
   lightWeight_ = 0;
 }
 // Copy constructor.

@@ -967,7 +967,7 @@ void CoinModelLinkedList::create(int maxMajor, CoinBigIndex maxElements,
 */
 CoinBigIndex
 CoinModelLinkedList::addEasy(int majorIndex, CoinBigIndex numberOfElements, const int *indices,
-  const double *elements, CoinModelTriple *triples,
+  const FloatT *elements, CoinModelTriple *triples,
   CoinModelHash2 &hash)
 {
   assert(majorIndex < maximumMajor_);
@@ -1037,7 +1037,7 @@ CoinModelLinkedList::addEasy(int majorIndex, CoinBigIndex numberOfElements, cons
 /* Adds to list - hard case i.e. add row to column list
  */
 void CoinModelLinkedList::addHard(int minorIndex, CoinBigIndex numberOfElements, const int *indices,
-  const double *elements, CoinModelTriple *triples,
+  const FloatT *elements, CoinModelTriple *triples,
   CoinModelHash2 &hash)
 {
   CoinBigIndex lastFree = last_[maximumMajor_];

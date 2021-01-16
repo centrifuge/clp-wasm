@@ -6,6 +6,8 @@
 #ifndef CoinHelperFunctions_H
 #define CoinHelperFunctions_H
 
+#include <floatdef.h>
+
 #include "CoinUtilsConfig.h"
 
 #if defined(_MSC_VER)
@@ -244,9 +246,9 @@ CoinCopyOfArrayPartial(const T *array, const CoinBigIndex size, const CoinBigInd
   or filled with (scalar) \p value if \p array is null
 */
 
-template < class T >
+template < class T, class U >
 inline T *
-CoinCopyOfArray(const T *array, const CoinBigIndex size, T value)
+CoinCopyOfArray(const T *array, const CoinBigIndex size, U value)
 {
   T *arrayNew = new T[size];
   if (array) {
@@ -399,9 +401,9 @@ CoinMemcpy(const T *first, const T *last,
 
     Note JJF - the speed claim seems to be false on IA32 so I have added 
     CoinZero to allow for memset. */
-template < class T >
+template < class T, class U >
 inline void
-CoinFillN(T *to, const CoinBigIndex size, const T value)
+CoinFillN(T *to, const CoinBigIndex size, const U value)
 {
   if (size == 0)
     return;
@@ -567,7 +569,7 @@ CoinZeroN(T *to, const CoinBigIndex size)
 }
 /// This Debug helper function checks an array is all zero
 inline void
-CoinCheckDoubleZero(double *to, const CoinBigIndex size)
+CoinCheckDoubleZero(FloatT *to, const CoinBigIndex size)
 {
   CoinBigIndex n = 0;
   for (CoinBigIndex j = 0; j < size; j++) {
@@ -627,9 +629,9 @@ inline char *CoinStrdup(const char *name)
 /** Return the larger (according to <code>operator<()</code> of the arguments.
     This function was introduced because for some reason compiler tend to
     handle the <code>max()</code> function differently. */
-template < class T >
-inline T
-CoinMax(const T x1, const T x2)
+template < class T, class U >
+inline typename std::common_type<T,U>::type
+CoinMax(const T x1, const U x2)
 {
   return (x1 > x2) ? x1 : x2;
 }
@@ -639,9 +641,9 @@ CoinMax(const T x1, const T x2)
 /** Return the smaller (according to <code>operator<()</code> of the arguments.
     This function was introduced because for some reason compiler tend to
     handle the min() function differently. */
-template < class T >
-inline T
-CoinMin(const T x1, const T x2)
+template < class T , class U>
+inline typename std::common_type<T,U>::type
+CoinMin(const T x1, const U x2)
 {
   return (x1 < x2) ? x1 : x2;
 }
@@ -901,14 +903,14 @@ CoinDeleteEntriesFromArray(T *arrayFirst, T *arrayLast,
 
   \todo Anyone want to volunteer an upgrade for 64-bit architectures?
 */
-inline double CoinDrand48(bool isSeed = false, unsigned int seed = 1)
+inline FloatT CoinDrand48(bool isSeed = false, unsigned int seed = 1)
 {
   static unsigned int last = 123456;
   if (isSeed) {
     last = seed;
   } else {
     last = 1664525 * last + 1013904223;
-    return ((static_cast< double >(last)) / 4294967296.0);
+    return ((static_cast< FloatT >(last)) / 4294967296.0);
   }
   return (0.0);
 }
@@ -924,14 +926,14 @@ inline void CoinSeedRandom(int iseed)
 #if defined(_MSC_VER) || defined(__MINGW32__) || defined(__CYGWIN32__)
 
 /// Return a random number between 0 and 1
-inline double CoinDrand48() { return rand() / (double)RAND_MAX; }
+inline FloatT CoinDrand48() { return rand() / (FloatT)RAND_MAX; }
 /// Set the seed for the random number generator
 inline void CoinSeedRandom(int iseed) { srand(iseed + 69822); }
 
 #else
 
 /// Return a random number between 0 and 1
-inline double CoinDrand48() { return drand48(); }
+inline FloatT CoinDrand48() { return drand48(); }
 /// Set the seed for the random number generator
 inline void CoinSeedRandom(int iseed) { srand48(iseed + 69822); }
 
@@ -1055,7 +1057,7 @@ CoinFromFile(T *&array, CoinBigIndex size, FILE *fp, CoinBigIndex &newSize)
 
 /// Cube Root
 #if 0
-inline double CoinCbrt(double x)
+inline FloatT CoinCbrt(FloatT x)
 {
 #if defined(_MSC_VER) 
     return pow(x,(1./3.));
@@ -1126,11 +1128,11 @@ public:
     return seed_;
   }
   /// return a random number
-  inline double randomDouble() const
+  inline FloatT randomDouble() const
   {
-    double retVal;
+    FloatT retVal;
     seed_ = 1664525 * (seed_) + 1013904223;
-    retVal = ((static_cast< double >(seed_)) / 4294967296.0);
+    retVal = ((static_cast< FloatT >(seed_)) / 4294967296.0);
     return retVal;
   }
   /// make more random (i.e. for startup)
@@ -1218,12 +1220,12 @@ public:
     memcpy(seed_, put.s, 3 * sizeof(unsigned short));
   }
   /// return a random number
-  inline double randomDouble() const
+  inline FloatT randomDouble() const
   {
-    double retVal;
+    FloatT retVal;
 #if defined(_MSC_VER) || defined(__MINGW32__) || defined(__CYGWIN32__)
     retVal = rand();
-    retVal = retVal / (double)RAND_MAX;
+    retVal = retVal / (FloatT)RAND_MAX;
 #else
     retVal = erand48(seed_);
 #endif

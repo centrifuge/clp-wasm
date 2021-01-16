@@ -24,7 +24,7 @@ class ClpPEPrimalColumnDantzig : public ClpPrimalColumnDantzig {
 
 public:
   /** constructors */
-  ClpPEPrimalColumnDantzig(double psi = 0.5);
+  ClpPEPrimalColumnDantzig(FloatT psi = 0.5);
   ClpPEPrimalColumnDantzig(const ClpPEPrimalColumnDantzig &); //copy constructor
 
   /** destructor */
@@ -54,7 +54,7 @@ private:
 
   /* psi is the factor used in the bi-dimensional pricing, it is < 1 and
        1/psi grows with the priority given to compatible variables */
-  double psi_;
+  FloatT psi_;
 
   /* useful counters for the update of the set of compatible variables */
   int iCurrent_;

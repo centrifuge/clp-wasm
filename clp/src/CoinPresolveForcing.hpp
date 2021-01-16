@@ -32,7 +32,7 @@ class forcing_constraint_action : public CoinPresolveAction {
 public:
   struct action {
     const int *rowcols;
-    const double *bounds;
+    const FloatT *bounds;
     int row;
     int nlo;
     int nup;

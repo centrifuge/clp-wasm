@@ -20,13 +20,13 @@ class CoinMessageHandler;
 class CoinMessages;
 /// for use internally
 typedef struct {
-  double infeas;
-  double objval;
-  double dropThis;
-  double weighted;
-  double sumSquared;
-  double djAtBeginning;
-  double djAtEnd;
+  FloatT infeas;
+  FloatT objval;
+  FloatT dropThis;
+  FloatT weighted;
+  FloatT sumSquared;
+  FloatT djAtBeginning;
+  FloatT djAtEnd;
   int iteration;
 } IdiotResult;
 /** This class implements a very silly algorithm.  It has no merit
@@ -90,53 +90,53 @@ public:
   //@{
   /** Starting weight - small emphasizes feasibility,
          default 1.0e-4 */
-  inline double getStartingWeight() const
+  inline FloatT getStartingWeight() const
   {
     return mu_;
   }
-  inline void setStartingWeight(double value)
+  inline void setStartingWeight(FloatT value)
   {
     mu_ = value;
   }
   /** Weight factor - weight multiplied by this when changes,
          default 0.333 */
-  inline double getWeightFactor() const
+  inline FloatT getWeightFactor() const
   {
     return muFactor_;
   }
-  inline void setWeightFactor(double value)
+  inline void setWeightFactor(FloatT value)
   {
     muFactor_ = value;
   }
   /** Feasibility tolerance - problem essentially feasible if
          individual infeasibilities less than this.
          default 0.1 */
-  inline double getFeasibilityTolerance() const
+  inline FloatT getFeasibilityTolerance() const
   {
     return smallInfeas_;
   }
-  inline void setFeasibilityTolerance(double value)
+  inline void setFeasibilityTolerance(FloatT value)
   {
     smallInfeas_ = value;
   }
   /** Reasonably feasible.  Dubious method concentrates more on
          objective when sum of infeasibilities less than this.
          Very dubious default value of (Number of rows)/20 */
-  inline double getReasonablyFeasible() const
+  inline FloatT getReasonablyFeasible() const
   {
     return reasonableInfeas_;
   }
-  inline void setReasonablyFeasible(double value)
+  inline void setReasonablyFeasible(FloatT value)
   {
     reasonableInfeas_ = value;
   }
   /** Exit infeasibility - exit if sum of infeasibilities less than this.
          Default -1.0 (i.e. switched off) */
-  inline double getExitInfeasibility() const
+  inline FloatT getExitInfeasibility() const
   {
     return exitFeasibility_;
   }
-  inline void setExitInfeasibility(double value)
+  inline void setExitInfeasibility(FloatT value)
   {
     exitFeasibility_ = value;
   }
@@ -212,20 +212,20 @@ public:
     strategy_ = value;
   }
   /// Fine tuning - okay if feasibility drop this factor
-  inline double getDropEnoughFeasibility() const
+  inline FloatT getDropEnoughFeasibility() const
   {
     return dropEnoughFeasibility_;
   }
-  inline void setDropEnoughFeasibility(double value)
+  inline void setDropEnoughFeasibility(FloatT value)
   {
     dropEnoughFeasibility_ = value;
   }
   /// Fine tuning - okay if weighted obj drop this factor
-  inline double getDropEnoughWeighted() const
+  inline FloatT getDropEnoughWeighted() const
   {
     return dropEnoughWeighted_;
   }
-  inline void setDropEnoughWeighted(double value)
+  inline void setDropEnoughWeighted(FloatT value)
   {
     dropEnoughWeighted_ = value;
   }
@@ -245,53 +245,53 @@ public:
 
 private:
   IdiotResult IdiSolve(
-    int nrows, int ncols, double *rowsol, double *colsol,
-    double *pi, double *djs, const double *origcost,
-    double *rowlower,
-    double *rowupper, const double *lower,
-    const double *upper, const double *element,
+    int nrows, int ncols, FloatT *rowsol, FloatT *colsol,
+    FloatT *pi, FloatT *djs, const FloatT *origcost,
+    FloatT *rowlower,
+    FloatT *rowupper, const FloatT *lower,
+    const FloatT *upper, const FloatT *element,
     const int *row, const CoinBigIndex *colcc,
-    const int *length, double *lambda,
-    int maxIts, double mu, double drop,
-    double maxmin, double offset,
-    int strategy, double djTol, double djExit, double djFlag,
+    const int *length, FloatT *lambda,
+    int maxIts, FloatT mu, FloatT drop,
+    FloatT maxmin, FloatT offset,
+    int strategy, FloatT djTol, FloatT djExit, FloatT djFlag,
     CoinThreadRandom *randomNumberGenerator);
   int dropping(IdiotResult result,
-    double tolerance,
-    double small,
+    FloatT tolerance,
+    FloatT small,
     int *nbad);
-  IdiotResult objval(int nrows, int ncols, double *rowsol, double *colsol,
-    double *pi, double *djs, const double *cost,
-    const double *rowlower,
-    const double *rowupper, const double *lower,
-    const double *upper, const double *elemnt,
+  IdiotResult objval(int nrows, int ncols, FloatT *rowsol, FloatT *colsol,
+    FloatT *pi, FloatT *djs, const FloatT *cost,
+    const FloatT *rowlower,
+    const FloatT *rowupper, const FloatT *lower,
+    const FloatT *upper, const FloatT *elemnt,
     const int *row, const CoinBigIndex *columnStart,
     const int *length, int extraBlock, int *rowExtra,
-    double *solExtra, double *elemExtra, double *upperExtra,
-    double *costExtra, double weight);
+    FloatT *solExtra, FloatT *elemExtra, FloatT *upperExtra,
+    FloatT *costExtra, FloatT weight);
   // Deals with whenUsed and slacks
   int cleanIteration(int iteration, int ordinaryStart, int ordinaryEnd,
-    double *colsol, const double *lower, const double *upper,
-    const double *rowLower, const double *rowUpper,
-    const double *cost, const double *element, double fixTolerance, double &objChange,
-    double &infChange, double &maxInfeasibility);
+    FloatT *colsol, const FloatT *lower, const FloatT *upper,
+    const FloatT *rowLower, const FloatT *rowUpper,
+    const FloatT *cost, const FloatT *element, FloatT fixTolerance, FloatT &objChange,
+    FloatT &infChange, FloatT &maxInfeasibility);
 
 private:
   /// Underlying model
   OsiSolverInterface *model_;
 
-  double djTolerance_;
-  double mu_; /* starting mu */
-  double drop_; /* exit if drop over 5 checks less than this */
-  double muFactor_; /* reduce mu by this */
-  double stopMu_; /* exit if mu gets smaller than this */
-  double smallInfeas_; /* feasibility tolerance */
-  double reasonableInfeas_; /* use lambdas if feasibility less than this */
-  double exitDrop_; /* candidate for stopping after a major iteration */
-  double muAtExit_; /* mu on exit */
-  double exitFeasibility_; /* exit if infeasibility less than this */
-  double dropEnoughFeasibility_; /* okay if feasibility drop this factor */
-  double dropEnoughWeighted_; /* okay if weighted obj drop this factor */
+  FloatT djTolerance_;
+  FloatT mu_; /* starting mu */
+  FloatT drop_; /* exit if drop over 5 checks less than this */
+  FloatT muFactor_; /* reduce mu by this */
+  FloatT stopMu_; /* exit if mu gets smaller than this */
+  FloatT smallInfeas_; /* feasibility tolerance */
+  FloatT reasonableInfeas_; /* use lambdas if feasibility less than this */
+  FloatT exitDrop_; /* candidate for stopping after a major iteration */
+  FloatT muAtExit_; /* mu on exit */
+  FloatT exitFeasibility_; /* exit if infeasibility less than this */
+  FloatT dropEnoughFeasibility_; /* okay if feasibility drop this factor */
+  FloatT dropEnoughWeighted_; /* okay if weighted obj drop this factor */
   int *whenUsed_; /* array to say what was used */
   int maxBigIts_; /* always reduce mu after this */
   int maxIts_; /* do this many iterations on first go */

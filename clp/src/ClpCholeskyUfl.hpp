@@ -44,9 +44,9 @@ public:
   virtual int symbolic();
   /** Factorize - filling in rowsDropped and returning number dropped using CHOLMOD (if available).
          If return code negative then out of memory */
-  virtual int factorize(const double *diagonal, int *rowsDropped);
+  virtual int factorize(const FloatT *diagonal, int *rowsDropped);
   /** Uses factorization to solve. Uses CHOLMOD (if available). */
-  virtual void solve(double *region);
+  virtual void solve(FloatT *region);
   //@}
 
   /**@name Constructors, destructor */

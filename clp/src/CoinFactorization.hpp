@@ -87,7 +87,7 @@ public:
   returns 0 -okay, -1 singular, -2 too many in basis, -99 memory */
   int factorize(const CoinPackedMatrix &matrix,
     int rowIsBasic[], int columnIsBasic[],
-    double areaFactor = 0.0);
+    FloatT areaFactor = 0.0);
   /** When given as triplets.
   Actually does factorization.  maximumL is guessed maximum size of L part of
   final factorization, maximumU of U part.  These are multiplied by
@@ -104,9 +104,9 @@ public:
     int maximumL,
     int maximumU,
     const int indicesRow[],
-    const int indicesColumn[], const double elements[],
+    const int indicesColumn[], const FloatT elements[],
     int permutation[],
-    double areaFactor = 0.0);
+    FloatT areaFactor = 0.0);
   /** Two part version for maximum flexibility
       This part creates arrays for user to fill.
       estimateNumberElements is safe estimate of number
@@ -117,7 +117,7 @@ public:
     int *indicesRow[],
     int *indicesColumn[],
     CoinFactorizationDouble *elements[],
-    double areaFactor = 0.0);
+    FloatT areaFactor = 0.0);
   /** This is part two of factorization
       Arrays belong to factorization and were returned by part 1
       If status okay, permutation has pivot rows - this is only needed
@@ -126,7 +126,7 @@ public:
       returns 0 -okay, -1 singular, -99 memory */
   int factorizePart2(int permutation[], int exactNumberElements);
   /// Condition number - product of pivots after factorization
-  double conditionNumber() const;
+  FloatT conditionNumber() const;
 
   //@}
 
@@ -266,22 +266,22 @@ public:
     return numberGoodU_;
   }
   /// Whether larger areas needed
-  inline double areaFactor() const
+  inline FloatT areaFactor() const
   {
     return areaFactor_;
   }
-  inline void areaFactor(double value)
+  inline void areaFactor(FloatT value)
   {
     areaFactor_ = value;
   }
   /// Returns areaFactor but adjusted for dense
-  double adjustedAreaFactor() const;
+  FloatT adjustedAreaFactor() const;
   /// Allows change of pivot accuracy check 1.0 == none >1.0 relaxed
-  inline void relaxAccuracyCheck(double value)
+  inline void relaxAccuracyCheck(FloatT value)
   {
     relaxCheck_ = value;
   }
-  inline double getAccuracyCheck() const
+  inline FloatT getAccuracyCheck() const
   {
     return relaxCheck_;
   }
@@ -309,27 +309,27 @@ public:
     denseThreshold_ = value;
   }
   /// Pivot tolerance
-  inline double pivotTolerance() const
+  inline FloatT pivotTolerance() const
   {
     return pivotTolerance_;
   }
-  void pivotTolerance(double value);
+  void pivotTolerance(FloatT value);
   /// Zero tolerance
-  inline double zeroTolerance() const
+  inline FloatT zeroTolerance() const
   {
     return zeroTolerance_;
   }
-  void zeroTolerance(double value);
+  void zeroTolerance(FloatT value);
 #ifndef COIN_FAST_CODE
   /// Whether slack value is +1 or -1
-  inline double slackValue() const
+  inline FloatT slackValue() const
   {
     return slackValue_;
   }
-  void slackValue(double value);
+  void slackValue(FloatT value);
 #endif
   /// Returns maximum absolute value in factorization
-  double maximumCoefficient() const;
+  FloatT maximumCoefficient() const;
   /// true if Forrest Tomlin update, false if PFI
   inline bool forrestTomlin() const
   {
@@ -457,9 +457,9 @@ public:
    partial update already in U */
   int replaceColumn(CoinIndexedVector *regionSparse,
     int pivotRow,
-    double pivotCheck,
+    FloatT pivotCheck,
     bool checkBeforeModifying = false,
-    double acceptablePivot = 1.0e-8);
+    FloatT acceptablePivot = 1.0e-8);
   /** Combines BtranU and delete elements
       If deleted is NULL then delete elements
       otherwise store where elements are
@@ -478,33 +478,33 @@ public:
       returns update alpha
       Fills in region for use later
       partial update already in U */
-  double checkReplacePart1(CoinIndexedVector *regionSparse,
+  FloatT checkReplacePart1(CoinIndexedVector *regionSparse,
     int pivotRow);
   /** Checks if can replace one Column to basis,
       returns update alpha
       Fills in region for use later
       partial update in vector */
-  double checkReplacePart1(CoinIndexedVector *regionSparse,
+  FloatT checkReplacePart1(CoinIndexedVector *regionSparse,
     CoinIndexedVector *partialUpdate,
     int pivotRow);
   /** Checks if can replace one Column in basis,
       returns 0=OK, 1=Probably OK, 2=singular, 3=no room, 5 max pivots */
   int checkReplacePart2(int pivotRow,
-    double btranAlpha,
-    double ftranAlpha,
-    double ftAlpha,
-    double acceptablePivot = 1.0e-8);
+    FloatT btranAlpha,
+    FloatT ftranAlpha,
+    FloatT ftAlpha,
+    FloatT acceptablePivot = 1.0e-8);
   /** Replaces one Column to basis,
       partial update already in U */
   void replaceColumnPart3(CoinIndexedVector *regionSparse,
     int pivotRow,
-    double alpha);
+    FloatT alpha);
   /** Replaces one Column to basis,
       partial update in vector */
   void replaceColumnPart3(CoinIndexedVector *regionSparse,
     CoinIndexedVector *partialUpdate,
     int pivotRow,
-    double alpha);
+    FloatT alpha);
   /** Updates one column (FTRAN) from regionSparse2
       Tries to do FT update
       number returned is negative if no room
@@ -547,11 +547,11 @@ public:
     return false;
   }
   /// Pivot tolerance
-  inline double minimumPivotTolerance() const
+  inline FloatT minimumPivotTolerance() const
   {
     return pivotTolerance_;
   }
-  inline void minimumPivotTolerance(double value)
+  inline void minimumPivotTolerance(FloatT value)
   {
     pivotTolerance(value);
   }
@@ -582,7 +582,7 @@ public:
   /// Does replaceColumn - having already done btranU
   int replaceColumn2(CoinIndexedVector *regionSparse,
     int pivotRow,
-    double pivotCheck);
+    FloatT pivotCheck);
 #endif
   //@}
 
@@ -656,17 +656,17 @@ public:
       can increase size of basis. Returns rank */
   int add(int numberElements,
     int indicesRow[],
-    int indicesColumn[], double elements[]);
+    int indicesColumn[], FloatT elements[]);
 
   /** Adds one Column to basis,
       can increase size of basis. Returns rank */
   int addColumn(int numberElements,
-    int indicesRow[], double elements[]);
+    int indicesRow[], FloatT elements[]);
 
   /** Adds one Row to basis,
       can increase size of basis. Returns rank */
   int addRow(int numberElements,
-    int indicesColumn[], double elements[]);
+    int indicesColumn[], FloatT elements[]);
 
   /// Deletes one Column from basis, returns rank
   int deleteColumn(int Row);
@@ -677,7 +677,7 @@ public:
       At present assumes just a singleton on row is in basis
       returns 0=OK, 1=Probably OK, 2=singular, 3 no space */
   int replaceRow(int whichRow, int numberElements,
-    const int indicesColumn[], const double elements[]);
+    const int indicesColumn[], const FloatT elements[]);
   /// Takes out all entries for given rows
   void emptyRows(int numberToEmpty, const int which[]);
   //@}
@@ -763,14 +763,14 @@ protected:
   /**  getColumnSpaceIterateR.  Gets space for one extra R element in Column
        may have to do compression  (returns true)
        also moves existing vector */
-  bool getColumnSpaceIterateR(int iColumn, double value,
+  bool getColumnSpaceIterateR(int iColumn, FloatT value,
     int iRow);
   /**  getColumnSpaceIterate.  Gets space for one extra U element in Column
        may have to do compression  (returns true)
        also moves existing vector.
        Returns -1 if no memory or where element was put
        Used by replaceRow (turns off R version) */
-  int getColumnSpaceIterate(int iColumn, double value,
+  int getColumnSpaceIterate(int iColumn, FloatT value,
     int iRow);
   /** Gets space for one Row with given length,
   may have to do compression  (returns True if successful),
@@ -854,15 +854,15 @@ protected:
   void updateColumnUSparsish(CoinIndexedVector *regionSparse,
     int *indexIn) const;
   /// Updates part of column (FTRANU)
-  int updateColumnUDensish(double *COIN_RESTRICT region,
+  int updateColumnUDensish(FloatT *COIN_RESTRICT region,
     int *COIN_RESTRICT regionIndex) const;
   /// Updates part of 2 columns (FTRANU) real work
   void updateTwoColumnsUDensish(
     int &numberNonZero1,
-    double *COIN_RESTRICT region1,
+    FloatT *COIN_RESTRICT region1,
     int *COIN_RESTRICT index1,
     int &numberNonZero2,
-    double *COIN_RESTRICT region2,
+    FloatT *COIN_RESTRICT region2,
     int *COIN_RESTRICT index2) const;
   /// Updates part of column PFI (FTRAN) (after rest)
   void updateColumnPFI(CoinIndexedVector *regionSparse) const;
@@ -916,12 +916,12 @@ public:
    In this case region is not empty - it is incoming variable (updated)
   */
   int replaceColumnPFI(CoinIndexedVector *regionSparse,
-    int pivotRow, double alpha);
+    int pivotRow, FloatT alpha);
 
 protected:
   /** Returns accuracy status of replaceColumn
       returns 0=OK, 1=Probably OK, 2=singular */
-  int checkPivot(double saveFromU, double oldPivot) const;
+  int checkPivot(FloatT saveFromU, FloatT oldPivot) const;
   /********************************* START LARGE TEMPLATE ********/
 #ifdef INT_IS_8
 #define COINFACTORIZATION_BITS_PER_INT 64
@@ -1129,7 +1129,7 @@ protected:
       int endColumn = startColumn + numberInColumn[iColumn];
       int iRow = indexRowU[startColumn];
       CoinFactorizationDouble value = elementU[startColumn];
-      double largest;
+      FloatT largest;
       int put = startColumn;
       int positionLargest = -1;
       CoinFactorizationDouble thisPivotValue = 0.0;
@@ -1170,7 +1170,7 @@ protected:
           indexRowU[put] = iRow;
           elementU[put] = value;
           if (checkLargest) {
-            double absValue = fabs(value);
+            FloatT absValue = fabs(value);
 
             if (absValue > largest) {
               largest = absValue;
@@ -1222,12 +1222,12 @@ protected:
         startColumn = startColumnU[iColumn];
         put = startColumn + numberInColumn[iColumn];
       }
-      double tolerance = zeroTolerance_;
+      FloatT tolerance = zeroTolerance_;
 
       int *nextCount = nextCount_.array();
       for (j = 0; j < numberInPivotColumn; j++) {
         value = work[j] - thisPivotValue * multipliersL[j];
-        double absValue = fabs(value);
+        FloatT absValue = fabs(value);
 
         if (absValue > tolerance) {
           work[j] = 0.0;
@@ -1417,21 +1417,21 @@ protected:
   /**@name data */
   //@{
   /// Pivot tolerance
-  double pivotTolerance_;
+  FloatT pivotTolerance_;
   /// Zero tolerance
-  double zeroTolerance_;
+  FloatT zeroTolerance_;
 #ifndef COIN_FAST_CODE
   /// Whether slack value is  +1 or -1
-  double slackValue_;
+  FloatT slackValue_;
 #else
 #ifndef slackValue_
 #define slackValue_ -1.0
 #endif
 #endif
   /// How much to multiply areas by
-  double areaFactor_;
+  FloatT areaFactor_;
   /// Relax check on accuracy in replaceColumn
-  double relaxCheck_;
+  FloatT relaxCheck_;
   /// Number of Rows in factorization
   int numberRows_;
   /// Number of Rows after iterating
@@ -1604,10 +1604,10 @@ protected:
   CoinIntArrayWithLength startColumnR_;
 
   /// Dense area
-  double *denseArea_;
+  FloatT *denseArea_;
 
   /// Dense area - actually used (for alignment etc)
-  double *denseAreaAddress_;
+  FloatT *denseAreaAddress_;
 
   /// Dense permutation
   int *densePermute_;
@@ -1629,26 +1629,26 @@ protected:
 
 public:
   /// Below are all to collect
-  mutable double ftranCountInput_;
-  mutable double ftranCountAfterL_;
-  mutable double ftranCountAfterR_;
-  mutable double ftranCountAfterU_;
-  mutable double btranCountInput_;
-  mutable double btranCountAfterU_;
-  mutable double btranCountAfterR_;
-  mutable double btranCountAfterL_;
+  mutable FloatT ftranCountInput_;
+  mutable FloatT ftranCountAfterL_;
+  mutable FloatT ftranCountAfterR_;
+  mutable FloatT ftranCountAfterU_;
+  mutable FloatT btranCountInput_;
+  mutable FloatT btranCountAfterU_;
+  mutable FloatT btranCountAfterR_;
+  mutable FloatT btranCountAfterL_;
 
   /// We can roll over factorizations
   mutable int numberFtranCounts_;
   mutable int numberBtranCounts_;
 
   /// While these are average ratios collected over last period
-  double ftranAverageAfterL_;
-  double ftranAverageAfterR_;
-  double ftranAverageAfterU_;
-  double btranAverageAfterU_;
-  double btranAverageAfterR_;
-  double btranAverageAfterL_;
+  FloatT ftranAverageAfterL_;
+  FloatT ftranAverageAfterR_;
+  FloatT ftranAverageAfterU_;
+  FloatT btranAverageAfterU_;
+  FloatT btranAverageAfterR_;
+  FloatT btranAverageAfterL_;
 
 protected:
   /// For statistics
@@ -1888,7 +1888,7 @@ typedef const int cipfint;
       int endColumn = startColumnThis + numberInColumn[iColumn];
       int iRow = indexRow[startColumnThis];
       CoinFactorizationDouble value = element[startColumnThis];
-      double largest;
+      FloatT largest;
       int put = startColumnThis;
       int positionLargest = -1;
       CoinFactorizationDouble thisPivotValue = 0.0;
@@ -1929,7 +1929,7 @@ typedef const int cipfint;
           indexRow[put] = iRow;
           element[put] = value;
           if (checkLargest) {
-            double absValue = fabs(value);
+            FloatT absValue = fabs(value);
 
             if (absValue > largest) {
               largest = absValue;
@@ -1980,12 +1980,12 @@ typedef const int cipfint;
         startColumnThis = startColumn[iColumn];
         put = startColumnThis + numberInColumn[iColumn];
       }
-      double tolerance = zeroTolerance_;
+      FloatT tolerance = zeroTolerance_;
 
       int *nextCount = nextCount_.array();
       for (j = 0; j < numberDoColumn; j++) {
         value = workArea[j] - thisPivotValue * multipliersL[j];
-        double absValue = fabs(value);
+        FloatT absValue = fabs(value);
 
         if (absValue > tolerance) {
           workArea[j] = 0.0;

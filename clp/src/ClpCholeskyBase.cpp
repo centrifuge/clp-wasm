@@ -72,7 +72,7 @@ ClpCholeskyBase::ClpCholeskyBase(int denseThreshold)
   , denseThreshold_(denseThreshold)
 {
   memset(integerParameters_, 0, 64 * sizeof(int));
-  memset(doubleParameters_, 0, 64 * sizeof(double));
+  memset(FloatTParameters_, 0, 64 * sizeof(FloatT));
 }
 
 //-------------------------------------------------------------------
@@ -103,14 +103,14 @@ ClpCholeskyBase::ClpCholeskyBase(const ClpCholeskyBase &rhs)
 #if CLP_LONG_CHOLESKY != 1
   workDouble_ = ClpCopyOfArray(rhs.workDouble_, numberRows_);
 #else
-  // actually long double
-  workDouble_ = reinterpret_cast< double * >(ClpCopyOfArray(reinterpret_cast< CoinWorkDouble * >(rhs.workDouble_), numberRows_));
+  // actually FloatT
+  workDouble_ = reinterpret_cast< FloatT * >(ClpCopyOfArray(reinterpret_cast< CoinWorkDouble * >(rhs.workDouble_), numberRows_));
 #endif
   link_ = ClpCopyOfArray(rhs.link_, numberRows_);
   workInteger_ = ClpCopyOfArray(rhs.workInteger_, numberRows_);
   clique_ = ClpCopyOfArray(rhs.clique_, numberRows_);
   CoinMemcpyN(rhs.integerParameters_, 64, integerParameters_);
-  CoinMemcpyN(rhs.doubleParameters_, 64, doubleParameters_);
+  CoinMemcpyN(rhs.FloatTParameters_, 64, FloatTParameters_);
   rowCopy_ = rhs.rowCopy_->clone();
   whichDense_ = NULL;
   denseColumn_ = NULL;
@@ -188,8 +188,8 @@ ClpCholeskyBase::operator=(const ClpCholeskyBase &rhs)
 #if CLP_LONG_CHOLESKY != 1
     workDouble_ = ClpCopyOfArray(rhs.workDouble_, numberRows_);
 #else
-    // actually long double
-    workDouble_ = reinterpret_cast< double * >(ClpCopyOfArray(reinterpret_cast< CoinWorkDouble * >(rhs.workDouble_), numberRows_));
+    // actually FloatT
+    workDouble_ = reinterpret_cast< FloatT * >(ClpCopyOfArray(reinterpret_cast< CoinWorkDouble * >(rhs.workDouble_), numberRows_));
 #endif
     link_ = ClpCopyOfArray(rhs.link_, numberRows_);
     workInteger_ = ClpCopyOfArray(rhs.workInteger_, numberRows_);
@@ -504,7 +504,7 @@ int ClpCholeskyBase::preOrder(bool lowerTriangular, bool includeDiagonal, bool d
     const CoinBigIndex *columnStart = model_->clpMatrix()->getVectorStarts();
     const int *columnLength = model_->clpMatrix()->getVectorLengths();
     const int *row = model_->clpMatrix()->getIndices();
-    //const double * element = model_->clpMatrix()->getElements();
+    //const FloatT * element = model_->clpMatrix()->getElements();
     // Now we have size - create arrays and fill in
     try {
       choleskyRow_ = new int[numberElements];
@@ -536,7 +536,7 @@ int ClpCholeskyBase::preOrder(bool lowerTriangular, bool includeDiagonal, bool d
         const int *columnQuadratic = quadratic->getIndices();
         const CoinBigIndex *columnQuadraticStart = quadratic->getVectorStarts();
         const int *columnQuadraticLength = quadratic->getVectorLengths();
-        //const double * quadraticElement = quadratic->getElements();
+        //const FloatT * quadraticElement = quadratic->getElements();
         for (iColumn = 0; iColumn < numberColumns; iColumn++) {
           choleskyStart_[iColumn] = sizeFactor_;
           if (includeDiagonal)
@@ -590,7 +590,7 @@ int ClpCholeskyBase::preOrder(bool lowerTriangular, bool includeDiagonal, bool d
         const int *columnQuadratic = quadraticT.getIndices();
         const CoinBigIndex *columnQuadraticStart = quadraticT.getVectorStarts();
         const int *columnQuadraticLength = quadraticT.getVectorLengths();
-        //const double * quadraticElement = quadraticT.getElements();
+        //const FloatT * quadraticElement = quadraticT.getElements();
         for (iColumn = 0; iColumn < numberColumns; iColumn++) {
           choleskyStart_[iColumn] = sizeFactor_;
           for (CoinBigIndex j = columnQuadraticStart[iColumn];
@@ -1111,7 +1111,7 @@ myamlf(WSI n, WSI xadj[], WSI adjncy[], WSI dgree[], WSI varbl[],
   WSI flag[], WSI erscore[], WSI locaux, WSI adjln, WSI speed)
 {
   WSI l, i, j, k;
-  double x, y;
+  FloatT x, y;
   WSI maxmum, fltag, nodeg, scln, nm1, deg, tn,
     locatns, ipp, jpp, nnode, numpiv, node,
     nodeln, currloc, counter, numii, mindeg,
@@ -1610,13 +1610,13 @@ myamlf(WSI n, WSI xadj[], WSI adjncy[], WSI dgree[], WSI varbl[],
             if (k < i5)
               k = i5;
           }
-          x = static_cast< double >(k - 1);
+          x = static_cast< FloatT >(k - 1);
           varbl[i - 1] = abs(numii);
           j9 = dgree[i - 1] + nodeg;
           deg = (j8 > j9 ? j9 : j8) + numii;
           if (deg < 1)
             deg = 1;
-          y = static_cast< double >(deg);
+          y = static_cast< FloatT >(deg);
           dgree[i - 1] = deg;
           /*
                                     printf("%i %f should >= %i %f\n",deg,y,k-1,x);
@@ -1658,13 +1658,13 @@ myamlf(WSI n, WSI xadj[], WSI adjncy[], WSI dgree[], WSI varbl[],
 #endif
         numii = varbl[i - 1];
         if (numii < 0) {
-          x = static_cast< double >(dgree[adjncy[xadj[i - 1] - 1] - 1] - 1);
+          x = static_cast< FloatT >(dgree[adjncy[xadj[i - 1] - 1] - 1] - 1);
           varbl[i - 1] = abs(numii);
           j9 = dgree[i - 1] + nodeg;
           deg = (j8 > j9 ? j9 : j8) + numii;
           if (deg < 1)
             deg = 1;
-          y = static_cast< double >(deg);
+          y = static_cast< FloatT >(deg);
           dgree[i - 1] = deg;
           /*
                                     printf("%i %f should >= %i %f",deg,y,dgree[adjncy[xadj[i - 1] - 1] - 1]-1,x);
@@ -2169,7 +2169,7 @@ int ClpCholeskyBase::symbolic()
         const int *columnQuadratic = quadraticT.getIndices();
         const CoinBigIndex *columnQuadraticStart = quadraticT.getVectorStarts();
         const int *columnQuadraticLength = quadraticT.getVectorLengths();
-        //const double * quadraticElement = quadraticT.getElements();
+        //const FloatT * quadraticElement = quadraticT.getElements();
         for (iRow = 0; iRow < numberColumns; iRow++) {
           int iOriginalRow = permute_[iRow];
           Astart[iRow] = sizeFactor_;
@@ -2211,7 +2211,7 @@ int ClpCholeskyBase::symbolic()
     // no memory
     noMemory = true;
   }
-  double sizeFactor = sizeFactor_;
+  FloatT sizeFactor = sizeFactor_;
   if (!noMemory) {
     // Do lower triangular
     sizeFactor_ = 0;
@@ -2369,7 +2369,7 @@ int ClpCholeskyBase::symbolic()
           const int *columnQuadratic = quadratic->getIndices();
           const CoinBigIndex *columnQuadraticStart = quadratic->getVectorStarts();
           const int *columnQuadraticLength = quadratic->getVectorLengths();
-          //const double * quadraticElement = quadratic->getElements();
+          //const FloatT * quadraticElement = quadratic->getElements();
           for (iColumn = 0; iColumn < numberColumns; iColumn++) {
             Astart[iColumn] = sizeFactor_;
             CoinBigIndex j;
@@ -2418,10 +2418,10 @@ int ClpCholeskyBase::symbolic()
   // Use cholesky regions
   delete[] Astart;
   delete[] Arow;
-  double flops = 0.0;
+  FloatT flops = 0.0;
   for (iRow = 0; iRow < numberRows_; iRow++) {
     int length = choleskyStart_[iRow + 1] - choleskyStart_[iRow];
-    flops += static_cast< double >(length) * (length + 2.0);
+    flops += static_cast< FloatT >(length) * (length + 2.0);
   }
   if (model_->messageHandler()->logLevel() > 0)
     std::cout << sizeFactor << " elements in sparse Cholesky, flop count " << flops << std::endl;
@@ -2430,8 +2430,8 @@ int ClpCholeskyBase::symbolic()
 #if CLP_LONG_CHOLESKY != 1
     workDouble_ = new longDouble[numberRows_];
 #else
-    // actually long double
-    workDouble_ = reinterpret_cast< double * >(new CoinWorkDouble[numberRows_]);
+    // actually FloatT
+    workDouble_ = reinterpret_cast< FloatT * >(new CoinWorkDouble[numberRows_]);
 #endif
     diagonal_ = new longDouble[numberRows_];
   } catch (...) {
@@ -2626,8 +2626,8 @@ void ClpCholeskyBase::symbolic2(const int *Astart, const int *Arow)
   int numberleft = numberRows_;
   for (iRow = 0; iRow < numberRows_; iRow++) {
     CoinBigIndex left = sizeFactor_ - choleskyStart_[iRow];
-    double n = numberleft;
-    double threshold = n * (n - 1.0) * 0.5 * goDense_;
+    FloatT n = numberleft;
+    FloatT threshold = n * (n - 1.0) * 0.5 * goDense_;
     if (left >= threshold)
       break;
     numberleft--;
@@ -2722,11 +2722,11 @@ int ClpCholeskyBase::factorize(const CoinWorkDouble *diagonal, int *rowsDropped)
   const CoinBigIndex *columnStart = model_->clpMatrix()->getVectorStarts();
   const int *columnLength = model_->clpMatrix()->getVectorLengths();
   const int *row = model_->clpMatrix()->getIndices();
-  const double *element = model_->clpMatrix()->getElements();
+  const FloatT *element = model_->clpMatrix()->getElements();
   const CoinBigIndex *rowStart = rowCopy_->getVectorStarts();
   const int *rowLength = rowCopy_->getVectorLengths();
   const int *column = rowCopy_->getIndices();
-  const double *elementByRow = rowCopy_->getElements();
+  const FloatT *elementByRow = rowCopy_->getElements();
   int numberColumns = model_->clpMatrix()->getNumCols();
   //perturbation
   CoinWorkDouble perturbation = model_->diagonalPerturbation() * model_->diagonalNorm();
@@ -2843,15 +2843,15 @@ int ClpCholeskyBase::factorize(const CoinWorkDouble *diagonal, int *rowsDropped)
         }
       }
     }
-    doubleParameters_[10] = CoinMax(1.0e-20, largest);
+    FloatTParameters_[10] = CoinMax(fd(1.0e-20), largest);
     integerParameters_[20] = 0;
-    doubleParameters_[3] = 0.0;
-    doubleParameters_[4] = COIN_DBL_MAX;
+    FloatTParameters_[3] = 0.0;
+    FloatTParameters_[4] = COIN_DBL_MAX;
     integerParameters_[34] = 0; // say all must be positive
     factorizePart2(rowsDropped);
     newDropped = integerParameters_[20] + numberDroppedBefore;
-    largest = doubleParameters_[3];
-    smallest = doubleParameters_[4];
+    largest = FloatTParameters_[3];
+    smallest = FloatTParameters_[4];
     if (model_->messageHandler()->logLevel() > 1)
       std::cout << "Cholesky - largest " << largest << " smallest " << smallest << std::endl;
     choleskyCondition_ = largest / smallest;
@@ -2908,7 +2908,7 @@ int ClpCholeskyBase::factorize(const CoinWorkDouble *diagonal, int *rowsDropped)
           denseBlob++;
         }
       }
-      // dense cholesky (? long double)
+      // dense cholesky (? FloatT)
       int *dropped = new int[numberDense];
       dense_->factorizePart2(dropped);
       delete[] dropped;
@@ -3059,7 +3059,7 @@ int ClpCholeskyBase::factorize(const CoinWorkDouble *diagonal, int *rowsDropped)
         const int *columnQuadratic = quadratic->getIndices();
         const CoinBigIndex *columnQuadraticStart = quadratic->getVectorStarts();
         const int *columnQuadraticLength = quadratic->getVectorLengths();
-        const double *quadraticElement = quadratic->getElements();
+        const FloatT *quadraticElement = quadratic->getElements();
         for (iRow = 0; iRow < numberRows_; iRow++) {
           longDouble *put = sparseFactor_ + choleskyStart_[iRow];
           int *which = choleskyRow_ + indexStart_[iRow];
@@ -3170,7 +3170,7 @@ int ClpCholeskyBase::factorize(const CoinWorkDouble *diagonal, int *rowsDropped)
         const int *columnQuadratic = quadratic->getIndices();
         const CoinBigIndex *columnQuadraticStart = quadratic->getVectorStarts();
         const int *columnQuadraticLength = quadratic->getVectorLengths();
-        const double *quadraticElement = quadratic->getElements();
+        const FloatT *quadraticElement = quadratic->getElements();
         for (iColumn = 0; iColumn < numberColumns; iColumn++) {
           longDouble *put = sparseFactor_ + choleskyStart_[iColumn];
           int *which = choleskyRow_ + indexStart_[iColumn];
@@ -3248,10 +3248,10 @@ int ClpCholeskyBase::factorize(const CoinWorkDouble *diagonal, int *rowsDropped)
     //check sizes
     largest *= 1.0e-20;
     largest = CoinMin(largest, CHOL_SMALL_VALUE);
-    doubleParameters_[10] = CoinMax(1.0e-20, largest);
+    FloatTParameters_[10] = CoinMax(1.0e-20, largest);
     integerParameters_[20] = 0;
-    doubleParameters_[3] = 0.0;
-    doubleParameters_[4] = COIN_DBL_MAX;
+    FloatTParameters_[3] = 0.0;
+    FloatTParameters_[4] = COIN_DBL_MAX;
     // Set up LDL cutoff
     integerParameters_[34] = numberTotal;
     // KKT
@@ -3259,8 +3259,8 @@ int ClpCholeskyBase::factorize(const CoinWorkDouble *diagonal, int *rowsDropped)
     CoinZeroN(rowsDropped2, numberRows_);
     factorizePart2(rowsDropped2);
     newDropped = integerParameters_[20];
-    largest = doubleParameters_[3];
-    smallest = doubleParameters_[4];
+    largest = FloatTParameters_[3];
+    smallest = FloatTParameters_[4];
     if (model_->messageHandler()->logLevel() > 1)
       std::cout << "Cholesky - largest " << largest << " smallest " << smallest << std::endl;
     choleskyCondition_ = largest / smallest;
@@ -3274,7 +3274,7 @@ int ClpCholeskyBase::factorize(const CoinWorkDouble *diagonal, int *rowsDropped)
         //printf("row region1 %d dropped\n",iRow);
         //rowsDropped_[iRow]=1;
         rowsDropped_[iRow] = 0;
-        primalR[iRow] = doubleParameters_[20];
+        primalR[iRow] = FloatTParameters_[20];
       } else {
         rowsDropped_[iRow] = 0;
         primalR[iRow] = 0.0;
@@ -3286,7 +3286,7 @@ int ClpCholeskyBase::factorize(const CoinWorkDouble *diagonal, int *rowsDropped)
         //printf("row region2 %d dropped\n",iRow);
         //rowsDropped_[iRow]=1;
         rowsDropped_[iRow] = 0;
-        dualR[iRow - numberTotal] = doubleParameters_[34];
+        dualR[iRow - numberTotal] = FloatTParameters_[34];
       } else {
         rowsDropped_[iRow] = 0;
         dualR[iRow - numberTotal] = 0.0;
@@ -3302,12 +3302,12 @@ int ClpCholeskyBase::factorize(const CoinWorkDouble *diagonal, int *rowsDropped)
 */
 void ClpCholeskyBase::factorizePart2(int *rowsDropped)
 {
-  CoinWorkDouble largest = doubleParameters_[3];
-  CoinWorkDouble smallest = doubleParameters_[4];
+  CoinWorkDouble largest = FloatTParameters_[3];
+  CoinWorkDouble smallest = FloatTParameters_[4];
   // probably done before
   largest = 0.0;
   smallest = COIN_DBL_MAX;
-  double dropValue = doubleParameters_[10];
+  FloatT dropValue = FloatTParameters_[10];
   int firstPositive = integerParameters_[34];
   longDouble *d = ClpCopyOfArray(diagonal_, numberRows_);
   int iRow;
@@ -3586,8 +3586,8 @@ void ClpCholeskyBase::factorizePart2(int *rowsDropped)
     delete[] dropped;
   }
   delete[] d;
-  doubleParameters_[3] = largest;
-  doubleParameters_[4] = smallest;
+  FloatTParameters_[3] = largest;
+  FloatTParameters_[4] = smallest;
   return;
 }
 // Updates dense part (broken out for profiling)
@@ -3750,8 +3750,8 @@ void ClpCholeskyBase::solve(CoinWorkDouble *region)
 void ClpCholeskyBase::solve(CoinWorkDouble *region, int type)
 {
 #ifdef CLP_DEBUG
-  double *regionX = NULL;
-  if (sizeof(CoinWorkDouble) != sizeof(double) && type == 3) {
+  FloatT *regionX = NULL;
+  if (sizeof(CoinWorkDouble) != sizeof(FloatT) && type == 3) {
     regionX = ClpCopyOfArray(region, numberRows_);
   }
 #endif
@@ -3830,7 +3830,7 @@ void ClpCholeskyBase::solve(CoinWorkDouble *region, int type)
     longDouble *work = workDouble_;
     int i;
     int j;
-    double largestO = 0.0;
+    FloatT largestO = 0.0;
     for (i = 0; i < numberRows_; i++) {
       largestO = CoinMax(largestO, CoinAbs(regionX[i]));
     }
@@ -3870,8 +3870,8 @@ void ClpCholeskyBase::solve(CoinWorkDouble *region, int type)
       int iRow = permute_[i];
       regionX[iRow] = value;
     }
-    double largest = 0.0;
-    double largestV = 0.0;
+    FloatT largest = 0.0;
+    FloatT largestV = 0.0;
     for (i = 0; i < numberRows_; i++) {
       largest = CoinMax(largest, CoinAbs(region[i] - regionX[i]));
       largestV = CoinMax(largestV, CoinAbs(region[i]));

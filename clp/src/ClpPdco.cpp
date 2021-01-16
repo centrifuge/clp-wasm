@@ -172,9 +172,9 @@ int ClpPdco::pdco(ClpPdcoBase *stuff, Options &options, Info &info, Outfo &outfo
   //-----------------------------------------------------------------------
 
   //  global pdDDD1 pdDDD2 pdDDD3
-  double inf = 1.0e30;
-  double eps = 1.0e-15;
-  double atolold = -1.0, r3ratio = -1.0, Pinf, Dinf, Cinf, Cinf0;
+  FloatT inf = 1.0e30;
+  FloatT eps = 1.0e-15;
+  FloatT atolold = -1.0, r3ratio = -1.0, Pinf, Dinf, Cinf, Cinf0;
 
   printf("\n   --------------------------------------------------------");
   printf("\n   pdco.m                            Version of 01 Nov 2002");
@@ -186,10 +186,10 @@ int ClpPdco::pdco(ClpPdcoBase *stuff, Options &options, Info &info, Outfo &outfo
   int n = numberColumns_;
   bool ifexplicit = true;
 
-  CoinDenseVector< double > b(m, rhs_);
-  CoinDenseVector< double > x(n, x_);
-  CoinDenseVector< double > y(m, y_);
-  CoinDenseVector< double > z(n, dj_);
+  CoinDenseVector< FloatT > b(m, rhs_);
+  CoinDenseVector< FloatT > x(n, x_);
+  CoinDenseVector< FloatT > y(m, y_);
+  CoinDenseVector< FloatT > z(n, dj_);
   //delete old arrays
   delete[] rhs_;
   delete[] x_;
@@ -203,10 +203,10 @@ int ClpPdco::pdco(ClpPdcoBase *stuff, Options &options, Info &info, Outfo &outfo
   // Save stuff so available elsewhere
   pdcoStuff_ = stuff;
 
-  double normb = b.infNorm();
-  double normx0 = x.infNorm();
-  double normy0 = y.infNorm();
-  double normz0 = z.infNorm();
+  FloatT normb = b.infNorm();
+  FloatT normx0 = x.infNorm();
+  FloatT normy0 = y.infNorm();
+  FloatT normz0 = z.infNorm();
 
   printf("\nmax |b | = %8g     max |x0| = %8g", normb, normx0);
   printf("      xsize   = %8g", xsize_);
@@ -232,26 +232,26 @@ int ClpPdco::pdco(ClpPdcoBase *stuff, Options &options, Info &info, Outfo &outfo
          d2->resize(m, d2->getElements()[0]);  // to mean dk * unit vector
       */
   assert(stuff->sizeD1() == 1);
-  double d1 = stuff->getD1();
-  double d2 = stuff->getD2();
+  FloatT d1 = stuff->getD1();
+  FloatT d2 = stuff->getD2();
 
   //---------------------------------------------------------------------
   // Grab input options.
   //---------------------------------------------------------------------
   int maxitn = options.MaxIter;
-  double featol = options.FeaTol;
-  double opttol = options.OptTol;
-  double steptol = options.StepTol;
+  FloatT featol = options.FeaTol;
+  FloatT opttol = options.OptTol;
+  FloatT steptol = options.StepTol;
   int stepSame = 1; /* options.StepSame;   // 1 means stepx == stepz */
-  double x0min = options.x0min;
-  double z0min = options.z0min;
-  double mu0 = options.mu0;
+  FloatT x0min = options.x0min;
+  FloatT z0min = options.z0min;
+  FloatT mu0 = options.mu0;
   int LSproblem = options.LSproblem; // See below
   int LSmethod = options.LSmethod; // 1=Cholesky    2=QR    3=LSQR
   int itnlim = options.LSQRMaxIter * CoinMin(m, n);
-  double atol1 = options.LSQRatol1; // Initial  atol
-  double atol2 = options.LSQRatol2; // Smallest atol,unless atol1 is smaller
-  double conlim = options.LSQRconlim;
+  FloatT atol1 = options.LSQRatol1; // Initial  atol
+  FloatT atol2 = options.LSQRatol2; // Smallest atol,unless atol1 is smaller
+  FloatT conlim = options.LSQRconlim;
   //int  wait      = options.wait;
 
   // LSproblem:
@@ -265,21 +265,21 @@ int ClpPdco::pdco(ClpPdcoBase *stuff, Options &options, Info &info, Outfo &outfo
   // Set other parameters.
   //---------------------------------------------------------------------
   int kminor = 0; // 1 stops after each iteration
-  double eta = 1e-4; // Linesearch tolerance for "sufficient descent"
-  double maxf = 10; // Linesearch backtrack limit (function evaluations)
-  double maxfail = 1; // Linesearch failure limit (consecutive iterations)
-  double bigcenter = 1e+3; // mu is reduced if center < bigcenter.
+  FloatT eta = 1e-4; // Linesearch tolerance for "sufficient descent"
+  FloatT maxf = 10; // Linesearch backtrack limit (function evaluations)
+  FloatT maxfail = 1; // Linesearch failure limit (consecutive iterations)
+  FloatT bigcenter = 1e+3; // mu is reduced if center < bigcenter.
 
   // Parameters for LSQR.
-  double atolmin = eps; // Smallest atol if linesearch back-tracks
-  double btol = 0; // Should be small (zero is ok)
-  double show = false; // Controls lsqr iteration log
+  FloatT atolmin = eps; // Smallest atol if linesearch back-tracks
+  FloatT btol = 0; // Should be small (zero is ok)
+  FloatT show = false; // Controls lsqr iteration log
   /*
-     double gamma     = d1->infNorm();
-     double delta     = d2->infNorm();
+     FloatT gamma     = d1->infNorm();
+     FloatT delta     = d2->infNorm();
      */
-  double gamma = d1;
-  double delta = d2;
+  FloatT gamma = d1;
+  FloatT delta = d2;
 
   printf("\n\nx0min    = %8g     featol   = %8.1e", x0min, featol);
   printf("      d1max   = %8.1e", gamma);
@@ -308,7 +308,7 @@ int ClpPdco::pdco(ClpPdcoBase *stuff, Options &options, Info &info, Outfo &outfo
   //---------------------------------------------------------------------
   // All parameters have now been set.
   //---------------------------------------------------------------------
-  double time = CoinCpuTime();
+  FloatT time = CoinCpuTime();
   //bool useChol = (LSmethod == 1);
   //bool useQR   = (LSmethod == 2);
   bool direct = (LSmethod <= 2 && ifexplicit);
@@ -334,15 +334,15 @@ int ClpPdco::pdco(ClpPdcoBase *stuff, Options &options, Info &info, Outfo &outfo
   //  Get pointers to local copy of model bounds
   //---------------------------------------------------------------------
 
-  CoinDenseVector< double > bl(n, columnLower_);
-  double *bl_elts = bl.getElements();
-  CoinDenseVector< double > bu(nU, columnUpper_); // this is dummy if no UB
-  double *bu_elts = bu.getElements();
+  CoinDenseVector< FloatT > bl(n, columnLower_);
+  FloatT *bl_elts = bl.getElements();
+  CoinDenseVector< FloatT > bu(nU, columnUpper_); // this is dummy if no UB
+  FloatT *bu_elts = bu.getElements();
 
-  CoinDenseVector< double > r1(m, 0.0);
-  double *r1_elts = r1.getElements();
-  CoinDenseVector< double > x1(n, 0.0);
-  double *x1_elts = x1.getElements();
+  CoinDenseVector< FloatT > r1(m, 0.0);
+  FloatT *r1_elts = r1.getElements();
+  CoinDenseVector< FloatT > x1(n, 0.0);
+  FloatT *x1_elts = x1.getElements();
 
   if (nfix > 0) {
     for (int k = 0; k < nfix; k++)
@@ -365,13 +365,13 @@ int ClpPdco::pdco(ClpPdcoBase *stuff, Options &options, Info &info, Outfo &outfo
   //    gradient = (beta /theta) grad,
   //    Hessian  = (beta2/theta) hess.
   //---------------------------------------------------------------------
-  double beta = xsize_;
+  FloatT beta = xsize_;
   if (beta == 0)
     beta = 1; // beta scales b, x.
-  double zeta = zsize_;
+  FloatT zeta = zsize_;
   if (zeta == 0)
     zeta = 1; // zeta scales y, z.
-  double theta = beta * zeta; // theta scales obj.
+  FloatT theta = beta * zeta; // theta scales obj.
   // (theta could be anything, but theta = beta*zeta makes
   // scaled grad = grad/zeta = 1 approximately if zeta is chosen right.)
 
@@ -382,7 +382,7 @@ int ClpPdco::pdco(ClpPdcoBase *stuff, Options &options, Info &info, Outfo &outfo
   d1 = d1 * (beta / sqrt(theta));
   d2 = d2 * (sqrt(theta) / beta);
 
-  double beta2 = beta * beta;
+  FloatT beta2 = beta * beta;
   b.scale((1.0 / beta));
   y.scale((1.0 / zeta));
   x.scale((1.0 / beta));
@@ -391,42 +391,42 @@ int ClpPdco::pdco(ClpPdcoBase *stuff, Options &options, Info &info, Outfo &outfo
   //---------------------------------------------------------------------
   // Initialize vectors that are not fully used if bounds are missing.
   //---------------------------------------------------------------------
-  CoinDenseVector< double > rL(n, 0.0);
-  CoinDenseVector< double > cL(n, 0.0);
-  CoinDenseVector< double > z1(n, 0.0);
-  CoinDenseVector< double > dx1(n, 0.0);
-  CoinDenseVector< double > dz1(n, 0.0);
-  CoinDenseVector< double > r2(n, 0.0);
+  CoinDenseVector< FloatT > rL(n, 0.0);
+  CoinDenseVector< FloatT > cL(n, 0.0);
+  CoinDenseVector< FloatT > z1(n, 0.0);
+  CoinDenseVector< FloatT > dx1(n, 0.0);
+  CoinDenseVector< FloatT > dz1(n, 0.0);
+  CoinDenseVector< FloatT > r2(n, 0.0);
 
   // Assign upper bd regions (dummy if no UBs)
 
-  CoinDenseVector< double > rU(nU, 0.0);
-  CoinDenseVector< double > cU(nU, 0.0);
-  CoinDenseVector< double > x2(nU, 0.0);
-  CoinDenseVector< double > z2(nU, 0.0);
-  CoinDenseVector< double > dx2(nU, 0.0);
-  CoinDenseVector< double > dz2(nU, 0.0);
+  CoinDenseVector< FloatT > rU(nU, 0.0);
+  CoinDenseVector< FloatT > cU(nU, 0.0);
+  CoinDenseVector< FloatT > x2(nU, 0.0);
+  CoinDenseVector< FloatT > z2(nU, 0.0);
+  CoinDenseVector< FloatT > dx2(nU, 0.0);
+  CoinDenseVector< FloatT > dz2(nU, 0.0);
 
   //---------------------------------------------------------------------
   // Initialize x, y, z, objective, etc.
   //---------------------------------------------------------------------
-  CoinDenseVector< double > dx(n, 0.0);
-  CoinDenseVector< double > dy(m, 0.0);
-  CoinDenseVector< double > Pr(m);
-  CoinDenseVector< double > D(n);
-  double *D_elts = D.getElements();
-  CoinDenseVector< double > w(n);
-  double *w_elts = w.getElements();
-  CoinDenseVector< double > rhs(m + n);
+  CoinDenseVector< FloatT > dx(n, 0.0);
+  CoinDenseVector< FloatT > dy(m, 0.0);
+  CoinDenseVector< FloatT > Pr(m);
+  CoinDenseVector< FloatT > D(n);
+  FloatT *D_elts = D.getElements();
+  CoinDenseVector< FloatT > w(n);
+  FloatT *w_elts = w.getElements();
+  CoinDenseVector< FloatT > rhs(m + n);
 
   //---------------------------------------------------------------------
   // Pull out the element array pointers for efficiency
   //---------------------------------------------------------------------
-  double *x_elts = x.getElements();
-  double *x2_elts = x2.getElements();
-  double *z_elts = z.getElements();
-  double *z1_elts = z1.getElements();
-  double *z2_elts = z2.getElements();
+  FloatT *x_elts = x.getElements();
+  FloatT *x2_elts = x2.getElements();
+  FloatT *z_elts = z.getElements();
+  FloatT *z1_elts = z1.getElements();
+  FloatT *z2_elts = z2.getElements();
 
   for (int k = 0; k < nlow; k++) {
     x_elts[low[k]] = CoinMax(x_elts[low[k]], bl[low[k]]);
@@ -442,15 +442,15 @@ int ClpPdco::pdco(ClpPdcoBase *stuff, Options &options, Info &info, Outfo &outfo
 
   //  [obj,grad,hess] = feval( Fname, (x*beta) );
   x.scale(beta);
-  double obj = getObj(x);
-  CoinDenseVector< double > grad(n);
+  FloatT obj = getObj(x);
+  CoinDenseVector< FloatT > grad(n);
   getGrad(x, grad);
-  CoinDenseVector< double > H(n);
+  CoinDenseVector< FloatT > H(n);
   getHessian(x, H);
   x.scale((1.0 / beta));
 
-  //double * g_elts = grad.getElements();
-  double *H_elts = H.getElements();
+  //FloatT * g_elts = grad.getElements();
+  FloatT *H_elts = H.getElements();
 
   obj /= theta; // Scaled obj.
   grad = grad * (beta / theta) + (d1 * d1) * x; // grad includes x regularization.
@@ -482,12 +482,12 @@ int ClpPdco::pdco(ClpPdcoBase *stuff, Options &options, Info &info, Outfo &outfo
   // 29 Sep 2002: Use mufirst = mu0*(x0min * z0min),
   //              regarding mu0 as a scaling of the initial center.
   //---------------------------------------------------------------------
-  //  double mufirst = mu0*(x0min * z0min);
-  double mufirst = mu0; // revert to absolute value
-  double mulast = 0.1 * opttol;
+  //  FloatT mufirst = mu0*(x0min * z0min);
+  FloatT mufirst = mu0; // revert to absolute value
+  FloatT mulast = 0.1 * opttol;
   mulast = CoinMin(mulast, mufirst);
-  double mu = mufirst;
-  double center, fmerit;
+  FloatT mu = mufirst;
+  FloatT center, fmerit;
   pdxxxresid2(mu, nlow, nupp, low, upp, cL, cU, x1, x2,
     z1, z2, &center, &Cinf, &Cinf0);
   fmerit = pdxxxmerit(nlow, nupp, low, upp, r1, r2, rL, rU, cL, cU);
@@ -495,9 +495,9 @@ int ClpPdco::pdco(ClpPdcoBase *stuff, Options &options, Info &info, Outfo &outfo
   // Initialize other things.
 
   bool precon = true;
-  double PDitns = 0;
+  FloatT PDitns = 0;
   //bool converged = false;
-  double atol = atol1;
+  FloatT atol = atol1;
   atol2 = CoinMax(atol2, atolmin);
   atolmin = atol2;
   //  pdDDD2    = d2;    // Global vector for diagonal matrix D2
@@ -516,12 +516,12 @@ int ClpPdco::pdco(ClpPdcoBase *stuff, Options &options, Info &info, Outfo &outfo
     printf("  atol   solver   Inexact\n");
   }
 
-  double regx = (d1 * x).twoNorm();
-  double regy = (d2 * y).twoNorm();
+  FloatT regx = (d1 * x).twoNorm();
+  FloatT regy = (d2 * y).twoNorm();
   //  regterm = twoNorm(d1.*x)^2  +  norm(d2.*y)^2;
-  double regterm = regx * regx + regy * regy;
-  double objreg = obj + 0.5 * regterm;
-  double objtrue = objreg * theta;
+  FloatT regterm = regx * regx + regy * regy;
+  FloatT objreg = obj + 0.5 * regterm;
+  FloatT objtrue = objreg * theta;
 
   printf("\n%3g                     ", PDitns);
   printf("%6.1f%6.1f", log10(Pinf), log10(Dinf));
@@ -547,7 +547,7 @@ int ClpPdco::pdco(ClpPdcoBase *stuff, Options &options, Info &info, Outfo &outfo
     // 25 Apr 2001: 0.01 seems wasteful for Star problem.
     //              Now that starting conditions are better, go back to 0.1.
 
-    double r3norm = CoinMax(Pinf, CoinMax(Dinf, Cinf));
+    FloatT r3norm = CoinMax(Pinf, CoinMax(Dinf, Cinf));
     atol = CoinMin(atol, r3norm * 0.1);
     atol = CoinMax(atol, atolmin);
     info.r3norm = r3norm;
@@ -580,7 +580,7 @@ int ClpPdco::pdco(ClpPdcoBase *stuff, Options &options, Info &info, Outfo &outfo
       //-----------------------------------------------------------------
       //  Solve (*) for dy.
       //-----------------------------------------------------------------
-      H = 1.0 / H; // H is now Hinv (NOTE!)
+      H = (FloatT)1 / H; // H is now Hinv (NOTE!)
       for (int k = 0; k < nfix; k++)
         H[fix[k]] = 0;
       for (int k = 0; k < n; k++)
@@ -596,7 +596,7 @@ int ClpPdco::pdco(ClpPdcoBase *stuff, Options &options, Info &info, Outfo &outfo
           rhs[k] = D_elts[k] * w_elts[k];
         for (int k = 0; k < m; k++)
           rhs[n + k] = r1_elts[k] * (1.0 / d2);
-        double damp = 0;
+        FloatT damp = 0;
 
         if (precon) { // Construct diagonal preconditioner for LSQR
           matPrecon(d2, Pr, D);
@@ -625,7 +625,7 @@ int ClpPdco::pdco(ClpPdcoBase *stuff, Options &options, Info &info, Outfo &outfo
         info.r3norm = fmerit; // Must be the 2-norm here.
 
         thisLsqr.do_lsqr(rhs, damp, atol, btol, conlim, itnlim,
-          show, info, dy, &istop, &itncg, &outfo, precon, Pr);
+          !show.is_zero(), info, dy, &istop, &itncg, &outfo, precon, Pr);
         if (precon)
           dy = dy * Pr;
 
@@ -668,16 +668,16 @@ int ClpPdco::pdco(ClpPdcoBase *stuff, Options &options, Info &info, Outfo &outfo
     //-------------------------------------------------------------------
     // Find the maximum step.
     //--------------------------------------------------------------------
-    double stepx1 = pdxxxstep(nlow, low, x1, dx1);
-    double stepx2 = inf;
+    FloatT stepx1 = pdxxxstep(nlow, low, x1, dx1);
+    FloatT stepx2 = inf;
     if (nupp > 0)
       stepx2 = pdxxxstep(nupp, upp, x2, dx2);
-    double stepz1 = pdxxxstep(z1, dz1);
-    double stepz2 = inf;
+    FloatT stepz1 = pdxxxstep(z1, dz1);
+    FloatT stepz2 = inf;
     if (nupp > 0)
       stepz2 = pdxxxstep(z2, dz2);
-    double stepx = CoinMin(stepx1, stepx2);
-    double stepz = CoinMin(stepz1, stepz2);
+    FloatT stepx = CoinMin(stepx1, stepx2);
+    FloatT stepz = CoinMin(stepz1, stepz2);
     stepx = CoinMin(steptol * stepx, 1.0);
     stepz = CoinMin(steptol * stepz, 1.0);
     if (stepSame) { // For NLPs, force same step
@@ -718,12 +718,12 @@ int ClpPdco::pdco(ClpPdcoBase *stuff, Options &options, Info &info, Outfo &outfo
       pdxxxresid1(this, nlow, nupp, nfix, low, upp, fix,
         b, bl_elts, bu_elts, d1, d2, grad, rL, rU, x, x1, x2,
         y, z1, z2, r1, r2, &Pinf, &Dinf);
-      //double center, Cinf, Cinf0;
+      //FloatT center, Cinf, Cinf0;
       //      [cL,cU,center,Cinf,Cinf0] = ...
       pdxxxresid2(mu, nlow, nupp, low, upp, cL, cU, x1, x2, z1, z2,
         &center, &Cinf, &Cinf0);
-      double fmeritnew = pdxxxmerit(nlow, nupp, low, upp, r1, r2, rL, rU, cL, cU);
-      double step = CoinMin(stepx, stepz);
+      FloatT fmeritnew = pdxxxmerit(nlow, nupp, low, upp, r1, r2, rL, rU, cL, cU);
+      FloatT step = CoinMin(stepx, stepz);
 
       if (fmeritnew <= (1 - eta * step) * fmerit) {
         fail = false;
@@ -823,9 +823,9 @@ int ClpPdco::pdco(ClpPdcoBase *stuff, Options &options, Info &info, Outfo &outfo
 
       // Reduce mu, and reset certain residuals.
 
-      double stepmu = CoinMin(stepx, stepz);
+      FloatT stepmu = CoinMin(stepx, stepz);
       stepmu = CoinMin(stepmu, steptol);
-      double muold = mu;
+      FloatT muold = mu;
       mu = mu - stepmu * mu;
       if (center >= bigcenter)
         mu = muold;
@@ -906,7 +906,7 @@ int ClpPdco::pdco(ClpPdcoBase *stuff, Options &options, Info &info, Outfo &outfo
          printf(" %d   %e\n", k, x[k]);
      */
   // Print distribution
-  double thresh[9] = { 0.00000001, 0.0000001, 0.000001, 0.00001, 0.0001, 0.001, 0.01, 0.1, 1.00001 };
+  FloatT thresh[9] = { 0.00000001, 0.0000001, 0.000001, 0.00001, 0.0001, 0.001, 0.01, 0.1, 1.00001 };
   int counts[9] = { 0 };
   for (int ij = 0; ij < n; ij++) {
     for (int j = 0; j < 9; j++) {
@@ -928,55 +928,55 @@ void ClpPdco::lsqr()
 {
 }
 
-void ClpPdco::matVecMult(int mode, double *x_elts, double *y_elts)
+void ClpPdco::matVecMult(int mode, FloatT *x_elts, FloatT *y_elts)
 {
   pdcoStuff_->matVecMult(this, mode, x_elts, y_elts);
 }
-void ClpPdco::matVecMult(int mode, CoinDenseVector< double > &x, double *y_elts)
+void ClpPdco::matVecMult(int mode, CoinDenseVector< FloatT > &x, FloatT *y_elts)
 {
-  double *x_elts = x.getElements();
+  FloatT *x_elts = x.getElements();
   matVecMult(mode, x_elts, y_elts);
   return;
 }
 
-void ClpPdco::matVecMult(int mode, CoinDenseVector< double > &x, CoinDenseVector< double > &y)
+void ClpPdco::matVecMult(int mode, CoinDenseVector< FloatT > &x, CoinDenseVector< FloatT > &y)
 {
-  double *x_elts = x.getElements();
-  double *y_elts = y.getElements();
+  FloatT *x_elts = x.getElements();
+  FloatT *y_elts = y.getElements();
   matVecMult(mode, x_elts, y_elts);
   return;
 }
 
-void ClpPdco::matVecMult(int mode, CoinDenseVector< double > *x, CoinDenseVector< double > *y)
+void ClpPdco::matVecMult(int mode, CoinDenseVector< FloatT > *x, CoinDenseVector< FloatT > *y)
 {
-  double *x_elts = x->getElements();
-  double *y_elts = y->getElements();
+  FloatT *x_elts = x->getElements();
+  FloatT *y_elts = y->getElements();
   matVecMult(mode, x_elts, y_elts);
   return;
 }
-void ClpPdco::matPrecon(double delta, double *x_elts, double *y_elts)
+void ClpPdco::matPrecon(FloatT delta, FloatT *x_elts, FloatT *y_elts)
 {
   pdcoStuff_->matPrecon(this, delta, x_elts, y_elts);
 }
-void ClpPdco::matPrecon(double delta, CoinDenseVector< double > &x, double *y_elts)
+void ClpPdco::matPrecon(FloatT delta, CoinDenseVector< FloatT > &x, FloatT *y_elts)
 {
-  double *x_elts = x.getElements();
+  FloatT *x_elts = x.getElements();
   matPrecon(delta, x_elts, y_elts);
   return;
 }
 
-void ClpPdco::matPrecon(double delta, CoinDenseVector< double > &x, CoinDenseVector< double > &y)
+void ClpPdco::matPrecon(FloatT delta, CoinDenseVector< FloatT > &x, CoinDenseVector< FloatT > &y)
 {
-  double *x_elts = x.getElements();
-  double *y_elts = y.getElements();
+  FloatT *x_elts = x.getElements();
+  FloatT *y_elts = y.getElements();
   matPrecon(delta, x_elts, y_elts);
   return;
 }
 
-void ClpPdco::matPrecon(double delta, CoinDenseVector< double > *x, CoinDenseVector< double > *y)
+void ClpPdco::matPrecon(FloatT delta, CoinDenseVector< FloatT > *x, CoinDenseVector< FloatT > *y)
 {
-  double *x_elts = x->getElements();
-  double *y_elts = y->getElements();
+  FloatT *x_elts = x->getElements();
+  FloatT *y_elts = y->getElements();
   matPrecon(delta, x_elts, y_elts);
   return;
 }
@@ -991,17 +991,17 @@ void ClpPdco::getBoundTypes(int *nlow, int *nupp, int *nfix, int **bptrs)
   return;
 }
 
-double ClpPdco::getObj(CoinDenseVector< double > &x)
+FloatT ClpPdco::getObj(CoinDenseVector< FloatT > &x)
 {
   return pdcoStuff_->getObj(this, x);
 }
 
-void ClpPdco::getGrad(CoinDenseVector< double > &x, CoinDenseVector< double > &g)
+void ClpPdco::getGrad(CoinDenseVector< FloatT > &x, CoinDenseVector< FloatT > &g)
 {
   pdcoStuff_->getGrad(this, x, g);
 }
 
-void ClpPdco::getHessian(CoinDenseVector< double > &x, CoinDenseVector< double > &H)
+void ClpPdco::getHessian(CoinDenseVector< FloatT > &x, CoinDenseVector< FloatT > &H)
 {
   pdcoStuff_->getHessian(this, x, H);
 }

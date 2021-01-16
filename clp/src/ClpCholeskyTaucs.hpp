@@ -51,9 +51,9 @@ public:
   virtual int symbolic();
   /** Factorize - filling in rowsDropped and returning number dropped.
          If return code negative then out of memory */
-  virtual int factorize(const double *diagonal, int *rowsDropped);
+  virtual int factorize(const FloatT *diagonal, int *rowsDropped);
   /** Uses factorization to solve. */
-  virtual void solve(double *region);
+  virtual void solve(FloatT *region);
   //@}
 
   /**@name Constructors, destructor */
@@ -78,7 +78,7 @@ private:
   /// Taucs factor
   void *factorization_;
   /// sparseFactor.
-  double *sparseFactorT_;
+  FloatT *sparseFactorT_;
   /// choleskyStart
   CoinBigIndex *choleskyStartT_;
   /// choleskyRow

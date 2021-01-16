@@ -31,7 +31,7 @@ ClpConstraintLinear::ClpConstraintLinear()
 //-------------------------------------------------------------------
 ClpConstraintLinear::ClpConstraintLinear(int row, int numberCoefficents,
   int numberColumns,
-  const int *column, const double *coefficient)
+  const int *column, const FloatT *coefficient)
   : ClpConstraint()
 {
   type_ = 0;
@@ -90,34 +90,34 @@ ClpConstraint *ClpConstraintLinear::clone() const
 
 // Returns gradient
 int ClpConstraintLinear::gradient(const ClpSimplex *model,
-  const double *solution,
-  double *gradient,
-  double &functionValue,
-  double &offset,
+  const FloatT *solution,
+  FloatT *gradient,
+  FloatT &functionValue,
+  FloatT &offset,
   bool useScaling,
   bool refresh) const
 {
   if (refresh || !lastGradient_) {
     functionValue_ = 0.0;
     if (!lastGradient_)
-      lastGradient_ = new double[numberColumns_];
+      lastGradient_ = new FloatT[numberColumns_];
     CoinZeroN(lastGradient_, numberColumns_);
     bool scaling = (model && model->rowScale() && useScaling);
     if (!scaling) {
       for (int i = 0; i < numberCoefficients_; i++) {
         int iColumn = column_[i];
-        double value = solution[iColumn];
-        double coefficient = coefficient_[i];
+        FloatT value = solution[iColumn];
+        FloatT coefficient = coefficient_[i];
         functionValue_ += value * coefficient;
         lastGradient_[iColumn] = coefficient;
       }
     } else {
       // do scaling
-      const double *columnScale = model->columnScale();
+      const FloatT *columnScale = model->columnScale();
       for (int i = 0; i < numberCoefficients_; i++) {
         int iColumn = column_[i];
-        double value = solution[iColumn]; // already scaled
-        double coefficient = coefficient_[i] * columnScale[iColumn];
+        FloatT value = solution[iColumn]; // already scaled
+        FloatT coefficient = coefficient_[i] * columnScale[iColumn];
         functionValue_ += value * coefficient;
         lastGradient_[iColumn] = coefficient;
       }
@@ -166,7 +166,7 @@ void ClpConstraintLinear::deleteSome(int numberToDelete, const int *which)
   }
 }
 // Scale constraint
-void ClpConstraintLinear::reallyScale(const double *columnScale)
+void ClpConstraintLinear::reallyScale(const FloatT *columnScale)
 {
   for (int i = 0; i < numberCoefficients_; i++) {
     int iColumn = column_[i];

@@ -536,7 +536,7 @@ bool ClpInterior::createWorkingData()
   // direction is actually scale out not scale in
   if (direction)
     direction = 1.0 / direction;
-  const double *obj = objective();
+  const FloatT *obj = objective();
   for (i = 0; i < numberColumns_; i++)
     cost_[i] = direction * obj[i];
   memset(cost_ + numberColumns_, 0, numberRows_ * sizeof(CoinWorkDouble));
@@ -806,9 +806,9 @@ bool ClpInterior::sanityCheck()
   }
   if (largestBound)
     handler_->message(CLP_RIMSTATISTICS3, messages_)
-      << static_cast< double >(smallestBound)
-      << static_cast< double >(largestBound)
-      << static_cast< double >(minimumGap)
+      << static_cast< FloatT >(smallestBound)
+      << static_cast< FloatT >(largestBound)
+      << static_cast< FloatT >(minimumGap)
       << CoinMessageEol;
   minimumGap = 1.0e100;
   smallestBound = 1.0e100;
@@ -870,14 +870,14 @@ bool ClpInterior::sanityCheck()
       << modifiedBounds
       << CoinMessageEol;
   handler_->message(CLP_RIMSTATISTICS1, messages_)
-    << static_cast< double >(smallestObj)
-    << static_cast< double >(largestObj)
+    << static_cast< FloatT >(smallestObj)
+    << static_cast< FloatT >(largestObj)
     << CoinMessageEol;
   if (largestBound)
     handler_->message(CLP_RIMSTATISTICS2, messages_)
-      << static_cast< double >(smallestBound)
-      << static_cast< double >(largestBound)
-      << static_cast< double >(minimumGap)
+      << static_cast< FloatT >(smallestBound)
+      << static_cast< FloatT >(largestBound)
+      << static_cast< FloatT >(minimumGap)
       << CoinMessageEol;
   return true;
 }
@@ -893,19 +893,19 @@ bool ClpInterior::sanityCheck()
    </ul>
 */
 void ClpInterior::loadProblem(const ClpMatrixBase &matrix,
-  const double *collb, const double *colub,
-  const double *obj,
-  const double *rowlb, const double *rowub,
-  const double *rowObjective)
+  const FloatT *collb, const FloatT *colub,
+  const FloatT *obj,
+  const FloatT *rowlb, const FloatT *rowub,
+  const FloatT *rowObjective)
 {
   ClpModel::loadProblem(matrix, collb, colub, obj, rowlb, rowub,
     rowObjective);
 }
 void ClpInterior::loadProblem(const CoinPackedMatrix &matrix,
-  const double *collb, const double *colub,
-  const double *obj,
-  const double *rowlb, const double *rowub,
-  const double *rowObjective)
+  const FloatT *collb, const FloatT *colub,
+  const FloatT *obj,
+  const FloatT *rowlb, const FloatT *rowub,
+  const FloatT *rowObjective)
 {
   ClpModel::loadProblem(matrix, collb, colub, obj, rowlb, rowub,
     rowObjective);
@@ -915,11 +915,11 @@ void ClpInterior::loadProblem(const CoinPackedMatrix &matrix,
    given in a standard column major ordered format (without gaps). */
 void ClpInterior::loadProblem(const int numcols, const int numrows,
   const CoinBigIndex *start, const int *index,
-  const double *value,
-  const double *collb, const double *colub,
-  const double *obj,
-  const double *rowlb, const double *rowub,
-  const double *rowObjective)
+  const FloatT *value,
+  const FloatT *collb, const FloatT *colub,
+  const FloatT *obj,
+  const FloatT *rowlb, const FloatT *rowub,
+  const FloatT *rowObjective)
 {
   ClpModel::loadProblem(numcols, numrows, start, index, value,
     collb, colub, obj, rowlb, rowub,
@@ -927,11 +927,11 @@ void ClpInterior::loadProblem(const int numcols, const int numrows,
 }
 void ClpInterior::loadProblem(const int numcols, const int numrows,
   const CoinBigIndex *start, const int *index,
-  const double *value, const int *length,
-  const double *collb, const double *colub,
-  const double *obj,
-  const double *rowlb, const double *rowub,
-  const double *rowObjective)
+  const FloatT *value, const int *length,
+  const FloatT *collb, const FloatT *colub,
+  const FloatT *obj,
+  const FloatT *rowlb, const FloatT *rowub,
+  const FloatT *rowObjective)
 {
   ClpModel::loadProblem(numcols, numrows, start, index, value, length,
     collb, colub, obj, rowlb, rowub,
@@ -1212,7 +1212,7 @@ ClpInterior::quadraticDjs(CoinWorkDouble *djRegion, const CoinWorkDouble *soluti
     const int *columnQuadratic = quadratic->getIndices();
     const CoinBigIndex *columnQuadraticStart = quadratic->getVectorStarts();
     const int *columnQuadraticLength = quadratic->getVectorLengths();
-    double *quadraticElement = quadratic->getMutableElements();
+    FloatT *quadraticElement = quadratic->getMutableElements();
     int numberColumns = quadratic->getNumCols();
     for (int iColumn = 0; iColumn < numberColumns; iColumn++) {
       CoinWorkDouble value = 0.0;

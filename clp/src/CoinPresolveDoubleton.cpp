@@ -40,7 +40,7 @@ namespace { /* begin unnamed local namespace */
    -coeff[i,y]*(c/b) and coeff[i,x] by coeff[i,y]*(-a/b). The value
    c/b is passed as the bounds_factor, and -a/b as the coeff_factor.
 
-   row0 is the doubleton row.  It is assumed that coeff[row0,y] has been
+   row0 is the FloatTton row.  It is assumed that coeff[row0,y] has been
    removed from the column major representation before this routine is
    called. (Otherwise, we'd have to check for it to avoid a useless row
    update.)
@@ -58,21 +58,21 @@ namespace { /* begin unnamed local namespace */
   
    The row and column reps are inconsistent during the routine and at
    completion.  In the row rep, column x and y are updated except for
-   the doubleton row, and in the column rep only column x is updated
+   the FloatTton row, and in the column rep only column x is updated
    except for coeff[row0,x]. On return, column y and row row0 will be deleted
    and consistency will be restored.
 */
 
-bool elim_doubleton(const char *DBGPARAM(msg),
+bool elim_FloatTton(const char *DBGPARAM(msg),
   CoinBigIndex *mcstrt,
-  double *rlo, double *rup,
-  double *colels,
+  FloatT *rlo, FloatT *rup,
+  FloatT *colels,
   int *hrow, int *hcol,
   int *hinrow, int *hincol,
   presolvehlink *clink, int ncols,
-  CoinBigIndex *mrstrt, double *rowels,
-  double coeff_factor,
-  double bounds_factor,
+  CoinBigIndex *mrstrt, FloatT *rowels,
+  FloatT coeff_factor,
+  FloatT bounds_factor,
   int DBGPARAM(row0),
   int icolx, int icoly)
 
@@ -96,8 +96,8 @@ bool elim_doubleton(const char *DBGPARAM(msg),
     PRESOLVEASSERT(kcex == kcsx + hincol[icolx]);
     const CoinBigIndex kcoly = base + kwhere;
     const int row = hrow[kcoly];
-    const double coeffy = colels[kcoly];
-    double delta = coeffy * coeff_factor;
+    const FloatT coeffy = colels[kcoly];
+    FloatT delta = coeffy * coeff_factor;
     /*
   Look for coeff[row,x], then update accordingly.
 */
@@ -164,51 +164,51 @@ bool elim_doubleton(const char *DBGPARAM(msg),
   Debug helpers
 */
 
-double *doubleton_mult;
-int *doubleton_id;
+FloatT *FloatTton_mult;
+int *FloatTton_id;
 
-void check_doubletons(const CoinPresolveAction *paction)
+void check_FloatTtons(const CoinPresolveAction *paction)
 {
   const CoinPresolveAction *paction0 = paction;
 
   if (paction) {
-    check_doubletons(paction->next);
+    check_FloatTtons(paction->next);
 
-    if (strcmp(paction0->name(), "doubleton_action") == 0) {
-      const doubleton_action *daction = dynamic_cast< const doubleton_action * >(paction0);
+    if (strcmp(paction0->name(), "FloatTton_action") == 0) {
+      const FloatTton_action *daction = dynamic_cast< const FloatTton_action * >(paction0);
       for (int i = daction->nactions_ - 1; i >= 0; --i) {
         int icolx = daction->actions_[i].icolx;
         int icoly = daction->actions_[i].icoly;
-        double coeffx = daction->actions_[i].coeffx;
-        double coeffy = daction->actions_[i].coeffy;
+        FloatT coeffx = daction->actions_[i].coeffx;
+        FloatT coeffy = daction->actions_[i].coeffy;
 
-        doubleton_mult[icoly] = -coeffx / coeffy;
-        doubleton_id[icoly] = icolx;
+        FloatTton_mult[icoly] = -coeffx / coeffy;
+        FloatTton_id[icoly] = icolx;
       }
     }
   }
 }
 
-void check_doubletons1(const CoinPresolveAction *paction,
+void check_FloatTtons1(const CoinPresolveAction *paction,
   int ncols)
 {
-  doubleton_mult = new double[ncols];
-  doubleton_id = new int[ncols];
+  FloatTton_mult = new FloatT[ncols];
+  FloatTton_id = new int[ncols];
   int i;
   for (i = 0; i < ncols; ++i)
-    doubleton_id[i] = i;
-  check_doubletons(paction);
-  double minmult = 1.0;
+    FloatTton_id[i] = i;
+  check_FloatTtons(paction);
+  FloatT minmult = 1.0;
   int minid = -1;
   for (i = 0; i < ncols; ++i) {
-    double mult = 1.0;
+    FloatT mult = 1.0;
     int j = i;
-    if (doubleton_id[j] != j) {
+    if (FloatTton_id[j] != j) {
       printf("MULTS (%d):  ", j);
-      while (doubleton_id[j] != j) {
-        printf("%d %g, ", doubleton_id[j], doubleton_mult[j]);
-        mult *= doubleton_mult[j];
-        j = doubleton_id[j];
+      while (FloatTton_id[j] != j) {
+        printf("%d %g, ", FloatTton_id[j], FloatTton_mult[j]);
+        mult *= FloatTton_mult[j];
+        j = FloatTton_id[j];
       }
       printf(" == %g\n", mult);
       if (minmult > fabs(mult)) {
@@ -225,23 +225,23 @@ void check_doubletons1(const CoinPresolveAction *paction,
 } /* end unnamed local namespace */
 
 /*
-  It is always the case that one of the variables of a doubleton is, or
+  It is always the case that one of the variables of a FloatTton is, or
   can be made, implied free, but neither will necessarily be a singleton.
-  Since in the case of a doubleton the number of non-zero entries will never
+  Since in the case of a FloatTton the number of non-zero entries will never
   increase if one is eliminated, it makes sense to always eliminate them.
 
   The col rep and row rep must be consistent.
  */
 const CoinPresolveAction
   *
-  doubleton_action::presolve(CoinPresolveMatrix *prob,
+  FloatTton_action::presolve(CoinPresolveMatrix *prob,
     const CoinPresolveAction *next)
 
 {
 #if PRESOLVE_DEBUG > 0 || PRESOLVE_CONSISTENCY > 0
 #if PRESOLVE_DEBUG > 0
   std::cout
-    << "Entering doubleton_action::presolve; considering "
+    << "Entering FloatTton_action::presolve; considering "
     << prob->numberRowsToDo_ << " rows." << std::endl;
 #endif
   presolve_consistent(prob);
@@ -255,7 +255,7 @@ const CoinPresolveAction
   startEmptyRows = prob->countEmptyRows();
   startEmptyColumns = prob->countEmptyCols();
 #if COIN_PRESOLVE_TUNING > 0
-  double startTime = 0.0;
+  FloatT startTime = 0.0;
   if (prob->tuning_)
     startTime = CoinCpuTime();
 #endif
@@ -269,30 +269,30 @@ const CoinPresolveAction
 */
   CoinBigIndex *colStarts = prob->mcstrt_;
   int *colLengths = prob->hincol_;
-  double *colCoeffs = prob->colels_;
+  FloatT *colCoeffs = prob->colels_;
   int *rowIndices = prob->hrow_;
   presolvehlink *clink = prob->clink_;
 
-  double *clo = prob->clo_;
-  double *cup = prob->cup_;
+  FloatT *clo = prob->clo_;
+  FloatT *cup = prob->cup_;
 
   CoinBigIndex *rowStarts = prob->mrstrt_;
   int *rowLengths = prob->hinrow_;
-  double *rowCoeffs = prob->rowels_;
+  FloatT *rowCoeffs = prob->rowels_;
   int *colIndices = prob->hcol_;
   presolvehlink *rlink = prob->rlink_;
 
-  double *rlo = prob->rlo_;
-  double *rup = prob->rup_;
+  FloatT *rlo = prob->rlo_;
+  FloatT *rup = prob->rup_;
 
   const unsigned char *integerType = prob->integerType_;
 
-  double *cost = prob->cost_;
+  FloatT *cost = prob->cost_;
 
   int numberLook = prob->numberRowsToDo_;
   int *look = prob->rowsToDo_;
-  const double ztolzb = prob->ztolzb_;
-  const double ztolzero = 1.0e-12;
+  const FloatT ztolzb = prob->ztolzb_;
+  const FloatT ztolzero = 1.0e-12;
 
   action *actions = new action[m];
   int nactions = 0;
@@ -310,15 +310,15 @@ const CoinPresolveAction
   int nfixed = 0;
 
   unsigned char *rowstat = prob->rowstat_;
-  double *acts = prob->acts_;
-  double *sol = prob->sol_;
+  FloatT *acts = prob->acts_;
+  FloatT *sol = prob->sol_;
   /*
   More like `ignore infeasibility'.
 */
   bool fixInfeasibility = ((prob->presolveOptions_ & 0x4000) != 0);
 
   /*
-  Open the main loop to scan for doubleton candidates.
+  Open the main loop to scan for FloatTton candidates.
 */
   for (int iLook = 0; iLook < numberLook; iLook++) {
     const int tgtrow = look[iLook];
@@ -364,11 +364,11 @@ const CoinPresolveAction
 */
     CoinBigIndex krowx = presolve_find_row(tgtrow, colStarts[tgtcolx],
       colStarts[tgtcolx] + colLengths[tgtcolx], rowIndices);
-    double coeffx = colCoeffs[krowx];
+    FloatT coeffx = colCoeffs[krowx];
     CoinBigIndex krowy = presolve_find_row(tgtrow, colStarts[tgtcoly],
       colStarts[tgtcoly] + colLengths[tgtcoly], rowIndices);
-    double coeffy = colCoeffs[krowy];
-    const double rhs = rlo[tgtrow];
+    FloatT coeffy = colCoeffs[krowy];
+    const FloatT rhs = rlo[tgtrow];
     /*
   Avoid obscuring a requirement for integrality.
 
@@ -399,7 +399,7 @@ const CoinPresolveAction
 
     if (integerStatus == 3) {
       int good = 0;
-      double rhs2 = rhs;
+      FloatT rhs2 = rhs;
       if (coeffx < 0.0) {
         coeffx = -coeffx;
         rhs2 += 1;
@@ -420,7 +420,7 @@ const CoinPresolveAction
       if (integerStatus < 0 && rhs == 0.0) {
         coeffx = colCoeffs[krowx];
         coeffy = colCoeffs[krowy];
-        double ratio;
+        FloatT ratio;
         bool swap = false;
         if (fabs(coeffx) > fabs(coeffy)) {
           ratio = coeffx / coeffy;
@@ -444,9 +444,9 @@ const CoinPresolveAction
         bool canDo = false;
         coeffx = colCoeffs[krowx];
         coeffy = colCoeffs[krowy];
-        double ratio;
+        FloatT ratio;
         bool swap = false;
-        double rhsRatio;
+        FloatT rhsRatio;
         if (fabs(coeffx) > fabs(coeffy)) {
           ratio = coeffx / coeffy;
           rhsRatio = rhs / coeffx;
@@ -512,10 +512,10 @@ const CoinPresolveAction
     coeffy = colCoeffs[krowy];
 #if PRESOLVE_DEBUG > 2
     std::cout
-      << "  doubleton row " << tgtrow << ", keep x(" << tgtcolx
+      << "  FloatTton row " << tgtrow << ", keep x(" << tgtcolx
       << ") elim x(" << tgtcoly << ")." << std::endl;
 #endif
-    PRESOLVE_DETAIL_PRINT(printf("pre_doubleton %dC %dC %dR E\n",
+    PRESOLVE_DETAIL_PRINT(printf("pre_FloatTton %dC %dC %dR E\n",
       tgtcoly, tgtcolx, tgtrow));
     /*
   Capture the existing columns and other information before we start to modify
@@ -555,8 +555,8 @@ const CoinPresolveAction
     b/-a < 0 ==> (b u2 - c) / -a <= x <= (b l2 - c) / -a
 */
     {
-      double lo1 = -PRESOLVE_INF;
-      double up1 = PRESOLVE_INF;
+      FloatT lo1 = -PRESOLVE_INF;
+      FloatT up1 = PRESOLVE_INF;
 
       if (-PRESOLVE_INF < clo[tgtcoly]) {
         if (coeffx * coeffy < 0)
@@ -584,11 +584,11 @@ const CoinPresolveAction
   done, break out of the main loop.
 */
       {
-        double lo2 = CoinMax(clo[tgtcolx], lo1);
-        double up2 = CoinMin(cup[tgtcolx], up1);
+        FloatT lo2 = CoinMax(clo[tgtcolx], lo1);
+        FloatT up2 = CoinMin(cup[tgtcolx], up1);
         if (lo2 > up2) {
           if (lo2 <= up2 + prob->feasibilityTolerance_ || fixInfeasibility) {
-            double nearest = floor(lo2 + 0.5);
+            FloatT nearest = floor(lo2 + 0.5);
             if (fabs(nearest - lo2) < 2.0 * prob->feasibilityTolerance_) {
               lo2 = nearest;
               up2 = nearest;
@@ -624,7 +624,7 @@ const CoinPresolveAction
 */
         if (rowstat && sol) {
           int numberBasic = 0;
-          double movement = 0;
+          FloatT movement = 0;
           if (prob->columnIsBasic(tgtcolx))
             numberBasic++;
           if (prob->columnIsBasic(tgtcoly))
@@ -678,7 +678,7 @@ const CoinPresolveAction
     /*
   We're done transferring bounds from y to x, and we've patched up the
   solution if one existed to patch. One last thing to do before we eliminate
-  column y and the doubleton row: put column x and the entangled rows on
+  column y and the FloatTton row: put column x and the entangled rows on
   the lists of columns and rows to look at in the next round of transforms.
 */
     {
@@ -700,7 +700,7 @@ const CoinPresolveAction
     /*
   Empty tgtrow in the column-major matrix.  Deleting the coefficient for
   (tgtrow,tgtcoly) is a bit costly (given that we're about to drop the whole
-  column), but saves the trouble of checking for it in elim_doubleton.
+  column), but saves the trouble of checking for it in elim_FloatTton.
 */
     presolve_delete_from_col(tgtrow, tgtcolx,
       colStarts, colLengths, rowIndices, colCoeffs);
@@ -717,7 +717,7 @@ const CoinPresolveAction
   Transfer the colx factors to coly. This modifies coefficients in column x
   as it removes coefficients in column y.
 */
-    bool no_mem = elim_doubleton("ELIMD",
+    bool no_mem = elim_FloatTton("ELIMD",
       colStarts, rlo, rup, colCoeffs,
       rowIndices, colIndices, rowLengths, colLengths,
       clink, n,
@@ -726,7 +726,7 @@ const CoinPresolveAction
       rhs / coeffy,
       tgtrow, tgtcolx, tgtcoly);
     if (no_mem)
-      throwCoinError("out of memory", "doubleton_action::presolve");
+      throwCoinError("out of memory", "FloatTton_action::presolve");
 
     /*
   Eliminate coly entirely from the col rep. We'll want to groom colx to remove
@@ -757,7 +757,7 @@ const CoinPresolveAction
     action *actions1 = new action[nactions];
     CoinMemcpyN(actions, nactions, actions1);
 
-    next = new doubleton_action(nactions, actions1, next);
+    next = new FloatTton_action(nactions, actions1, next);
 
     if (nzeros)
       next = drop_zero_coefficients_action::presolve(prob, zeros, nzeros, next);
@@ -768,7 +768,7 @@ const CoinPresolveAction
   deleteAction(actions, action *);
 
 #if COIN_PRESOLVE_TUNING > 0
-  double thisTime = 0.0;
+  FloatT thisTime = 0.0;
   if (prob->tuning_)
     thisTime = CoinCpuTime();
 #endif
@@ -779,7 +779,7 @@ const CoinPresolveAction
   int droppedRows = prob->countEmptyRows() - startEmptyRows;
   int droppedColumns = prob->countEmptyCols() - startEmptyColumns;
   std::cout
-    << "Leaving doubleton_action::presolve, " << droppedRows << " rows, "
+    << "Leaving FloatTton_action::presolve, " << droppedRows << " rows, "
     << droppedColumns << " columns dropped";
 #if COIN_PRESOLVE_TUNING > 0
   std::cout << " in " << thisTime - startTime << "s";
@@ -791,53 +791,53 @@ const CoinPresolveAction
 }
 
 /*
-  Reintroduce the column (y) and doubleton row (irow) removed in presolve.
-  Correct the other column (x) involved in the doubleton, update the solution,
+  Reintroduce the column (y) and FloatTton row (irow) removed in presolve.
+  Correct the other column (x) involved in the FloatTton, update the solution,
   etc.
 
   A fair amount of complication arises because the presolve transform saves the
   shorter of x or y. Postsolve thus includes portions to restore either.
 */
-void doubleton_action::postsolve(CoinPostsolveMatrix *prob) const
+void FloatTton_action::postsolve(CoinPostsolveMatrix *prob) const
 {
   const action *const actions = actions_;
   const int nactions = nactions_;
 
-  double *colels = prob->colels_;
+  FloatT *colels = prob->colels_;
   int *hrow = prob->hrow_;
   CoinBigIndex *mcstrt = prob->mcstrt_;
   int *hincol = prob->hincol_;
   CoinBigIndex *link = prob->link_;
 
-  double *clo = prob->clo_;
-  double *cup = prob->cup_;
+  FloatT *clo = prob->clo_;
+  FloatT *cup = prob->cup_;
 
-  double *rlo = prob->rlo_;
-  double *rup = prob->rup_;
+  FloatT *rlo = prob->rlo_;
+  FloatT *rup = prob->rup_;
 
-  double *dcost = prob->cost_;
+  FloatT *dcost = prob->cost_;
 
-  double *sol = prob->sol_;
-  double *acts = prob->acts_;
-  double *rowduals = prob->rowduals_;
-  double *rcosts = prob->rcosts_;
+  FloatT *sol = prob->sol_;
+  FloatT *acts = prob->acts_;
+  FloatT *rowduals = prob->rowduals_;
+  FloatT *rcosts = prob->rcosts_;
 
   unsigned char *colstat = prob->colstat_;
   unsigned char *rowstat = prob->rowstat_;
 
-  const double maxmin = prob->maxmin_;
+  const FloatT maxmin = prob->maxmin_;
 
   CoinBigIndex &free_list = prob->free_list_;
 
-  const double ztolzb = prob->ztolzb_;
-  const double ztoldj = prob->ztoldj_;
-  const double ztolzero = 1.0e-12;
+  const FloatT ztolzb = prob->ztolzb_;
+  const FloatT ztoldj = prob->ztoldj_;
+  const FloatT ztolzero = 1.0e-12;
 
   int nrows = prob->nrows_;
 
   // Arrays to rebuild the unsaved column.
   int *index1 = new int[nrows];
-  double *element1 = new double[nrows];
+  FloatT *element1 = new FloatT[nrows];
   CoinZeroN(element1, nrows);
 
 #if PRESOLVE_DEBUG > 0 || PRESOLVE_CONSISTENCY > 0
@@ -851,31 +851,31 @@ void doubleton_action::postsolve(CoinPostsolveMatrix *prob) const
 
 #if PRESOLVE_DEBUG > 0
   std::cout
-    << "Entering doubleton_action::postsolve, " << nactions
+    << "Entering FloatTton_action::postsolve, " << nactions
     << " transforms to undo." << std::endl;
 #endif
 #endif
   /*
-  The outer loop: step through the doubletons in this array of actions.
-  The first activity is to unpack the doubleton.
+  The outer loop: step through the FloatTtons in this array of actions.
+  The first activity is to unpack the FloatTton.
 */
   for (const action *f = &actions[nactions - 1]; actions <= f; f--) {
 
     const int irow = f->row;
-    const double lo0 = f->clox;
-    const double up0 = f->cupx;
+    const FloatT lo0 = f->clox;
+    const FloatT up0 = f->cupx;
 
-    const double coeffx = f->coeffx;
-    const double coeffy = f->coeffy;
+    const FloatT coeffx = f->coeffx;
+    const FloatT coeffy = f->coeffy;
     const int jcolx = f->icolx;
     const int jcoly = f->icoly;
 
-    const double rhs = f->rlo;
+    const FloatT rhs = f->rlo;
 
 #if PRESOLVE_DEBUG > 2
     std::cout
       << std::endl
-      << "  restoring doubleton " << irow << ", elim x(" << jcoly
+      << "  restoring FloatTton " << irow << ", elim x(" << jcoly
       << "), kept x(" << jcolx << "); stored col ";
     if (f->ncoly)
       std::cout << jcoly;
@@ -888,7 +888,7 @@ void doubleton_action::postsolve(CoinPostsolveMatrix *prob) const
       << "; cj " << f->costx << " dj " << rcosts[jcolx] << "." << std::endl;
 #endif
     /*
-  jcolx is in the problem (for whatever reason), and the doubleton row (irow)
+  jcolx is in the problem (for whatever reason), and the FloatTton row (irow)
   and column (jcoly) have only been processed by empty row/column postsolve
   (i.e., reintroduced with length 0).
 */
@@ -896,7 +896,7 @@ void doubleton_action::postsolve(CoinPostsolveMatrix *prob) const
     PRESOLVEASSERT(cdone[jcoly] == DROP_COL);
 
     /*
-  Restore bounds for doubleton row, bounds and objective coefficient for x,
+  Restore bounds for FloatTton row, bounds and objective coefficient for x,
   objective for y.
 
   Original comment: restoration of rlo and rup likely isn't necessary.
@@ -912,11 +912,11 @@ void doubleton_action::postsolve(CoinPostsolveMatrix *prob) const
 
     /*
   Set primal solution for y (including status) and row activity for the
-  doubleton row. The motivation (up in presolve) for wanting coeffx < coeffy
+  FloatTton row. The motivation (up in presolve) for wanting coeffx < coeffy
   is to avoid inflation into sol[y]. Since this is a (satisfied) equality,
   activity is the rhs value and the logical is nonbasic.
 */
-    const double diffy = rhs - coeffx * sol[jcolx];
+    const FloatT diffy = rhs - coeffx * sol[jcolx];
     if (fabs(diffy) < ztolzero)
       sol[jcoly] = 0;
     else
@@ -947,11 +947,11 @@ void doubleton_action::postsolve(CoinPostsolveMatrix *prob) const
     /*
   Time to get into the correction/restoration of coefficients for columns x
   and y, with attendant correction of row bounds and activities. Accumulate
-  partial reduced costs (missing the contribution from the doubleton row) so
-  that we can eventually calculate a dual for the doubleton row.
+  partial reduced costs (missing the contribution from the FloatTton row) so
+  that we can eventually calculate a dual for the FloatTton row.
 */
-    double djy = maxmin * dcost[jcoly];
-    double djx = maxmin * dcost[jcolx];
+    FloatT djy = maxmin * dcost[jcoly];
+    FloatT djx = maxmin * dcost[jcolx];
     /*
   We saved column y in the action, so we'll use it to reconstruct column x.
   There are two aspects: correction of existing x coefficients, and fill in.
@@ -963,7 +963,7 @@ void doubleton_action::postsolve(CoinPostsolveMatrix *prob) const
     coeff_factor = -coeffx[dblton]/coeffy[dblton].
 
   Keep in mind that the major vector stored in the action does not include
-  the coefficient from the doubleton row --- the doubleton coefficients are
+  the coefficient from the FloatTton row --- the FloatTton coefficients are
   held in coeffx and coeffy.
 */
     if (f->ncoly) {
@@ -984,7 +984,7 @@ void doubleton_action::postsolve(CoinPostsolveMatrix *prob) const
         const int i = indy[kcol];
         PRESOLVEASSERT(rdone[i]);
 
-        double yValue = f->colel[kcol];
+        FloatT yValue = f->colel[kcol];
 
         if (-PRESOLVE_INF < rlo[i])
           rlo[i] += (yValue * rhs) / coeffy;
@@ -1023,7 +1023,7 @@ void doubleton_action::postsolve(CoinPostsolveMatrix *prob) const
       presolve_check_free_list(prob);
 #endif
       /*
-  Handle the coefficients of the doubleton row. Insert coeffy, coeffx.
+  Handle the coefficients of the FloatTton row. Insert coeffy, coeffx.
 */
       const CoinBigIndex kfree = free_list;
       assert(kfree >= 0 && kfree < prob->bulk0_);
@@ -1059,7 +1059,7 @@ void doubleton_action::postsolve(CoinPostsolveMatrix *prob) const
       for (int kcol = 0; kcol < numberToDo; ++kcol) {
         const int i = hrow[kcs];
         assert(i >= 0 && i < nrows && i != irow);
-        double value = colels[kcs] + element1[i];
+        FloatT value = colels[kcs] + element1[i];
         element1[i] = 0.0;
         if (fabs(value) >= 1.0e-15) {
           colels[kcs] = value;
@@ -1104,7 +1104,7 @@ void doubleton_action::postsolve(CoinPostsolveMatrix *prob) const
 */
       for (int kcol = 0; kcol < nX; kcol++) {
         const int i = index1[kcol];
-        double xValue = element1[i];
+        FloatT xValue = element1[i];
         element1[i] = 0.0;
         if (fabs(xValue) >= 1.0e-15) {
           if (i != irow)
@@ -1173,7 +1173,7 @@ void doubleton_action::postsolve(CoinPostsolveMatrix *prob) const
         element1[i] = -(colels[kcs] * coeffy) / coeffx;
       }
       /*
-  Replace column x with the the original column x held in the doubleton action
+  Replace column x with the the original column x held in the FloatTton action
   (recall that this column does not include coeffx). We first move column
   x to the free list, then thread a column with the original coefficients,
   back to front.  While we're at it, add the second part of the y coefficients
@@ -1186,7 +1186,7 @@ void doubleton_action::postsolve(CoinPostsolveMatrix *prob) const
         const int i = indx[kcol];
         PRESOLVEASSERT(rdone[i] && i != irow);
 
-        double xValue = f->colel[kcol];
+        FloatT xValue = f->colel[kcol];
         CoinBigIndex k = free_list;
         assert(k >= 0 && k < prob->bulk0_);
         free_list = link[free_list];
@@ -1209,10 +1209,10 @@ void doubleton_action::postsolve(CoinPostsolveMatrix *prob) const
       presolve_check_free_list(prob);
 #endif
       /*
-  The same, for the doubleton row.
+  The same, for the FloatTton row.
 */
       {
-        double xValue = coeffx;
+        FloatT xValue = coeffx;
         CoinBigIndex k = free_list;
         assert(k >= 0 && k < prob->bulk0_);
         free_list = link[free_list];
@@ -1237,7 +1237,7 @@ void doubleton_action::postsolve(CoinPostsolveMatrix *prob) const
       for (int kcol = 0; kcol < nX; kcol++) {
         const int i = index1[kcol];
         PRESOLVEASSERT(rdone[i] || i == irow);
-        double yValue = element1[i];
+        FloatT yValue = element1[i];
         element1[i] = 0.0;
         if (fabs(yValue) >= ztolzero) {
           leny++;
@@ -1267,16 +1267,16 @@ void doubleton_action::postsolve(CoinPostsolveMatrix *prob) const
       const int ny = hincol[jcoly];
       for (int kcol = 0; kcol < ny; ++kcol) {
         const int row = hrow[kcs];
-        const double coeff = colels[kcs];
+        const FloatT coeff = colels[kcs];
         kcs = link[kcs];
 
         if (row != irow) {
 
-          // undo elim_doubleton(1)
+          // undo elim_FloatTton(1)
           if (-PRESOLVE_INF < rlo[row])
             rlo[row] += (coeff * rhs) / coeffy;
 
-          // undo elim_doubleton(2)
+          // undo elim_FloatTton(2)
           if (rup[row] < PRESOLVE_INF)
             rup[row] += (coeff * rhs) / coeffy;
 
@@ -1288,7 +1288,7 @@ void doubleton_action::postsolve(CoinPostsolveMatrix *prob) const
     }
 #if PRESOLVE_DEBUG > 2
 /*
-  Sanity checks. The doubleton coefficients should be linked in the first
+  Sanity checks. The FloatTton coefficients should be linked in the first
   position of the each column (for no good reason except that it makes it much
   easier to write these checks).
 */
@@ -1305,7 +1305,7 @@ void doubleton_action::postsolve(CoinPostsolveMatrix *prob) const
     assert((coeffx == colels[mcstrt[jcolx]]) && (coeffy == colels[mcstrt[jcoly]]));
 #endif
 /*
-  Time to calculate a dual for the doubleton row, and settle the status of x
+  Time to calculate a dual for the FloatTton row, and settle the status of x
   and y. Ideally, we'll leave x at whatever nonbasic status it currently has
   and make y basic. There's a potential problem, however: Remember that we
   transferred bounds from y to x when we eliminated y. If those bounds were
@@ -1314,7 +1314,7 @@ void doubleton_action::postsolve(CoinPostsolveMatrix *prob) const
 
   We'll make two claims here:
 
-    * If the dual value for the doubleton row is chosen to keep the reduced
+    * If the dual value for the FloatTton row is chosen to keep the reduced
       cost djx of col x at its prior value, then the reduced cost djy of col
       y will be 0. (Crank through the linear algebra to convince yourself.)
 
@@ -1402,7 +1402,7 @@ void doubleton_action::postsolve(CoinPostsolveMatrix *prob) const
 
 #if PRESOLVE_DEBUG > 0 || PRESOLVE_CONSISTENCY > 0
     /*
-  Mark the column and row as processed by doubleton action. Then check
+  Mark the column and row as processed by FloatTton action. Then check
   integrity of the threaded matrix.
 */
     cdone[jcoly] = DOUBLETON;
@@ -1416,11 +1416,11 @@ void doubleton_action::postsolve(CoinPostsolveMatrix *prob) const
     {
       CoinBigIndex k = mcstrt[jcolx];
       const int nx = hincol[jcolx];
-      double dj = maxmin * dcost[jcolx];
+      FloatT dj = maxmin * dcost[jcolx];
 
       for (int kcol = 0; kcol < nx; ++kcol) {
         const int row = hrow[k];
-        const double coeff = colels[k];
+        const FloatT coeff = colels[k];
         k = link[k];
         dj -= rowduals[row] * coeff;
       }
@@ -1432,11 +1432,11 @@ void doubleton_action::postsolve(CoinPostsolveMatrix *prob) const
     {
       CoinBigIndex k = mcstrt[jcoly];
       const int ny = hincol[jcoly];
-      double dj = maxmin * dcost[jcoly];
+      FloatT dj = maxmin * dcost[jcoly];
 
       for (int kcol = 0; kcol < ny; ++kcol) {
         const int row = hrow[k];
-        const double coeff = colels[k];
+        const FloatT coeff = colels[k];
         k = link[k];
         dj -= rowduals[row] * coeff;
       }
@@ -1458,12 +1458,12 @@ void doubleton_action::postsolve(CoinPostsolveMatrix *prob) const
   presolve_check_nbasic(prob);
   presolve_check_reduced_costs(prob);
 #if PRESOLVE_DEBUG > 0
-  std::cout << "Leaving doubleton_action::postsolve." << std::endl;
+  std::cout << "Leaving FloatTton_action::postsolve." << std::endl;
 #endif
 #endif
 }
 
-doubleton_action::~doubleton_action()
+FloatTton_action::~FloatTton_action()
 {
   for (int i = nactions_ - 1; i >= 0; i--) {
     delete[] actions_[i].colel;

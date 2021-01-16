@@ -31,10 +31,10 @@ ClpQuadraticObjective::ClpQuadraticObjective()
 //-------------------------------------------------------------------
 // Useful Constructor
 //-------------------------------------------------------------------
-ClpQuadraticObjective::ClpQuadraticObjective(const double *objective,
+ClpQuadraticObjective::ClpQuadraticObjective(const FloatT *objective,
   int numberColumns,
   const CoinBigIndex *start,
-  const int *column, const double *element,
+  const int *column, const FloatT *element,
   int numberExtendedColumns)
   : ClpObjective()
 {
@@ -45,12 +45,12 @@ ClpQuadraticObjective::ClpQuadraticObjective(const double *objective,
   else
     numberExtendedColumns_ = numberColumns_;
   if (objective) {
-    objective_ = new double[numberExtendedColumns_];
+    objective_ = new FloatT[numberExtendedColumns_];
     CoinMemcpyN(objective, numberColumns_, objective_);
-    memset(objective_ + numberColumns_, 0, (numberExtendedColumns_ - numberColumns_) * sizeof(double));
+    memset(objective_ + numberColumns_, 0, (numberExtendedColumns_ - numberColumns_) * sizeof(FloatT));
   } else {
-    objective_ = new double[numberExtendedColumns_];
-    memset(objective_, 0, numberExtendedColumns_ * sizeof(double));
+    objective_ = new FloatT[numberExtendedColumns_];
+    memset(objective_, 0, numberExtendedColumns_ * sizeof(FloatT));
   }
   if (start)
     quadraticObjective_ = new CoinPackedMatrix(true, numberColumns, numberColumns,
@@ -73,13 +73,13 @@ ClpQuadraticObjective::ClpQuadraticObjective(const ClpQuadraticObjective &rhs,
   numberExtendedColumns_ = rhs.numberExtendedColumns_;
   fullMatrix_ = rhs.fullMatrix_;
   if (rhs.objective_) {
-    objective_ = new double[numberExtendedColumns_];
+    objective_ = new FloatT[numberExtendedColumns_];
     CoinMemcpyN(rhs.objective_, numberExtendedColumns_, objective_);
   } else {
     objective_ = NULL;
   }
   if (rhs.gradient_) {
-    gradient_ = new double[numberExtendedColumns_];
+    gradient_ = new FloatT[numberExtendedColumns_];
     CoinMemcpyN(rhs.gradient_, numberExtendedColumns_, gradient_);
   } else {
     gradient_ = NULL;
@@ -95,7 +95,7 @@ ClpQuadraticObjective::ClpQuadraticObjective(const ClpQuadraticObjective &rhs,
       const int *columnQuadratic1 = rhs.quadraticObjective_->getIndices();
       const CoinBigIndex *columnQuadraticStart1 = rhs.quadraticObjective_->getVectorStarts();
       const int *columnQuadraticLength1 = rhs.quadraticObjective_->getVectorLengths();
-      const double *quadraticElement1 = rhs.quadraticObjective_->getElements();
+      const FloatT *quadraticElement1 = rhs.quadraticObjective_->getElements();
       CoinBigIndex *columnQuadraticStart2 = new CoinBigIndex[numberExtendedColumns_ + 1];
       int *columnQuadraticLength2 = new int[numberExtendedColumns_];
       int iColumn;
@@ -134,7 +134,7 @@ ClpQuadraticObjective::ClpQuadraticObjective(const ClpQuadraticObjective &rhs,
       } else {
         int numberElements = numberDiagonal + 2 * numberBelow;
         int *columnQuadratic2 = new int[numberElements];
-        double *quadraticElement2 = new double[numberElements];
+        FloatT *quadraticElement2 = new FloatT[numberElements];
         columnQuadraticStart2[0] = 0;
         numberElements = 0;
         for (iColumn = 0; iColumn < numberColumns; iColumn++) {
@@ -214,13 +214,13 @@ ClpQuadraticObjective::ClpQuadraticObjective(const ClpQuadraticObjective &rhs,
       throw CoinError("bad column list", "subset constructor",
         "ClpQuadraticObjective");
     numberColumns_ = numberColumns;
-    objective_ = new double[numberExtendedColumns_];
+    objective_ = new FloatT[numberExtendedColumns_];
     for (i = 0; i < numberColumns_; i++)
       objective_[i] = rhs.objective_[whichColumn[i]];
     CoinMemcpyN(rhs.objective_ + rhs.numberColumns_, (numberExtendedColumns_ - numberColumns_),
       objective_ + numberColumns_);
     if (rhs.gradient_) {
-      gradient_ = new double[numberExtendedColumns_];
+      gradient_ = new FloatT[numberExtendedColumns_];
       for (i = 0; i < numberColumns_; i++)
         gradient_[i] = rhs.gradient_[whichColumn[i]];
       CoinMemcpyN(rhs.gradient_ + rhs.numberColumns_, (numberExtendedColumns_ - numberColumns_),
@@ -267,13 +267,13 @@ ClpQuadraticObjective::operator=(const ClpQuadraticObjective &rhs)
     numberColumns_ = rhs.numberColumns_;
     numberExtendedColumns_ = rhs.numberExtendedColumns_;
     if (rhs.objective_) {
-      objective_ = new double[numberExtendedColumns_];
+      objective_ = new FloatT[numberExtendedColumns_];
       CoinMemcpyN(rhs.objective_, numberExtendedColumns_, objective_);
     } else {
       objective_ = NULL;
     }
     if (rhs.gradient_) {
-      gradient_ = new double[numberExtendedColumns_];
+      gradient_ = new FloatT[numberExtendedColumns_];
       CoinMemcpyN(rhs.gradient_, numberExtendedColumns_, gradient_);
     } else {
       gradient_ = NULL;
@@ -288,16 +288,16 @@ ClpQuadraticObjective::operator=(const ClpQuadraticObjective &rhs)
 }
 
 // Returns gradient
-double *
+FloatT *
 ClpQuadraticObjective::gradient(const ClpSimplex *model,
-  const double *solution, double &offset, bool refresh,
+  const FloatT *solution, FloatT &offset, bool refresh,
   int includeLinear)
 {
   offset = 0.0;
   bool scaling = false;
   if (model && (model->rowScale() || model->objectiveScale() != 1.0 || model->optimizationDirection() != 1.0))
     scaling = true;
-  const double *cost = NULL;
+  const FloatT *cost = NULL;
   if (model)
     cost = model->costRegion();
   if (!cost) {
@@ -311,11 +311,11 @@ ClpQuadraticObjective::gradient(const ClpSimplex *model,
     } else {
       if (refresh || !gradient_) {
         if (!gradient_)
-          gradient_ = new double[numberExtendedColumns_];
+          gradient_ = new FloatT[numberExtendedColumns_];
         const int *columnQuadratic = quadraticObjective_->getIndices();
         const CoinBigIndex *columnQuadraticStart = quadraticObjective_->getVectorStarts();
         const int *columnQuadraticLength = quadraticObjective_->getVectorLengths();
-        const double *quadraticElement = quadraticObjective_->getElements();
+        const FloatT *quadraticElement = quadraticObjective_->getElements();
         offset = 0.0;
         // use current linear cost region
         if (includeLinear == 1)
@@ -323,26 +323,26 @@ ClpQuadraticObjective::gradient(const ClpSimplex *model,
         else if (includeLinear == 2)
           CoinMemcpyN(objective_, numberExtendedColumns_, gradient_);
         else
-          memset(gradient_, 0, numberExtendedColumns_ * sizeof(double));
+          memset(gradient_, 0, numberExtendedColumns_ * sizeof(FloatT));
         if (activated_) {
           if (!fullMatrix_) {
             int iColumn;
             for (iColumn = 0; iColumn < numberColumns_; iColumn++) {
-              double valueI = solution[iColumn];
+              FloatT valueI = solution[iColumn];
               CoinBigIndex j;
               for (j = columnQuadraticStart[iColumn];
                    j < columnQuadraticStart[iColumn] + columnQuadraticLength[iColumn]; j++) {
                 int jColumn = columnQuadratic[j];
-                double valueJ = solution[jColumn];
-                double elementValue = quadraticElement[j];
+                FloatT valueJ = solution[jColumn];
+                FloatT elementValue = quadraticElement[j];
                 if (iColumn != jColumn) {
                   offset += valueI * valueJ * elementValue;
                   //if (fabs(valueI*valueJ*elementValue)>1.0e-12)
                   //printf("%d %d %g %g %g -> %g\n",
                   //       iColumn,jColumn,valueI,valueJ,elementValue,
                   //       valueI*valueJ*elementValue);
-                  double gradientI = valueJ * elementValue;
-                  double gradientJ = valueI * elementValue;
+                  FloatT gradientI = valueJ * elementValue;
+                  FloatT gradientJ = valueI * elementValue;
                   gradient_[iColumn] += gradientI;
                   gradient_[jColumn] += gradientJ;
                 } else {
@@ -351,7 +351,7 @@ ClpQuadraticObjective::gradient(const ClpSimplex *model,
                   //printf("XX %d %g %g -> %g\n",
                   //       iColumn,valueI,elementValue,
                   //       0.5*valueI*valueI*elementValue);
-                  double gradientI = valueI * elementValue;
+                  FloatT gradientI = valueI * elementValue;
                   gradient_[iColumn] += gradientI;
                 }
               }
@@ -362,12 +362,12 @@ ClpQuadraticObjective::gradient(const ClpSimplex *model,
             offset *= 2.0;
             for (iColumn = 0; iColumn < numberColumns_; iColumn++) {
               CoinBigIndex j;
-              double value = 0.0;
-              double current = gradient_[iColumn];
+              FloatT value = 0.0;
+              FloatT current = gradient_[iColumn];
               for (j = columnQuadraticStart[iColumn];
                    j < columnQuadraticStart[iColumn] + columnQuadraticLength[iColumn]; j++) {
                 int jColumn = columnQuadratic[j];
-                double valueJ = solution[jColumn] * quadraticElement[j];
+                FloatT valueJ = solution[jColumn] * quadraticElement[j];
                 value += valueJ;
               }
               offset += value * solution[iColumn];
@@ -388,22 +388,22 @@ ClpQuadraticObjective::gradient(const ClpSimplex *model,
     assert(!fullMatrix_);
     if (refresh || !gradient_) {
       if (!gradient_)
-        gradient_ = new double[numberExtendedColumns_];
-      double direction = model->optimizationDirection() * model->objectiveScale();
+        gradient_ = new FloatT[numberExtendedColumns_];
+      FloatT direction = model->optimizationDirection() * model->objectiveScale();
       // direction is actually scale out not scale in
       //if (direction)
       //direction = 1.0/direction;
       const int *columnQuadratic = quadraticObjective_->getIndices();
       const CoinBigIndex *columnQuadraticStart = quadraticObjective_->getVectorStarts();
       const int *columnQuadraticLength = quadraticObjective_->getVectorLengths();
-      const double *quadraticElement = quadraticObjective_->getElements();
+      const FloatT *quadraticElement = quadraticObjective_->getElements();
       int iColumn;
-      const double *columnScale = model->columnScale();
+      const FloatT *columnScale = model->columnScale();
       // use current linear cost region (already scaled)
       if (includeLinear == 1) {
         CoinMemcpyN(model->costRegion(), numberExtendedColumns_, gradient_);
       } else if (includeLinear == 2) {
-        memset(gradient_ + numberColumns_, 0, (numberExtendedColumns_ - numberColumns_) * sizeof(double));
+        memset(gradient_ + numberColumns_, 0, (numberExtendedColumns_ - numberColumns_) * sizeof(FloatT));
         if (!columnScale) {
           for (iColumn = 0; iColumn < numberColumns_; iColumn++) {
             gradient_[iColumn] = objective_[iColumn] * direction;
@@ -414,28 +414,28 @@ ClpQuadraticObjective::gradient(const ClpSimplex *model,
           }
         }
       } else {
-        memset(gradient_, 0, numberExtendedColumns_ * sizeof(double));
+        memset(gradient_, 0, numberExtendedColumns_ * sizeof(FloatT));
       }
       if (!columnScale) {
         if (activated_) {
           for (iColumn = 0; iColumn < numberColumns_; iColumn++) {
-            double valueI = solution[iColumn];
+            FloatT valueI = solution[iColumn];
             CoinBigIndex j;
             for (j = columnQuadraticStart[iColumn];
                  j < columnQuadraticStart[iColumn] + columnQuadraticLength[iColumn]; j++) {
               int jColumn = columnQuadratic[j];
-              double valueJ = solution[jColumn];
-              double elementValue = quadraticElement[j];
+              FloatT valueJ = solution[jColumn];
+              FloatT elementValue = quadraticElement[j];
               elementValue *= direction;
               if (iColumn != jColumn) {
                 offset += valueI * valueJ * elementValue;
-                double gradientI = valueJ * elementValue;
-                double gradientJ = valueI * elementValue;
+                FloatT gradientI = valueJ * elementValue;
+                FloatT gradientJ = valueI * elementValue;
                 gradient_[iColumn] += gradientI;
                 gradient_[jColumn] += gradientJ;
               } else {
                 offset += 0.5 * valueI * valueI * elementValue;
-                double gradientI = valueI * elementValue;
+                FloatT gradientI = valueI * elementValue;
                 gradient_[iColumn] += gradientI;
               }
             }
@@ -445,25 +445,25 @@ ClpQuadraticObjective::gradient(const ClpSimplex *model,
         // scaling
         if (activated_) {
           for (iColumn = 0; iColumn < numberColumns_; iColumn++) {
-            double valueI = solution[iColumn];
-            double scaleI = columnScale[iColumn] * direction;
+            FloatT valueI = solution[iColumn];
+            FloatT scaleI = columnScale[iColumn] * direction;
             CoinBigIndex j;
             for (j = columnQuadraticStart[iColumn];
                  j < columnQuadraticStart[iColumn] + columnQuadraticLength[iColumn]; j++) {
               int jColumn = columnQuadratic[j];
-              double valueJ = solution[jColumn];
-              double elementValue = quadraticElement[j];
-              double scaleJ = columnScale[jColumn];
+              FloatT valueJ = solution[jColumn];
+              FloatT elementValue = quadraticElement[j];
+              FloatT scaleJ = columnScale[jColumn];
               elementValue *= scaleI * scaleJ;
               if (iColumn != jColumn) {
                 offset += valueI * valueJ * elementValue;
-                double gradientI = valueJ * elementValue;
-                double gradientJ = valueI * elementValue;
+                FloatT gradientI = valueJ * elementValue;
+                FloatT gradientJ = valueI * elementValue;
                 gradient_[iColumn] += gradientI;
                 gradient_[jColumn] += gradientJ;
               } else {
                 offset += 0.5 * valueI * valueI * elementValue;
-                double gradientI = valueI * elementValue;
+                FloatT gradientI = valueI * elementValue;
                 gradient_[iColumn] += gradientI;
               }
             }
@@ -499,7 +499,7 @@ void ClpQuadraticObjective::resize(int newNumberColumns)
   if (numberColumns_ != newNumberColumns) {
     int newExtended = newNumberColumns + (numberExtendedColumns_ - numberColumns_);
     int i;
-    double *newArray = new double[newExtended];
+    FloatT *newArray = new FloatT[newExtended];
     if (objective_)
       CoinMemcpyN(objective_, CoinMin(newExtended, numberExtendedColumns_), newArray);
     delete[] objective_;
@@ -507,7 +507,7 @@ void ClpQuadraticObjective::resize(int newNumberColumns)
     for (i = numberColumns_; i < newNumberColumns; i++)
       objective_[i] = 0.0;
     if (gradient_) {
-      newArray = new double[newExtended];
+      newArray = new FloatT[newExtended];
       if (gradient_)
         CoinMemcpyN(gradient_, CoinMin(newExtended, numberExtendedColumns_), newArray);
       delete[] gradient_;
@@ -551,7 +551,7 @@ void ClpQuadraticObjective::deleteSome(int numberToDelete, const int *which)
     }
     newNumberColumns = numberColumns_ - numberDeleted;
     newExtended = numberExtendedColumns_ - numberDeleted;
-    double *newArray = new double[newExtended];
+    FloatT *newArray = new FloatT[newExtended];
     int put = 0;
     for (i = 0; i < numberColumns_; i++) {
       if (!deleted[i]) {
@@ -578,7 +578,7 @@ void ClpQuadraticObjective::deleteSome(int numberToDelete, const int *which)
     }
     newNumberColumns = numberColumns_ - numberDeleted;
     newExtended = numberExtendedColumns_ - numberDeleted;
-    double *newArray = new double[newExtended];
+    FloatT *newArray = new FloatT[newExtended];
     int put = 0;
     for (i = 0; i < numberColumns_; i++) {
       if (!deleted[i]) {
@@ -601,7 +601,7 @@ void ClpQuadraticObjective::deleteSome(int numberToDelete, const int *which)
 
 // Load up quadratic objective
 void ClpQuadraticObjective::loadQuadraticObjective(const int numberColumns, const CoinBigIndex *start,
-  const int *column, const double *element, int numberExtended)
+  const int *column, const FloatT *element, int numberExtended)
 {
   fullMatrix_ = false;
   delete quadraticObjective_;
@@ -611,19 +611,19 @@ void ClpQuadraticObjective::loadQuadraticObjective(const int numberColumns, cons
   if (numberExtended > numberExtendedColumns_) {
     if (objective_) {
       // make correct size
-      double *newArray = new double[numberExtended];
+      FloatT *newArray = new FloatT[numberExtended];
       CoinMemcpyN(objective_, numberColumns_, newArray);
       delete[] objective_;
       objective_ = newArray;
-      memset(objective_ + numberColumns_, 0, (numberExtended - numberColumns_) * sizeof(double));
+      memset(objective_ + numberColumns_, 0, (numberExtended - numberColumns_) * sizeof(FloatT));
     }
     if (gradient_) {
       // make correct size
-      double *newArray = new double[numberExtended];
+      FloatT *newArray = new FloatT[numberExtended];
       CoinMemcpyN(gradient_, numberColumns_, newArray);
       delete[] gradient_;
       gradient_ = newArray;
-      memset(gradient_ + numberColumns_, 0, (numberExtended - numberColumns_) * sizeof(double));
+      memset(gradient_ + numberColumns_, 0, (numberExtended - numberColumns_) * sizeof(FloatT));
     }
     numberExtendedColumns_ = numberExtended;
   } else {
@@ -643,8 +643,8 @@ void ClpQuadraticObjective::deleteQuadraticObjective()
 }
 /* Returns reduced gradient.Returns an offset (to be added to current one).
  */
-double
-ClpQuadraticObjective::reducedGradient(ClpSimplex *model, double *region,
+FloatT
+ClpQuadraticObjective::reducedGradient(ClpSimplex *model, FloatT *region,
   bool useFeasibleCosts)
 {
   int numberRows = model->numberRows();
@@ -660,16 +660,16 @@ ClpQuadraticObjective::reducedGradient(ClpSimplex *model, double *region,
 #ifdef CLP_DEBUG
   workSpace->checkClear();
 #endif
-  double *array = arrayVector.denseVector();
+  FloatT *array = arrayVector.denseVector();
   int *index = arrayVector.getIndices();
   int number = 0;
-  const double *costNow = gradient(model, model->solutionRegion(), offset_,
+  const FloatT *costNow = gradient(model, model->solutionRegion(), offset_,
     true, useFeasibleCosts ? 2 : 1);
-  double *cost = model->costRegion();
+  FloatT *cost = model->costRegion();
   const int *pivotVariable = model->pivotVariable();
   for (iRow = 0; iRow < numberRows; iRow++) {
     int iPivot = pivotVariable[iRow];
-    double value;
+    FloatT value;
     if (iPivot < numberColumns)
       value = costNow[iPivot];
     else if (!useFeasibleCosts)
@@ -685,22 +685,22 @@ ClpQuadraticObjective::reducedGradient(ClpSimplex *model, double *region,
 
   // Btran basic costs
   model->factorization()->updateColumnTranspose(workSpace, &arrayVector);
-  double *work = workSpace->denseVector();
+  FloatT *work = workSpace->denseVector();
   ClpFillN(work, numberRows, 0.0);
   // now look at dual solution
-  double *rowReducedCost = region + numberColumns;
-  double *dual = rowReducedCost;
-  const double *rowCost = cost + numberColumns;
+  FloatT *rowReducedCost = region + numberColumns;
+  FloatT *dual = rowReducedCost;
+  const FloatT *rowCost = cost + numberColumns;
   for (iRow = 0; iRow < numberRows; iRow++) {
     dual[iRow] = array[iRow];
   }
-  double *dj = region;
+  FloatT *dj = region;
   ClpDisjointCopyN(costNow, numberColumns, dj);
 
   model->transposeTimes(-1.0, dual, dj);
   for (iRow = 0; iRow < numberRows; iRow++) {
     // slack
-    double value = dual[iRow];
+    FloatT value = dual[iRow];
     value += rowCost[iRow];
     rowReducedCost[iRow] = value;
   }
@@ -711,24 +711,24 @@ ClpQuadraticObjective::reducedGradient(ClpSimplex *model, double *region,
 
    arrays are numberColumns+numberRows
 */
-double
+FloatT
 ClpQuadraticObjective::stepLength(ClpSimplex *model,
-  const double *solution,
-  const double *change,
-  double maximumTheta,
-  double &currentObj,
-  double &predictedObj,
-  double &thetaObj)
+  const FloatT *solution,
+  const FloatT *change,
+  FloatT maximumTheta,
+  FloatT &currentObj,
+  FloatT &predictedObj,
+  FloatT &thetaObj)
 {
-  const double *cost = model->costRegion();
+  const FloatT *cost = model->costRegion();
   bool inSolve = true;
   if (!cost) {
     // not in solve
     cost = objective_;
     inSolve = false;
   }
-  double delta = 0.0;
-  double linearCost = 0.0;
+  FloatT delta = 0.0;
+  FloatT linearCost = 0.0;
   int numberRows = model->numberRows();
   int numberColumns = model->numberColumns();
   int numberTotal = numberColumns;
@@ -757,23 +757,23 @@ ClpQuadraticObjective::stepLength(ClpSimplex *model,
   const int *columnQuadratic = quadraticObjective_->getIndices();
   const CoinBigIndex *columnQuadraticStart = quadraticObjective_->getVectorStarts();
   const int *columnQuadraticLength = quadraticObjective_->getVectorLengths();
-  const double *quadraticElement = quadraticObjective_->getElements();
-  double a = 0.0;
-  double b = delta;
-  double c = 0.0;
+  const FloatT *quadraticElement = quadraticObjective_->getElements();
+  FloatT a = 0.0;
+  FloatT b = delta;
+  FloatT c = 0.0;
   if (!scaling) {
     if (!fullMatrix_) {
       int iColumn;
       for (iColumn = 0; iColumn < numberColumns_; iColumn++) {
-        double valueI = solution[iColumn];
-        double changeI = change[iColumn];
+        FloatT valueI = solution[iColumn];
+        FloatT changeI = change[iColumn];
         CoinBigIndex j;
         for (j = columnQuadraticStart[iColumn];
              j < columnQuadraticStart[iColumn] + columnQuadraticLength[iColumn]; j++) {
           int jColumn = columnQuadratic[j];
-          double valueJ = solution[jColumn];
-          double changeJ = change[jColumn];
-          double elementValue = quadraticElement[j];
+          FloatT valueJ = solution[jColumn];
+          FloatT changeJ = change[jColumn];
+          FloatT elementValue = quadraticElement[j];
           if (iColumn != jColumn) {
             a += changeI * changeJ * elementValue;
             b += (changeI * valueJ + changeJ * valueI) * elementValue;
@@ -789,15 +789,15 @@ ClpQuadraticObjective::stepLength(ClpSimplex *model,
       // full matrix stored
       int iColumn;
       for (iColumn = 0; iColumn < numberColumns_; iColumn++) {
-        double valueI = solution[iColumn];
-        double changeI = change[iColumn];
+        FloatT valueI = solution[iColumn];
+        FloatT changeI = change[iColumn];
         CoinBigIndex j;
         for (j = columnQuadraticStart[iColumn];
              j < columnQuadraticStart[iColumn] + columnQuadraticLength[iColumn]; j++) {
           int jColumn = columnQuadratic[j];
-          double valueJ = solution[jColumn];
-          double changeJ = change[jColumn];
-          double elementValue = quadraticElement[j];
+          FloatT valueJ = solution[jColumn];
+          FloatT changeJ = change[jColumn];
+          FloatT elementValue = quadraticElement[j];
           valueJ *= elementValue;
           a += changeI * changeJ * elementValue;
           b += changeI * valueJ;
@@ -811,22 +811,22 @@ ClpQuadraticObjective::stepLength(ClpSimplex *model,
     // scaling
     // for now only if half
     assert(!fullMatrix_);
-    const double *columnScale = model->columnScale();
-    double direction = model->optimizationDirection() * model->objectiveScale();
+    const FloatT *columnScale = model->columnScale();
+    FloatT direction = model->optimizationDirection() * model->objectiveScale();
     // direction is actually scale out not scale in
     if (direction)
       direction = 1.0 / direction;
     if (!columnScale) {
       for (int iColumn = 0; iColumn < numberColumns_; iColumn++) {
-        double valueI = solution[iColumn];
-        double changeI = change[iColumn];
+        FloatT valueI = solution[iColumn];
+        FloatT changeI = change[iColumn];
         CoinBigIndex j;
         for (j = columnQuadraticStart[iColumn];
              j < columnQuadraticStart[iColumn] + columnQuadraticLength[iColumn]; j++) {
           int jColumn = columnQuadratic[j];
-          double valueJ = solution[jColumn];
-          double changeJ = change[jColumn];
-          double elementValue = quadraticElement[j];
+          FloatT valueJ = solution[jColumn];
+          FloatT changeJ = change[jColumn];
+          FloatT elementValue = quadraticElement[j];
           elementValue *= direction;
           if (iColumn != jColumn) {
             a += changeI * changeJ * elementValue;
@@ -842,16 +842,16 @@ ClpQuadraticObjective::stepLength(ClpSimplex *model,
     } else {
       // scaling
       for (int iColumn = 0; iColumn < numberColumns_; iColumn++) {
-        double valueI = solution[iColumn];
-        double changeI = change[iColumn];
-        double scaleI = columnScale[iColumn] * direction;
+        FloatT valueI = solution[iColumn];
+        FloatT changeI = change[iColumn];
+        FloatT scaleI = columnScale[iColumn] * direction;
         CoinBigIndex j;
         for (j = columnQuadraticStart[iColumn];
              j < columnQuadraticStart[iColumn] + columnQuadraticLength[iColumn]; j++) {
           int jColumn = columnQuadratic[j];
-          double valueJ = solution[jColumn];
-          double changeJ = change[jColumn];
-          double elementValue = quadraticElement[j];
+          FloatT valueJ = solution[jColumn];
+          FloatT changeJ = change[jColumn];
+          FloatT elementValue = quadraticElement[j];
           elementValue *= scaleI * columnScale[jColumn];
           if (iColumn != jColumn) {
             a += changeI * changeJ * elementValue;
@@ -866,7 +866,7 @@ ClpQuadraticObjective::stepLength(ClpSimplex *model,
       }
     }
   }
-  double theta;
+  FloatT theta;
   //printf("Current cost %g\n",c+linearCost);
   currentObj = c + linearCost;
   thetaObj = currentObj + a * maximumTheta * maximumTheta + b * maximumTheta;
@@ -885,13 +885,13 @@ ClpQuadraticObjective::stepLength(ClpSimplex *model,
   return CoinMin(theta, maximumTheta);
 }
 // Return objective value (without any ClpModel offset) (model may be NULL)
-double
-ClpQuadraticObjective::objectiveValue(const ClpSimplex *model, const double *solution) const
+FloatT
+ClpQuadraticObjective::objectiveValue(const ClpSimplex *model, const FloatT *solution) const
 {
   bool scaling = false;
   if (model && (model->rowScale() || model->objectiveScale() != 1.0))
     scaling = true;
-  const double *cost = NULL;
+  const FloatT *cost = NULL;
   if (model)
     cost = model->costRegion();
   if (!cost) {
@@ -899,10 +899,10 @@ ClpQuadraticObjective::objectiveValue(const ClpSimplex *model, const double *sol
     cost = objective_;
     scaling = false;
   }
-  double linearCost = 0.0;
+  FloatT linearCost = 0.0;
   int numberColumns = model->numberColumns();
   int numberTotal = numberColumns;
-  double currentObj = 0.0;
+  FloatT currentObj = 0.0;
   for (int iColumn = 0; iColumn < numberTotal; iColumn++) {
     linearCost += cost[iColumn] * solution[iColumn];
   }
@@ -914,19 +914,19 @@ ClpQuadraticObjective::objectiveValue(const ClpSimplex *model, const double *sol
   const int *columnQuadratic = quadraticObjective_->getIndices();
   const CoinBigIndex *columnQuadraticStart = quadraticObjective_->getVectorStarts();
   const int *columnQuadraticLength = quadraticObjective_->getVectorLengths();
-  const double *quadraticElement = quadraticObjective_->getElements();
-  double c = 0.0;
+  const FloatT *quadraticElement = quadraticObjective_->getElements();
+  FloatT c = 0.0;
   if (!scaling) {
     if (!fullMatrix_) {
       int iColumn;
       for (iColumn = 0; iColumn < numberColumns_; iColumn++) {
-        double valueI = solution[iColumn];
+        FloatT valueI = solution[iColumn];
         CoinBigIndex j;
         for (j = columnQuadraticStart[iColumn];
              j < columnQuadraticStart[iColumn] + columnQuadraticLength[iColumn]; j++) {
           int jColumn = columnQuadratic[j];
-          double valueJ = solution[jColumn];
-          double elementValue = quadraticElement[j];
+          FloatT valueJ = solution[jColumn];
+          FloatT elementValue = quadraticElement[j];
           if (iColumn != jColumn) {
             c += valueI * valueJ * elementValue;
           } else {
@@ -938,13 +938,13 @@ ClpQuadraticObjective::objectiveValue(const ClpSimplex *model, const double *sol
       // full matrix stored
       int iColumn;
       for (iColumn = 0; iColumn < numberColumns_; iColumn++) {
-        double valueI = solution[iColumn];
+        FloatT valueI = solution[iColumn];
         CoinBigIndex j;
         for (j = columnQuadraticStart[iColumn];
              j < columnQuadraticStart[iColumn] + columnQuadraticLength[iColumn]; j++) {
           int jColumn = columnQuadratic[j];
-          double valueJ = solution[jColumn];
-          double elementValue = quadraticElement[j];
+          FloatT valueJ = solution[jColumn];
+          FloatT elementValue = quadraticElement[j];
           valueJ *= elementValue;
           c += valueI * valueJ;
         }
@@ -955,20 +955,20 @@ ClpQuadraticObjective::objectiveValue(const ClpSimplex *model, const double *sol
     // scaling
     // for now only if half
     assert(!fullMatrix_);
-    const double *columnScale = model->columnScale();
-    double direction = model->objectiveScale();
+    const FloatT *columnScale = model->columnScale();
+    FloatT direction = model->objectiveScale();
     // direction is actually scale out not scale in
     if (direction)
       direction = 1.0 / direction;
     if (!columnScale) {
       for (int iColumn = 0; iColumn < numberColumns_; iColumn++) {
-        double valueI = solution[iColumn];
+        FloatT valueI = solution[iColumn];
         CoinBigIndex j;
         for (j = columnQuadraticStart[iColumn];
              j < columnQuadraticStart[iColumn] + columnQuadraticLength[iColumn]; j++) {
           int jColumn = columnQuadratic[j];
-          double valueJ = solution[jColumn];
-          double elementValue = quadraticElement[j];
+          FloatT valueJ = solution[jColumn];
+          FloatT elementValue = quadraticElement[j];
           elementValue *= direction;
           if (iColumn != jColumn) {
             c += valueI * valueJ * elementValue;
@@ -980,14 +980,14 @@ ClpQuadraticObjective::objectiveValue(const ClpSimplex *model, const double *sol
     } else {
       // scaling
       for (int iColumn = 0; iColumn < numberColumns_; iColumn++) {
-        double valueI = solution[iColumn];
-        double scaleI = columnScale[iColumn] * direction;
+        FloatT valueI = solution[iColumn];
+        FloatT scaleI = columnScale[iColumn] * direction;
         CoinBigIndex j;
         for (j = columnQuadraticStart[iColumn];
              j < columnQuadraticStart[iColumn] + columnQuadraticLength[iColumn]; j++) {
           int jColumn = columnQuadratic[j];
-          double valueJ = solution[jColumn];
-          double elementValue = quadraticElement[j];
+          FloatT valueJ = solution[jColumn];
+          FloatT elementValue = quadraticElement[j];
           elementValue *= scaleI * columnScale[jColumn];
           if (iColumn != jColumn) {
             c += valueI * valueJ * elementValue;
@@ -1002,14 +1002,14 @@ ClpQuadraticObjective::objectiveValue(const ClpSimplex *model, const double *sol
   return currentObj;
 }
 // Scale objective
-void ClpQuadraticObjective::reallyScale(const double *columnScale)
+void ClpQuadraticObjective::reallyScale(const FloatT *columnScale)
 {
   const int *columnQuadratic = quadraticObjective_->getIndices();
   const CoinBigIndex *columnQuadraticStart = quadraticObjective_->getVectorStarts();
   const int *columnQuadraticLength = quadraticObjective_->getVectorLengths();
-  double *quadraticElement = quadraticObjective_->getMutableElements();
+  FloatT *quadraticElement = quadraticObjective_->getMutableElements();
   for (int iColumn = 0; iColumn < numberColumns_; iColumn++) {
-    double scaleI = columnScale[iColumn];
+    FloatT scaleI = columnScale[iColumn];
     objective_[iColumn] *= scaleI;
     CoinBigIndex j;
     for (j = columnQuadraticStart[iColumn];

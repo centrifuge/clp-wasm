@@ -100,7 +100,7 @@ ClpNetworkMatrix::ClpNetworkMatrix(const CoinPackedMatrix &rhs)
   const int *row = rhs.getIndices();
   const CoinBigIndex *columnStart = rhs.getVectorStarts();
   const int *columnLength = rhs.getVectorLengths();
-  const double *elementByColumn = rhs.getElements();
+  const FloatT *elementByColumn = rhs.getElements();
   numberColumns_ = rhs.getNumCols();
   int goodNetwork = 1;
   numberRows_ = -1;
@@ -274,14 +274,14 @@ ClpNetworkMatrix::reverseOrderedCopy() const
   return newCopy;
 }
 //unscaled versions
-void ClpNetworkMatrix::times(double scalar,
-  const double *x, double *y) const
+void ClpNetworkMatrix::times(FloatT scalar,
+  const FloatT *x, FloatT *y) const
 {
   int iColumn;
   CoinBigIndex j = 0;
   if (trueNetwork_) {
     for (iColumn = 0; iColumn < numberColumns_; iColumn++, j += 2) {
-      double value = scalar * x[iColumn];
+      FloatT value = scalar * x[iColumn];
       if (value) {
         int iRowM = indices_[j];
         int iRowP = indices_[j + 1];
@@ -292,7 +292,7 @@ void ClpNetworkMatrix::times(double scalar,
   } else {
     // skip negative rows
     for (iColumn = 0; iColumn < numberColumns_; iColumn++, j += 2) {
-      double value = scalar * x[iColumn];
+      FloatT value = scalar * x[iColumn];
       if (value) {
         int iRowM = indices_[j];
         int iRowP = indices_[j + 1];
@@ -304,14 +304,14 @@ void ClpNetworkMatrix::times(double scalar,
     }
   }
 }
-void ClpNetworkMatrix::transposeTimes(double scalar,
-  const double *x, double *y) const
+void ClpNetworkMatrix::transposeTimes(FloatT scalar,
+  const FloatT *x, FloatT *y) const
 {
   int iColumn;
   CoinBigIndex j = 0;
   if (trueNetwork_) {
     for (iColumn = 0; iColumn < numberColumns_; iColumn++, j += 2) {
-      double value = y[iColumn];
+      FloatT value = y[iColumn];
       int iRowM = indices_[j];
       int iRowP = indices_[j + 1];
       value -= scalar * x[iRowM];
@@ -321,7 +321,7 @@ void ClpNetworkMatrix::transposeTimes(double scalar,
   } else {
     // skip negative rows
     for (iColumn = 0; iColumn < numberColumns_; iColumn++, j += 2) {
-      double value = y[iColumn];
+      FloatT value = y[iColumn];
       int iRowM = indices_[j];
       int iRowP = indices_[j + 1];
       if (iRowM >= 0)
@@ -332,39 +332,39 @@ void ClpNetworkMatrix::transposeTimes(double scalar,
     }
   }
 }
-void ClpNetworkMatrix::times(double scalar,
-  const double *x, double *y,
-  const double * /*rowScale*/,
-  const double * /*columnScale*/) const
+void ClpNetworkMatrix::times(FloatT scalar,
+  const FloatT *x, FloatT *y,
+  const FloatT * /*rowScale*/,
+  const FloatT * /*columnScale*/) const
 {
   // we know it is not scaled
   times(scalar, x, y);
 }
-void ClpNetworkMatrix::transposeTimes(double scalar,
-  const double *x, double *y,
-  const double * /*rowScale*/,
-  const double * /*columnScale*/,
-  double * /*spare*/) const
+void ClpNetworkMatrix::transposeTimes(FloatT scalar,
+  const FloatT *x, FloatT *y,
+  const FloatT * /*rowScale*/,
+  const FloatT * /*columnScale*/,
+  FloatT * /*spare*/) const
 {
   // we know it is not scaled
   transposeTimes(scalar, x, y);
 }
 /* Return <code>x * A + y</code> in <code>z</code>.
 	Squashes small elements and knows about ClpSimplex */
-void ClpNetworkMatrix::transposeTimes(const ClpSimplex *model, double scalar,
+void ClpNetworkMatrix::transposeTimes(const ClpSimplex *model, FloatT scalar,
   const CoinIndexedVector *rowArray,
   CoinIndexedVector *y,
   CoinIndexedVector *columnArray) const
 {
   // we know it is not scaled
   columnArray->clear();
-  double *pi = rowArray->denseVector();
+  FloatT *pi = rowArray->denseVector();
   int numberNonZero = 0;
   int *index = columnArray->getIndices();
-  double *array = columnArray->denseVector();
+  FloatT *array = columnArray->denseVector();
   int numberInRowArray = rowArray->getNumElements();
   // maybe I need one in OsiSimplex
-  double zeroTolerance = model->zeroTolerance();
+  FloatT zeroTolerance = model->zeroTolerance();
   int numberRows = model->numberRows();
 #ifndef NO_RTTI
   ClpPlusMinusOneMatrix *rowCopy = dynamic_cast< ClpPlusMinusOneMatrix * >(model->rowCopy());
@@ -372,12 +372,12 @@ void ClpNetworkMatrix::transposeTimes(const ClpSimplex *model, double scalar,
   ClpPlusMinusOneMatrix *rowCopy = static_cast< ClpPlusMinusOneMatrix * >(model->rowCopy());
 #endif
   bool packed = rowArray->packedMode();
-  double factor = 0.3;
+  FloatT factor = 0.3;
   // We may not want to do by row if there may be cache problems
   int numberColumns = model->numberColumns();
   // It would be nice to find L2 cache size - for moment 512K
   // Be slightly optimistic
-  if (numberColumns * sizeof(double) > 1000000) {
+  if (numberColumns * sizeof(FloatT) > 1000000) {
     if (numberRows * 10 < numberColumns)
       factor = 0.1;
     else if (numberRows * 4 < numberColumns)
@@ -395,7 +395,7 @@ void ClpNetworkMatrix::transposeTimes(const ClpSimplex *model, double scalar,
     if (packed) {
       // need to expand pi into y
       assert(y->capacity() >= numberRows);
-      double *piOld = pi;
+      FloatT *piOld = pi;
       pi = y->denseVector();
       const int *whichRow = rowArray->getIndices();
       int i;
@@ -406,7 +406,7 @@ void ClpNetworkMatrix::transposeTimes(const ClpSimplex *model, double scalar,
       }
       if (trueNetwork_) {
         for (iColumn = 0; iColumn < numberColumns_; iColumn++, j += 2) {
-          double value = 0.0;
+          FloatT value = 0.0;
           int iRowM = indices_[j];
           int iRowP = indices_[j + 1];
           value -= pi[iRowM];
@@ -419,7 +419,7 @@ void ClpNetworkMatrix::transposeTimes(const ClpSimplex *model, double scalar,
       } else {
         // skip negative rows
         for (iColumn = 0; iColumn < numberColumns_; iColumn++, j += 2) {
-          double value = 0.0;
+          FloatT value = 0.0;
           int iRowM = indices_[j];
           int iRowP = indices_[j + 1];
           if (iRowM >= 0)
@@ -439,7 +439,7 @@ void ClpNetworkMatrix::transposeTimes(const ClpSimplex *model, double scalar,
     } else {
       if (trueNetwork_) {
         for (iColumn = 0; iColumn < numberColumns_; iColumn++, j += 2) {
-          double value = 0.0;
+          FloatT value = 0.0;
           int iRowM = indices_[j];
           int iRowP = indices_[j + 1];
           value -= scalar * pi[iRowM];
@@ -452,7 +452,7 @@ void ClpNetworkMatrix::transposeTimes(const ClpSimplex *model, double scalar,
       } else {
         // skip negative rows
         for (iColumn = 0; iColumn < numberColumns_; iColumn++, j += 2) {
-          double value = 0.0;
+          FloatT value = 0.0;
           int iRowM = indices_[j];
           int iRowP = indices_[j + 1];
           if (iRowM >= 0)
@@ -480,8 +480,8 @@ void ClpNetworkMatrix::subsetTransposeTimes(const ClpSimplex * /*model*/,
   CoinIndexedVector *columnArray) const
 {
   columnArray->clear();
-  double *pi = rowArray->denseVector();
-  double *array = columnArray->denseVector();
+  FloatT *pi = rowArray->denseVector();
+  FloatT *array = columnArray->denseVector();
   int jColumn;
   int numberToDo = y->getNumElements();
   const int *which = y->getIndices();
@@ -490,7 +490,7 @@ void ClpNetworkMatrix::subsetTransposeTimes(const ClpSimplex * /*model*/,
   if (trueNetwork_) {
     for (jColumn = 0; jColumn < numberToDo; jColumn++) {
       int iColumn = which[jColumn];
-      double value = 0.0;
+      FloatT value = 0.0;
       CoinBigIndex j = iColumn << 1;
       int iRowM = indices_[j];
       int iRowP = indices_[j + 1];
@@ -502,7 +502,7 @@ void ClpNetworkMatrix::subsetTransposeTimes(const ClpSimplex * /*model*/,
     // skip negative rows
     for (jColumn = 0; jColumn < numberToDo; jColumn++) {
       int iColumn = which[jColumn];
-      double value = 0.0;
+      FloatT value = 0.0;
       CoinBigIndex j = iColumn << 1;
       int iRowM = indices_[j];
       int iRowP = indices_[j + 1];
@@ -614,7 +614,7 @@ void ClpNetworkMatrix::unpackPacked(ClpSimplex * /*model*/,
   int iColumn) const
 {
   int *index = rowArray->getIndices();
-  double *array = rowArray->denseVector();
+  FloatT *array = rowArray->denseVector();
   int number = 0;
   CoinBigIndex j = iColumn << 1;
   int iRowM = indices_[j];
@@ -633,7 +633,7 @@ void ClpNetworkMatrix::unpackPacked(ClpSimplex * /*model*/,
 /* Adds multiple of a column into an CoinIndexedvector
       You can use quickAdd to add to vector */
 void ClpNetworkMatrix::add(const ClpSimplex * /*model*/, CoinIndexedVector *rowArray,
-  int iColumn, double multiplier) const
+  int iColumn, FloatT multiplier) const
 {
   CoinBigIndex j = iColumn << 1;
   int iRowM = indices_[j];
@@ -644,8 +644,8 @@ void ClpNetworkMatrix::add(const ClpSimplex * /*model*/, CoinIndexedVector *rowA
     rowArray->quickAdd(iRowP, multiplier);
 }
 /* Adds multiple of a column into an array */
-void ClpNetworkMatrix::add(const ClpSimplex * /*model*/, double *array,
-  int iColumn, double multiplier) const
+void ClpNetworkMatrix::add(const ClpSimplex * /*model*/, FloatT *array,
+  int iColumn, FloatT multiplier) const
 {
   CoinBigIndex j = iColumn << 1;
   int iRowM = indices_[j];
@@ -663,7 +663,7 @@ ClpNetworkMatrix::getPackedMatrix() const
   if (!matrix_) {
     assert(trueNetwork_); // fix later
     int numberElements = 2 * numberColumns_;
-    double *elements = new double[numberElements];
+    FloatT *elements = new FloatT[numberElements];
     CoinBigIndex i;
     for (i = 0; i < 2 * numberColumns_; i += 2) {
       elements[i] = -1.0;
@@ -693,7 +693,7 @@ ClpNetworkMatrix::getPackedMatrix() const
    might be gaps in this list, entries that do not belong to any
    major-dimension vector. To get the actual elements one should look at
    this vector together with vectorStarts and vectorLengths. */
-const double *
+const FloatT *
 ClpNetworkMatrix::getElements() const
 {
   if (!matrix_)
@@ -852,8 +852,8 @@ ClpNetworkMatrix::dubiousWeights(const ClpSimplex *model, int *inputWeights) con
 /* Returns largest and smallest elements of both signs.
    Largest refers to largest absolute value.
 */
-void ClpNetworkMatrix::rangeOfElements(double &smallestNegative, double &largestNegative,
-  double &smallestPositive, double &largestPositive)
+void ClpNetworkMatrix::rangeOfElements(FloatT &smallestNegative, FloatT &largestNegative,
+  FloatT &smallestPositive, FloatT &largestPositive)
 {
   smallestNegative = -1.0;
   largestNegative = -1.0;
@@ -866,18 +866,18 @@ bool ClpNetworkMatrix::canDoPartialPricing() const
   return true;
 }
 // Partial pricing
-void ClpNetworkMatrix::partialPricing(ClpSimplex *model, double startFraction, double endFraction,
+void ClpNetworkMatrix::partialPricing(ClpSimplex *model, FloatT startFraction, FloatT endFraction,
   int &bestSequence, int &numberWanted)
 {
   numberWanted = currentWanted_;
   int j;
   int start = static_cast< int >(startFraction * numberColumns_);
   int end = CoinMin(static_cast< int >(endFraction * numberColumns_ + 1), numberColumns_);
-  double tolerance = model->currentDualTolerance();
-  double *reducedCost = model->djRegion();
-  const double *duals = model->dualRowSolution();
-  const double *cost = model->costRegion();
-  double bestDj;
+  FloatT tolerance = model->currentDualTolerance();
+  FloatT *reducedCost = model->djRegion();
+  const FloatT *duals = model->dualRowSolution();
+  const FloatT *cost = model->costRegion();
+  FloatT bestDj;
   if (bestSequence >= 0)
     bestDj = fabs(reducedCost[bestSequence]);
   else
@@ -889,7 +889,7 @@ void ClpNetworkMatrix::partialPricing(ClpSimplex *model, double startFraction, d
     int iSequence;
     for (iSequence = start; iSequence < end; iSequence++) {
       if (iSequence != sequenceOut) {
-        double value;
+        FloatT value;
         int iRowM, iRowP;
         ClpSimplex::Status status = model->getStatus(iSequence);
 
@@ -982,7 +982,7 @@ void ClpNetworkMatrix::partialPricing(ClpSimplex *model, double startFraction, d
     }
     if (bestSequence != saveSequence) {
       // recompute dj
-      double value = cost[bestSequence];
+      FloatT value = cost[bestSequence];
       j = bestSequence << 1;
       // skip negative rows
       int iRowM = indices_[j];
@@ -1000,7 +1000,7 @@ void ClpNetworkMatrix::partialPricing(ClpSimplex *model, double startFraction, d
     int iSequence;
     for (iSequence = start; iSequence < end; iSequence++) {
       if (iSequence != sequenceOut) {
-        double value;
+        FloatT value;
         int iRowM, iRowP;
         ClpSimplex::Status status = model->getStatus(iSequence);
 
@@ -1084,7 +1084,7 @@ void ClpNetworkMatrix::partialPricing(ClpSimplex *model, double startFraction, d
     }
     if (bestSequence != saveSequence) {
       // recompute dj
-      double value = cost[bestSequence];
+      FloatT value = cost[bestSequence];
       j = bestSequence << 1;
       int iRowM = indices_[j];
       int iRowP = indices_[j + 1];
@@ -1112,7 +1112,7 @@ void ClpNetworkMatrix::appendCols(int number, const CoinPackedVectorBase *const 
   int numberBad = 0;
   for (iColumn = 0; iColumn < number; iColumn++) {
     int n = columns[iColumn]->getNumElements();
-    const double *element = columns[iColumn]->getElements();
+    const FloatT *element = columns[iColumn]->getElements();
     if (n != 2)
       numberBad++;
     if (fabs(element[0]) != 1.0 || fabs(element[1]) != 1.0)
@@ -1136,7 +1136,7 @@ void ClpNetworkMatrix::appendCols(int number, const CoinPackedVectorBase *const 
   size = 2 * numberColumns_;
   for (iColumn = 0; iColumn < number; iColumn++) {
     const int *row = columns[iColumn]->getIndices();
-    const double *element = columns[iColumn]->getElements();
+    const FloatT *element = columns[iColumn]->getElements();
     if (element[0] == -1.0) {
       indices_[size++] = row[0];
       indices_[size++] = row[1];
@@ -1168,7 +1168,7 @@ void ClpNetworkMatrix::appendRows(int number, const CoinPackedVectorBase *const 
    If 0 then rows, 1 if columns */
 int ClpNetworkMatrix::appendMatrix(int number, int type,
   const CoinBigIndex *starts, const int *index,
-  const double *element, int /*numberOther*/)
+  const FloatT *element, int /*numberOther*/)
 {
   int numberErrors = 0;
   // make into CoinPackedVector

@@ -19,23 +19,23 @@ public:
   /// return the size of the dual vector
   inline int dualSize() const { return dual_.size(); }
   /// return a pointer to the array of duals
-  inline const double *dual() const { return dual_.values(); }
+  inline const FloatT *dual() const { return dual_.values(); }
 
   /// return the size of the primal vector
   inline int primalSize() const { return primal_.size(); }
   /// return a pointer to the array of primals
-  inline const double *primal() const { return primal_.values(); }
+  inline const FloatT *primal() const { return primal_.values(); }
 
   /** Assign the primal/dual vectors to be the warmstart information. In this
       method the object assumes ownership of the pointers and upon return \c
       primal and \c dual will be a NULL pointers. If copying is desirable use
       the constructor.
 
-      NOTE: \c primal and \c dual must have been allocated by new double[],
+      NOTE: \c primal and \c dual must have been allocated by new FloatT[],
       because they will be freed by delete[] upon the desructtion of this
       object...
   */
-  void assign(int primalSize, int dualSize, double *&primal, double *&dual)
+  void assign(int primalSize, int dualSize, FloatT *&primal, FloatT *&dual)
   {
     primal_.assignVector(primalSize, primal);
     dual_.assignVector(dualSize, dual);
@@ -48,7 +48,7 @@ public:
   }
 
   CoinWarmStartPrimalDual(int primalSize, int dualSize,
-    const double *primal, const double *dual)
+    const FloatT *primal, const FloatT *dual)
     : primal_(primalSize, primal)
     , dual_(dualSize, dual)
   {
@@ -121,17 +121,17 @@ public:
 
 #if 0
 protected:
-  inline const CoinWarmStartVector<double>& primalWarmStartVector() const
+  inline const CoinWarmStartVector<FloatT>& primalWarmStartVector() const
   { return primal_; }
-  inline const CoinWarmStartVector<double>& dualWarmStartVector() const
+  inline const CoinWarmStartVector<FloatT>& dualWarmStartVector() const
   { return dual_; }
 #endif
 
 private:
   ///@name Private data members
   //@{
-  CoinWarmStartVector< double > primal_;
-  CoinWarmStartVector< double > dual_;
+  CoinWarmStartVector< FloatT > primal_;
+  CoinWarmStartVector< FloatT > dual_;
   //@}
 };
 
@@ -223,8 +223,8 @@ private:
     \brief These two differences describe the differences in the primal and
     in the dual vector.
   */
-  CoinWarmStartVectorDiff< double > primalDiff_;
-  CoinWarmStartVectorDiff< double > dualDiff_;
+  CoinWarmStartVectorDiff< FloatT > primalDiff_;
+  CoinWarmStartVectorDiff< FloatT > dualDiff_;
 };
 
 #endif

@@ -13,7 +13,7 @@
 /*
   Constructors and destructors
 
-  There's a generic constructor and one for integer, double, keyword, string,
+  There's a generic constructor and one for integer, FloatT, keyword, string,
   and action parameters.
 */
 
@@ -44,10 +44,10 @@ CoinParam::CoinParam()
 }
 
 /*
-  Constructor for double parameter
+  Constructor for FloatT parameter
 */
 CoinParam::CoinParam(std::string name, std::string help,
-  double lower, double upper, double dflt, bool display)
+  FloatT lower, FloatT upper, FloatT dflt, bool display)
   : type_(coinParamDbl)
   , name_(name)
   , lengthName_(0)
@@ -529,17 +529,17 @@ std::string CoinParam::strVal() const
 }
 
 /*
-  Methods to manipulate the value of a double parameter.
+  Methods to manipulate the value of a FloatT parameter.
 */
 
-void CoinParam::setDblVal(double value)
+void CoinParam::setDblVal(FloatT value)
 {
   assert(type_ == coinParamDbl);
 
   dblValue_ = value;
 }
 
-double CoinParam::dblVal() const
+FloatT CoinParam::dblVal() const
 {
   assert(type_ == coinParamDbl);
 

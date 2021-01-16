@@ -26,7 +26,7 @@ class ClpPEDualRowDantzig : public ClpDualRowDantzig {
 
 public:
   /// Default Constructor
-  ClpPEDualRowDantzig(double psi = 0.5);
+  ClpPEDualRowDantzig(FloatT psi = 0.5);
 
   /// Copy constructor
   ClpPEDualRowDantzig(const ClpPEDualRowDantzig &);
@@ -49,7 +49,7 @@ public:
 
   /// Update the compatible variables and
   /// call the base class method to update weights
-  virtual double updateWeights(CoinIndexedVector *input,
+  virtual FloatT updateWeights(CoinIndexedVector *input,
     CoinIndexedVector *spare,
     CoinIndexedVector *spare2,
     CoinIndexedVector *updatedColumn);
@@ -68,7 +68,7 @@ private:
 
   /* psi is the factor used in the bi-dimensional pricing, it is < 1 and
        1/psi grows with the priority given to compatible variables */
-  double psi_;
+  FloatT psi_;
 
   /* useful counters for the update of the set of compatible variables */
   int iCurrent_;

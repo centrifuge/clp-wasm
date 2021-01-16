@@ -20,7 +20,7 @@ class CoinPackedMatrix;
 /// pointers used during factorization
 class FactorPointers {
 public:
-  double *rowMax;
+  FloatT *rowMax;
   int *firstRowKnonzeros;
   int *prevRow;
   int *nextRow;
@@ -83,7 +83,7 @@ public:
     return numberRows_ * (numberColumns_ + numberPivots_);
   }
   /// Returns maximum absolute value in factorization
-  double maximumCoefficient() const;
+  FloatT maximumCoefficient() const;
   //@}
 
   /**@name rank one updates which do exist */
@@ -98,9 +98,9 @@ public:
    partial update already in U */
   virtual int replaceColumn(CoinIndexedVector *regionSparse,
     int pivotRow,
-    double pivotCheck,
+    FloatT pivotCheck,
     bool checkBeforeModifying = false,
-    double acceptablePivot = 1.0e-8);
+    FloatT acceptablePivot = 1.0e-8);
   //@}
 
   /**@name various uses of factorization (return code number elements) 
@@ -175,7 +175,7 @@ public:
     int numberOfColumns,
     const int colStarts[],
     const int indicesRow[],
-    const double elements[]);
+    const FloatT elements[]);
   /// main loop of factorization
   int mainLoopFactor(FactorPointers &pointers);
   /// copies L by rows
@@ -197,13 +197,13 @@ public:
   int findShortColumn(const int row, const int length, int &minCol,
     int &minColLength, FactorPointers &pointers);
   /// finds maximum absolute value in a row
-  double findMaxInRrow(const int row, FactorPointers &pointers);
+  FloatT findMaxInRrow(const int row, FactorPointers &pointers);
   /// does pivoting
   void pivoting(const int pivotRow, const int pivotColumn,
-    const double invPivot, FactorPointers &pointers);
+    const FloatT invPivot, FactorPointers &pointers);
   /// part of pivoting
   void updateCurrentRow(const int pivotRow, const int row,
-    const double multiplier, FactorPointers &pointers,
+    const FloatT multiplier, FactorPointers &pointers,
     int &newNonZeros);
   /// allocates more space for L
   void increaseLsize();
@@ -230,17 +230,17 @@ public:
   /// initializes some numbers
   void initialSomeNumbers();
   /// solves L x = b
-  void Lxeqb(double *b) const;
+  void Lxeqb(FloatT *b) const;
   /// same as above but with two rhs
-  void Lxeqb2(double *b1, double *b2) const;
+  void Lxeqb2(FloatT *b1, FloatT *b2) const;
   /// solves U x = b
-  void Uxeqb(double *b, double *sol) const;
+  void Uxeqb(FloatT *b, FloatT *sol) const;
   /// same as above but with two rhs
-  void Uxeqb2(double *b1, double *sol1, double *sol2, double *b2) const;
+  void Uxeqb2(FloatT *b1, FloatT *sol1, FloatT *sol2, FloatT *b2) const;
   /// solves x L = b
-  void xLeqb(double *b) const;
+  void xLeqb(FloatT *b) const;
   /// solves x U = b
-  void xUeqb(double *b, double *sol) const;
+  void xUeqb(FloatT *b, FloatT *sol) const;
   /// updates factorization after a Simplex iteration
   int LUupdate(int newBasicCol);
   /// creates a new eta vector
@@ -248,46 +248,46 @@ public:
   /// makes a copy of row permutations
   void copyRowPermutations();
   /// solves H x = b, where H is a product of eta matrices
-  void Hxeqb(double *b) const;
+  void Hxeqb(FloatT *b) const;
   /// same as above but with two rhs
-  void Hxeqb2(double *b1, double *b2) const;
+  void Hxeqb2(FloatT *b1, FloatT *b2) const;
   /// solves x H = b
-  void xHeqb(double *b) const;
+  void xHeqb(FloatT *b) const;
   /// does FTRAN
-  void ftran(double *b, double *sol, bool save) const;
+  void ftran(FloatT *b, FloatT *sol, bool save) const;
   /// same as above but with two columns
-  void ftran2(double *b1, double *sol1, double *b2, double *sol2) const;
+  void ftran2(FloatT *b1, FloatT *sol1, FloatT *b2, FloatT *sol2) const;
   /// does BTRAN
-  void btran(double *b, double *sol) const;
+  void btran(FloatT *b, FloatT *sol) const;
   ///---------------------------------------
 
   //@}
 protected:
   /** Returns accuracy status of replaceColumn
       returns 0=OK, 1=Probably OK, 2=singular */
-  int checkPivot(double saveFromU, double oldPivot) const;
+  int checkPivot(FloatT saveFromU, FloatT oldPivot) const;
   ////////////////// data //////////////////
 protected:
   /**@name data */
   //@{
   /// work array (should be initialized to zero)
-  double *denseVector_;
+  FloatT *denseVector_;
   /// work array
-  double *workArea2_;
+  FloatT *workArea2_;
   /// work array
-  double *workArea3_;
+  FloatT *workArea3_;
   /// array of labels (should be initialized to zero)
   int *vecLabels_;
   /// array of indices
   int *indVector_;
 
   /// auxiliary vector
-  double *auxVector_;
+  FloatT *auxVector_;
   /// auxiliary vector
   int *auxInd_;
 
   /// vector to keep for LUupdate
-  double *vecKeep_;
+  FloatT *vecKeep_;
   /// indices of this vector
   int *indKeep_;
   /// number of nonzeros
@@ -298,7 +298,7 @@ protected:
   /// Lengths of the rows of L
   int *LrowLengths_;
   /// L by rows
-  double *Lrows_;
+  FloatT *Lrows_;
   /// indices in the rows of L
   int *LrowInd_;
   /// Size of Lrows_;
@@ -311,7 +311,7 @@ protected:
   /// Lengths of the columns of L
   int *LcolLengths_;
   /// L by columns
-  double *Lcolumns_;
+  FloatT *Lcolumns_;
   /// indices in the columns of L
   int *LcolInd_;
   /// numbers of elements in L
@@ -328,7 +328,7 @@ protected:
   int *UrowCapacities_;
 #endif
   /// U by rows
-  double *Urows_;
+  FloatT *Urows_;
   /// Indices in the rows of U
   int *UrowInd_;
   /// maximum capacity of Urows
@@ -353,7 +353,7 @@ protected:
   int *UcolCapacities_;
 #endif
   /// U by columns
-  double *Ucolumns_;
+  FloatT *Ucolumns_;
   /// Indices in the columns of U
   int *UcolInd_;
   /// previous column in U
@@ -372,7 +372,7 @@ protected:
   int *colSlack_;
 
   /// inverse values of the elements of diagonal of U
-  double *invOfPivots_;
+  FloatT *invOfPivots_;
 
   /// permutation of columns
   int *colOfU_;
@@ -396,7 +396,7 @@ protected:
   /// columns of eta vectors
   int *EtaInd_;
   /// elements of eta vectors
-  double *Eta_;
+  FloatT *Eta_;
   /// number of elements in Eta_
   int EtaSize_;
   /// last eta row
@@ -409,15 +409,15 @@ protected:
   /// minimum storage increase
   int minIncrease_;
   /// maximum size for the diagonal of U after update
-  double updateTol_;
+  FloatT updateTol_;
   /// do Shul heuristic
   bool doSuhlHeuristic_;
   /// maximum of U
-  double maxU_;
+  FloatT maxU_;
   /// bound on the growth rate
-  double maxGrowth_;
+  FloatT maxGrowth_;
   /// maximum of A
-  double maxA_;
+  FloatT maxA_;
   /// maximum number of candidates for pivot
   int pivotCandLimit_;
   /// number of slacks in basis

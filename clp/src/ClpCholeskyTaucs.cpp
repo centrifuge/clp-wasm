@@ -47,7 +47,7 @@ ClpCholeskyTaucs::ClpCholeskyTaucs(const ClpCholeskyTaucs &rhs)
     CoinMemcpyN(rhs.choleskyStartT_, (numberRows_ + 1), choleskyStartT_);
     choleskyRowT_ = (int *)malloc(sizeFactorT_ * sizeof(int));
     CoinMemcpyN(rhs.choleskyRowT_, sizeFactorT_, choleskyRowT_);
-    sparseFactorT_ = (double *)malloc(sizeFactorT_ * sizeof(double));
+    sparseFactorT_ = (FloatT *)malloc(sizeFactorT_ * sizeof(FloatT));
     CoinMemcpyN(rhs.sparseFactorT_, sizeFactorT_, sparseFactorT_);
     matrix_->colptr = choleskyStartT_;
     matrix_->rowind = choleskyRowT_;
@@ -91,7 +91,7 @@ ClpCholeskyTaucs::operator=(const ClpCholeskyTaucs &rhs)
       CoinMemcpyN(rhs.choleskyStartT_, (numberRows_ + 1), choleskyStartT_);
       choleskyRowT_ = (int *)malloc(sizeFactorT_ * sizeof(int));
       CoinMemcpyN(rhs.choleskyRowT_, sizeFactorT_, choleskyRowT_);
-      sparseFactorT_ = (double *)malloc(sizeFactorT_ * sizeof(double));
+      sparseFactorT_ = (FloatT *)malloc(sizeFactorT_ * sizeof(FloatT));
       CoinMemcpyN(rhs.sparseFactorT_, sizeFactorT_, sparseFactorT_);
       matrix_->colptr = choleskyStartT_;
       matrix_->rowind = choleskyRowT_;
@@ -237,25 +237,25 @@ int ClpCholeskyTaucs::symbolic()
   return 0;
 }
 /* Factorize - filling in rowsDropped and returning number dropped */
-int ClpCholeskyTaucs::factorize(const double *diagonal, int *rowsDropped)
+int ClpCholeskyTaucs::factorize(const FloatT *diagonal, int *rowsDropped)
 {
   const CoinBigIndex *columnStart = model_->clpMatrix()->getVectorStarts();
   const int *columnLength = model_->clpMatrix()->getVectorLengths();
   const int *row = model_->clpMatrix()->getIndices();
-  const double *element = model_->clpMatrix()->getElements();
+  const FloatT *element = model_->clpMatrix()->getElements();
   const CoinBigIndex *rowStart = rowCopyT_->getVectorStarts();
   const int *rowLength = rowCopyT_->getVectorLengths();
   const int *column = rowCopyT_->getIndices();
-  const double *elementByRow = rowCopyT_->getElements();
+  const FloatT *elementByRow = rowCopyT_->getElements();
   int numberColumns = model_->clpMatrix()->getNumCols();
   int iRow;
-  double *work = new double[numberRows_];
+  FloatT *work = new FloatT[numberRows_];
   CoinZeroN(work, numberRows_);
-  const double *diagonalSlack = diagonal + numberColumns;
+  const FloatT *diagonalSlack = diagonal + numberColumns;
   int newDropped = 0;
-  double largest;
+  FloatT largest;
   //perturbation
-  double perturbation = model_->diagonalPerturbation() * model_->diagonalNorm();
+  FloatT perturbation = model_->diagonalPerturbation() * model_->diagonalNorm();
   perturbation = perturbation * perturbation;
   if (perturbation > 1.0) {
     //if (model_->model()->logLevel()&4)
@@ -265,7 +265,7 @@ int ClpCholeskyTaucs::factorize(const double *diagonal, int *rowsDropped)
     perturbation = 1.0;
   }
   for (iRow = 0; iRow < numberRows_; iRow++) {
-    double *put = sparseFactorT_ + choleskyStartT_[iRow];
+    FloatT *put = sparseFactorT_ + choleskyStartT_[iRow];
     int *which = choleskyRowT_ + choleskyStartT_[iRow];
     int number = choleskyStartT_[iRow + 1] - choleskyStartT_[iRow];
     if (!rowLength[iRow])
@@ -278,11 +278,11 @@ int ClpCholeskyTaucs::factorize(const double *diagonal, int *rowsDropped)
         int iColumn = column[k];
         CoinBigIndex start = columnStart[iColumn];
         CoinBigIndex end = columnStart[iColumn] + columnLength[iColumn];
-        double multiplier = diagonal[iColumn] * elementByRow[k];
+        FloatT multiplier = diagonal[iColumn] * elementByRow[k];
         for (CoinBigIndex j = start; j < end; j++) {
           int jRow = row[j];
           if (jRow >= iRow && !rowsDropped_[jRow]) {
-            double value = element[j] * multiplier;
+            FloatT value = element[j] * multiplier;
             work[jRow] += value;
           }
         }
@@ -303,7 +303,7 @@ int ClpCholeskyTaucs::factorize(const double *diagonal, int *rowsDropped)
     }
   }
   //check sizes
-  double largest2 = maximumAbsElement(sparseFactorT_, sizeFactorT_);
+  FloatT largest2 = maximumAbsElement(sparseFactorT_, sizeFactorT_);
   largest2 *= 1.0e-19;
   largest = CoinMin(largest2, 1.0e-11);
   int numberDroppedBefore = 0;
@@ -313,7 +313,7 @@ int ClpCholeskyTaucs::factorize(const double *diagonal, int *rowsDropped)
     rowsDropped[iRow] = dropped;
     if (!dropped) {
       CoinBigIndex start = choleskyStartT_[iRow];
-      double diagonal = sparseFactorT_[start];
+      FloatT diagonal = sparseFactorT_[start];
       if (diagonal > largest2) {
         sparseFactorT_[start] = diagonal + perturbation;
       } else {
@@ -390,10 +390,10 @@ int ClpCholeskyTaucs::factorize(const double *diagonal, int *rowsDropped)
   return newDropped;
 }
 /* Uses factorization to solve. */
-void ClpCholeskyTaucs::solve(double *region)
+void ClpCholeskyTaucs::solve(FloatT *region)
 {
-  double *in = new double[numberRows_];
-  double *out = new double[numberRows_];
+  FloatT *in = new FloatT[numberRows_];
+  FloatT *out = new FloatT[numberRows_];
   taucs_vec_permute(numberRows_, TAUCS_DOUBLE, region, in, permuteInverse_);
   int rCode = taucs_supernodal_solve_llt(factorization_, out, in);
   if (rCode)

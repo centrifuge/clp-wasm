@@ -37,7 +37,7 @@ CoinWarmStartDual::generateDiff(const CoinWarmStart *const oldCWS) const
 
   CoinWarmStartDualDiff *diff = new CoinWarmStartDualDiff;
   CoinWarmStartDiff *vecdiff = dual_.generateDiff(&oldDual->dual_);
-  diff->diff_.swap(*dynamic_cast< CoinWarmStartVectorDiff< double > * >(vecdiff));
+  diff->diff_.swap(*dynamic_cast< CoinWarmStartVectorDiff< FloatT > * >(vecdiff));
   delete vecdiff;
 
   return diff;

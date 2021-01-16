@@ -27,10 +27,10 @@ public:
          Returns non-zero if gradient udefined at current solution
      */
   virtual int gradient(const ClpSimplex *model,
-    const double *solution,
-    double *gradient,
-    double &functionValue,
-    double &offset,
+    const FloatT *solution,
+    FloatT *gradient,
+    FloatT &functionValue,
+    FloatT &offset,
     bool useScaling = false,
     bool refresh = true) const;
   /// Resize constraint
@@ -38,7 +38,7 @@ public:
   /// Delete columns in  constraint
   virtual void deleteSome(int numberToDelete, const int *which);
   /// Scale constraint
-  virtual void reallyScale(const double *columnScale);
+  virtual void reallyScale(const FloatT *columnScale);
   /** Given a zeroed array sets nonlinear columns to 1.
          Returns number of nonlinear columns
       */
@@ -56,7 +56,7 @@ public:
 
   /// Constructor from constraint
   ClpConstraintLinear(int row, int numberCoefficients, int numberColumns,
-    const int *column, const double *element);
+    const int *column, const FloatT *element);
 
   /** Copy constructor .
      */
@@ -86,7 +86,7 @@ public:
     return column_;
   }
   /// Coefficients
-  inline const double *coefficient() const
+  inline const FloatT *coefficient() const
   {
     return coefficient_;
   }
@@ -99,7 +99,7 @@ private:
   /// Column
   int *column_;
   /// Coefficients
-  double *coefficient_;
+  FloatT *coefficient_;
   /// Useful to have number of columns about
   int numberColumns_;
   /// Number of coefficients

@@ -144,9 +144,9 @@ int CMessageHandler::print()
     int i;
     int nDouble = numberDoubleFields();
     assert(nDouble <= 10);
-    double vDouble[10];
+    FloatT vDouble[10];
     for (i = 0; i < nDouble; i++)
-      vDouble[i] = doubleValue(i);
+      vDouble[i] = FloatTValue(i);
     int nInt = numberIntFields();
     assert(nInt <= 10);
     CoinBigIndex vInt[10];
@@ -245,10 +245,10 @@ Clp_deleteModel(Clp_Simplex *model)
 COINLIBAPI void COINLINKAGE
 Clp_loadProblem(Clp_Simplex *model, const int numcols, const int numrows,
   const CoinBigIndex *start, const int *index,
-  const double *value,
-  const double *collb, const double *colub,
-  const double *obj,
-  const double *rowlb, const double *rowub)
+  const FloatT *value,
+  const FloatT *collb, const FloatT *colub,
+  const FloatT *obj,
+  const FloatT *rowlb, const FloatT *rowub)
 {
   const char prefix[] = "Clp_c_Interface::Clp_loadProblem(): ";
   const int verbose = 0;
@@ -270,7 +270,7 @@ Clp_loadQuadraticObjective(Clp_Simplex *model,
   const int numberColumns,
   const CoinBigIndex *start,
   const int *column,
-  const double *element)
+  const FloatT *element)
 {
 
   model->model_->loadQuadraticObjective(numberColumns,
@@ -289,7 +289,7 @@ COINLIBAPI int COINLINKAGE
 Clp_writeMps(Clp_Simplex *model, const char *filename,
   int formatType,
   int numberAcross,
-  double objSense)
+  FloatT objSense)
 {
   return model->model_->writeMps(filename, formatType, numberAcross, objSense);
 }
@@ -319,10 +319,10 @@ Clp_deleteRows(Clp_Simplex *model, int number, const int *which)
 }
 /* Add rows */
 COINLIBAPI void COINLINKAGE
-Clp_addRows(Clp_Simplex *model, int number, const double *rowLower,
-  const double *rowUpper,
+Clp_addRows(Clp_Simplex *model, int number, const FloatT *rowLower,
+  const FloatT *rowUpper,
   const CoinBigIndex *rowStarts, const int *columns,
-  const double *elements)
+  const FloatT *elements)
 {
   model->model_->addRows(number, rowLower, rowUpper, rowStarts, columns, elements);
 }
@@ -335,48 +335,48 @@ Clp_deleteColumns(Clp_Simplex *model, int number, const int *which)
 }
 /* Add columns */
 COINLIBAPI void COINLINKAGE
-Clp_addColumns(Clp_Simplex *model, int number, const double *columnLower,
-  const double *columnUpper,
-  const double *objective,
+Clp_addColumns(Clp_Simplex *model, int number, const FloatT *columnLower,
+  const FloatT *columnUpper,
+  const FloatT *objective,
   const CoinBigIndex *columnStarts, const int *rows,
-  const double *elements)
+  const FloatT *elements)
 {
   model->model_->addColumns(number, columnLower, columnUpper, objective,
     columnStarts, rows, elements);
 }
 /* Change row lower bounds */
 COINLIBAPI void COINLINKAGE
-Clp_chgRowLower(Clp_Simplex *model, const double *rowLower)
+Clp_chgRowLower(Clp_Simplex *model, const FloatT *rowLower)
 {
   model->model_->chgRowLower(rowLower);
 }
 /* Change row upper bounds */
 COINLIBAPI void COINLINKAGE
-Clp_chgRowUpper(Clp_Simplex *model, const double *rowUpper)
+Clp_chgRowUpper(Clp_Simplex *model, const FloatT *rowUpper)
 {
   model->model_->chgRowUpper(rowUpper);
 }
 /* Change column lower bounds */
 COINLIBAPI void COINLINKAGE
-Clp_chgColumnLower(Clp_Simplex *model, const double *columnLower)
+Clp_chgColumnLower(Clp_Simplex *model, const FloatT *columnLower)
 {
   model->model_->chgColumnLower(columnLower);
 }
 /* Change column upper bounds */
 COINLIBAPI void COINLINKAGE
-Clp_chgColumnUpper(Clp_Simplex *model, const double *columnUpper)
+Clp_chgColumnUpper(Clp_Simplex *model, const FloatT *columnUpper)
 {
   model->model_->chgColumnUpper(columnUpper);
 }
 /* Change objective coefficients */
 COINLIBAPI void COINLINKAGE
-Clp_chgObjCoefficients(Clp_Simplex *model, const double *objIn)
+Clp_chgObjCoefficients(Clp_Simplex *model, const FloatT *objIn)
 {
   model->model_->chgObjCoefficients(objIn);
 }
 /* Change matrix coefficients */
 COINLIBAPI void COINLINKAGE
-Clp_modifyCoefficient(Clp_Simplex *model, int row, int column, double newElement,
+Clp_modifyCoefficient(Clp_Simplex *model, int row, int column, FloatT newElement,
   bool keepZero)
 {
   model->model_->modifyCoefficient(row, column, newElement, keepZero);
@@ -423,46 +423,46 @@ Clp_numberColumns(Clp_Simplex *model)
   return model->model_->numberColumns();
 }
 /* Primal tolerance to use */
-COINLIBAPI double COINLINKAGE
+COINLIBAPI FloatT COINLINKAGE
 Clp_primalTolerance(Clp_Simplex *model)
 {
   return model->model_->primalTolerance();
 }
 COINLIBAPI void COINLINKAGE
-Clp_setPrimalTolerance(Clp_Simplex *model, double value)
+Clp_setPrimalTolerance(Clp_Simplex *model, FloatT value)
 {
   model->model_->setPrimalTolerance(value);
 }
 /* Dual tolerance to use */
-COINLIBAPI double COINLINKAGE
+COINLIBAPI FloatT COINLINKAGE
 Clp_dualTolerance(Clp_Simplex *model)
 {
   return model->model_->dualTolerance();
 }
 COINLIBAPI void COINLINKAGE
-Clp_setDualTolerance(Clp_Simplex *model, double value)
+Clp_setDualTolerance(Clp_Simplex *model, FloatT value)
 {
   model->model_->setDualTolerance(value);
 }
 /* Dual objective limit */
-COINLIBAPI double COINLINKAGE
+COINLIBAPI FloatT COINLINKAGE
 Clp_dualObjectiveLimit(Clp_Simplex *model)
 {
   return model->model_->dualObjectiveLimit();
 }
 COINLIBAPI void COINLINKAGE
-Clp_setDualObjectiveLimit(Clp_Simplex *model, double value)
+Clp_setDualObjectiveLimit(Clp_Simplex *model, FloatT value)
 {
   model->model_->setDualObjectiveLimit(value);
 }
 /* Objective offset */
-COINLIBAPI double COINLINKAGE
+COINLIBAPI FloatT COINLINKAGE
 Clp_objectiveOffset(Clp_Simplex *model)
 {
   return model->model_->objectiveOffset();
 }
 COINLIBAPI void COINLINKAGE
-Clp_setObjectiveOffset(Clp_Simplex *model, double value)
+Clp_setObjectiveOffset(Clp_Simplex *model, FloatT value)
 {
   model->model_->setObjectiveOffset(value);
 }
@@ -504,13 +504,13 @@ Clp_setMaximumIterations(Clp_Simplex *model, int value)
   model->model_->setMaximumIterations(value);
 }
 /* Maximum time in seconds (from when set called) */
-COINLIBAPI double COINLINKAGE
+COINLIBAPI FloatT COINLINKAGE
 Clp_maximumSeconds(Clp_Simplex *model)
 {
   return model->model_->maximumSeconds();
 }
 COINLIBAPI void COINLINKAGE
-Clp_setMaximumSeconds(Clp_Simplex *model, double value)
+Clp_setMaximumSeconds(Clp_Simplex *model, FloatT value)
 {
   model->model_->setMaximumSeconds(value);
 }
@@ -556,66 +556,66 @@ Clp_setSecondaryStatus(Clp_Simplex *model, int status)
   model->model_->setSecondaryStatus(status);
 }
 /* Direction of optimization (1 - minimize, -1 - maximize, 0 - ignore */
-COINLIBAPI double COINLINKAGE
+COINLIBAPI FloatT COINLINKAGE
 Clp_optimizationDirection(Clp_Simplex *model)
 {
   return model->model_->optimizationDirection();
 }
 COINLIBAPI void COINLINKAGE
-Clp_setOptimizationDirection(Clp_Simplex *model, double value)
+Clp_setOptimizationDirection(Clp_Simplex *model, FloatT value)
 {
   model->model_->setOptimizationDirection(value);
 }
 /* Primal row solution */
-COINLIBAPI double *COINLINKAGE
+COINLIBAPI FloatT *COINLINKAGE
 Clp_primalRowSolution(Clp_Simplex *model)
 {
   return model->model_->primalRowSolution();
 }
 /* Primal column solution */
-COINLIBAPI double *COINLINKAGE
+COINLIBAPI FloatT *COINLINKAGE
 Clp_primalColumnSolution(Clp_Simplex *model)
 {
   return model->model_->primalColumnSolution();
 }
 /* Dual row solution */
-COINLIBAPI double *COINLINKAGE
+COINLIBAPI FloatT *COINLINKAGE
 Clp_dualRowSolution(Clp_Simplex *model)
 {
   return model->model_->dualRowSolution();
 }
 /* Reduced costs */
-COINLIBAPI double *COINLINKAGE
+COINLIBAPI FloatT *COINLINKAGE
 Clp_dualColumnSolution(Clp_Simplex *model)
 {
   return model->model_->dualColumnSolution();
 }
 /* Row lower */
-COINLIBAPI double *COINLINKAGE
+COINLIBAPI FloatT *COINLINKAGE
 Clp_rowLower(Clp_Simplex *model)
 {
   return model->model_->rowLower();
 }
 /* Row upper  */
-COINLIBAPI double *COINLINKAGE
+COINLIBAPI FloatT *COINLINKAGE
 Clp_rowUpper(Clp_Simplex *model)
 {
   return model->model_->rowUpper();
 }
 /* Objective */
-COINLIBAPI double *COINLINKAGE
+COINLIBAPI FloatT *COINLINKAGE
 Clp_objective(Clp_Simplex *model)
 {
   return model->model_->objective();
 }
 /* Column Lower */
-COINLIBAPI double *COINLINKAGE
+COINLIBAPI FloatT *COINLINKAGE
 Clp_columnLower(Clp_Simplex *model)
 {
   return model->model_->columnLower();
 }
 /* Column Upper */
-COINLIBAPI double *COINLINKAGE
+COINLIBAPI FloatT *COINLINKAGE
 Clp_columnUpper(Clp_Simplex *model)
 {
   return model->model_->columnUpper();
@@ -649,13 +649,13 @@ COINLIBAPI const int *COINLINKAGE Clp_getVectorLengths(Clp_Simplex *model)
 }
 
 // Element values in matrix
-COINLIBAPI const double *COINLINKAGE Clp_getElements(Clp_Simplex *model)
+COINLIBAPI const FloatT *COINLINKAGE Clp_getElements(Clp_Simplex *model)
 {
   CoinPackedMatrix *matrix = model->model_->matrix();
   return (matrix == NULL) ? NULL : matrix->getElements();
 }
 /* Objective value */
-COINLIBAPI double COINLINKAGE
+COINLIBAPI FloatT COINLINKAGE
 Clp_objectiveValue(Clp_Simplex *model)
 {
   return model->model_->objectiveValue();
@@ -668,37 +668,37 @@ Clp_integerInformation(Clp_Simplex *model)
 }
 /* Infeasibility/unbounded ray (NULL returned if none/wrong)
    Up to user to use free() on these arrays.  */
-COINLIBAPI double *COINLINKAGE
+COINLIBAPI FloatT *COINLINKAGE
 Clp_infeasibilityRay(Clp_Simplex *model)
 {
-  const double *ray = model->model_->internalRay();
-  double *array = NULL;
+  const FloatT *ray = model->model_->internalRay();
+  FloatT *array = NULL;
   int numberRows = model->model_->numberRows();
   int status = model->model_->status();
   if (status == 1 && ray) {
-    array = static_cast< double * >(malloc(numberRows * sizeof(double)));
-    memcpy(array, ray, numberRows * sizeof(double));
+    array = static_cast< FloatT * >(malloc(numberRows * sizeof(FloatT)));
+    memcpy(array, ray, numberRows * sizeof(FloatT));
 #ifdef PRINT_RAY_METHOD
     printf("Infeasibility ray obtained by algorithm %s\n", model->model_->algorithm() > 0 ? "primal" : "dual");
 #endif
   }
   return array;
 }
-COINLIBAPI double *COINLINKAGE
+COINLIBAPI FloatT *COINLINKAGE
 Clp_unboundedRay(Clp_Simplex *model)
 {
-  const double *ray = model->model_->internalRay();
-  double *array = NULL;
+  const FloatT *ray = model->model_->internalRay();
+  FloatT *array = NULL;
   int numberColumns = model->model_->numberColumns();
   int status = model->model_->status();
   if (status == 2 && ray) {
-    array = static_cast< double * >(malloc(numberColumns * sizeof(double)));
-    memcpy(array, ray, numberColumns * sizeof(double));
+    array = static_cast< FloatT * >(malloc(numberColumns * sizeof(FloatT)));
+    memcpy(array, ray, numberColumns * sizeof(FloatT));
   }
   return array;
 }
 COINLIBAPI void COINLINKAGE
-Clp_freeRay(Clp_Simplex *model, double *ray)
+Clp_freeRay(Clp_Simplex *model, FloatT *ray)
 {
   free(ray);
 }
@@ -884,7 +884,7 @@ Clp_scalingFlag(Clp_Simplex *model)
    2 Mini iterations
 */
 COINLIBAPI int COINLINKAGE
-Clp_crash(Clp_Simplex *model, double gap, int pivot)
+Clp_crash(Clp_Simplex *model, FloatT gap, int pivot)
 {
   return model->model_->crash(gap, pivot);
 }
@@ -901,24 +901,24 @@ Clp_dualFeasible(Clp_Simplex *model)
   return model->model_->dualFeasible() ? 1 : 0;
 }
 /* Dual bound */
-COINLIBAPI double COINLINKAGE
+COINLIBAPI FloatT COINLINKAGE
 Clp_dualBound(Clp_Simplex *model)
 {
   return model->model_->dualBound();
 }
 COINLIBAPI void COINLINKAGE
-Clp_setDualBound(Clp_Simplex *model, double value)
+Clp_setDualBound(Clp_Simplex *model, FloatT value)
 {
   model->model_->setDualBound(value);
 }
 /* Infeasibility cost */
-COINLIBAPI double COINLINKAGE
+COINLIBAPI FloatT COINLINKAGE
 Clp_infeasibilityCost(Clp_Simplex *model)
 {
   return model->model_->infeasibilityCost();
 }
 COINLIBAPI void COINLINKAGE
-Clp_setInfeasibilityCost(Clp_Simplex *model, double value)
+Clp_setInfeasibilityCost(Clp_Simplex *model, FloatT value)
 {
   model->model_->setInfeasibilityCost(value);
 }
@@ -953,7 +953,7 @@ Clp_setAlgorithm(Clp_Simplex *model, int value)
   model->model_->setAlgorithm(value);
 }
 /* Sum of dual infeasibilities */
-COINLIBAPI double COINLINKAGE
+COINLIBAPI FloatT COINLINKAGE
 Clp_sumDualInfeasibilities(Clp_Simplex *model)
 {
   return model->model_->sumDualInfeasibilities();
@@ -965,7 +965,7 @@ Clp_numberDualInfeasibilities(Clp_Simplex *model)
   return model->model_->numberDualInfeasibilities();
 }
 /* Sum of primal infeasibilities */
-COINLIBAPI double COINLINKAGE
+COINLIBAPI FloatT COINLINKAGE
 Clp_sumPrimalInfeasibilities(Clp_Simplex *model)
 {
   return model->model_->sumPrimalInfeasibilities();
@@ -1063,78 +1063,78 @@ Clp_isIterationLimitReached(Clp_Simplex *model)
   return model->model_->isIterationLimitReached() ? 1 : 0;
 }
 /* Direction of optimization (1 - minimize, -1 - maximize, 0 - ignore */
-COINLIBAPI double COINLINKAGE
+COINLIBAPI FloatT COINLINKAGE
 Clp_getObjSense(Clp_Simplex *model)
 {
   return model->model_->getObjSense();
 }
 /* Direction of optimization (1 - minimize, -1 - maximize, 0 - ignore */
 COINLIBAPI void COINLINKAGE
-Clp_setObjSense(Clp_Simplex *model, double objsen)
+Clp_setObjSense(Clp_Simplex *model, FloatT objsen)
 {
   model->model_->setOptimizationDirection(objsen);
 }
 /* Primal row solution */
-COINLIBAPI const double *COINLINKAGE
+COINLIBAPI const FloatT *COINLINKAGE
 Clp_getRowActivity(Clp_Simplex *model)
 {
   return model->model_->getRowActivity();
 }
 /* Primal column solution */
-COINLIBAPI const double *COINLINKAGE
+COINLIBAPI const FloatT *COINLINKAGE
 Clp_getColSolution(Clp_Simplex *model)
 {
   return model->model_->getColSolution();
 }
 COINLIBAPI void COINLINKAGE
-Clp_setColSolution(Clp_Simplex *model, const double *input)
+Clp_setColSolution(Clp_Simplex *model, const FloatT *input)
 {
   model->model_->setColSolution(input);
 }
 /* Dual row solution */
-COINLIBAPI const double *COINLINKAGE
+COINLIBAPI const FloatT *COINLINKAGE
 Clp_getRowPrice(Clp_Simplex *model)
 {
   return model->model_->getRowPrice();
 }
 /* Reduced costs */
-COINLIBAPI const double *COINLINKAGE
+COINLIBAPI const FloatT *COINLINKAGE
 Clp_getReducedCost(Clp_Simplex *model)
 {
   return model->model_->getReducedCost();
 }
 /* Row lower */
-COINLIBAPI const double *COINLINKAGE
+COINLIBAPI const FloatT *COINLINKAGE
 Clp_getRowLower(Clp_Simplex *model)
 {
   return model->model_->getRowLower();
 }
 /* Row upper  */
-COINLIBAPI const double *COINLINKAGE
+COINLIBAPI const FloatT *COINLINKAGE
 Clp_getRowUpper(Clp_Simplex *model)
 {
   return model->model_->getRowUpper();
 }
 /* Objective */
-COINLIBAPI const double *COINLINKAGE
+COINLIBAPI const FloatT *COINLINKAGE
 Clp_getObjCoefficients(Clp_Simplex *model)
 {
   return model->model_->getObjCoefficients();
 }
 /* Column Lower */
-COINLIBAPI const double *COINLINKAGE
+COINLIBAPI const FloatT *COINLINKAGE
 Clp_getColLower(Clp_Simplex *model)
 {
   return model->model_->getColLower();
 }
 /* Column Upper */
-COINLIBAPI const double *COINLINKAGE
+COINLIBAPI const FloatT *COINLINKAGE
 Clp_getColUpper(Clp_Simplex *model)
 {
   return model->model_->getColUpper();
 }
 /* Objective value */
-COINLIBAPI double COINLINKAGE
+COINLIBAPI FloatT COINLINKAGE
 Clp_getObjValue(Clp_Simplex *model)
 {
   return model->model_->getObjValue();
@@ -1177,13 +1177,13 @@ Clp_setRowStatus(Clp_Simplex *model, int sequence, int value)
 }
 /* Small element value - elements less than this set to zero,
    default is 1.0e-20 */
-COINLIBAPI double COINLINKAGE
+COINLIBAPI FloatT COINLINKAGE
 Clp_getSmallElementValue(Clp_Simplex *model)
 {
   return model->model_->getSmallElementValue();
 }
 COINLIBAPI void COINLINKAGE
-Clp_setSmallElementValue(Clp_Simplex *model, double value)
+Clp_setSmallElementValue(Clp_Simplex *model, FloatT value)
 {
   model->model_->setSmallElementValue(value);
 }
@@ -1198,12 +1198,12 @@ Clp_printModel(Clp_Simplex *model, const char *prefix)
   const CoinBigIndex *start = clp_simplex->matrix()->getVectorStarts();
   const int *length = clp_simplex->matrix()->getVectorLengths();
   const int *index = clp_simplex->matrix()->getIndices();
-  const double *value = clp_simplex->matrix()->getElements();
-  const double *collb = model->model_->columnLower();
-  const double *colub = model->model_->columnUpper();
-  const double *obj = model->model_->objective();
-  const double *rowlb = model->model_->rowLower();
-  const double *rowub = model->model_->rowUpper();
+  const FloatT *value = clp_simplex->matrix()->getElements();
+  const FloatT *collb = model->model_->columnLower();
+  const FloatT *colub = model->model_->columnUpper();
+  const FloatT *obj = model->model_->objective();
+  const FloatT *rowlb = model->model_->rowLower();
+  const FloatT *rowub = model->model_->rowUpper();
   printf("%s numcols = %i, numrows = %i, numelem = %i\n",
     prefix, numcols, numrows, numelem);
   printf("%s model = %p, start = %p, index = %p, value = %p\n",

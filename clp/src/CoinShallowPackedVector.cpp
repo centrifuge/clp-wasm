@@ -66,7 +66,7 @@ CoinShallowPackedVector::operator=(const CoinShallowPackedVector &x)
 //#############################################################################
 
 void CoinShallowPackedVector::setVector(int size,
-  const int *inds, const double *elems,
+  const int *inds, const FloatT *elems,
   bool testForDuplicateIndex)
 {
   indices_ = inds;
@@ -105,7 +105,7 @@ CoinShallowPackedVector::CoinShallowPackedVector(bool testForDuplicateIndex)
 //-------------------------------------------------------------------
 CoinShallowPackedVector::CoinShallowPackedVector(int size,
   const int *inds,
-  const double *elems,
+  const FloatT *elems,
   bool testForDuplicateIndex)
   : CoinPackedVectorBase()
   , indices_(inds)

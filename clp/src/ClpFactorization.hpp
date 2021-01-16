@@ -90,16 +90,16 @@ public:
     CoinIndexedVector *regionSparse,
     CoinIndexedVector *tableauColumn,
     int pivotRow,
-    double pivotCheck,
+    FloatT pivotCheck,
     bool checkBeforeModifying = false,
-    double acceptablePivot = 1.0e-8);
+    FloatT acceptablePivot = 1.0e-8);
 #if ABOCA_LITE_FACTORIZATION
   /// Does btranU part of replaceColumn (skipping entries)
   void replaceColumn1(CoinIndexedVector *regionSparse, int pivotRow);
   /// Does replaceColumn - having already done btranU
   int replaceColumn2(CoinIndexedVector *regionSparse,
     int pivotRow,
-    double pivotCheck);
+    FloatT pivotCheck);
 #endif
   //@}
 
@@ -194,7 +194,7 @@ public:
       return coinFactorizationB_->pivots();
   }
   /// Whether larger areas needed
-  inline double areaFactor() const
+  inline FloatT areaFactor() const
   {
     if (coinFactorizationA_)
       return coinFactorizationA_->areaFactor();
@@ -202,13 +202,13 @@ public:
       return 0.0;
   }
   /// Set whether larger areas needed
-  inline void areaFactor(double value)
+  inline void areaFactor(FloatT value)
   {
     if (coinFactorizationA_)
       coinFactorizationA_->areaFactor(value);
   }
   /// Zero tolerance
-  inline double zeroTolerance() const
+  inline FloatT zeroTolerance() const
   {
     if (coinFactorizationA_)
       return coinFactorizationA_->zeroTolerance();
@@ -216,7 +216,7 @@ public:
       return coinFactorizationB_->zeroTolerance();
   }
   /// Set zero tolerance
-  inline void zeroTolerance(double value)
+  inline void zeroTolerance(FloatT value)
   {
     if (coinFactorizationA_)
       coinFactorizationA_->zeroTolerance(value);
@@ -224,7 +224,7 @@ public:
       coinFactorizationB_->zeroTolerance(value);
   }
   /// Set tolerances to safer of existing and given
-  void saferTolerances(double zeroTolerance, double pivotTolerance);
+  void saferTolerances(FloatT zeroTolerance, FloatT pivotTolerance);
   /**  get sparse threshold */
   inline int sparseThreshold() const
   {
@@ -338,7 +338,7 @@ public:
       coinFactorizationA_->setDenseThreshold(value);
   }
   /// Pivot tolerance
-  inline double pivotTolerance() const
+  inline FloatT pivotTolerance() const
   {
     if (coinFactorizationA_)
       return coinFactorizationA_->pivotTolerance();
@@ -347,7 +347,7 @@ public:
     return 1.0e-8;
   }
   /// Set pivot tolerance
-  inline void pivotTolerance(double value)
+  inline void pivotTolerance(FloatT value)
   {
     if (coinFactorizationA_)
       coinFactorizationA_->pivotTolerance(value);
@@ -355,7 +355,7 @@ public:
       coinFactorizationB_->pivotTolerance(value);
   }
   /// Allows change of pivot accuracy check 1.0 == none >1.0 relaxed
-  inline void relaxAccuracyCheck(double value)
+  inline void relaxAccuracyCheck(FloatT value)
   {
     if (coinFactorizationA_)
       coinFactorizationA_->relaxAccuracyCheck(value);
@@ -386,7 +386,7 @@ public:
       coinFactorizationB_->clearArrays();
   }
   /// Returns areaFactor but adjusted for dense
-  inline double adjustedAreaFactor() const
+  inline FloatT adjustedAreaFactor() const
   {
     if (coinFactorizationA_)
       return coinFactorizationA_->adjustedAreaFactor();
@@ -538,9 +538,9 @@ private:
 #endif
 #ifdef CLP_FACTORIZATION_NEW_TIMING
   /// For guessing when to re-factorize
-  mutable double shortestAverage_;
-  mutable double totalInR_;
-  mutable double totalInIncreasingU_;
+  mutable FloatT shortestAverage_;
+  mutable FloatT totalInR_;
+  mutable FloatT totalInIncreasingU_;
   mutable int endLengthU_;
   mutable int lastNumberPivots_;
   mutable int effectiveStartNumberU_;

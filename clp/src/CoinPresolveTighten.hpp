@@ -23,8 +23,8 @@ class do_tighten_action : public CoinPresolveAction {
 
   struct action {
     int *rows;
-    double *lbound;
-    double *ubound;
+    FloatT *lbound;
+    FloatT *ubound;
     int col;
     int nrows;
     int direction; // just for assertions

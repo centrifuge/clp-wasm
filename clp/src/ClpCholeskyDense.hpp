@@ -90,7 +90,7 @@ typedef struct {
   longDouble *a;
   longDouble *work;
   int *rowsDropped;
-  double doubleParameters_[1]; /* corresponds to 10 */
+  FloatT FloatTParameters_[1]; /* corresponds to 10 */
   int integerParameters_[2]; /* corresponds to 34, nThreads */
   int n;
   int numberBlocks;

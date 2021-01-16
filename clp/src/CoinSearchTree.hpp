@@ -53,8 +53,8 @@ protected:
   }
   CoinTreeNode(int d,
     int f = -1,
-    double q = -COIN_DBL_MAX,
-    double tlb = -COIN_DBL_MAX,
+    FloatT q = -COIN_DBL_MAX,
+    FloatT tlb = -COIN_DBL_MAX,
     BitVector128 p = BitVector128())
     : depth_(d)
     , fractionality_(f)
@@ -92,11 +92,11 @@ private:
   /** Some quality for the node. For normal branch-and-cut problems the LP
 	relaxation value will do just fine. It is probably an OK approximation
 	even if column generation is done. */
-  double quality_;
+  FloatT quality_;
   /** A true lower bound on the node. May be -infinity. For normal
 	branch-and-cut problems the LP relaxation value is OK. It is different
 	when column generation is done. */
-  double true_lower_bound_;
+  FloatT true_lower_bound_;
   /** */
   BitVector128 preferred_;
 
@@ -105,14 +105,14 @@ public:
 
   inline int getDepth() const { return depth_; }
   inline int getFractionality() const { return fractionality_; }
-  inline double getQuality() const { return quality_; }
-  inline double getTrueLB() const { return true_lower_bound_; }
+  inline FloatT getQuality() const { return quality_; }
+  inline FloatT getTrueLB() const { return true_lower_bound_; }
   inline BitVector128 getPreferred() const { return preferred_; }
 
   inline void setDepth(int d) { depth_ = d; }
   inline void setFractionality(int f) { fractionality_ = f; }
-  inline void setQuality(double q) { quality_ = q; }
-  inline void setTrueLB(double tlb) { true_lower_bound_ = tlb; }
+  inline void setQuality(FloatT q) { quality_ = q; }
+  inline void setTrueLB(FloatT tlb) { true_lower_bound_ = tlb; }
   inline void setPreferred(BitVector128 p) { preferred_ = p; }
 };
 
@@ -507,11 +507,11 @@ public:
   {
     return candidates_->top();
   }
-  inline double bestQuality() const
+  inline FloatT bestQuality() const
   {
     return candidates_->top()->getQuality();
   }
-  void newSolution(double solValue);
+  void newSolution(FloatT solValue);
   void reevaluateSearchStrategy();
 };
 

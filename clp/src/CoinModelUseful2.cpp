@@ -96,8 +96,8 @@ static void yyerror(char const *);
 #endif
 
 #if !defined(YYSTYPE) && !defined(YYSTYPE_IS_DECLARED)
-typedef union YYSTYPE {
-  double val; /* For returning numbers.  */
+typedef struct YYSTYPE {
+  FloatT val {}; /* For returning numbers.  */
   symrec *tptr; /* For returning symbol-table pointers.  */
 } YYSTYPE;
 /* Line 191 of yacc.c.  */
@@ -699,18 +699,18 @@ yyerror(char const * /*s*/)
 
 struct init {
   char const *fname;
-  double (*fnct)(double);
+  FloatT (*fnct)(FloatT);
 };
 
-inline double sin_wrapper(double x) { return sin(x); }
-inline double cos_wrapper(double x) { return cos(x); }
-inline double atan_wrapper(double x) { return atan(x); }
-inline double log_wrapper(double x) { return log(x); }
-inline double exp_wrapper(double x) { return exp(x); }
-inline double sqrt_wrapper(double x) { return sqrt(x); }
-inline double fabs_wrapper(double x) { return fabs(x); }
-inline double floor_wrapper(double x) { return floor(x); }
-inline double ceil_wrapper(double x) { return ceil(x); }
+inline FloatT sin_wrapper(FloatT x) { return sin(x); }
+inline FloatT cos_wrapper(FloatT x) { return cos(x); }
+inline FloatT atan_wrapper(FloatT x) { return atan(x); }
+inline FloatT log_wrapper(FloatT x) { return log(x); }
+inline FloatT exp_wrapper(FloatT x) { return exp(x); }
+inline FloatT sqrt_wrapper(FloatT x) { return sqrt(x); }
+inline FloatT fabs_wrapper(FloatT x) { return fabs(x); }
+inline FloatT floor_wrapper(FloatT x) { return floor(x); }
+inline FloatT ceil_wrapper(FloatT x) { return ceil(x); }
 
 struct init const arith_fncts[] = {
   { "sin", sin_wrapper },
@@ -742,8 +742,8 @@ init_table(symrec *&symtable)
 
 static int
 yylex(symrec *&symtable, const char *line, int *position, char *&symbuf, int &length,
-  const double *associated, const CoinModelHash &string,
-  int &error, double unsetValue,
+  const FloatT *associated, const CoinModelHash &string,
+  int &error, FloatT unsetValue,
   YYSTYPE &yylval)
 {
   int c;
@@ -812,7 +812,7 @@ yylex(symrec *&symtable, const char *line, int *position, char *&symbuf, int &le
     if (s == 0) {
       // Find in strings
       int find = string.hash(symbuf);
-      double value;
+      FloatT value;
       if (find >= 0) {
         value = associated[find];
         //printf("symbol %s found with value of %g\n",symbuf,value);
@@ -845,9 +845,9 @@ yylex(symrec *&symtable, const char *line, int *position, char *&symbuf, int &le
 | yyparse.  |
 `----------*/
 
-static double yyparse(symrec *&symtable, const char *line, char *&symbuf, int &length,
-  const double *associated, const CoinModelHash &string, int &error,
-  double unsetValue,
+static FloatT yyparse(symrec *&symtable, const char *line, char *&symbuf, int &length,
+  const FloatT *associated, const CoinModelHash &string, int &error,
+  FloatT unsetValue,
   int &yychar, YYSTYPE &yylval, int &yynerrs)
 {
 
@@ -1345,7 +1345,7 @@ yyreturn:
   return yyresult;
 }
 
-double
+FloatT
 CoinModel::getDoubleFromString(CoinYacc &info, const char *string)
 {
   if (!info.length) {
@@ -1366,7 +1366,7 @@ CoinModel::getDoubleFromString(CoinYacc &info, const char *string)
   /* Number of syntax errors so far.  */
   int yynerrs;
 
-  double value = yyparse(info.symtable, string, info.symbuf, info.length,
+  FloatT value = yyparse(info.symtable, string, info.symbuf, info.length,
     associated_, string_, error, info.unsetValue,
     yychar, yylval, yynerrs);
 
@@ -1401,11 +1401,11 @@ addString(CoinModelHash &stringX, const char *string)
   }
   return position;
 }
-double
-getFunctionValueFromString(const char *string, const char *x, double xValue)
+FloatT
+getFunctionValueFromString(const char *string, const char *x, FloatT xValue)
 {
   CoinYacc info;
-  double unset = -1.23456787654321e-97;
+  FloatT unset = -1.23456787654321e-97;
   info.length = 0;
   info.symtable = NULL;
   info.symbuf = NULL;
@@ -1413,7 +1413,7 @@ getFunctionValueFromString(const char *string, const char *x, double xValue)
   info.unsetValue = unset;
   int error = 0;
 
-  double associated[2];
+  FloatT associated[2];
   associated[0] = xValue;
   associated[1] = unset;
 
@@ -1431,7 +1431,7 @@ getFunctionValueFromString(const char *string, const char *x, double xValue)
   /* Number of syntax errors so far.  */
   int yynerrs;
 
-  double value = yyparse(info.symtable, string, info.symbuf, info.length,
+  FloatT value = yyparse(info.symtable, string, info.symbuf, info.length,
     associated, stringX, error, info.unsetValue,
     yychar, yylval, yynerrs);
 

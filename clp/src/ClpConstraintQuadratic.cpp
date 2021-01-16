@@ -33,7 +33,7 @@ ClpConstraintQuadratic::ClpConstraintQuadratic()
 //-------------------------------------------------------------------
 ClpConstraintQuadratic::ClpConstraintQuadratic(int row, int numberQuadraticColumns,
   int numberColumns, const CoinBigIndex *start,
-  const int *column, const double *coefficient)
+  const int *column, const FloatT *coefficient)
   : ClpConstraint()
 {
   type_ = 0;
@@ -121,10 +121,10 @@ ClpConstraint *ClpConstraintQuadratic::clone() const
 
 // Returns gradient
 int ClpConstraintQuadratic::gradient(const ClpSimplex *model,
-  const double *solution,
-  double *gradient,
-  double &functionValue,
-  double &offset,
+  const FloatT *solution,
+  FloatT *gradient,
+  FloatT &functionValue,
+  FloatT &offset,
   bool useScaling,
   bool refresh) const
 {
@@ -132,28 +132,28 @@ int ClpConstraintQuadratic::gradient(const ClpSimplex *model,
     offset_ = 0.0;
     functionValue_ = 0.0;
     if (!lastGradient_)
-      lastGradient_ = new double[numberColumns_];
+      lastGradient_ = new FloatT[numberColumns_];
     CoinZeroN(lastGradient_, numberColumns_);
     bool scaling = (model && model->rowScale() && useScaling);
     if (!scaling) {
       int iColumn;
       for (iColumn = 0; iColumn < numberQuadraticColumns_; iColumn++) {
-        double valueI = solution[iColumn];
+        FloatT valueI = solution[iColumn];
         CoinBigIndex j;
         for (j = start_[iColumn]; j < start_[iColumn + 1]; j++) {
           int jColumn = column_[j];
           if (jColumn >= 0) {
-            double valueJ = solution[jColumn];
-            double elementValue = coefficient_[j];
+            FloatT valueJ = solution[jColumn];
+            FloatT elementValue = coefficient_[j];
             if (iColumn != jColumn) {
               offset_ -= valueI * valueJ * elementValue;
-              double gradientI = valueJ * elementValue;
-              double gradientJ = valueI * elementValue;
+              FloatT gradientI = valueJ * elementValue;
+              FloatT gradientJ = valueI * elementValue;
               lastGradient_[iColumn] += gradientI;
               lastGradient_[jColumn] += gradientJ;
             } else {
               offset_ -= 0.5 * valueI * valueI * elementValue;
-              double gradientI = valueI * elementValue;
+              FloatT gradientI = valueI * elementValue;
               lastGradient_[iColumn] += gradientI;
             }
           } else {
@@ -167,11 +167,11 @@ int ClpConstraintQuadratic::gradient(const ClpSimplex *model,
     } else {
       abort();
       // do scaling
-      const double *columnScale = model->columnScale();
+      const FloatT *columnScale = model->columnScale();
       for (int i = 0; i < numberCoefficients_; i++) {
         int iColumn = column_[i];
-        double value = solution[iColumn]; // already scaled
-        double coefficient = coefficient_[i] * columnScale[iColumn];
+        FloatT value = solution[iColumn]; // already scaled
+        FloatT coefficient = coefficient_[i] * columnScale[iColumn];
         functionValue_ += value * coefficient;
         lastGradient_[iColumn] = coefficient;
       }
@@ -222,7 +222,7 @@ void ClpConstraintQuadratic::deleteSome(int numberToDelete, const int *which)
   }
 }
 // Scale constraint
-void ClpConstraintQuadratic::reallyScale(const double *)
+void ClpConstraintQuadratic::reallyScale(const FloatT *)
 {
   abort();
 }

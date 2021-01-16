@@ -35,26 +35,26 @@ extern "C" {
 #endif
 
 int c_ekkbtrn(const EKKfactinfo *fact,
-  double *dwork1,
+  FloatT *dwork1,
   int *mpt, int first_nonzero);
 int c_ekkbtrn_ipivrw(const EKKfactinfo *fact,
-  double *dwork1,
+  FloatT *dwork1,
   int *mpt, int ipivrw, int *spare);
 
 int c_ekketsj(/*const*/ EKKfactinfo *fact,
-  double *dwork1,
-  int *mpt2, double dalpha, int orig_nincol,
+  FloatT *dwork1,
+  int *mpt2, FloatT dalpha, int orig_nincol,
   int npivot, int *nuspikp,
   const int ipivrw, int *spare);
 int c_ekkftrn(const EKKfactinfo *fact,
-  double *dwork1,
-  double *dpermu, int *mpt, int numberNonZero);
+  FloatT *dwork1,
+  FloatT *dpermu, int *mpt, int numberNonZero);
 
 int c_ekkftrn_ft(EKKfactinfo *fact,
-  double *dwork1, int *mpt, int *nincolp);
-void c_ekkftrn2(EKKfactinfo *fact, double *dwork1,
-  double *dpermu1, int *mpt1, int *nincolp,
-  double *dwork1_ft, int *mpt_ft, int *nincolp_ft);
+  FloatT *dwork1, int *mpt, int *nincolp);
+void c_ekkftrn2(EKKfactinfo *fact, FloatT *dwork1,
+  FloatT *dpermu1, int *mpt1, int *nincolp,
+  FloatT *dwork1_ft, int *mpt_ft, int *nincolp_ft);
 
 int c_ekklfct(EKKfactinfo *fact);
 int c_ekkslcf(const EKKfactinfo *fact);
@@ -62,7 +62,7 @@ inline void c_ekkscpy(int n, const int *marr1, int *marr2)
 {
   CoinMemcpyN(marr1, n, marr2);
 }
-inline void c_ekkdcpy(int n, const double *marr1, double *marr2)
+inline void c_ekkdcpy(int n, const FloatT *marr1, FloatT *marr2)
 {
   CoinMemcpyN(marr1, n, marr2);
 }
@@ -71,7 +71,7 @@ void c_ekk_Set(int *array, int bit);
 void c_ekk_Unset(int *array, int bit);
 
 void c_ekkzero(int length, int n, void *array);
-inline void c_ekkdzero(int n, double *marray)
+inline void c_ekkdzero(int n, FloatT *marray)
 {
   CoinZeroN(marray, n);
 }
@@ -91,7 +91,7 @@ inline void c_ekkczero(int n, char *marray)
 #define c_ekks1cpy(n, marr1, marr2) CoinMemcpyN(marr1, n, marr2)
 void clp_setup_pointers(EKKfactinfo *fact);
 void clp_memory(int type);
-double *clp_double(int number_entries);
+FloatT *clp_FloatT(int number_entries);
 int *clp_int(int number_entries);
 void *clp_malloc(int number_entries);
 void clp_free(void *oldArray);
@@ -133,7 +133,7 @@ void clp_free(void *oldArray);
 
 #define SHIFT_INDEX(limit) ((limit) << 3)
 #define UNSHIFT_INDEX(limit) ((unsigned int)(limit) >> 3)
-#define SHIFT_REF(arr, ind) (*(double *)((char *)(arr) + (ind)))
+#define SHIFT_REF(arr, ind) (*(FloatT *)((char *)(arr) + (ind)))
 
 #endif
 
@@ -178,8 +178,8 @@ void clp_free(void *oldArray);
 {
 #if 1
   int *hcoli = fact->xecadr;
-  double *dluval = fact->xeeadr;
-  double *dvalpv = fact->kw3adr;
+  FloatT *dluval = fact->xeeadr;
+  FloatT *dvalpv = fact->kw3adr;
   int *mrstrt = fact->xrsadr;
   int *hrowi = fact->xeradr;
   int *mcstrt = fact->xcsadr;
@@ -197,21 +197,21 @@ void clp_free(void *oldArray);
   MACTION_T *maction = reinterpret_cast< MACTION_T * >(maction_void);
 
   int i, j, k;
-  double d1;
+  FloatT d1;
   int j1, j2;
   int jj, kk, kr, nz, jj1, jj2, kce, kcs, kqq, npr;
   int fill, naft;
   int enpr;
   int nres, npre;
   int knpr, irow, iadd32, ibase;
-  double pivot;
+  FloatT pivot;
   int count, nznpr;
   int nlast, epivr1;
   int kipis;
-  double dpivx;
+  FloatT dpivx;
   int kipie, kcpiv, knprs, knpre;
   bool cancel;
-  double multip, elemnt;
+  FloatT multip, elemnt;
   int ipivot, jpivot, epivro, epivco, lstart, nfirst;
   int nzpivj, kfill, kstart;
   int nmove, ileft;
@@ -314,7 +314,7 @@ void clp_free(void *oldArray);
     ++kipis;
 #ifndef C_EKKCMFY
     {
-      double size = nrow - fact->npivots;
+      FloatT size = nrow - fact->npivots;
       if (size > GO_DENSE && (nnentu - fact->nuspike) * GO_DENSE_RATIO > size * size) {
         /* say going to dense coding */
         if (*nsingp == 0) {
@@ -325,7 +325,7 @@ void clp_free(void *oldArray);
 #endif
     /* copy the pivot row entries into dvalpv */
     /* the maction array tells us the index into dvalpv for a given row */
-    /* the alternative would be using a large array of doubles */
+    /* the alternative would be using a large array of FloatTs */
     for (k = kipis; k <= kipie; ++k) {
       irow = hcoli[k];
       dvalpv[k - kipis + 1] = dluval[k];
@@ -701,18 +701,18 @@ void clp_free(void *oldArray);
         int nel, krs;
         int koff;
         int *index;
-        double *els;
+        FloatT *els;
         nel = hinrow[npr];
         krs = mrstrt[npr];
         index = &hcoli[krs];
         els = &dluval[krs];
 #if INLINE_AFPV < 3
 #if INLINE_AFPV == 1
-        double maxaij = 0.0;
+        FloatT maxaij = 0.0;
         koff = 0;
         j = 0;
         while (j < nel) {
-          double d = fabs(els[j]);
+          FloatT d = fabs(els[j]);
           if (maxaij < d) {
             maxaij = d;
             koff = j;
@@ -722,9 +722,9 @@ void clp_free(void *oldArray);
 #else
         assert(nel);
         koff = 0;
-        double maxaij = fabs(els[0]);
+        FloatT maxaij = fabs(els[0]);
         for (j = 1; j < nel; j++) {
-          double d = fabs(els[j]);
+          FloatT d = fabs(els[j]);
           if (maxaij < d) {
             maxaij = d;
             koff = j;
@@ -732,7 +732,7 @@ void clp_free(void *oldArray);
         }
 #endif
 #else
-        double maxaij = 0.0;
+        FloatT maxaij = 0.0;
         koff = 0;
         j = 0;
         if ((nel & 1) != 0) {
@@ -742,7 +742,7 @@ void clp_free(void *oldArray);
 
         while (j < nel) {
           UNROLL_LOOP_BODY2({
-            double d = fabs(els[j]);
+            FloatT d = fabs(els[j]);
             if (maxaij < d) {
               maxaij = d;
               koff = j;
@@ -752,7 +752,7 @@ void clp_free(void *oldArray);
         }
 #endif
         SWAP(int, index[koff], index[0]);
-        SWAP(double, els[koff], els[0]);
+        SWAP(FloatT, els[koff], els[0]);
       }
 #endif
 

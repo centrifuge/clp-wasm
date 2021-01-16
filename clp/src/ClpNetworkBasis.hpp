@@ -74,7 +74,7 @@ public:
   /** Updates one column (FTRAN) from region,
          Returns pivot value if "pivotRow" >=0
      */
-  double updateColumn(CoinIndexedVector *regionSparse,
+  FloatT updateColumn(CoinIndexedVector *regionSparse,
     CoinIndexedVector *regionSparse2,
     int pivotRow);
   /** Updates one column (FTRAN) to/from array
@@ -83,7 +83,7 @@ public:
          have got code working using this simple method - thank you!
          (the only exception is if you know input is dense e.g. rhs) */
   int updateColumn(CoinIndexedVector *regionSparse,
-    double array[]) const;
+    FloatT array[]) const;
   /** Updates one column transpose (BTRAN)
          ** For large problems you should ALWAYS know where the nonzeros
          are, so please try and migrate to previous method after you
@@ -91,7 +91,7 @@ public:
          (the only exception is if you know input is dense e.g. dense objective)
          returns number of nonzeros */
   int updateColumnTranspose(CoinIndexedVector *regionSparse,
-    double array[]) const;
+    FloatT array[]) const;
   /** Updates one column (BTRAN) from region2 */
   int updateColumnTranspose(CoinIndexedVector *regionSparse,
     CoinIndexedVector *regionSparse2) const;
@@ -106,7 +106,7 @@ private:
   //@{
 #ifndef COIN_FAST_CODE
   /// Whether slack value is  +1 or -1
-  double slackValue_;
+  FloatT slackValue_;
 #endif
   /// Number of Rows in factorization
   int numberRows_;
@@ -125,7 +125,7 @@ private:
   /// Left sibling
   int *leftSibling_;
   /// Sign of pivot
-  double *sign_;
+  FloatT *sign_;
   /// Stack
   int *stack_;
   /// Permute into array

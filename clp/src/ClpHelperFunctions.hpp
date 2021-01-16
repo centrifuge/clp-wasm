@@ -25,14 +25,14 @@
 
 */
 
-double maximumAbsElement(const double *region, int size);
-void setElements(double *region, int size, double value);
-void multiplyAdd(const double *region1, int size, double multiplier1,
-  double *region2, double multiplier2);
-double innerProduct(const double *region1, int size, const double *region2);
-void getNorms(const double *region, int size, double &norm1, double &norm2);
+FloatT maximumAbsElement(const FloatT *region, int size);
+void setElements(FloatT *region, int size, FloatT value);
+void multiplyAdd(const FloatT *region1, int size, FloatT multiplier1,
+  FloatT *region2, FloatT multiplier2);
+FloatT innerProduct(const FloatT *region1, int size, const FloatT *region2);
+void getNorms(const FloatT *region, int size, FloatT &norm1, FloatT &norm2);
 #if COIN_LONG_WORK
-// For long double versions
+// For FloatT versions
 CoinWorkDouble maximumAbsElement(const CoinWorkDouble *region, int size);
 void setElements(CoinWorkDouble *region, int size, CoinWorkDouble value);
 void multiplyAdd(const CoinWorkDouble *region1, int size, CoinWorkDouble multiplier1,
@@ -40,34 +40,34 @@ void multiplyAdd(const CoinWorkDouble *region1, int size, CoinWorkDouble multipl
 CoinWorkDouble innerProduct(const CoinWorkDouble *region1, int size, const CoinWorkDouble *region2);
 void getNorms(const CoinWorkDouble *region, int size, CoinWorkDouble &norm1, CoinWorkDouble &norm2);
 inline void
-CoinMemcpyN(const double *from, const int size, CoinWorkDouble *to)
+CoinMemcpyN(const FloatT *from, const int size, CoinWorkDouble *to)
 {
   for (int i = 0; i < size; i++)
     to[i] = from[i];
 }
 inline void
-CoinMemcpyN(const CoinWorkDouble *from, const int size, double *to)
+CoinMemcpyN(const CoinWorkDouble *from, const int size, FloatT *to)
 {
   for (int i = 0; i < size; i++)
-    to[i] = static_cast< double >(from[i]);
+    to[i] = static_cast< FloatT >(from[i]);
 }
 inline CoinWorkDouble
-CoinMax(const CoinWorkDouble x1, const double x2)
+CoinMax(const CoinWorkDouble x1, const FloatT x2)
 {
   return (x1 > x2) ? x1 : x2;
 }
 inline CoinWorkDouble
-CoinMax(double x1, const CoinWorkDouble x2)
+CoinMax(FloatT x1, const CoinWorkDouble x2)
 {
   return (x1 > x2) ? x1 : x2;
 }
 inline CoinWorkDouble
-CoinMin(const CoinWorkDouble x1, const double x2)
+CoinMin(const CoinWorkDouble x1, const FloatT x2)
 {
   return (x1 < x2) ? x1 : x2;
 }
 inline CoinWorkDouble
-CoinMin(double x1, const CoinWorkDouble x2)
+CoinMin(FloatT x1, const CoinWorkDouble x2)
 {
   return (x1 < x2) ? x1 : x2;
 }
@@ -76,7 +76,7 @@ inline CoinWorkDouble CoinSqrt(CoinWorkDouble x)
   return sqrtl(x);
 }
 #else
-inline double CoinSqrt(double x)
+inline FloatT CoinSqrt(FloatT x)
 {
   return sqrt(x);
 }
@@ -98,16 +98,16 @@ void ClpTracePrint(std::string fileName, std::string message, int line);
 /// Following only included if ClpPdco defined
 #ifdef ClpPdco_H
 
-inline double pdxxxmerit(int nlow, int nupp, int *low, int *upp, CoinDenseVector< double > &r1,
-  CoinDenseVector< double > &r2, CoinDenseVector< double > &rL,
-  CoinDenseVector< double > &rU, CoinDenseVector< double > &cL,
-  CoinDenseVector< double > &cU)
+inline FloatT pdxxxmerit(int nlow, int nupp, int *low, int *upp, CoinDenseVector< FloatT > &r1,
+  CoinDenseVector< FloatT > &r2, CoinDenseVector< FloatT > &rL,
+  CoinDenseVector< FloatT > &rU, CoinDenseVector< FloatT > &cL,
+  CoinDenseVector< FloatT > &cU)
 {
 
   // Evaluate the merit function for Newton's method.
   // It is the 2-norm of the three sets of residuals.
-  double sum1, sum2;
-  CoinDenseVector< double > f(6);
+  FloatT sum1, sum2;
+  CoinDenseVector< FloatT > f(6);
   f[0] = r1.twoNorm();
   f[1] = r2.twoNorm();
   sum1 = sum2 = 0.0;
@@ -138,13 +138,13 @@ inline double pdxxxmerit(int nlow, int nupp, int *low, int *upp, CoinDenseVector
 
 inline void pdxxxresid1(ClpPdco *model, const int nlow, const int nupp, const int nfix,
   int *low, int *upp, int *fix,
-  CoinDenseVector< double > &b, double *bl, double *bu, double d1, double d2,
-  CoinDenseVector< double > &grad, CoinDenseVector< double > &rL,
-  CoinDenseVector< double > &rU, CoinDenseVector< double > &x,
-  CoinDenseVector< double > &x1, CoinDenseVector< double > &x2,
-  CoinDenseVector< double > &y, CoinDenseVector< double > &z1,
-  CoinDenseVector< double > &z2, CoinDenseVector< double > &r1,
-  CoinDenseVector< double > &r2, double *Pinf, double *Dinf)
+  CoinDenseVector< FloatT > &b, FloatT *bl, FloatT *bu, FloatT d1, FloatT d2,
+  CoinDenseVector< FloatT > &grad, CoinDenseVector< FloatT > &rL,
+  CoinDenseVector< FloatT > &rU, CoinDenseVector< FloatT > &x,
+  CoinDenseVector< FloatT > &x1, CoinDenseVector< FloatT > &x2,
+  CoinDenseVector< FloatT > &y, CoinDenseVector< FloatT > &z1,
+  CoinDenseVector< FloatT > &z2, CoinDenseVector< FloatT > &r1,
+  CoinDenseVector< FloatT > &r2, FloatT *Pinf, FloatT *Dinf)
 {
 
   // Form residuals for the primal and dual equations.
@@ -152,8 +152,8 @@ inline void pdxxxresid1(ClpPdco *model, const int nlow, const int nupp, const in
   // initialized (permanently) with any relevant zeros.
 
   // Get some element pointers for efficiency
-  double *x_elts = x.getElements();
-  double *r2_elts = r2.getElements();
+  FloatT *x_elts = x.getElements();
+  FloatT *r2_elts = r2.getElements();
 
   for (int k = 0; k < nfix; k++)
     x_elts[fix[k]] = 0;
@@ -175,8 +175,8 @@ inline void pdxxxresid1(ClpPdco *model, const int nlow, const int nupp, const in
   for (int k = 0; k < nupp; k++)
     rU[upp[k]] = -bu[upp[k]] + x[upp[k]] + x2[upp[k]];
 
-  double normL = 0.0;
-  double normU = 0.0;
+  FloatT normL = 0.0;
+  FloatT normU = 0.0;
   for (int k = 0; k < nlow; k++)
     if (rL[low[k]] > normL)
       normL = rL[low[k]];
@@ -198,11 +198,11 @@ inline void pdxxxresid1(ClpPdco *model, const int nlow, const int nupp, const in
 //function [cL,cU,center,Cinf,Cinf0] = ...
 //      pdxxxresid2( mu,low,upp,cL,cU,x1,x2,z1,z2 )
 
-inline void pdxxxresid2(double mu, int nlow, int nupp, int *low, int *upp,
-  CoinDenseVector< double > &cL, CoinDenseVector< double > &cU,
-  CoinDenseVector< double > &x1, CoinDenseVector< double > &x2,
-  CoinDenseVector< double > &z1, CoinDenseVector< double > &z2,
-  double *center, double *Cinf, double *Cinf0)
+inline void pdxxxresid2(FloatT mu, int nlow, int nupp, int *low, int *upp,
+  CoinDenseVector< FloatT > &cL, CoinDenseVector< FloatT > &cU,
+  CoinDenseVector< FloatT > &x1, CoinDenseVector< FloatT > &x2,
+  CoinDenseVector< FloatT > &z1, CoinDenseVector< FloatT > &z2,
+  FloatT *center, FloatT *Cinf, FloatT *Cinf0)
 {
 
   // Form residuals for the complementarity equations.
@@ -211,14 +211,14 @@ inline void pdxxxresid2(double mu, int nlow, int nupp, int *low, int *upp,
   // Cinf  is the complementarity residual for X1 z1 = mu e, etc.
   // Cinf0 is the same for mu=0 (i.e., for the original problem).
 
-  double maxXz = -1e20;
-  double minXz = 1e20;
+  FloatT maxXz = -1e20;
+  FloatT minXz = 1e20;
 
-  double *x1_elts = x1.getElements();
-  double *z1_elts = z1.getElements();
-  double *cL_elts = cL.getElements();
+  FloatT *x1_elts = x1.getElements();
+  FloatT *z1_elts = z1.getElements();
+  FloatT *cL_elts = cL.getElements();
   for (int k = 0; k < nlow; k++) {
-    double x1z1 = x1_elts[low[k]] * z1_elts[low[k]];
+    FloatT x1z1 = x1_elts[low[k]] * z1_elts[low[k]];
     cL_elts[low[k]] = mu - x1z1;
     if (x1z1 > maxXz)
       maxXz = x1z1;
@@ -226,11 +226,11 @@ inline void pdxxxresid2(double mu, int nlow, int nupp, int *low, int *upp,
       minXz = x1z1;
   }
 
-  double *x2_elts = x2.getElements();
-  double *z2_elts = z2.getElements();
-  double *cU_elts = cU.getElements();
+  FloatT *x2_elts = x2.getElements();
+  FloatT *z2_elts = z2.getElements();
+  FloatT *cU_elts = cU.getElements();
   for (int k = 0; k < nupp; k++) {
-    double x2z2 = x2_elts[upp[k]] * z2_elts[upp[k]];
+    FloatT x2z2 = x2_elts[upp[k]] * z2_elts[upp[k]];
     cU_elts[upp[k]] = mu - x2z2;
     if (x2z2 > maxXz)
       maxXz = x2z2;
@@ -242,8 +242,8 @@ inline void pdxxxresid2(double mu, int nlow, int nupp, int *low, int *upp,
   minXz = CoinMax(minXz, 1e-99);
   *center = maxXz / minXz;
 
-  double normL = 0.0;
-  double normU = 0.0;
+  FloatT normL = 0.0;
+  FloatT normU = 0.0;
   for (int k = 0; k < nlow; k++)
     if (cL_elts[low[k]] > normL)
       normL = cL_elts[low[k]];
@@ -257,17 +257,17 @@ inline void pdxxxresid2(double mu, int nlow, int nupp, int *low, int *upp,
 // End private function pdxxxresid2
 //-----------------------------------------------------------------------
 
-inline double pdxxxstep(CoinDenseVector< double > &x, CoinDenseVector< double > &dx)
+inline FloatT pdxxxstep(CoinDenseVector< FloatT > &x, CoinDenseVector< FloatT > &dx)
 {
 
   // Assumes x > 0.
   // Finds the maximum step such that x + step*dx >= 0.
 
-  double step = 1e+20;
+  FloatT step = 1e+20;
 
   int n = x.size();
-  double *x_elts = x.getElements();
-  double *dx_elts = dx.getElements();
+  FloatT *x_elts = x.getElements();
+  FloatT *dx_elts = dx.getElements();
   for (int k = 0; k < n; k++)
     if (dx_elts[k] < 0)
       if ((x_elts[k] / (-dx_elts[k])) < step)
@@ -278,17 +278,17 @@ inline double pdxxxstep(CoinDenseVector< double > &x, CoinDenseVector< double > 
 // End private function pdxxxstep
 //-----------------------------------------------------------------------
 
-inline double pdxxxstep(int nset, int *set, CoinDenseVector< double > &x, CoinDenseVector< double > &dx)
+inline FloatT pdxxxstep(int nset, int *set, CoinDenseVector< FloatT > &x, CoinDenseVector< FloatT > &dx)
 {
 
   // Assumes x > 0.
   // Finds the maximum step such that x + step*dx >= 0.
 
-  double step = 1e+20;
+  FloatT step = 1e+20;
 
   int n = x.size();
-  double *x_elts = x.getElements();
-  double *dx_elts = dx.getElements();
+  FloatT *x_elts = x.getElements();
+  FloatT *dx_elts = dx.getElements();
   for (int k = 0; k < n; k++)
     if (dx_elts[k] < 0)
       if ((x_elts[k] / (-dx_elts[k])) < step)

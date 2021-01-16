@@ -36,10 +36,10 @@ private:
   const int nactions_;
 
   struct action {
-    double clo;
-    double cup;
-    double cost;
-    double sol;
+    FloatT clo;
+    FloatT cup;
+    FloatT cost;
+    FloatT sol;
     int jcol;
   };
   const action *const actions_;
@@ -86,8 +86,8 @@ public:
 class drop_empty_rows_action : public CoinPresolveAction {
 private:
   struct action {
-    double rlo;
-    double rup;
+    FloatT rlo;
+    FloatT rup;
     int row;
     int fill_row; // which row was moved into position row to fill it
   };

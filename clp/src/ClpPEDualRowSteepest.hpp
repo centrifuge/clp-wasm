@@ -34,7 +34,7 @@ public:
          but only part of the infeasible basic variables are scanned.
          This can be faster on very easy problems.
      */
-  ClpPEDualRowSteepest(double psi = 0.5, int mode = 3);
+  ClpPEDualRowSteepest(FloatT psi = 0.5, int mode = 3);
 
   /// Copy constructor
   ClpPEDualRowSteepest(const ClpPEDualRowSteepest &);
@@ -65,12 +65,12 @@ public:
 	 As ordinary steepest but checks for zero moves
      */
   virtual void updatePrimalSolution(CoinIndexedVector *input,
-    double theta,
-    double &changeInObjective);
+    FloatT theta,
+    FloatT &changeInObjective);
   //@}
 
   // Psi
-  inline double psi() const
+  inline FloatT psi() const
   {
     return psi_;
   }
@@ -83,7 +83,7 @@ private:
 
   /* psi is the factor used in the bi-dimensional pricing, it is < 1 and
        1/psi grows with the priority given to compatible variables */
-  double psi_;
+  FloatT psi_;
 
   /* useful counters for the update of the set of compatible variables */
   int iCurrent_;

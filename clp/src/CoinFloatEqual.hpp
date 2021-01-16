@@ -18,15 +18,15 @@
   one to a scaled tolerance. The tests will handle IEEE floating point, but
   note that infinity == infinity. Mathematicians are rolling in their graves,
   but this matches the behaviour for the common practice of using
-  <code>DBL_MAX</code> (<code>numeric_limits<double>::max()</code>, or similar
+  <code>DBL_MAX</code> (<code>numeric_limits<FloatT>::max()</code>, or similar
   large finite number) as infinity.
 
   <p>
   Example usage:
   @verbatim
-    double d1 = 3.14159 ;
-    double d2 = d1 ;
-    double d3 = d1+.0001 ;
+    FloatT d1 = 3.14159 ;
+    FloatT d2 = d1 ;
+    FloatT d3 = d1+.0001 ;
 
     CoinAbsFltEq eq1 ;
     CoinAbsFltEq eq2(.001) ;
@@ -47,7 +47,7 @@ class CoinAbsFltEq {
 public:
   //! Compare function
 
-  inline bool operator()(const double f1, const double f2) const
+  inline bool operator()(const FloatT f1, const FloatT f2) const
 
   {
     if (CoinIsnan(f1) || CoinIsnan(f2))
@@ -72,7 +72,7 @@ public:
 
   //! Alternate constructor with epsilon as a parameter
 
-  CoinAbsFltEq(const double epsilon)
+  CoinAbsFltEq(const FloatT epsilon)
     : epsilon_(epsilon)
   {
   }
@@ -106,7 +106,7 @@ private:
 
   //! Equality tolerance.
 
-  double epsilon_;
+  FloatT epsilon_;
 
   //@}
 };
@@ -121,7 +121,7 @@ class CoinRelFltEq {
 public:
   //! Compare function
 
-  inline bool operator()(const double f1, const double f2) const
+  inline bool operator()(const FloatT f1, const FloatT f2) const
 
   {
     if (CoinIsnan(f1) || CoinIsnan(f2))
@@ -131,7 +131,7 @@ public:
     if (!CoinFinite(f1) || !CoinFinite(f2))
       return false;
 
-    double tol = (fabs(f1) > fabs(f2)) ? fabs(f1) : fabs(f2);
+    FloatT tol = (fabs(f1) > fabs(f2)) ? fabs(f1) : fabs(f2);
 
     return (fabs(f1 - f2) <= epsilon_ * (1 + tol));
   }
@@ -159,7 +159,7 @@ public:
 
   //! Alternate constructor with epsilon as a parameter
 
-  CoinRelFltEq(const double epsilon)
+  CoinRelFltEq(const FloatT epsilon)
     : epsilon_(epsilon)
   {
   }
@@ -193,7 +193,7 @@ private:
 
   //! Base equality tolerance
 
-  double epsilon_;
+  FloatT epsilon_;
 
   //@}
 };

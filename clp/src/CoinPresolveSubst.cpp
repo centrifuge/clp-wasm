@@ -69,9 +69,9 @@ void dbg_find_elem(const CoinPostsolveMatrix *postMtx, int i, int j)
   problem.
 */
 static bool
-add_row(CoinBigIndex *mrstrt, double *rlo, double *acts, double *rup,
-  double *rowels, int *hcol, int *hinrow, presolvehlink *rlink,
-  int nrows, double coeff_factor, double kill_ratio, int irowx, int irowy,
+add_row(CoinBigIndex *mrstrt, FloatT *rlo, FloatT *acts, FloatT *rup,
+  FloatT *rowels, int *hcol, int *hinrow, presolvehlink *rlink,
+  int nrows, FloatT coeff_factor, FloatT kill_ratio, int irowx, int irowy,
   int *x_to_y)
 {
   CoinBigIndex krsy = mrstrt[irowy];
@@ -90,12 +90,12 @@ add_row(CoinBigIndex *mrstrt, double *rlo, double *acts, double *rup,
   Do the simple part first: adjust the row lower and upper bounds, but only if
   they're finite.
 */
-  const double rhsy = rlo[irowy];
-  const double rhscorr = rhsy * coeff_factor;
-  const double tolerance = kill_ratio * coeff_factor;
+  const FloatT rhsy = rlo[irowy];
+  const FloatT rhscorr = rhsy * coeff_factor;
+  const FloatT tolerance = kill_ratio * coeff_factor;
 
   if (-PRESOLVE_INF < rlo[irowx]) {
-    const double newrlo = rlo[irowx] + rhscorr;
+    const FloatT newrlo = rlo[irowx] + rhscorr;
 #if PRESOLVE_DEBUG > 3
     if (rhscorr)
       std::cout
@@ -105,7 +105,7 @@ add_row(CoinBigIndex *mrstrt, double *rlo, double *acts, double *rup,
     rlo[irowx] = newrlo;
   }
   if (rup[irowx] < PRESOLVE_INF) {
-    const double newrup = rup[irowx] + rhscorr;
+    const FloatT newrup = rup[irowx] + rhscorr;
 #if PRESOLVE_DEBUG > 3
     if (rhscorr)
       std::cout
@@ -145,7 +145,7 @@ add_row(CoinBigIndex *mrstrt, double *rlo, double *acts, double *rup,
   The easy case: coeff a(xj) already exists and all we need to is modify it.
 */
     if (krowx < krex0 && hcol[krowx] == j) {
-      double newcoeff = rowels[krowx] + rowels[krowy] * coeff_factor;
+      FloatT newcoeff = rowels[krowx] + rowels[krowy] * coeff_factor;
 
 #if PRESOLVE_DEBUG > 3
       std::cout << rowels[krowx] << " -> " << newcoeff << ";";
@@ -164,7 +164,7 @@ add_row(CoinBigIndex *mrstrt, double *rlo, double *acts, double *rup,
   rows, so recalculate all pointers into the bulk store. Only then can we add
   the new coefficient.
 */
-      double newValue = rowels[krowy] * coeff_factor;
+      FloatT newValue = rowels[krowy] * coeff_factor;
       bool outOfSpace = presolve_expand_row(mrstrt, rowels, hcol,
         hinrow, rlink, nrows, irowx);
       if (outOfSpace)
@@ -256,7 +256,7 @@ const CoinPresolveAction *subst_constraint_action::presolve(
   startEmptyRows = prob->countEmptyRows();
   startEmptyColumns = prob->countEmptyCols();
 #if COIN_PRESOLVE_TUNING > 0
-  double startTime = 0.0;
+  FloatT startTime = 0.0;
   if (prob->tuning_)
     startTime = CoinCpuTime();
 #endif
@@ -270,25 +270,25 @@ const CoinPresolveAction *subst_constraint_action::presolve(
 
   CoinBigIndex *rowStarts = prob->mrstrt_;
   int *rowLengths = prob->hinrow_;
-  double *rowCoeffs = prob->rowels_;
+  FloatT *rowCoeffs = prob->rowels_;
   int *colIndices = prob->hcol_;
   presolvehlink *rlink = prob->rlink_;
 
   CoinBigIndex *colStarts = prob->mcstrt_;
   int *colLengths = prob->hincol_;
-  double *colCoeffs = prob->colels_;
+  FloatT *colCoeffs = prob->colels_;
   int *rowIndices = prob->hrow_;
   presolvehlink *clink = prob->clink_;
 
   /*
   Row bounds and activity, objective.
 */
-  double *rlo = prob->rlo_;
-  double *rup = prob->rup_;
-  double *acts = prob->acts_;
-  double *cost = prob->cost_;
+  FloatT *rlo = prob->rlo_;
+  FloatT *rup = prob->rup_;
+  FloatT *acts = prob->acts_;
+  FloatT *cost = prob->cost_;
 
-  const double tol = prob->feasibilityTolerance_;
+  const FloatT tol = prob->feasibilityTolerance_;
 
   action *actions = new action[ncols];
 #ifdef ZEROFAULT
@@ -354,7 +354,7 @@ const CoinPresolveAction *subst_constraint_action::presolve(
   implied_free identified two candidate pairs to eliminate the same column. If
   we've already processed one of them, we could be in trouble.
 */
-    double tgtcoeff = 0.0;
+    FloatT tgtcoeff = 0.0;
     bool dealBreaker = false;
     for (CoinBigIndex kcol = tgtcs; kcol < tgtce; ++kcol) {
       const int i = rowIndices[kcol];
@@ -362,7 +362,7 @@ const CoinPresolveAction *subst_constraint_action::presolve(
         dealBreaker = true;
         break;
       }
-      const double aij = colCoeffs[kcol];
+      const FloatT aij = colCoeffs[kcol];
       if (fabs(aij) <= ZTOLDP2) {
         dealBreaker = true;
         break;
@@ -385,7 +385,7 @@ const CoinPresolveAction *subst_constraint_action::presolve(
 */
     dealBreaker = false;
     for (CoinBigIndex kcol = tgtcs; kcol < tgtce; ++kcol) {
-      const double coeff_factor = fabs(colCoeffs[kcol] / tgtcoeff);
+      const FloatT coeff_factor = fabs(colCoeffs[kcol] / tgtcoeff);
       if (coeff_factor > 10.0)
         dealBreaker = true;
     }
@@ -408,7 +408,7 @@ const CoinPresolveAction *subst_constraint_action::presolve(
   the original objective.
 */
     const bool nonzero_cost = (fabs(cost[tgtcol]) > tol);
-    double *costsx = (nonzero_cost ? new double[rowLengths[tgtrow]] : 0);
+    FloatT *costsx = (nonzero_cost ? new FloatT[rowLengths[tgtrow]] : 0);
 
 #if PRESOLVE_DEBUG > 1
     std::cout << "  Eliminating row " << tgtrow << ", col " << tgtcol;
@@ -444,15 +444,15 @@ const CoinPresolveAction *subst_constraint_action::presolve(
 
     ap->nincol = tgtcol_len;
     ap->rows = new int[tgtcol_len];
-    ap->rlos = new double[tgtcol_len];
-    ap->rups = new double[tgtcol_len];
+    ap->rlos = new FloatT[tgtcol_len];
+    ap->rups = new FloatT[tgtcol_len];
 
     ap->costsx = costsx;
-    ap->coeffxs = new double[tgtcol_len];
+    ap->coeffxs = new FloatT[tgtcol_len];
 
     ap->ninrowxs = new int[tgtcol_len];
     ap->rowcolsxs = new int[ntotels];
-    ap->rowelsxs = new double[ntotels];
+    ap->rowelsxs = new FloatT[ntotels];
 
     ntotels = 0;
     for (CoinBigIndex kcol = tgtcs; kcol < tgtce; ++kcol) {
@@ -480,12 +480,12 @@ const CoinPresolveAction *subst_constraint_action::presolve(
     c'(j) = c(j) - a(rj)c(t)/a(rt)
 */
     if (nonzero_cost) {
-      const double tgtcost = cost[tgtcol];
+      const FloatT tgtcost = cost[tgtcol];
       for (CoinBigIndex krow = tgtrs; krow < tgtre; krow++) {
         const int j = colIndices[krow];
         prob->addCol(j);
         costsx[krow - tgtrs] = cost[j];
-        double coeff = rowCoeffs[krow];
+        FloatT coeff = rowCoeffs[krow];
         cost[j] -= (tgtcost * coeff) / tgtcoeff;
       }
       prob->change_bias(tgtcost * rlo[tgtrow] / tgtcoeff);
@@ -496,7 +496,7 @@ const CoinPresolveAction *subst_constraint_action::presolve(
     std::cout << "  tgt (" << tgtrow << ") (" << tgtrow_len << "): ";
     for (CoinBigIndex krow = tgtrs; krow < tgtre; ++krow) {
       const int j = colIndices[krow];
-      const double arj = rowCoeffs[krow];
+      const FloatT arj = rowCoeffs[krow];
       std::cout
         << "x(" << j << ") = " << arj << " (" << colLengths[j] << ") ";
     }
@@ -504,7 +504,7 @@ const CoinPresolveAction *subst_constraint_action::presolve(
 #endif
     // kill small if wanted
     int relax = (prob->presolveOptions() & 0x60000) >> 17;
-    double tolerance = 1.0e-12;
+    FloatT tolerance = 1.0e-12;
     for (int i = 0; i < relax; i++)
       tolerance *= 10.0;
 
@@ -522,8 +522,8 @@ const CoinPresolveAction *subst_constraint_action::presolve(
       if (i == tgtrow)
         continue;
 
-      double ait = ap->coeffxs[colndx];
-      double coeff_factor = -ait / tgtcoeff;
+      FloatT ait = ap->coeffxs[colndx];
+      FloatT coeff_factor = -ait / tgtcoeff;
 
       CoinBigIndex krs = rowStarts[i];
       CoinBigIndex kre = krs + rowLengths[i];
@@ -533,7 +533,7 @@ const CoinPresolveAction *subst_constraint_action::presolve(
         << "  subst pre (" << i << ") (" << rowLengths[i] << "): ";
       for (CoinBigIndex krow = krs; krow < kre; ++krow) {
         const int j = colIndices[krow];
-        const double aij = rowCoeffs[krow];
+        const FloatT aij = rowCoeffs[krow];
         std::cout
           << "x(" << j << ") = " << aij << " (" << colLengths[j] << ") ";
       }
@@ -563,7 +563,7 @@ const CoinPresolveAction *subst_constraint_action::presolve(
         << "  subst aft (" << i << ") (" << rowLengths[i] << "): ";
       for (CoinBigIndex krow = krs; krow < kre; ++krow) {
         const int j = colIndices[krow];
-        const double aij = rowCoeffs[krow];
+        const FloatT aij = rowCoeffs[krow];
         std::cout
           << "x(" << j << ") = " << aij << " (" << colLengths[j] << ") ";
       }
@@ -591,7 +591,7 @@ const CoinPresolveAction *subst_constraint_action::presolve(
 
         assert(colIndices[krs + x_to_y[rowndx]] == j);
 
-        const double coeff = rowCoeffs[krs + x_to_y[rowndx]];
+        const FloatT coeff = rowCoeffs[krs + x_to_y[rowndx]];
 
         CoinBigIndex kcol = presolve_find_row1(i, kcs, kce, rowIndices);
 
@@ -618,7 +618,7 @@ const CoinPresolveAction *subst_constraint_action::presolve(
         << "  subst fin (" << i << ") (" << rowLengths[i] << "): ";
       for (CoinBigIndex krow = krs; krow < kre; ++krow) {
         const int j = colIndices[krow];
-        const double aij = rowCoeffs[krow];
+        const FloatT aij = rowCoeffs[krow];
         std::cout
           << "x(" << j << ") = " << aij << " (" << colLengths[j] << ") ";
       }
@@ -700,7 +700,7 @@ const CoinPresolveAction *subst_constraint_action::presolve(
   delete[] zerocols;
 
 #if COIN_PRESOLVE_TUNING > 0
-  double thisTime = 0.0;
+  FloatT thisTime = 0.0;
   if (prob->tuning_)
     thisTime = CoinCpuTime();
 #endif
@@ -738,7 +738,7 @@ void subst_constraint_action::postsolve(CoinPostsolveMatrix *prob) const
   int ncols = prob->ncols_;
   char *cdone = prob->cdone_;
   char *rdone = prob->rdone_;
-  const double ztolzb = prob->ztolzb_;
+  const FloatT ztolzb = prob->ztolzb_;
 
   presolve_check_threads(prob);
   presolve_check_free_list(prob);
@@ -754,22 +754,22 @@ void subst_constraint_action::postsolve(CoinPostsolveMatrix *prob) const
   CoinBigIndex *colStarts = prob->mcstrt_;
   int *colLengths = prob->hincol_;
   int *rowIndices = prob->hrow_;
-  double *colCoeffs = prob->colels_;
+  FloatT *colCoeffs = prob->colels_;
   /*
   Rim vectors, solution, reduced costs, duals, row activity.
 */
-  double *rlo = prob->rlo_;
-  double *rup = prob->rup_;
-  double *cost = prob->cost_;
-  double *sol = prob->sol_;
-  double *rcosts = prob->rcosts_;
-  double *acts = prob->acts_;
-  double *rowduals = prob->rowduals_;
+  FloatT *rlo = prob->rlo_;
+  FloatT *rup = prob->rup_;
+  FloatT *cost = prob->cost_;
+  FloatT *sol = prob->sol_;
+  FloatT *rcosts = prob->rcosts_;
+  FloatT *acts = prob->acts_;
+  FloatT *rowduals = prob->rowduals_;
 
   CoinBigIndex *link = prob->link_;
   CoinBigIndex &free_list = prob->free_list_;
 
-  const double maxmin = prob->maxmin_;
+  const FloatT maxmin = prob->maxmin_;
 
   const action *const actions = actions_;
   const int nactions = nactions_;
@@ -787,15 +787,15 @@ void subst_constraint_action::postsolve(CoinPostsolveMatrix *prob) const
     const int tgtrow = f->rowy;
 
     const int tgtcol_len = f->nincol;
-    const double *tgtcol_coeffs = f->coeffxs;
+    const FloatT *tgtcol_coeffs = f->coeffxs;
 
     const int *entngld_rows = f->rows;
     const int *entngld_lens = f->ninrowxs;
     const int *entngld_colndxs = f->rowcolsxs;
-    const double *entngld_colcoeffs = f->rowelsxs;
-    const double *entngld_rlos = f->rlos;
-    const double *entngld_rups = f->rups;
-    const double *costs = f->costsx;
+    const FloatT *entngld_colcoeffs = f->rowelsxs;
+    const FloatT *entngld_rlos = f->rlos;
+    const FloatT *entngld_rups = f->rups;
+    const FloatT *costs = f->costsx;
 
 #if PRESOLVE_DEBUG > 0 || PRESOLVE_CONSISTENCY > 0
 #if PRESOLVE_DEBUG > 1
@@ -843,9 +843,9 @@ void subst_constraint_action::postsolve(CoinPostsolveMatrix *prob) const
 */
     int tgtrow_len = -1;
     const int *tgtrow_colndxs = NULL;
-    const double *tgtrow_coeffs = NULL;
-    double tgtcoeff = 0.0;
-    double tgtrhs = 1.0e50;
+    const FloatT *tgtrow_coeffs = NULL;
+    FloatT tgtcoeff = 0.0;
+    FloatT tgtrhs = 1.0e50;
 
     int nel = 0;
     for (int cndx = 0; cndx < tgtcol_len; ++cndx) {
@@ -868,18 +868,18 @@ void subst_constraint_action::postsolve(CoinPostsolveMatrix *prob) const
 
   If we're debugging, check that the result is within bounds.
 */
-    double tgtexp = tgtrhs;
+    FloatT tgtexp = tgtrhs;
     sol[tgtcol] = 0.0;
     for (int ndx = 0; ndx < tgtrow_len; ++ndx) {
       int j = tgtrow_colndxs[ndx];
-      double coeffj = tgtrow_coeffs[ndx];
+      FloatT coeffj = tgtrow_coeffs[ndx];
       tgtexp -= coeffj * sol[j];
     }
     sol[tgtcol] = tgtexp / tgtcoeff;
 
 #if PRESOLVE_DEBUG > 0
-    double *clo = prob->clo_;
-    double *cup = prob->cup_;
+    FloatT *clo = prob->clo_;
+    FloatT *cup = prob->cup_;
 
     if (!(sol[tgtcol] > (clo[tgtcol] - ztolzb) && (cup[tgtcol] + ztolzb) > sol[tgtcol])) {
       std::cout
@@ -942,14 +942,14 @@ void subst_constraint_action::postsolve(CoinPostsolveMatrix *prob) const
 
       colLengths[tgtcol] = 0;
       const int *cols_i = entngld_colndxs;
-      const double *coeffs_i = entngld_colcoeffs;
+      const FloatT *coeffs_i = entngld_colcoeffs;
 
       for (int cndx = 0; cndx < tgtcol_len; ++cndx) {
         const int leni = entngld_lens[cndx];
         const int i = entngld_rows[cndx];
 
         if (i != tgtrow) {
-          double acti = 0.0;
+          FloatT acti = 0.0;
           for (int rndx = 0; rndx < leni; ++rndx) {
             const int j = cols_i[rndx];
             CoinBigIndex kcoli = presolve_find_row3(i, colStarts[j],
@@ -1037,11 +1037,11 @@ void subst_constraint_action::postsolve(CoinPostsolveMatrix *prob) const
   tgtrow, then set the dual for tgtrow so that the reduced cost of tgtcol
   is zero.
 */
-    double dj = maxmin * cost[tgtcol];
+    FloatT dj = maxmin * cost[tgtcol];
     rowduals[tgtrow] = 0.0;
     for (int cndx = 0; cndx < tgtcol_len; ++cndx) {
       int i = entngld_rows[cndx];
-      double coeff = tgtcol_coeffs[cndx];
+      FloatT coeff = tgtcol_coeffs[cndx];
       dj -= rowduals[i] * coeff;
     }
     rowduals[tgtrow] = dj / tgtcoeff;
@@ -1101,8 +1101,8 @@ subst_constraint_action::~subst_constraint_action()
     delete[] actions[i].rowcolsxs;
     delete[] actions[i].rowelsxs;
 
-    //delete [](double*)actions[i].costsx ;
-    deleteAction(actions[i].costsx, double *);
+    //delete [](FloatT*)actions[i].costsx ;
+    deleteAction(actions[i].costsx, FloatT *);
   }
 
   // Must add cast to placate MS compiler

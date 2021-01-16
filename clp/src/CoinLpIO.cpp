@@ -163,26 +163,26 @@ void CoinLpIO::gutsOfCopy(const CoinLpIO &rhs)
   wasMaximization_ = rhs.wasMaximization_;
 
   if (rhs.rowlower_) {
-    rowlower_ = reinterpret_cast< double * >(malloc(numberRows_ * sizeof(double)));
-    rowupper_ = reinterpret_cast< double * >(malloc(numberRows_ * sizeof(double)));
-    memcpy(rowlower_, rhs.rowlower_, numberRows_ * sizeof(double));
-    memcpy(rowupper_, rhs.rowupper_, numberRows_ * sizeof(double));
-    rowrange_ = reinterpret_cast< double * >(malloc(numberRows_ * sizeof(double)));
+    rowlower_ = reinterpret_cast< FloatT * >(malloc(numberRows_ * sizeof(FloatT)));
+    rowupper_ = reinterpret_cast< FloatT * >(malloc(numberRows_ * sizeof(FloatT)));
+    memcpy(rowlower_, rhs.rowlower_, numberRows_ * sizeof(FloatT));
+    memcpy(rowupper_, rhs.rowupper_, numberRows_ * sizeof(FloatT));
+    rowrange_ = reinterpret_cast< FloatT * >(malloc(numberRows_ * sizeof(FloatT)));
     rowsense_ = reinterpret_cast< char * >(malloc(numberRows_ * sizeof(char)));
-    rhs_ = reinterpret_cast< double * >(malloc(numberRows_ * sizeof(double)));
-    memcpy(rowrange_, rhs.getRowRange(), numberRows_ * sizeof(double));
+    rhs_ = reinterpret_cast< FloatT * >(malloc(numberRows_ * sizeof(FloatT)));
+    memcpy(rowrange_, rhs.getRowRange(), numberRows_ * sizeof(FloatT));
     memcpy(rowsense_, rhs.getRowSense(), numberRows_ * sizeof(char));
-    memcpy(rhs_, rhs.getRightHandSide(), numberRows_ * sizeof(double));
+    memcpy(rhs_, rhs.getRightHandSide(), numberRows_ * sizeof(FloatT));
   }
 
   if (rhs.collower_) {
-    collower_ = reinterpret_cast< double * >(malloc(numberColumns_ * sizeof(double)));
-    colupper_ = reinterpret_cast< double * >(malloc(numberColumns_ * sizeof(double)));
-    memcpy(collower_, rhs.collower_, numberColumns_ * sizeof(double));
-    memcpy(colupper_, rhs.colupper_, numberColumns_ * sizeof(double));
+    collower_ = reinterpret_cast< FloatT * >(malloc(numberColumns_ * sizeof(FloatT)));
+    colupper_ = reinterpret_cast< FloatT * >(malloc(numberColumns_ * sizeof(FloatT)));
+    memcpy(collower_, rhs.collower_, numberColumns_ * sizeof(FloatT));
+    memcpy(colupper_, rhs.colupper_, numberColumns_ * sizeof(FloatT));
     for (int j = 0; j < num_objectives_; j++) {
-      objective_[j] = reinterpret_cast< double * >(malloc(numberColumns_ * sizeof(double)));
-      memcpy(objective_[j], rhs.objective_[j], numberColumns_ * sizeof(double));
+      objective_[j] = reinterpret_cast< FloatT * >(malloc(numberColumns_ * sizeof(FloatT)));
+      memcpy(objective_[j], rhs.objective_[j], numberColumns_ * sizeof(FloatT));
     }
   }
 
@@ -366,25 +366,25 @@ CoinBigIndex CoinLpIO::getNumElements() const
 }
 
 /*************************************************************************/
-const double *CoinLpIO::getColLower() const
+const FloatT *CoinLpIO::getColLower() const
 {
   return collower_;
 }
 
 /*************************************************************************/
-const double *CoinLpIO::getColUpper() const
+const FloatT *CoinLpIO::getColUpper() const
 {
   return colupper_;
 }
 
 /*************************************************************************/
-const double *CoinLpIO::getRowLower() const
+const FloatT *CoinLpIO::getRowLower() const
 {
   return rowlower_;
 }
 
 /*************************************************************************/
-const double *CoinLpIO::getRowUpper() const
+const FloatT *CoinLpIO::getRowUpper() const
 {
   return rowupper_;
 }
@@ -393,9 +393,9 @@ const double *CoinLpIO::getRowUpper() const
 /** A quick inlined function to convert from lb/ub style constraint
     definition to sense/rhs/range style */
 inline void
-CoinLpIO::convertBoundToSense(const double lower, const double upper,
-  char &sense, double &right,
-  double &range) const
+CoinLpIO::convertBoundToSense(const FloatT lower, const FloatT upper,
+  char &sense, FloatT &right,
+  FloatT &range) const
 {
   range = 0.0;
   if (lower > -infinity_) {
@@ -429,7 +429,7 @@ const char *CoinLpIO::getRowSense() const
     int nr = numberRows_;
     rowsense_ = reinterpret_cast< char * >(malloc(nr * sizeof(char)));
 
-    double dum1, dum2;
+    FloatT dum1, dum2;
     int i;
     for (i = 0; i < nr; i++) {
       convertBoundToSense(rowlower_[i], rowupper_[i], rowsense_[i], dum1, dum2);
@@ -439,14 +439,14 @@ const char *CoinLpIO::getRowSense() const
 }
 
 /*************************************************************************/
-const double *CoinLpIO::getRightHandSide() const
+const FloatT *CoinLpIO::getRightHandSide() const
 {
   if (rhs_ == NULL) {
     int nr = numberRows_;
-    rhs_ = reinterpret_cast< double * >(malloc(nr * sizeof(double)));
+    rhs_ = reinterpret_cast< FloatT * >(malloc(nr * sizeof(FloatT)));
 
     char dum1;
-    double dum2;
+    FloatT dum2;
     int i;
     for (i = 0; i < nr; i++) {
       convertBoundToSense(rowlower_[i], rowupper_[i], dum1, rhs_[i], dum2);
@@ -456,15 +456,15 @@ const double *CoinLpIO::getRightHandSide() const
 }
 
 /*************************************************************************/
-const double *CoinLpIO::getRowRange() const
+const FloatT *CoinLpIO::getRowRange() const
 {
   if (rowrange_ == NULL) {
     int nr = numberRows_;
-    rowrange_ = reinterpret_cast< double * >(malloc(nr * sizeof(double)));
+    rowrange_ = reinterpret_cast< FloatT * >(malloc(nr * sizeof(FloatT)));
     std::fill(rowrange_, rowrange_ + nr, 0.0);
 
     char dum1;
-    double dum2;
+    FloatT dum2;
     int i;
     for (i = 0; i < nr; i++) {
       convertBoundToSense(rowlower_[i], rowupper_[i], dum1, dum2, rowrange_[i]);
@@ -480,13 +480,13 @@ const int CoinLpIO::getNumObjectives() const
 }
 
 /*************************************************************************/
-const double *CoinLpIO::getObjCoefficients() const
+const FloatT *CoinLpIO::getObjCoefficients() const
 {
   return objective_[0];
 }
 
 /*************************************************************************/
-const double *CoinLpIO::getObjCoefficients(int j) const
+const FloatT *CoinLpIO::getObjCoefficients(int j) const
 {
   return objective_[j];
 }
@@ -637,13 +637,13 @@ int CoinLpIO::columnIndex(const char *name) const
 }
 
 /************************************************************************/
-double CoinLpIO::getInfinity() const
+FloatT CoinLpIO::getInfinity() const
 {
   return infinity_;
 }
 
 /************************************************************************/
-void CoinLpIO::setInfinity(const double value)
+void CoinLpIO::setInfinity(const FloatT value)
 {
   if (value >= 1.0e20) {
     infinity_ = value;
@@ -655,13 +655,13 @@ void CoinLpIO::setInfinity(const double value)
 }
 
 /************************************************************************/
-double CoinLpIO::getEpsilon() const
+FloatT CoinLpIO::getEpsilon() const
 {
   return epsilon_;
 }
 
 /************************************************************************/
-void CoinLpIO::setEpsilon(const double value)
+void CoinLpIO::setEpsilon(const FloatT value)
 {
   if (value < 0.1) {
     epsilon_ = value;
@@ -709,13 +709,13 @@ void CoinLpIO::setDecimals(const int value)
 }
 
 /************************************************************************/
-double CoinLpIO::objectiveOffset() const
+FloatT CoinLpIO::objectiveOffset() const
 {
   return objectiveOffset_[0];
 }
 
 /************************************************************************/
-double CoinLpIO::objectiveOffset(int j) const
+FloatT CoinLpIO::objectiveOffset(int j) const
 {
   return objectiveOffset_[j];
 }
@@ -741,10 +741,10 @@ const char *CoinLpIO::integerColumns() const
 /************************************************************************/
 void CoinLpIO::setLpDataWithoutRowAndColNames(
   const CoinPackedMatrix &m,
-  const double *collb, const double *colub,
-  const double *obj_coeff,
+  const FloatT *collb, const FloatT *colub,
+  const FloatT *obj_coeff,
   const char *is_integer,
-  const double *rowlb, const double *rowub)
+  const FloatT *rowlb, const FloatT *rowub)
 {
 
   setLpDataWithoutRowAndColNames(m, collb, colub, &obj_coeff, 1, is_integer,
@@ -754,11 +754,11 @@ void CoinLpIO::setLpDataWithoutRowAndColNames(
 /************************************************************************/
 void CoinLpIO::setLpDataWithoutRowAndColNames(
   const CoinPackedMatrix &m,
-  const double *collb, const double *colub,
-  const double *obj_coeff[MAX_OBJECTIVES],
+  const FloatT *collb, const FloatT *colub,
+  const FloatT *obj_coeff[MAX_OBJECTIVES],
   int num_objectives,
   const char *is_integer,
-  const double *rowlb, const double *rowub)
+  const FloatT *rowlb, const FloatT *rowub)
 {
 
   freeAll();
@@ -773,17 +773,17 @@ void CoinLpIO::setLpDataWithoutRowAndColNames(
   numberColumns_ = matrixByRow_->getNumCols();
   numberRows_ = matrixByRow_->getNumRows();
 
-  rowlower_ = reinterpret_cast< double * >(malloc(numberRows_ * sizeof(double)));
-  rowupper_ = reinterpret_cast< double * >(malloc(numberRows_ * sizeof(double)));
-  collower_ = reinterpret_cast< double * >(malloc(numberColumns_ * sizeof(double)));
-  colupper_ = reinterpret_cast< double * >(malloc(numberColumns_ * sizeof(double)));
+  rowlower_ = reinterpret_cast< FloatT * >(malloc(numberRows_ * sizeof(FloatT)));
+  rowupper_ = reinterpret_cast< FloatT * >(malloc(numberRows_ * sizeof(FloatT)));
+  collower_ = reinterpret_cast< FloatT * >(malloc(numberColumns_ * sizeof(FloatT)));
+  colupper_ = reinterpret_cast< FloatT * >(malloc(numberColumns_ * sizeof(FloatT)));
   std::copy(rowlb, rowlb + numberRows_, rowlower_);
   std::copy(rowub, rowub + numberRows_, rowupper_);
   std::copy(collb, collb + numberColumns_, collower_);
   std::copy(colub, colub + numberColumns_, colupper_);
   num_objectives_ = num_objectives;
   for (int j = 0; j < num_objectives; j++) {
-    objective_[j] = reinterpret_cast< double * >(malloc(numberColumns_ * sizeof(double)));
+    objective_[j] = reinterpret_cast< FloatT * >(malloc(numberColumns_ * sizeof(FloatT)));
     std::copy(obj_coeff[j], obj_coeff[j] + numberColumns_, objective_[j]);
   }
 
@@ -924,10 +924,10 @@ void CoinLpIO::loadSOS(int numberSets, const CoinSet **sets)
 }
 
 /************************************************************************/
-void CoinLpIO::out_coeff(FILE *fp, const double v, const int print_1) const
+void CoinLpIO::out_coeff(FILE *fp, const FloatT v, const int print_1) const
 {
 
-  double lp_eps = getEpsilon();
+  FloatT lp_eps = getEpsilon();
 
   if (!print_1) {
     if (fabs(v - 1) < lp_eps) {
@@ -939,7 +939,7 @@ void CoinLpIO::out_coeff(FILE *fp, const double v, const int print_1) const
     }
   }
 
-  double frac = v - floor(v);
+  FloatT frac = v - floor(v);
 
   if (frac < lp_eps) {
     fprintf(fp, " %.0f", floor(v));
@@ -956,7 +956,7 @@ void CoinLpIO::out_coeff(FILE *fp, const double v, const int print_1) const
 } /* out_coeff */
 
 /************************************************************************/
-int CoinLpIO::writeLp(const char *filename, const double epsilon,
+int CoinLpIO::writeLp(const char *filename, const FloatT epsilon,
   const int numberAcross, const int decimals,
   const bool useRowNames)
 {
@@ -974,7 +974,7 @@ int CoinLpIO::writeLp(const char *filename, const double epsilon,
 }
 
 /************************************************************************/
-int CoinLpIO::writeLp(FILE *fp, const double epsilon,
+int CoinLpIO::writeLp(FILE *fp, const FloatT epsilon,
   const int numberAcross, const int decimals,
   const bool useRowNames)
 {
@@ -1003,8 +1003,8 @@ int CoinLpIO::writeLp(const char *filename, const bool useRowNames)
 /************************************************************************/
 int CoinLpIO::writeLp(FILE *fp, const bool useRowNames)
 {
-  double lp_eps = getEpsilon();
-  double lp_inf = getInfinity();
+  FloatT lp_eps = getEpsilon();
+  FloatT lp_inf = getInfinity();
   int numberAcross = getNumberAcross();
 
   int i, cnt_print, loc_row_names = 0, loc_col_names = 0;
@@ -1012,13 +1012,13 @@ int CoinLpIO::writeLp(FILE *fp, const bool useRowNames)
   char **prowNames = NULL, **pcolNames = NULL;
 
   const int *indices = matrixByRow_->getIndices();
-  const double *elements = matrixByRow_->getElements();
+  const FloatT *elements = matrixByRow_->getElements();
   int ncol = getNumCols();
   int nrow = getNumRows();
-  const double *collow = getColLower();
-  const double *colup = getColUpper();
-  const double *rowlow = getRowLower();
-  const double *rowup = getRowUpper();
+  const FloatT *collow = getColLower();
+  const FloatT *colup = getColUpper();
+  const FloatT *rowlow = getRowLower();
+  const FloatT *rowup = getRowUpper();
   const char *integerType = integerColumns();
   char const *const *rowNames = getRowNames();
   char const *const *colNames = getColNames();
@@ -1250,7 +1250,7 @@ int CoinLpIO::writeLp(FILE *fp, const bool useRowNames)
 
   if (set_ != NULL) {
     fprintf(fp, "SOS\n");
-    double lp_eps = getEpsilon();
+    FloatT lp_eps = getEpsilon();
     int decimals = getDecimals();
     char form[15];
     sprintf(form, "%%.%df", decimals);
@@ -1260,14 +1260,14 @@ int CoinLpIO::writeLp(FILE *fp, const bool useRowNames)
       // no space as readLp gets marginally confused
       fprintf(fp, "set%d:S%c::", iSet, '0' + set->setType());
       const int *which = set->which();
-      const double *weights = set->weights();
+      const FloatT *weights = set->weights();
       int numberEntries = set->numberEntries();
       for (j = 0; j < numberEntries; j++) {
         int iColumn = which[j];
         fprintf(fp, " %s:", colNames[iColumn]);
         // modified out_coeff (no leading space)
-        double v = weights[j];
-        double frac = v - floor(v);
+        FloatT v = weights[j];
+        FloatT frac = v - floor(v);
 
         if (frac < lp_eps) {
           fprintf(fp, "%.0f", floor(v));
@@ -1533,11 +1533,11 @@ int CoinLpIO::are_invalid_names(char const *const *const vnames,
 } /* are_invalid_names */
 
 /*************************************************************************/
-int CoinLpIO::read_monom_obj(double *coeff, char **name, int *cnt,
+int CoinLpIO::read_monom_obj(FloatT *coeff, char **name, int *cnt,
   char **obj_name, int *num_objectives, int *obj_starts)
 {
 
-  double mult;
+  FloatT mult;
   char buff[1024] = "aa", loc_name[1024], *start;
   int read_st = 0;
 
@@ -1642,11 +1642,11 @@ int CoinLpIO::read_monom_obj(double *coeff, char **name, int *cnt,
 
 /*************************************************************************/
 int CoinLpIO::read_monom_row(char *start_str,
-  double *coeff, char **name,
+  FloatT *coeff, char **name,
   int cnt_coeff) const
 {
 
-  double mult;
+  FloatT mult;
   char buff[1024], loc_name[1024], *start;
   int read_sense = -1;
 
@@ -1704,41 +1704,41 @@ int CoinLpIO::read_monom_row(char *start_str,
 } /* read_monom_row */
 
 /*************************************************************************/
-void CoinLpIO::realloc_coeff(double **coeff, char ***colNames,
+void CoinLpIO::realloc_coeff(FloatT **coeff, char ***colNames,
   int *maxcoeff) const
 {
 
   *maxcoeff *= 5;
 
   *colNames = reinterpret_cast< char ** >(realloc((*colNames), (*maxcoeff + 1) * sizeof(char *)));
-  *coeff = reinterpret_cast< double * >(realloc((*coeff), (*maxcoeff + 1) * sizeof(double)));
+  *coeff = reinterpret_cast< FloatT * >(realloc((*coeff), (*maxcoeff + 1) * sizeof(FloatT)));
 
 } /* realloc_coeff */
 
 /*************************************************************************/
-void CoinLpIO::realloc_row(char ***rowNames, CoinBigIndex **start, double **rhs,
-  double **rowlow, double **rowup, int *maxrow) const
+void CoinLpIO::realloc_row(char ***rowNames, CoinBigIndex **start, FloatT **rhs,
+  FloatT **rowlow, FloatT **rowup, int *maxrow) const
 {
 
   *maxrow *= 5;
   *rowNames = reinterpret_cast< char ** >(realloc((*rowNames), (*maxrow + 1) * sizeof(char *)));
   *start = reinterpret_cast< CoinBigIndex * >(realloc((*start), (*maxrow + 1) * sizeof(CoinBigIndex)));
-  *rhs = reinterpret_cast< double * >(realloc((*rhs), (*maxrow + 1) * sizeof(double)));
-  *rowlow = reinterpret_cast< double * >(realloc((*rowlow), (*maxrow + 1) * sizeof(double)));
-  *rowup = reinterpret_cast< double * >(realloc((*rowup), (*maxrow + 1) * sizeof(double)));
+  *rhs = reinterpret_cast< FloatT * >(realloc((*rhs), (*maxrow + 1) * sizeof(FloatT)));
+  *rowlow = reinterpret_cast< FloatT * >(realloc((*rowlow), (*maxrow + 1) * sizeof(FloatT)));
+  *rowup = reinterpret_cast< FloatT * >(realloc((*rowup), (*maxrow + 1) * sizeof(FloatT)));
 
 } /* realloc_row */
 
 /*************************************************************************/
-void CoinLpIO::realloc_col(double **collow, double **colup, char **is_int,
+void CoinLpIO::realloc_col(FloatT **collow, FloatT **colup, char **is_int,
   int *maxcol) const
 {
   *maxcol += 100;
-  *collow = reinterpret_cast< double * >(realloc((*collow), (*maxcol + 1) * sizeof(double)));
-  *colup = reinterpret_cast< double * >(realloc((*colup), (*maxcol + 1) * sizeof(double)));
+  *collow = reinterpret_cast< FloatT * >(realloc((*collow), (*maxcol + 1) * sizeof(FloatT)));
+  *colup = reinterpret_cast< FloatT * >(realloc((*colup), (*maxcol + 1) * sizeof(FloatT)));
   *is_int = reinterpret_cast< char * >(realloc((*is_int), (*maxcol + 1) * sizeof(char)));
   // clean values
-  double lp_inf = getInfinity();
+  FloatT lp_inf = getInfinity();
   for (int i = (*maxcol) - 100; i < *maxcol; i++) {
     (*collow)[i] = 0;
     (*colup)[i] = lp_inf;
@@ -1749,11 +1749,11 @@ void CoinLpIO::realloc_col(double **collow, double **colup, char **is_int,
 
 /*************************************************************************/
 void CoinLpIO::read_row(char *buff,
-  double **pcoeff, char ***pcolNames,
+  FloatT **pcoeff, char ***pcolNames,
   int *cnt_coeff,
   int *maxcoeff,
-  double *rhs, double *rowlow, double *rowup,
-  int *cnt_row, double inf) const
+  FloatT *rhs, FloatT *rowlow, FloatT *rowup,
+  int *cnt_row, FloatT inf) const
 {
 
   int read_sense = -1;
@@ -1844,7 +1844,7 @@ int CoinLpIO::is_keyword(const char *buff) const
 } /* is_keyword */
 
 /*************************************************************************/
-void CoinLpIO::readLp(const char *filename, const double epsilon)
+void CoinLpIO::readLp(const char *filename, const FloatT epsilon)
 {
   setEpsilon(epsilon);
   readLp(filename);
@@ -1879,7 +1879,7 @@ void CoinLpIO::readLp(const char *filename)
 }
 
 /*************************************************************************/
-void CoinLpIO::readLp(FILE *fp, const double epsilon)
+void CoinLpIO::readLp(FILE *fp, const FloatT epsilon)
 {
   setEpsilon(epsilon);
   readLp(fp);
@@ -1898,8 +1898,8 @@ void CoinLpIO::readLp()
 
   int maxrow = 1000;
   int maxcoeff = 40000;
-  double lp_eps = getEpsilon();
-  double lp_inf = getInfinity();
+  FloatT lp_eps = getEpsilon();
+  FloatT lp_inf = getInfinity();
 
   char buff[1024];
   bufferPosition_ = 0;
@@ -1911,12 +1911,12 @@ void CoinLpIO::readLp()
   char *objName[MAX_OBJECTIVES] = { NULL, NULL };
   int obj_starts[MAX_OBJECTIVES + 1];
   char **colNames = reinterpret_cast< char ** >(malloc((maxcoeff + 1) * sizeof(char *)));
-  double *coeff = reinterpret_cast< double * >(malloc((maxcoeff + 1) * sizeof(double)));
+  FloatT *coeff = reinterpret_cast< FloatT * >(malloc((maxcoeff + 1) * sizeof(FloatT)));
   char **rowNames = reinterpret_cast< char ** >(malloc((maxrow + MAX_OBJECTIVES) * sizeof(char *)));
   CoinBigIndex *start = reinterpret_cast< CoinBigIndex * >(malloc((maxrow + MAX_OBJECTIVES) * sizeof(CoinBigIndex)));
-  double *rhs = reinterpret_cast< double * >(malloc((maxrow + 1) * sizeof(double)));
-  double *rowlow = reinterpret_cast< double * >(malloc((maxrow + 1) * sizeof(double)));
-  double *rowup = reinterpret_cast< double * >(malloc((maxrow + 1) * sizeof(double)));
+  FloatT *rhs = reinterpret_cast< FloatT * >(malloc((maxrow + 1) * sizeof(FloatT)));
+  FloatT *rowlow = reinterpret_cast< FloatT * >(malloc((maxrow + 1) * sizeof(FloatT)));
+  FloatT *rowup = reinterpret_cast< FloatT * >(malloc((maxrow + 1) * sizeof(FloatT)));
 
   int i;
 
@@ -1983,12 +1983,12 @@ void CoinLpIO::readLp()
 
   COINColumnIndex icol;
   int read_sense1, read_sense2;
-  double bnd1 = 0, bnd2 = 0;
+  FloatT bnd1 = 0, bnd2 = 0;
 
   int maxcol = numberHash_[1] + 100;
 
-  double *collow = reinterpret_cast< double * >(malloc((maxcol + 1) * sizeof(double)));
-  double *colup = reinterpret_cast< double * >(malloc((maxcol + 1) * sizeof(double)));
+  FloatT *collow = reinterpret_cast< FloatT * >(malloc((maxcol + 1) * sizeof(FloatT)));
+  FloatT *colup = reinterpret_cast< FloatT * >(malloc((maxcol + 1) * sizeof(FloatT)));
   char *is_int = reinterpret_cast< char * >(malloc((maxcol + 1) * sizeof(char)));
   int has_int = 0;
 
@@ -2275,7 +2275,7 @@ void CoinLpIO::readLp()
       int maxSets = 10;
       CoinSet **set = new CoinSet *[maxSets];
       int maxEntries = 100;
-      double *weights = new double[maxEntries];
+      FloatT *weights = new FloatT[maxEntries];
       int *which = new int[maxEntries];
       char printBuffer[512];
       int numberBad = 0;
@@ -2368,12 +2368,12 @@ void CoinLpIO::readLp()
                       next = buff - 1;
                     }
                   }
-                  double value = atof(next + 1);
+                  FloatT value = atof(next + 1);
                   if (numberEntries == maxEntries) {
                     maxEntries = 2 * maxEntries;
-                    double *tempD = new double[maxEntries];
+                    FloatT *tempD = new FloatT[maxEntries];
                     int *tempI = new int[maxEntries];
-                    memcpy(tempD, weights, numberEntries * sizeof(double));
+                    memcpy(tempD, weights, numberEntries * sizeof(FloatT));
                     memcpy(tempI, which, numberEntries * sizeof(int));
                     delete[] weights;
                     weights = tempD;
@@ -2422,7 +2422,7 @@ void CoinLpIO::readLp()
                                                                << CoinMessageEol;
           } else {
             CoinSort_2(weights, weights + numberEntries, which);
-            double last = weights[0];
+            FloatT last = weights[0];
             for (int i = 1; i < numberEntries; i++) {
               if (fabs(last - weights[i]) < 1.0e-12) {
                 setType = 3;
@@ -2495,7 +2495,7 @@ void CoinLpIO::readLp()
   numberColumns_ = numberHash_[1];
   numberElements_ = cnt_coeff - start[0];
 
-  double *obj[MAX_OBJECTIVES];
+  FloatT *obj[MAX_OBJECTIVES];
   // Check for duplicates - first in objectives
   int * whichColumn = new int [numberColumns_];
   char * inRow = new char[numberColumns_];
@@ -2503,8 +2503,8 @@ void CoinLpIO::readLp()
   int numberDuplicates = 0;
 
   for (int j = 0; j < num_objectives; j++) {
-    obj[j] = reinterpret_cast< double * >(malloc(numberColumns_ * sizeof(double)));
-    memset(obj[j], 0, numberColumns_ * sizeof(double));
+    obj[j] = reinterpret_cast< FloatT * >(malloc(numberColumns_ * sizeof(FloatT)));
+    memset(obj[j], 0, numberColumns_ * sizeof(FloatT));
 
     for (i = obj_starts[j]; i < obj_starts[j + 1]; i++) {
       icol = findHash(colNames[i], 1);
@@ -2582,7 +2582,7 @@ void CoinLpIO::readLp()
   numberSets_ = 0;
 
   setLpDataWithoutRowAndColNames(*matrix, collow, colup,
-    const_cast< const double ** >(obj),
+    const_cast< const FloatT ** >(obj),
     num_objectives, has_int ? is_int : 0, rowlow, rowup);
 
   set_ = saveSet;

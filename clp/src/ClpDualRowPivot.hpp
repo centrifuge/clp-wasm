@@ -6,6 +6,8 @@
 #ifndef ClpDualRowPivot_H
 #define ClpDualRowPivot_H
 
+#include "floatdef.h"
+
 class ClpSimplex;
 class CoinIndexedVector;
 
@@ -30,7 +32,7 @@ public:
 
   /** Updates weights and returns pivot alpha.
          Also does FT update */
-  virtual double updateWeights(CoinIndexedVector *input,
+  virtual FloatT updateWeights(CoinIndexedVector *input,
     CoinIndexedVector *spare,
     CoinIndexedVector *spare2,
     CoinIndexedVector *updatedColumn)
@@ -44,8 +46,8 @@ public:
      */
   /* FIXME: this was pure virtul (=0). Why? */
   virtual void updatePrimalSolution(CoinIndexedVector *input,
-    double theta,
-    double &changeInObjective)
+    FloatT theta,
+    FloatT &changeInObjective)
     = 0;
   /** Saves any weights round factorization as pivot rows may change
          Will be empty unless steepest edge (will save model)

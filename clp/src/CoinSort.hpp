@@ -218,7 +218,7 @@ void CoinSort_2(S *sfirst, S *slast, T *tfirst, const CoinCompare2 &pc)
   ST_pair *x = static_cast< ST_pair * >(::operator new(len * sizeof(ST_pair)));
 #ifdef ZEROFAULT
   // Can show RUI errors on some systems due to copy of ST_pair with gaps.
-  // E.g., <int, double> has 4 byte alignment gap on Solaris/SUNWspro.
+  // E.g., <int, FloatT> has 4 byte alignment gap on Solaris/SUNWspro.
   memset(x, 0, (len * sizeof(ST_pair)));
 #endif
 
@@ -641,10 +641,10 @@ public:
    external vector. */
 //@{
 /// Sort packed vector in increasing order of the external vector
-typedef CoinExternalVectorFirstLess_3< int, int, double, double >
+typedef CoinExternalVectorFirstLess_3< int, int, FloatT, FloatT >
   CoinIncrSolutionOrdered;
 /// Sort packed vector in decreasing order of the external vector
-typedef CoinExternalVectorFirstGreater_3< int, int, double, double >
+typedef CoinExternalVectorFirstGreater_3< int, int, FloatT, FloatT >
   CoinDecrSolutionOrdered;
 //@}
 

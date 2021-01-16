@@ -31,7 +31,7 @@ class ClpSimplex;
 
   Parameter type ranges are allocated as follows
   <ul>
-    <li>   1 -- 100  double parameters
+    <li>   1 -- 100  FloatT parameters
     <li> 101 -- 200  integer parameters
     <li> 201 -- 300  Clp string parameters
     <li> 301 -- 400  Cbc string parameters
@@ -305,7 +305,7 @@ public:
   /// Constructors
   CbcOrClpParam();
   CbcOrClpParam(std::string name, std::string help,
-    double lower, double upper, CbcOrClpParameterType type, int display = 2);
+    FloatT lower, FloatT upper, CbcOrClpParameterType type, int display = 2);
   CbcOrClpParam(std::string name, std::string help,
     int lower, int upper, CbcOrClpParameterType type, int display = 2);
   // Other strings will be added by insert
@@ -348,13 +348,13 @@ public:
   {
     return definedKeyWords_;
   }
-  /// Returns the lower bound for a double-valued parameter
-  inline double lowerDoubleValue() const
+  /// Returns the lower bound for a FloatT-valued parameter
+  inline FloatT lowerDoubleValue() const
   {
      return lowerDoubleValue_;
   }
-  /// Returns the upper bound for a double-valued parameter
-  inline double upperDoubleValue() const
+  /// Returns the upper bound for a FloatT-valued parameter
+  inline FloatT upperDoubleValue() const
   {
      return upperDoubleValue_;
   }
@@ -368,44 +368,44 @@ public:
   {
      return upperIntValue_;
   }
-  /// Sets a double parameter (nonzero code if error)
-  int setDoubleParameter(CbcModel &model, double value);
-  /// Sets double parameter and returns printable string and error code
-  const char *setDoubleParameterWithMessage(CbcModel &model, double value, int &returnCode);
-  /// Gets a double parameter
-  double doubleParameter(CbcModel &model) const;
+  /// Sets a FloatT parameter (nonzero code if error)
+  int setDoubleParameter(CbcModel &model, FloatT value);
+  /// Sets FloatT parameter and returns printable string and error code
+  const char *setDoubleParameterWithMessage(CbcModel &model, FloatT value, int &returnCode);
+  /// Gets a FloatT parameter
+  FloatT FloatTParameter(CbcModel &model) const;
   /// Sets a int parameter (nonzero code if error)
   int setIntParameter(CbcModel &model, int value);
   /// Sets int parameter and returns printable string and error code
   const char *setIntParameterWithMessage(CbcModel &model, int value, int &returnCode);
   /// Gets a int parameter
   int intParameter(CbcModel &model) const;
-  /// Sets a double parameter (nonzero code if error)
-  int setDoubleParameter(ClpSimplex *model, double value);
-  /// Gets a double parameter
-  double doubleParameter(ClpSimplex *model) const;
-  /// Sets double parameter and returns printable string and error code
-  const char *setDoubleParameterWithMessage(ClpSimplex *model, double value, int &returnCode);
+  /// Sets a FloatT parameter (nonzero code if error)
+  int setDoubleParameter(ClpSimplex *model, FloatT value);
+  /// Gets a FloatT parameter
+  FloatT FloatTParameter(ClpSimplex *model) const;
+  /// Sets FloatT parameter and returns printable string and error code
+  const char *setDoubleParameterWithMessage(ClpSimplex *model, FloatT value, int &returnCode);
   /// Sets a int parameter (nonzero code if error)
   int setIntParameter(ClpSimplex *model, int value);
   /// Sets int parameter and returns printable string and error code
   const char *setIntParameterWithMessage(ClpSimplex *model, int value, int &returnCode);
   /// Gets a int parameter
   int intParameter(ClpSimplex *model) const;
-  /// Sets a double parameter (nonzero code if error)
-  int setDoubleParameter(OsiSolverInterface *model, double value);
-  /// Sets double parameter and returns printable string and error code
-  const char *setDoubleParameterWithMessage(OsiSolverInterface *model, double value, int &returnCode);
-  /// Gets a double parameter
-  double doubleParameter(OsiSolverInterface *model) const;
+  /// Sets a FloatT parameter (nonzero code if error)
+  int setDoubleParameter(OsiSolverInterface *model, FloatT value);
+  /// Sets FloatT parameter and returns printable string and error code
+  const char *setDoubleParameterWithMessage(OsiSolverInterface *model, FloatT value, int &returnCode);
+  /// Gets a FloatT parameter
+  FloatT FloatTParameter(OsiSolverInterface *model) const;
   /// Sets a int parameter (nonzero code if error)
   int setIntParameter(OsiSolverInterface *model, int value);
   /// Sets int parameter and returns printable string and error code
   const char *setIntParameterWithMessage(OsiSolverInterface *model, int value, int &returnCode);
   /// Gets a int parameter
   int intParameter(OsiSolverInterface *model) const;
-  /// Checks a double parameter (nonzero code if error)
-  int checkDoubleParameter(double value) const;
+  /// Checks a FloatT parameter (nonzero code if error)
+  int checkDoubleParameter(FloatT value) const;
   /// Returns name which could match
   std::string matchName() const;
   /// Returns length of name for ptinting
@@ -442,13 +442,13 @@ public:
   {
     return intValue_;
   }
-  /// Sets double value
-  void setDoubleValue(double value);
-  /// Sets double value with message
-  const char *setDoubleValueWithMessage(double value);
-  inline double doubleValue() const
+  /// Sets FloatT value
+  void setDoubleValue(FloatT value);
+  /// Sets FloatT value with message
+  const char *setDoubleValueWithMessage(FloatT value);
+  inline FloatT FloatTValue() const
   {
-    return doubleValue_;
+    return FloatTValue_;
   }
   /// Sets string value
   void setStringValue(std::string value);
@@ -512,9 +512,9 @@ private:
   //@{
   // Type see CbcOrClpParameterType
   CbcOrClpParameterType type_;
-  /// If double == okay
-  double lowerDoubleValue_;
-  double upperDoubleValue_;
+  /// If FloatT == okay
+  FloatT lowerDoubleValue_;
+  FloatT upperDoubleValue_;
   /// If int == okay
   int lowerIntValue_;
   int upperIntValue_;
@@ -539,7 +539,7 @@ private:
   /// Integer parameter - current value
   int intValue_;
   /// Double parameter - current value
-  double doubleValue_;
+  FloatT FloatTValue_;
   /// String parameter - current value
   std::string stringValue_;
   /** 7 if used everywhere,
@@ -564,7 +564,7 @@ std::string CoinReadGetCommand(int argc, const char *argv[]);
 std::string CoinReadGetString(int argc, const char *argv[]);
 // valid 0 - okay, 1 bad, 2 not there
 int CoinReadGetIntField(int argc, const char *argv[], int *valid);
-double CoinReadGetDoubleField(int argc, const char *argv[], int *valid);
+FloatT CoinReadGetDoubleField(int argc, const char *argv[], int *valid);
 void CoinReadPrintit(const char *input);
 void setCbcOrClpPrinting(bool yesNo);
 #define CBCMAXPARAMETERS 250

@@ -58,12 +58,12 @@ public:
     return column_;
   }
   /// Get value
-  inline double value() const
+  inline FloatT value() const
   {
     return value_;
   }
   /// Get value
-  inline double element() const
+  inline FloatT element() const
   {
     return value_;
   }
@@ -88,12 +88,12 @@ public:
     column_ = column;
   }
   /// Set value
-  inline void setValue(double value)
+  inline void setValue(FloatT value)
   {
     value_ = value;
   }
   /// Set value
-  inline void setElement(double value)
+  inline void setElement(FloatT value)
   {
     value_ = value;
   }
@@ -116,8 +116,8 @@ private:
   int row_;
   /// Column
   int column_;
-  /// Value as double
-  double value_;
+  /// Value as FloatT
+  FloatT value_;
   /// Position in data
   CoinBigIndex position_;
   /// If on row chain
@@ -133,7 +133,7 @@ typedef struct {
   unsigned int row;
   //CoinModelRowIndex row;
   int column;
-  double value; // If string then index into strings
+  FloatT value; // If string then index into strings
 } CoinModelTriple;
 inline int rowInTriple(const CoinModelTriple &triple)
 {
@@ -166,15 +166,15 @@ typedef struct {
 } CoinModelHashLink2;
 
 /* Function type.  */
-typedef double (*func_t)(double);
+typedef FloatT (*func_t)(FloatT);
 
 /// For string evaluation
 /* Data type for links in the chain of symbols.  */
 struct symrec {
   char *name; /* name of symbol */
   int type; /* type of symbol: either VAR or FNCT */
-  union {
-    double var; /* value of a VAR */
+  union symrecu {
+    FloatT var; /* value of a VAR */
     func_t fnctptr; /* value of a FNCT */
   } value;
   struct symrec *next; /* link field */
@@ -214,7 +214,7 @@ public:
   symrec *symtable;
   char *symbuf;
   int length;
-  double unsetValue;
+  FloatT unsetValue;
 };
 
 class CoinModelHash {
@@ -452,12 +452,12 @@ public:
       Returns where chain starts
   */
   CoinBigIndex addEasy(int majorIndex, CoinBigIndex numberOfElements, const int *indices,
-    const double *elements, CoinModelTriple *triples,
+    const FloatT *elements, CoinModelTriple *triples,
     CoinModelHash2 &hash);
   /** Adds to list - hard case i.e. add row to column list
   */
   void addHard(int minorIndex, CoinBigIndex numberOfElements, const int *indices,
-    const double *elements, CoinModelTriple *triples,
+    const FloatT *elements, CoinModelTriple *triples,
     CoinModelHash2 &hash);
   /** Adds to list - hard case i.e. add row to column list
       This is when elements have been added to other copy

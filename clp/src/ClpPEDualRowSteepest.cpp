@@ -24,7 +24,7 @@
 //-------------------------------------------------------------------
 // Default Constructor
 //-------------------------------------------------------------------
-ClpPEDualRowSteepest::ClpPEDualRowSteepest(double psi, int mode)
+ClpPEDualRowSteepest::ClpPEDualRowSteepest(FloatT psi, int mode)
   : ClpDualRowSteepest(mode)
   , modelPE_(NULL)
   , psi_(psi)
@@ -95,7 +95,7 @@ int ClpPEDualRowSteepest::pivotRow()
   //
   // store the number of degenerate pivots on compatible variables and the
   // overal number of degenerate pivots
-  //double progress = fabs(modelPE_->lastObjectiveValue() - model_->objectiveValue());
+  //FloatT progress = fabs(modelPE_->lastObjectiveValue() - model_->objectiveValue());
   //bool isLastDegenerate = progress <= 1.0e-12*fabs(model_->objectiveValue()) ? true:false;
   bool isLastDegenerate = fabs(model_->theta()) < 1.0e-7;
   bool isLastDegenerate2;
@@ -165,7 +165,7 @@ int ClpPEDualRowSteepest::pivotRow()
   //
   if (modelPE_->doStatistics())
     modelPE_->startTimer();
-  double psiTmp = psi_;
+  FloatT psiTmp = psi_;
   if ((psi_ < 1.0) && (iCurrent_ >= iInterval_) && (updateCompatibles_ || iCurrent_ >= 1000 /*|| !model_->factorization()->pivots()*/)) {
     // the compatible variables are never updated if the last pivot is non degenerate
     if (isLastDegenerate) {
@@ -245,27 +245,27 @@ int ClpPEDualRowSteepest::pivotRow()
   // Do the pricing and give priority to dual compatible variables
   //
   int i, iRow;
-  double *infeas = infeasible_->denseVector();
-  double largest = 0.0;
+  FloatT *infeas = infeasible_->denseVector();
+  FloatT largest = 0.0;
   int *index = infeasible_->getIndices();
   int number = infeasible_->getNumElements();
   const int *pivotVariable = model_->pivotVariable();
   int chosenRow = -1;
   int lastPivotRow = model_->pivotRow();
   assert(lastPivotRow < model_->numberRows());
-  double tolerance = model_->currentPrimalTolerance();
+  FloatT tolerance = model_->currentPrimalTolerance();
   // we can't really trust infeasibilities if there is primal error
   // this coding has to mimic coding in checkPrimalSolution
-  double error = CoinMin(1.0e-2, model_->largestPrimalError());
+  FloatT error = CoinMin(1.0e-2, model_->largestPrimalError());
   // allow tolerance at least slightly bigger than standard
   tolerance = tolerance + error;
   // But cap
   tolerance = CoinMin(1000.0, tolerance);
   tolerance *= tolerance; // as we are using squares
   bool toleranceChanged = false;
-  double *solution = model_->solutionRegion();
-  double *lower = model_->lowerRegion();
-  double *upper = model_->upperRegion();
+  FloatT *solution = model_->solutionRegion();
+  FloatT *lower = model_->lowerRegion();
+  FloatT *upper = model_->upperRegion();
   // do last pivot row one here
   //#define CLP_DUAL_FIXED_COLUMN_MULTIPLIER 10.0
   if (lastPivotRow >= 0 && lastPivotRow < model_->numberRows()) {
@@ -273,9 +273,9 @@ int ClpPEDualRowSteepest::pivotRow()
     int numberColumns = model_->numberColumns();
 #endif
     int iPivot = pivotVariable[lastPivotRow];
-    double value = solution[iPivot];
-    double lower = model_->lower(iPivot);
-    double upper = model_->upper(iPivot);
+    FloatT value = solution[iPivot];
+    FloatT lower = model_->lower(iPivot);
+    FloatT upper = model_->upper(iPivot);
     if (value > upper + tolerance) {
       value -= upper;
       value *= value;
@@ -321,7 +321,7 @@ int ClpPEDualRowSteepest::pivotRow()
     numberWanted = CoinMax(2000, number / 8);
   } else {
     int numberElements = model_->factorization()->numberElements();
-    double ratio = static_cast< double >(numberElements) / static_cast< double >(model_->numberRows());
+    FloatT ratio = static_cast< FloatT >(numberElements) / static_cast< FloatT >(model_->numberRows());
     numberWanted = CoinMax(2000, number / 8);
     if (ratio < 1.0) {
       numberWanted = CoinMax(2000, number / 20);
@@ -340,19 +340,19 @@ int ClpPEDualRowSteepest::pivotRow()
   int start[4];
   start[1] = number;
   start[2] = 0;
-  double dstart = static_cast< double >(number) * model_->randomNumberGenerator()->randomDouble();
+  FloatT dstart = static_cast< FloatT >(number) * model_->randomNumberGenerator()->randomDouble();
   start[0] = static_cast< int >(dstart);
   start[3] = start[0];
 
   int chosenRowComp = -1;
-  double largestComp = 0.0;
+  FloatT largestComp = 0.0;
 
   // only check the compatible variables when the bidimensional factor is less than 1
   // and the ratio of compatible variables is larger than 0.01
   // the percentage of compatible variables is computed as the ratio to the
   // smallest number among columns and rows
   bool checkCompatibles = true;
-  double ratioCompatibles = static_cast< double >(modelPE_->coCompatibleRows()) / static_cast< double >(std::min(model_->numberRows(), model_->numberColumns()));
+  FloatT ratioCompatibles = static_cast< FloatT >(modelPE_->coCompatibleRows()) / static_cast< FloatT >(std::min(model_->numberRows(), model_->numberColumns()));
 
   if (psi_ >= 1.0 || ratioCompatibles < 0.01)
     checkCompatibles = false;
@@ -362,7 +362,7 @@ int ClpPEDualRowSteepest::pivotRow()
     int end = start[2 * iPass + 1];
     for (i = start[2 * iPass]; i < end; i++) {
       iRow = index[i];
-      double value = infeas[iRow];
+      FloatT value = infeas[iRow];
       if (value > tolerance) {
 //#define OUT_EQ
 #ifdef OUT_EQ
@@ -372,8 +372,8 @@ int ClpPEDualRowSteepest::pivotRow()
             value *= 2.0;
         }
 #endif
-        double weight = CoinMin(weights_[iRow], 1.0e50);
-        double largestMax = std::max(psiTmp * largest, largestComp);
+        FloatT weight = CoinMin(weights_[iRow], 1.0e50);
+        FloatT largestMax = std::max(psiTmp * largest, largestComp);
         if (value > weight * largestMax) {
           // make last pivot row last resort choice
           if (iRow == lastPivotRow) {
@@ -439,7 +439,7 @@ int ClpPEDualRowSteepest::pivotRow()
 
   if (chosenRow < 0 && toleranceChanged) {
     // won't line up with checkPrimalSolution - do again
-    double saveError = model_->largestDualError();
+    FloatT saveError = model_->largestDualError();
     model_->setLargestDualError(0.0);
     // can't loop
     chosenRow = pivotRow();
@@ -480,8 +480,8 @@ void ClpPEDualRowSteepest::saveWeights(ClpSimplex *model, int mode)
    As ordinary steepest but checks for zero moves
 */
 void ClpPEDualRowSteepest::updatePrimalSolution(CoinIndexedVector *input,
-  double theta,
-  double &changeInObjective)
+  FloatT theta,
+  FloatT &changeInObjective)
 {
   int iColumn = model_->sequenceIn();
   if (iColumn >= 0)

@@ -65,8 +65,8 @@ int ClpPrimalColumnDantzig::pivotColumn(CoinIndexedVector *updates,
   int iSection, j;
   int number;
   int *index;
-  double *updateBy;
-  double *reducedCost;
+  FloatT *updateBy;
+  FloatT *reducedCost;
 
   bool anyUpdates;
 
@@ -97,7 +97,7 @@ int ClpPrimalColumnDantzig::pivotColumn(CoinIndexedVector *updates,
 
       for (j = 0; j < number; j++) {
         int iSequence = index[j];
-        double value = reducedCost[iSequence];
+        FloatT value = reducedCost[iSequence];
         value -= updateBy[j];
         updateBy[j] = 0.0;
         reducedCost[iSequence] = value;
@@ -109,15 +109,15 @@ int ClpPrimalColumnDantzig::pivotColumn(CoinIndexedVector *updates,
 
   // update of duals finished - now do pricing
 
-  double largest = model_->currentPrimalTolerance();
+  FloatT largest = model_->currentPrimalTolerance();
   // we can't really trust infeasibilities if there is primal error
   if (model_->largestDualError() > 1.0e-8)
     largest *= model_->largestDualError() / 1.0e-8;
 
-  double bestDj = model_->dualTolerance();
+  FloatT bestDj = model_->dualTolerance();
   int bestSequence = -1;
 
-  double bestFreeDj = model_->dualTolerance();
+  FloatT bestFreeDj = model_->dualTolerance();
   int bestFreeSequence = -1;
 
   number = model_->numberRows() + model_->numberColumns();
@@ -128,7 +128,7 @@ int ClpPrimalColumnDantzig::pivotColumn(CoinIndexedVector *updates,
   for (iSequence = 0; iSequence < number; iSequence++) {
     // check flagged variable
     if (!model_->flagged(iSequence)) {
-      double value = reducedCost[iSequence];
+      FloatT value = reducedCost[iSequence];
       ClpSimplex::Status status = model_->getStatus(iSequence);
 
       switch (status) {
@@ -163,7 +163,7 @@ int ClpPrimalColumnDantzig::pivotColumn(CoinIndexedVector *updates,
   for (iSequence = 0; iSequence < numberColumns; iSequence++) {
     // check flagged variable
     if (!model_->flagged(iSequence)) {
-      double value = reducedCost[iSequence];
+      FloatT value = reducedCost[iSequence];
       ClpSimplex::Status status = model_->getStatus(iSequence);
 
       switch (status) {
@@ -196,7 +196,7 @@ int ClpPrimalColumnDantzig::pivotColumn(CoinIndexedVector *updates,
   for (; iSequence < number; iSequence++) {
     // check flagged variable
     if (!model_->flagged(iSequence)) {
-      double value = reducedCost[iSequence] * CLP_PRIMAL_SLACK_MULTIPLIER;
+      FloatT value = reducedCost[iSequence] * CLP_PRIMAL_SLACK_MULTIPLIER;
       ClpSimplex::Status status = model_->getStatus(iSequence);
 
       switch (status) {

@@ -145,7 +145,7 @@ public:
     else
       independentOptions_[1] |= 2;
   }
-  /// Whether we want to do doubleton part of presolve
+  /// Whether we want to do FloatTton part of presolve
   inline bool doDoubleton() const
   {
     return (independentOptions_[1] & 4) == 0;
@@ -344,15 +344,15 @@ public:
   int cycle(int in, int out, int wayIn, int wayOut);
 
   /// Returns previous objective (if -1) - current if (0)
-  double lastObjective(int back = 1) const;
+  FloatT lastObjective(int back = 1) const;
   /// Set real primal infeasibility and move back
-  void setInfeasibility(double value);
+  void setInfeasibility(FloatT value);
   /// Returns real primal infeasibility (if -1) - current if (0)
-  double lastInfeasibility(int back = 1) const;
+  FloatT lastInfeasibility(int back = 1) const;
   /// Returns number of primal infeasibilities (if -1) - current if (0)
   int numberInfeasibilities(int back = 1) const;
   /// Modify objective e.g. if dual infeasible in dual
-  void modifyObjective(double value);
+  void modifyObjective(FloatT value);
   /// Returns previous iteration number (if -1) - current if (0)
   int lastIterationNumber(int back = 1) const;
   /// clears all iteration numbers (to switch off panic)
@@ -412,28 +412,28 @@ public:
   //#define CLP_PROGRESS_WEIGHT 10
   //@{
   /// Objective values
-  double objective_[CLP_PROGRESS];
+  FloatT objective_[CLP_PROGRESS];
   /// Sum of infeasibilities for algorithm
-  double infeasibility_[CLP_PROGRESS];
+  FloatT infeasibility_[CLP_PROGRESS];
   /// Sum of real primal infeasibilities for primal
-  double realInfeasibility_[CLP_PROGRESS];
+  FloatT realInfeasibility_[CLP_PROGRESS];
 #ifdef CLP_PROGRESS_WEIGHT
   /// Objective values for weights
-  double objectiveWeight_[CLP_PROGRESS_WEIGHT];
+  FloatT objectiveWeight_[CLP_PROGRESS_WEIGHT];
   /// Sum of infeasibilities for algorithm for weights
-  double infeasibilityWeight_[CLP_PROGRESS_WEIGHT];
+  FloatT infeasibilityWeight_[CLP_PROGRESS_WEIGHT];
   /// Sum of real primal infeasibilities for primal for weights
-  double realInfeasibilityWeight_[CLP_PROGRESS_WEIGHT];
+  FloatT realInfeasibilityWeight_[CLP_PROGRESS_WEIGHT];
   /// Drop  for weights
-  double drop_;
+  FloatT drop_;
   /// Best? for weights
-  double best_;
+  FloatT best_;
 #endif
   /// Initial weight for weights
-  double initialWeight_;
+  FloatT initialWeight_;
 #define CLP_CYCLE 12
   /// For cycle checking
-  //double obj_[CLP_CYCLE];
+  //FloatT obj_[CLP_CYCLE];
   int in_[CLP_CYCLE];
   int out_[CLP_CYCLE];
   char way_[CLP_CYCLE];

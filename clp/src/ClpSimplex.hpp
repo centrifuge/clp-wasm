@@ -230,33 +230,33 @@ public:
            </ul>
        */
   void loadProblem(const ClpMatrixBase &matrix,
-    const double *collb, const double *colub,
-    const double *obj,
-    const double *rowlb, const double *rowub,
-    const double *rowObjective = NULL);
+    const FloatT *collb, const FloatT *colub,
+    const FloatT *obj,
+    const FloatT *rowlb, const FloatT *rowub,
+    const FloatT *rowObjective = NULL);
   void loadProblem(const CoinPackedMatrix &matrix,
-    const double *collb, const double *colub,
-    const double *obj,
-    const double *rowlb, const double *rowub,
-    const double *rowObjective = NULL);
+    const FloatT *collb, const FloatT *colub,
+    const FloatT *obj,
+    const FloatT *rowlb, const FloatT *rowub,
+    const FloatT *rowObjective = NULL);
 
   /** Just like the other loadProblem() method except that the matrix is
        given in a standard column major ordered format (without gaps). */
   void loadProblem(const int numcols, const int numrows,
     const CoinBigIndex *start, const int *index,
-    const double *value,
-    const double *collb, const double *colub,
-    const double *obj,
-    const double *rowlb, const double *rowub,
-    const double *rowObjective = NULL);
+    const FloatT *value,
+    const FloatT *collb, const FloatT *colub,
+    const FloatT *obj,
+    const FloatT *rowlb, const FloatT *rowub,
+    const FloatT *rowObjective = NULL);
   /// This one is for after presolve to save memory
   void loadProblem(const int numcols, const int numrows,
     const CoinBigIndex *start, const int *index,
-    const double *value, const int *length,
-    const double *collb, const double *colub,
-    const double *obj,
-    const double *rowlb, const double *rowub,
-    const double *rowObjective = NULL);
+    const FloatT *value, const int *length,
+    const FloatT *collb, const FloatT *colub,
+    const FloatT *obj,
+    const FloatT *rowlb, const FloatT *rowub,
+    const FloatT *rowObjective = NULL);
   /** This loads a model from a coinModel object - returns number of errors.
          If keepSolution true and size is same as current then
          keeps current status and solution
@@ -271,17 +271,17 @@ public:
     bool keepNames = false);
   /// Read file in LP format from file with name filename.
   /// See class CoinLpIO for description of this format.
-  int readLp(const char *filename, const double epsilon = 1e-5);
+  int readLp(const char *filename, const FloatT epsilon = 1e-5);
   /** Write the problem into an Lp file of the given filename.
 	  If objSense is non zero then -1.0 forces the code to write a
 	  maximization objective and +1.0 to write a minimization one.
 	  If 0.0 then solver can do what it wants.*/
   void writeLp(const char *filename,
     const char *extension = "lp",
-    double epsilon = 1e-5,
+    FloatT epsilon = 1e-5,
     int numberAcross = 10,
     int decimals = 5,
-    double objSense = 0.0,
+    FloatT objSense = 0.0,
     bool useRowNames = true) const;
   /** Borrow model.  This is so we dont have to copy large amounts
          of data around.  It assumes a derived class wants to overwrite
@@ -356,14 +356,14 @@ public:
          Also exits if all problematical variables are changing
          less than deltaTolerance
      */
-  int nonlinearSLP(int numberPasses, double deltaTolerance);
+  int nonlinearSLP(int numberPasses, FloatT deltaTolerance);
   /** Solves problem with nonlinear constraints using SLP - may be used as crash
          for other algorithms when number of iterations small.
          Also exits if all problematical variables are changing
          less than deltaTolerance
      */
   int nonlinearSLP(int numberConstraints, ClpConstraint **constraints,
-    int numberPasses, double deltaTolerance);
+    int numberPasses, FloatT deltaTolerance);
   /** Solves using barrier (assumes you have good cholesky factor code).
          Does crossover to simplex if asked*/
   int barrier(bool crossover = true);
@@ -414,7 +414,7 @@ public:
 	 Returns 0 if successful, n if n rhs violated
 	 The dual version may be written if this gets used.
       */
-  int cleanPrimalSolution(double exactMultiple);
+  int cleanPrimalSolution(FloatT exactMultiple);
   /** Dual ranging.
          This computes increase/decrease in cost for each given variable and corresponding
          sequence numbers which would change basis.  Sequence numbers are 0..numberColumns
@@ -436,9 +436,9 @@ public:
          Returns non-zero if infeasible unbounded etc
      */
   int dualRanging(int numberCheck, const int *which,
-    double *costIncrease, int *sequenceIncrease,
-    double *costDecrease, int *sequenceDecrease,
-    double *valueIncrease = NULL, double *valueDecrease = NULL);
+    FloatT *costIncrease, int *sequenceIncrease,
+    FloatT *costDecrease, int *sequenceDecrease,
+    FloatT *valueIncrease = NULL, FloatT *valueDecrease = NULL);
   /** Primal ranging.
          This computes increase/decrease in value for each given variable and corresponding
          sequence numbers which would change basis.  Sequence numbers are 0..numberColumns
@@ -454,8 +454,8 @@ public:
          Returns non-zero if infeasible unbounded etc
      */
   int primalRanging(int numberCheck, const int *which,
-    double *valueIncrease, int *sequenceIncrease,
-    double *valueDecrease, int *sequenceDecrease);
+    FloatT *valueIncrease, int *sequenceIncrease,
+    FloatT *valueDecrease, int *sequenceDecrease);
   /**
 	Modifies coefficients etc and if necessary pivots in and out.
 	All at same status will be done (basis may go singular).
@@ -469,11 +469,11 @@ public:
     const int *which,
     const CoinBigIndex *start,
     const int *row,
-    const double *newCoefficient,
+    const FloatT *newCoefficient,
     const unsigned char *newStatus = NULL,
-    const double *newLower = NULL,
-    const double *newUpper = NULL,
-    const double *newObjective = NULL);
+    const FloatT *newLower = NULL,
+    const FloatT *newUpper = NULL,
+    const FloatT *newObjective = NULL);
   /** Take out duplicate rows (includes scaled rows and intersections).
 	 On exit whichRows has rows to delete - return code is number can be deleted 
 	 or -1 if would be infeasible.
@@ -481,11 +481,11 @@ public:
 	 If cleanUp not zero then spend more time trying to leave more stable row
 	 and make row bounds exact multiple of cleanUp if close enough
      */
-  int outDuplicateRows(int numberLook, int *whichRows, bool noOverlaps = false, double tolerance = -1.0,
-    double cleanUp = 0.0);
+  int outDuplicateRows(int numberLook, int *whichRows, bool noOverlaps = false, FloatT tolerance = -1.0,
+    FloatT cleanUp = 0.0);
   /** Try simple crash like techniques to get closer to primal feasibility
 	 returns final sum of infeasibilities */
-  double moveTowardsPrimalFeasible();
+  FloatT moveTowardsPrimalFeasible();
   /** Try simple crash like techniques to remove super basic slacks
 	 but only if > threshold */
   void removeSuperBasicSlacks(int threshold = 0);
@@ -543,7 +543,7 @@ public:
          largest value (at continuous) - should improve stability
          in branch and bound on infeasible branches (0.0 is off)
      */
-  int tightenPrimalBounds(double factor = 0.0, int doTight = 0, bool tightIntegers = false);
+  int tightenPrimalBounds(FloatT factor = 0.0, int doTight = 0, bool tightIntegers = false);
   /** Crash - at present just aimed at dual, returns
          -2 if dual preferred and crash basis created
          -1 if dual preferred and all slack basis preferred
@@ -560,7 +560,7 @@ public:
           1 Simple pivoting e.g. gub
           2 Mini iterations
      */
-  int crash(double gap, int pivot);
+  int crash(FloatT gap, int pivot);
   /// Sets row pivot choice algorithm in dual
   void setDualRowPivotAlgorithm(ClpDualRowPivot &choice);
   /// Sets column pivot choice algorithm in primal
@@ -580,8 +580,8 @@ public:
          status and number of iterations
      */
   int strongBranching(int numberVariables, const int *variables,
-    double *newLower, double *newUpper,
-    double **outputSolution,
+    FloatT *newLower, FloatT *newUpper,
+    FloatT **outputSolution,
     int *outputStatus, int *outputIterations,
     bool stopOnFirstInfeasible = true,
     bool alwaysFinish = false,
@@ -595,7 +595,7 @@ public:
          array are in stuff (nNodes_ also in stuff) */
   int fathomMany(void *stuff);
   /// Double checks OK
-  double doubleCheck();
+  FloatT FloatTCheck();
   /// Starts Fast dual2
   int startFastDual2(ClpNodeStuff *stuff);
   /// Like Fast dual
@@ -684,17 +684,17 @@ public:
   int factorizationFrequency() const;
   void setFactorizationFrequency(int value);
   /// Dual bound
-  inline double dualBound() const
+  inline FloatT dualBound() const
   {
     return dualBound_;
   }
-  void setDualBound(double value);
+  void setDualBound(FloatT value);
   /// Infeasibility cost
-  inline double infeasibilityCost() const
+  inline FloatT infeasibilityCost() const
   {
     return infeasibilityCost_;
   }
-  void setInfeasibilityCost(double value);
+  void setInfeasibilityCost(FloatT value);
   /** Amount of print out:
          0 - none
          1 - just final
@@ -729,20 +729,20 @@ public:
   /// Return true if the objective limit test can be relied upon
   bool isObjectiveLimitTestValid() const;
   /// Sum of dual infeasibilities
-  inline double sumDualInfeasibilities() const
+  inline FloatT sumDualInfeasibilities() const
   {
     return sumDualInfeasibilities_;
   }
-  inline void setSumDualInfeasibilities(double value)
+  inline void setSumDualInfeasibilities(FloatT value)
   {
     sumDualInfeasibilities_ = value;
   }
   /// Sum of relaxed dual infeasibilities
-  inline double sumOfRelaxedDualInfeasibilities() const
+  inline FloatT sumOfRelaxedDualInfeasibilities() const
   {
     return sumOfRelaxedDualInfeasibilities_;
   }
-  inline void setSumOfRelaxedDualInfeasibilities(double value)
+  inline void setSumOfRelaxedDualInfeasibilities(FloatT value)
   {
     sumOfRelaxedDualInfeasibilities_ = value;
   }
@@ -761,20 +761,20 @@ public:
     return numberDualInfeasibilitiesWithoutFree_;
   }
   /// Sum of primal infeasibilities
-  inline double sumPrimalInfeasibilities() const
+  inline FloatT sumPrimalInfeasibilities() const
   {
     return sumPrimalInfeasibilities_;
   }
-  inline void setSumPrimalInfeasibilities(double value)
+  inline void setSumPrimalInfeasibilities(FloatT value)
   {
     sumPrimalInfeasibilities_ = value;
   }
   /// Sum of relaxed primal infeasibilities
-  inline double sumOfRelaxedPrimalInfeasibilities() const
+  inline FloatT sumOfRelaxedPrimalInfeasibilities() const
   {
     return sumOfRelaxedPrimalInfeasibilities_;
   }
-  inline void setSumOfRelaxedPrimalInfeasibilities(double value)
+  inline void setSumOfRelaxedPrimalInfeasibilities(FloatT value)
   {
     sumOfRelaxedPrimalInfeasibilities_ = value;
   }
@@ -829,8 +829,8 @@ public:
   /** Given an existing factorization computes and checks
          primal and dual solutions.  Uses input arrays for variables at
          bounds.  Returns feasibility states */
-  int getSolution(const double *rowActivities,
-    const double *columnActivities);
+  int getSolution(const FloatT *rowActivities,
+    const FloatT *columnActivities);
   /** Given an existing factorization computes and checks
          primal and dual solutions.  Uses current problem arrays for
          bounds.  Returns feasibility states */
@@ -842,7 +842,7 @@ public:
          Returns nonzero if bad data e.g. lowers not monotonic
      */
   int createPiecewiseLinearCosts(const int *starts,
-    const double *lower, const double *gradient);
+    const FloatT *lower, const FloatT *gradient);
   /// dual row pivot choice
   inline ClpDualRowPivot *dualRowPivot() const
   {
@@ -878,13 +878,13 @@ public:
   int factorize();
   /** Computes duals from scratch. If givenDjs then
          allows for nonzero basic djs */
-  void computeDuals(double *givenDjs);
+  void computeDuals(FloatT *givenDjs);
   /// Computes primals from scratch
-  void computePrimals(const double *rowActivities,
-    const double *columnActivities);
+  void computePrimals(const FloatT *rowActivities,
+    const FloatT *columnActivities);
   /** Adds multiple of a column into an array */
-  void add(double *array,
-    int column, double multiplier) const;
+  void add(FloatT *array,
+    int column, FloatT multiplier) const;
   /**
         Unpacks one column of the matrix into indexed array
         Uses sequenceIn_
@@ -918,11 +918,11 @@ protected:
          This does basis housekeeping and does values for in/out variables.
          Can also decide to re-factorize
      */
-  int housekeeping(double objectiveChange);
+  int housekeeping(FloatT objectiveChange);
   /** This sets largest infeasibility and most infeasible and sum
          and number of infeasibilities (Primal) */
-  void checkPrimalSolution(const double *rowActivities = NULL,
-    const double *columnActivies = NULL);
+  void checkPrimalSolution(const FloatT *rowActivities = NULL,
+    const FloatT *columnActivies = NULL);
   /** This sets largest infeasibility and most infeasible and sum
          and number of infeasibilities (Dual) */
   void checkDualSolution();
@@ -932,7 +932,7 @@ protected:
           and returns scale factor used.  If positive unscales and also
           redoes dual stuff
      */
-  double scaleObjective(double value);
+  FloatT scaleObjective(FloatT value);
   /// Solve using Dantzig-Wolfe decomposition and maybe in parallel
   int solveDW(CoinStructuredModel *model, ClpSolve &options);
   /// Solve using Benders decomposition and maybe in parallel
@@ -949,8 +949,8 @@ public:
 
          Defaults are 1.0,10.0
      */
-  void setValuesPassAction(double incomingInfeasibility,
-    double allowedInfeasibility);
+  void setValuesPassAction(FloatT incomingInfeasibility,
+    FloatT allowedInfeasibility);
   /** Get a clean factorization - i.e. throw out singularities
 	 may do more later */
   int cleanFactorization(int ifValuesPass);
@@ -959,18 +959,18 @@ public:
   //@{
 public:
   /// Initial value for alpha accuracy calculation (-1.0 off)
-  inline double alphaAccuracy() const
+  inline FloatT alphaAccuracy() const
   {
     return alphaAccuracy_;
   }
-  inline void setAlphaAccuracy(double value)
+  inline void setAlphaAccuracy(FloatT value)
   {
     alphaAccuracy_ = value;
   }
 
 public:
   /// Objective value
-  //inline double objectiveValue() const {
+  //inline FloatT objectiveValue() const {
   //return (objectiveValue_-bestPossibleImprovement_)*optimizationDirection_ - dblParam_[ClpObjOffset];
   //}
   /// Set disaster handler
@@ -984,38 +984,38 @@ public:
     return disasterArea_;
   }
   /// Large bound value (for complementarity etc)
-  inline double largeValue() const
+  inline FloatT largeValue() const
   {
     return largeValue_;
   }
-  void setLargeValue(double value);
+  void setLargeValue(FloatT value);
   /// Largest error on Ax-b
-  inline double largestPrimalError() const
+  inline FloatT largestPrimalError() const
   {
     return largestPrimalError_;
   }
   /// Largest error on basic duals
-  inline double largestDualError() const
+  inline FloatT largestDualError() const
   {
     return largestDualError_;
   }
   /// Largest error on Ax-b
-  inline void setLargestPrimalError(double value)
+  inline void setLargestPrimalError(FloatT value)
   {
     largestPrimalError_ = value;
   }
   /// Largest error on basic duals
-  inline void setLargestDualError(double value)
+  inline void setLargestDualError(FloatT value)
   {
     largestDualError_ = value;
   }
   /// Get zero tolerance
-  inline double zeroTolerance() const
+  inline FloatT zeroTolerance() const
   {
     return zeroTolerance_; /*factorization_->zeroTolerance();*/
   }
   /// Set zero tolerance
-  inline void setZeroTolerance(double value)
+  inline void setZeroTolerance(FloatT value)
   {
     zeroTolerance_ = value;
   }
@@ -1034,20 +1034,20 @@ public:
     automaticScale_ = onOff ? 1 : 0;
   }
   /// Current dual tolerance
-  inline double currentDualTolerance() const
+  inline FloatT currentDualTolerance() const
   {
     return dualTolerance_;
   }
-  inline void setCurrentDualTolerance(double value)
+  inline void setCurrentDualTolerance(FloatT value)
   {
     dualTolerance_ = value;
   }
   /// Current primal tolerance
-  inline double currentPrimalTolerance() const
+  inline FloatT currentPrimalTolerance() const
   {
     return primalTolerance_;
   }
-  inline void setCurrentPrimalTolerance(double value)
+  inline void setCurrentPrimalTolerance(FloatT value)
   {
     primalTolerance_ = value;
   }
@@ -1058,21 +1058,21 @@ public:
   }
   void setNumberRefinements(int value);
   /// Alpha (pivot element) for use by classes e.g. steepestedge
-  inline double alpha() const
+  inline FloatT alpha() const
   {
     return alpha_;
   }
-  inline void setAlpha(double value)
+  inline void setAlpha(FloatT value)
   {
     alpha_ = value;
   }
   /// Reduced cost of last incoming for use by classes e.g. steepestedge
-  inline double dualIn() const
+  inline FloatT dualIn() const
   {
     return dualIn_;
   }
   /// Set reduced cost of last incoming to force error
-  inline void setDualIn(double value)
+  inline void setDualIn(FloatT value)
   {
     dualIn_ = value;
   }
@@ -1086,7 +1086,7 @@ public:
     pivotRow_ = value;
   }
   /// value of incoming variable (in Dual)
-  double valueIncomingDual() const;
+  FloatT valueIncomingDual() const;
   //@}
 
 #ifndef CLP_USER_DRIVEN
@@ -1097,8 +1097,8 @@ protected:
   /** May change basis and then returns number changed.
          Computation of solutions may be overriden by given pi and solution
      */
-  int gutsOfSolution(double *givenDuals,
-    const double *givenPrimals,
+  int gutsOfSolution(FloatT *givenDuals,
+    const FloatT *givenPrimals,
     bool valuesPass = false);
   /// Does most of deletion (0 = all, 1 = most, 2 most + factorization)
   void gutsOfDelete(int type);
@@ -1135,35 +1135,35 @@ public:
   //@{
   /** Return row or column sections - not as much needed as it
          once was.  These just map into single arrays */
-  inline double *solutionRegion(int section) const
+  inline FloatT *solutionRegion(int section) const
   {
     if (!section)
       return rowActivityWork_;
     else
       return columnActivityWork_;
   }
-  inline double *djRegion(int section) const
+  inline FloatT *djRegion(int section) const
   {
     if (!section)
       return rowReducedCost_;
     else
       return reducedCostWork_;
   }
-  inline double *lowerRegion(int section) const
+  inline FloatT *lowerRegion(int section) const
   {
     if (!section)
       return rowLowerWork_;
     else
       return columnLowerWork_;
   }
-  inline double *upperRegion(int section) const
+  inline FloatT *upperRegion(int section) const
   {
     if (!section)
       return rowUpperWork_;
     else
       return columnUpperWork_;
   }
-  inline double *costRegion(int section) const
+  inline FloatT *costRegion(int section) const
   {
     if (!section)
       return rowObjectiveWork_;
@@ -1171,23 +1171,23 @@ public:
       return objectiveWork_;
   }
   /// Return region as single array
-  inline double *solutionRegion() const
+  inline FloatT *solutionRegion() const
   {
     return solution_;
   }
-  inline double *djRegion() const
+  inline FloatT *djRegion() const
   {
     return dj_;
   }
-  inline double *lowerRegion() const
+  inline FloatT *lowerRegion() const
   {
     return lower_;
   }
-  inline double *upperRegion() const
+  inline FloatT *upperRegion() const
   {
     return upper_;
   }
-  inline double *costRegion() const
+  inline FloatT *costRegion() const
   {
     return cost_;
   }
@@ -1246,47 +1246,47 @@ public:
     directionOut_ = direction;
   }
   /// Value of Out variable
-  inline double valueOut() const
+  inline FloatT valueOut() const
   {
     return valueOut_;
   }
   /// Lower of out variable
-  inline double lowerOut() const
+  inline FloatT lowerOut() const
   {
     return lowerOut_;
   }
   /// Upper of out variable
-  inline double upperOut() const
+  inline FloatT upperOut() const
   {
     return upperOut_;
   }
   /// Set value of out variable
-  inline void setValueOut(double value)
+  inline void setValueOut(FloatT value)
   {
     valueOut_ = value;
   }
   /// Dual value of Out variable
-  inline double dualOut() const
+  inline FloatT dualOut() const
   {
     return dualOut_;
   }
   /// Set dual value of out variable
-  inline void setDualOut(double value)
+  inline void setDualOut(FloatT value)
   {
     dualOut_ = value;
   }
   /// Set lower of out variable
-  inline void setLowerOut(double value)
+  inline void setLowerOut(FloatT value)
   {
     lowerOut_ = value;
   }
   /// Set upper of out variable
-  inline void setUpperOut(double value)
+  inline void setUpperOut(FloatT value)
   {
     upperOut_ = value;
   }
   /// Set theta of out variable
-  inline void setTheta(double value)
+  inline void setTheta(FloatT value)
   {
     theta_ = value;
   }
@@ -1301,52 +1301,52 @@ public:
     return sequence < numberColumns_ ? sequence : sequence - numberColumns_;
   }
   /// Return row or column values
-  inline double solution(int sequence)
+  inline FloatT solution(int sequence)
   {
     return solution_[sequence];
   }
   /// Return address of row or column values
-  inline double &solutionAddress(int sequence)
+  inline FloatT &solutionAddress(int sequence)
   {
     return solution_[sequence];
   }
-  inline double reducedCost(int sequence)
+  inline FloatT reducedCost(int sequence)
   {
     return dj_[sequence];
   }
-  inline double &reducedCostAddress(int sequence)
+  inline FloatT &reducedCostAddress(int sequence)
   {
     return dj_[sequence];
   }
-  inline double lower(int sequence)
+  inline FloatT lower(int sequence)
   {
     return lower_[sequence];
   }
   /// Return address of row or column lower bound
-  inline double &lowerAddress(int sequence)
+  inline FloatT &lowerAddress(int sequence)
   {
     return lower_[sequence];
   }
-  inline double upper(int sequence)
+  inline FloatT upper(int sequence)
   {
     return upper_[sequence];
   }
   /// Return address of row or column upper bound
-  inline double &upperAddress(int sequence)
+  inline FloatT &upperAddress(int sequence)
   {
     return upper_[sequence];
   }
-  inline double cost(int sequence)
+  inline FloatT cost(int sequence)
   {
     return cost_[sequence];
   }
   /// Return address of row or column cost
-  inline double &costAddress(int sequence)
+  inline FloatT &costAddress(int sequence)
   {
     return cost_[sequence];
   }
   /// Return original lower bound
-  inline double originalLower(int iSequence) const
+  inline FloatT originalLower(int iSequence) const
   {
     if (iSequence < numberColumns_)
       return columnLower_[iSequence];
@@ -1354,7 +1354,7 @@ public:
       return rowLower_[iSequence - numberColumns_];
   }
   /// Return original lower bound
-  inline double originalUpper(int iSequence) const
+  inline FloatT originalUpper(int iSequence) const
   {
     if (iSequence < numberColumns_)
       return columnUpper_[iSequence];
@@ -1362,28 +1362,28 @@ public:
       return rowUpper_[iSequence - numberColumns_];
   }
   /// Theta (pivot change)
-  inline double theta() const
+  inline FloatT theta() const
   {
     return theta_;
   }
   /// Lower Bound on In variable
-  inline double lowerIn() const
+  inline FloatT lowerIn() const
   {
     return lowerIn_;
   }
   /// Value of In variable
-  inline double valueIn() const
+  inline FloatT valueIn() const
   {
     return valueIn_;
   }
   /// Upper Bound on In variable
-  inline double upperIn() const
+  inline FloatT upperIn() const
   {
     return upperIn_;
   }
   /** Best possible improvement using djs (primal) or
          obj change by flipping bounds to make dual feasible (dual) */
-  inline double bestPossibleImprovement() const
+  inline FloatT bestPossibleImprovement() const
   {
     return bestPossibleImprovement_;
   }
@@ -1583,17 +1583,17 @@ public:
     forceFactorization_ = value;
   }
   /// Raw objective value (so always minimize in primal)
-  inline double rawObjectiveValue() const
+  inline FloatT rawObjectiveValue() const
   {
     return objectiveValue_;
   }
   /// Compute objective value from solution and put in objectiveValue_
   void computeObjectiveValue(bool useWorkingSolution = false);
   /// Compute minimization objective value from internal solution without perturbation
-  double computeInternalObjectiveValue();
+  FloatT computeInternalObjectiveValue();
   /** Infeasibility/unbounded ray (NULL returned if none/wrong)
          Up to user to use delete [] on these arrays.  */
-  double *infeasibilityRay(bool fullRay = false) const;
+  FloatT *infeasibilityRay(bool fullRay = false) const;
   /** Number of extra rows.  These are ones which will be dynamically created
          each iteration.  This is for GUB but may have other uses.
      */
@@ -1627,16 +1627,16 @@ public:
   // *** At present only without scaling
   // *** Slacks havve -1.0 element (so == row activity) - take care
   ///Get a row of the tableau (slack part in slack if not NULL)
-  void getBInvARow(int row, double *z, double *slack = NULL);
+  void getBInvARow(int row, FloatT *z, FloatT *slack = NULL);
 
   ///Get a row of the basis inverse
-  void getBInvRow(int row, double *z);
+  void getBInvRow(int row, FloatT *z);
 
   ///Get a column of the tableau
-  void getBInvACol(int col, double *vec);
+  void getBInvACol(int col, FloatT *vec);
 
   ///Get a column of the basis inverse
-  void getBInvCol(int col, double *vec);
+  void getBInvCol(int col, FloatT *vec);
 
   /** Get basic indices (order of indices corresponds to the
          order of elements in a vector retured by getBInvACol() and
@@ -1649,24 +1649,24 @@ public:
   /**@name Changing bounds on variables and constraints */
   //@{
   /** Set an objective function coefficient */
-  void setObjectiveCoefficient(int elementIndex, double elementValue);
+  void setObjectiveCoefficient(int elementIndex, FloatT elementValue);
   /** Set an objective function coefficient */
-  inline void setObjCoeff(int elementIndex, double elementValue)
+  inline void setObjCoeff(int elementIndex, FloatT elementValue)
   {
     setObjectiveCoefficient(elementIndex, elementValue);
   }
 
   /** Set a single column lower bound<br>
          Use -DBL_MAX for -infinity. */
-  void setColumnLower(int elementIndex, double elementValue);
+  void setColumnLower(int elementIndex, FloatT elementValue);
 
   /** Set a single column upper bound<br>
          Use DBL_MAX for infinity. */
-  void setColumnUpper(int elementIndex, double elementValue);
+  void setColumnUpper(int elementIndex, FloatT elementValue);
 
   /** Set a single column lower and upper bound */
   void setColumnBounds(int elementIndex,
-    double lower, double upper);
+    FloatT lower, FloatT upper);
 
   /** Set the bounds on a number of columns simultaneously<br>
          The default implementation just invokes setColLower() and
@@ -1678,24 +1678,24 @@ public:
      */
   void setColumnSetBounds(const int *indexFirst,
     const int *indexLast,
-    const double *boundList);
+    const FloatT *boundList);
 
   /** Set a single column lower bound<br>
          Use -DBL_MAX for -infinity. */
-  inline void setColLower(int elementIndex, double elementValue)
+  inline void setColLower(int elementIndex, FloatT elementValue)
   {
     setColumnLower(elementIndex, elementValue);
   }
   /** Set a single column upper bound<br>
          Use DBL_MAX for infinity. */
-  inline void setColUpper(int elementIndex, double elementValue)
+  inline void setColUpper(int elementIndex, FloatT elementValue)
   {
     setColumnUpper(elementIndex, elementValue);
   }
 
   /** Set a single column lower and upper bound */
   inline void setColBounds(int elementIndex,
-    double newlower, double newupper)
+    FloatT newlower, FloatT newupper)
   {
     setColumnBounds(elementIndex, newlower, newupper);
   }
@@ -1708,22 +1708,22 @@ public:
      */
   inline void setColSetBounds(const int *indexFirst,
     const int *indexLast,
-    const double *boundList)
+    const FloatT *boundList)
   {
     setColumnSetBounds(indexFirst, indexLast, boundList);
   }
 
   /** Set a single row lower bound<br>
          Use -DBL_MAX for -infinity. */
-  void setRowLower(int elementIndex, double elementValue);
+  void setRowLower(int elementIndex, FloatT elementValue);
 
   /** Set a single row upper bound<br>
          Use DBL_MAX for infinity. */
-  void setRowUpper(int elementIndex, double elementValue);
+  void setRowUpper(int elementIndex, FloatT elementValue);
 
   /** Set a single row lower and upper bound */
   void setRowBounds(int elementIndex,
-    double lower, double upper);
+    FloatT lower, FloatT upper);
 
   /** Set the bounds on a number of rows simultaneously<br>
          @param indexFirst,indexLast pointers to the beginning and after the
@@ -1733,7 +1733,7 @@ public:
      */
   void setRowSetBounds(const int *indexFirst,
     const int *indexLast,
-    const double *boundList);
+    const FloatT *boundList);
   /// Resizes rim part of model
   void resize(int newNumberRows, int newNumberColumns);
 
@@ -1749,15 +1749,15 @@ protected:
   //@{
   /** Best possible improvement using djs (primal) or
          obj change by flipping bounds to make dual feasible (dual) */
-  double bestPossibleImprovement_;
+  FloatT bestPossibleImprovement_;
   /// Zero tolerance
-  double zeroTolerance_;
+  FloatT zeroTolerance_;
   /// Sequence of worst (-1 if feasible)
   int columnPrimalSequence_;
   /// Sequence of worst (-1 if feasible)
   int rowPrimalSequence_;
   /// "Best" objective value
-  double bestObjectiveValue_;
+  FloatT bestObjectiveValue_;
   /// More special options - see set for details
   int moreSpecialOptions_;
   /// Iteration when we entered dual or primal
@@ -1765,76 +1765,76 @@ protected:
   /// Vector mode - try and use vector instructions
   int vectorMode_;
   /// Primal tolerance needed to make dual feasible (<largeTolerance)
-  double primalToleranceToGetOptimal_;
+  FloatT primalToleranceToGetOptimal_;
   /// Large bound value (for complementarity etc)
-  double largeValue_;
+  FloatT largeValue_;
   /// Largest error on Ax-b
-  double largestPrimalError_;
+  FloatT largestPrimalError_;
   /// Largest error on basic duals
-  double largestDualError_;
+  FloatT largestDualError_;
   /// For computing whether to re-factorize
-  double alphaAccuracy_;
+  FloatT alphaAccuracy_;
   /// Dual bound
-  double dualBound_;
+  FloatT dualBound_;
   /// Alpha (pivot element)
-  double alpha_;
+  FloatT alpha_;
   /// Theta (pivot change)
-  double theta_;
+  FloatT theta_;
   /// Lower Bound on In variable
-  double lowerIn_;
+  FloatT lowerIn_;
   /// Value of In variable
-  double valueIn_;
+  FloatT valueIn_;
   /// Upper Bound on In variable
-  double upperIn_;
+  FloatT upperIn_;
   /// Reduced cost of In variable
-  double dualIn_;
+  FloatT dualIn_;
   /// Lower Bound on Out variable
-  double lowerOut_;
+  FloatT lowerOut_;
   /// Value of Out variable
-  double valueOut_;
+  FloatT valueOut_;
   /// Upper Bound on Out variable
-  double upperOut_;
+  FloatT upperOut_;
   /// Infeasibility (dual) or ? (primal) of Out variable
-  double dualOut_;
+  FloatT dualOut_;
   /// Current dual tolerance for algorithm
-  double dualTolerance_;
+  FloatT dualTolerance_;
   /// Current primal tolerance for algorithm
-  double primalTolerance_;
+  FloatT primalTolerance_;
   /// Sum of dual infeasibilities
-  double sumDualInfeasibilities_;
+  FloatT sumDualInfeasibilities_;
   /// Sum of primal infeasibilities
-  double sumPrimalInfeasibilities_;
+  FloatT sumPrimalInfeasibilities_;
   /// Weight assigned to being infeasible in primal
-  double infeasibilityCost_;
+  FloatT infeasibilityCost_;
   /// Sum of Dual infeasibilities using tolerance based on error in duals
-  double sumOfRelaxedDualInfeasibilities_;
+  FloatT sumOfRelaxedDualInfeasibilities_;
   /// Sum of Primal infeasibilities using tolerance based on error in primals
-  double sumOfRelaxedPrimalInfeasibilities_;
+  FloatT sumOfRelaxedPrimalInfeasibilities_;
   /// Acceptable pivot value just after factorization
-  double acceptablePivot_;
+  FloatT acceptablePivot_;
   /// Minimum primal tolerance
-  double minimumPrimalTolerance_;
+  FloatT minimumPrimalTolerance_;
   /// Last few infeasibilities
 #define CLP_INFEAS_SAVE 5
-  double averageInfeasibility_[CLP_INFEAS_SAVE];
+  FloatT averageInfeasibility_[CLP_INFEAS_SAVE];
   /// Working copy of lower bounds (Owner of arrays below)
-  double *lower_;
+  FloatT *lower_;
   /// Row lower bounds - working copy
-  double *rowLowerWork_;
+  FloatT *rowLowerWork_;
   /// Column lower bounds - working copy
-  double *columnLowerWork_;
+  FloatT *columnLowerWork_;
   /// Working copy of upper bounds (Owner of arrays below)
-  double *upper_;
+  FloatT *upper_;
   /// Row upper bounds - working copy
-  double *rowUpperWork_;
+  FloatT *rowUpperWork_;
   /// Column upper bounds - working copy
-  double *columnUpperWork_;
+  FloatT *columnUpperWork_;
   /// Working copy of objective (Owner of arrays below)
-  double *cost_;
+  FloatT *cost_;
   /// Row objective - working copy
-  double *rowObjectiveWork_;
+  FloatT *rowObjectiveWork_;
   /// Column objective - working copy
-  double *objectiveWork_;
+  FloatT *objectiveWork_;
   /// Useful row length arrays
   CoinIndexedVector *rowArray_[6];
   /// Useful column length arrays
@@ -1852,17 +1852,17 @@ protected:
   /// Last good iteration (immediately after a re-factorization)
   int lastGoodIteration_;
   /// Working copy of reduced costs (Owner of arrays below)
-  double *dj_;
+  FloatT *dj_;
   /// Reduced costs of slacks not same as duals (or - duals)
-  double *rowReducedCost_;
+  FloatT *rowReducedCost_;
   /// Possible scaled reduced costs
-  double *reducedCostWork_;
+  FloatT *reducedCostWork_;
   /// Working copy of primal solution (Owner of arrays below)
-  double *solution_;
+  FloatT *solution_;
   /// Row activities - working copy
-  double *rowActivityWork_;
+  FloatT *rowActivityWork_;
   /// Column activities - working copy
-  double *columnActivityWork_;
+  FloatT *columnActivityWork_;
   /// Number of dual infeasibilities
   int numberDualInfeasibilities_;
   /// Number of dual infeasibilities (without free)
@@ -1880,7 +1880,7 @@ protected:
   /// factorization
   ClpFactorization *factorization_;
   /// Saved version of solution
-  double *savedSolution_;
+  FloatT *savedSolution_;
   /// Number of times code has tentatively thought optimal
   int numberTimesOptimal_;
   /// Disaster handler
@@ -1937,14 +1937,14 @@ protected:
 
          Defaults are 1.0,10.0
      */
-  double incomingInfeasibility_;
-  double allowedInfeasibility_;
+  FloatT incomingInfeasibility_;
+  FloatT allowedInfeasibility_;
   /// Automatic scaling of objective and rhs and bounds
   int automaticScale_;
   /// Maximum perturbation array size (take out when code rewritten)
   int maximumPerturbationSize_;
   /// Perturbation array (maximumPerturbationSize_)
-  double *perturbationArray_;
+  FloatT *perturbationArray_;
   /// A copy of model with certain state - normally without cuts
   ClpSimplex *baseModel_;
   /// For dealing with all issues of cycling etc
@@ -1964,8 +1964,8 @@ protected:
 public:
   /// Spare int array for passing information [0]!=0 switches on
   mutable int spareIntArray_[4];
-  /// Spare double array for passing information [0]!=0 switches on
-  mutable double spareDoubleArray_[4];
+  /// Spare FloatT array for passing information [0]!=0 switches on
+  mutable FloatT spareDoubleArray_[4];
 
 protected:
   /// Allow OsiClp certain perks
@@ -1992,7 +1992,7 @@ void ClpSimplexUnitTest(const std::string &mpsDir);
 // Use pthreads
 #include <pthread.h>
 typedef struct {
-  double result;
+  FloatT result;
   //const CoinIndexedVector * constVector; // can get rid of
   //CoinIndexedVector * vectors[2]; // can get rid of
   void *extraInfo;
@@ -2061,27 +2061,27 @@ public:
 void *clp_parallelManager(void *stuff);
 #endif
 typedef struct {
-  double upperTheta;
-  double bestPossible;
-  double acceptablePivot;
-  double tolerance;
-  double dualTolerance;
-  double theta;
-  double primalRatio;
-  double changeObj;
-  const double *COIN_RESTRICT cost;
-  double *COIN_RESTRICT solution;
-  double *COIN_RESTRICT reducedCost;
-  const double *COIN_RESTRICT lower;
-  const double *COIN_RESTRICT upper;
-  double *COIN_RESTRICT work;
+  FloatT upperTheta;
+  FloatT bestPossible;
+  FloatT acceptablePivot;
+  FloatT tolerance;
+  FloatT dualTolerance;
+  FloatT theta;
+  FloatT primalRatio;
+  FloatT changeObj;
+  const FloatT *COIN_RESTRICT cost;
+  FloatT *COIN_RESTRICT solution;
+  FloatT *COIN_RESTRICT reducedCost;
+  const FloatT *COIN_RESTRICT lower;
+  const FloatT *COIN_RESTRICT upper;
+  FloatT *COIN_RESTRICT work;
   int *COIN_RESTRICT index;
-  double *COIN_RESTRICT spare;
+  FloatT *COIN_RESTRICT spare;
   const unsigned char *COIN_RESTRICT status;
   int *COIN_RESTRICT which;
-  double *COIN_RESTRICT infeas;
+  FloatT *COIN_RESTRICT infeas;
   const int *COIN_RESTRICT pivotVariable;
-  const double *COIN_RESTRICT element;
+  const FloatT *COIN_RESTRICT element;
   const CoinBigIndex *COIN_RESTRICT start;
   const int *COIN_RESTRICT row;
   int numberAdded;
@@ -2117,13 +2117,13 @@ inline void setAbcState(int state)
 #ifdef CLP_USER_DRIVEN
 // expand as needed
 typedef struct {
-  double alpha;
-  double totalThru;
-  double rhs;
-  double value;
-  double lower;
-  double upper;
-  double cost;
+  FloatT alpha;
+  FloatT totalThru;
+  FloatT rhs;
+  FloatT value;
+  FloatT lower;
+  FloatT upper;
+  FloatT cost;
   int type;
   int row;
   int sequence;

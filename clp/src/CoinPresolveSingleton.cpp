@@ -22,7 +22,7 @@
  * Original comment:
  *
  * Transfers singleton row bound information to the corresponding column bounds.
- * What I refer to as a row singleton would be called a doubleton
+ * What I refer to as a row singleton would be called a FloatTton
  * in the paper, since my terminology doesn't refer to the slacks.
  * In terms of the paper, we transfer the bounds of the slack onto
  * the variable (vii) and then "substitute" the slack out of the problem 
@@ -33,7 +33,7 @@
   the constraint to the column bounds l(j) and u(j) on x(j) and delete the
   row.
 
-  You can think of this as a specialised instance of doubleton_action, where
+  You can think of this as a specialised instance of FloatTton_action, where
   the target variable is the logical that transforms an inequality to an
   equality. Since the system doesn't have logicals at this point, the row is a
   singleton.
@@ -45,13 +45,13 @@
   benefit of code that looks at the returned value.  -- lh, 121015 --
 */
 const CoinPresolveAction *
-slack_doubleton_action::presolve(CoinPresolveMatrix *prob,
+slack_FloatTton_action::presolve(CoinPresolveMatrix *prob,
   const CoinPresolveAction *next,
   bool &notFinished)
 {
 #if PRESOLVE_DEBUG > 0 || PRESOLVE_CONSISTENCY > 0
 #if PRESOLVE_DEBUG > 0
-  std::cout << "Entering slack_doubleton_action::presolve." << std::endl;
+  std::cout << "Entering slack_FloatTton_action::presolve." << std::endl;
 #endif
 #if PRESOLVE_CONSISTENCY > 0
   presolve_consistent(prob);
@@ -65,7 +65,7 @@ slack_doubleton_action::presolve(CoinPresolveMatrix *prob,
   int startEmptyRows = prob->countEmptyRows();
   int startEmptyColumns = prob->countEmptyCols();
 #if COIN_PRESOLVE_TUNING > 0
-  double startTime = 0.0;
+  FloatT startTime = 0.0;
   if (prob->tuning_) {
     startTime = CoinCpuTime();
   }
@@ -77,32 +77,32 @@ slack_doubleton_action::presolve(CoinPresolveMatrix *prob,
   /*
   Unpack the problem representation.
 */
-  double *colels = prob->colels_;
+  FloatT *colels = prob->colels_;
   int *hrow = prob->hrow_;
   CoinBigIndex *mcstrt = prob->mcstrt_;
   int *hincol = prob->hincol_;
 
-  double *clo = prob->clo_;
-  double *cup = prob->cup_;
+  FloatT *clo = prob->clo_;
+  FloatT *cup = prob->cup_;
 
-  double *rowels = prob->rowels_;
+  FloatT *rowels = prob->rowels_;
   const int *hcol = prob->hcol_;
   const CoinBigIndex *mrstrt = prob->mrstrt_;
   int *hinrow = prob->hinrow_;
 
-  double *rlo = prob->rlo_;
-  double *rup = prob->rup_;
+  FloatT *rlo = prob->rlo_;
+  FloatT *rup = prob->rup_;
 
   /*
   Rowstat is used to decide if the solution is present.
 */
   unsigned char *rowstat = prob->rowstat_;
-  double *acts = prob->acts_;
-  double *sol = prob->sol_;
+  FloatT *acts = prob->acts_;
+  FloatT *sol = prob->sol_;
 
   const unsigned char *integerType = prob->integerType_;
 
-  const double ztolzb = prob->ztolzb_;
+  const FloatT ztolzb = prob->ztolzb_;
 
   int numberLook = prob->numberRowsToDo_;
   int *look = prob->rowsToDo_;
@@ -125,10 +125,10 @@ slack_doubleton_action::presolve(CoinPresolveMatrix *prob,
     if (hinrow[i] != 1)
       continue;
     int j = hcol[mrstrt[i]];
-    double aij = rowels[mrstrt[i]];
-    double lo = rlo[i];
-    double up = rup[i];
-    double abs_aij = fabs(aij);
+    FloatT aij = rowels[mrstrt[i]];
+    FloatT lo = rlo[i];
+    FloatT up = rup[i];
+    FloatT abs_aij = fabs(aij);
     /*
   A tiny value of a(ij) invites numerical error, since the new bound will be
   (something)/a(ij). Columns that are already fixed are also uninteresting.
@@ -238,7 +238,7 @@ slack_doubleton_action::presolve(CoinPresolveMatrix *prob,
 */
     if (lo > up) {
       if (lo <= up + prob->feasibilityTolerance_ || fixInfeasibility) {
-        double nearest = floor(lo + 0.5);
+        FloatT nearest = floor(lo + 0.5);
         if (fabs(nearest - lo) < 2.0 * prob->feasibilityTolerance_) {
           lo = nearest;
           up = nearest;
@@ -294,7 +294,7 @@ slack_doubleton_action::presolve(CoinPresolveMatrix *prob,
     if (rowstat) {
       int basisChoice = 0;
       int numberBasic = 0;
-      double movement = 0;
+      FloatT movement = 0;
       if (prob->columnIsBasic(j)) {
         numberBasic++;
         basisChoice = 2; // move to row to keep consistent
@@ -341,7 +341,7 @@ slack_doubleton_action::presolve(CoinPresolveMatrix *prob,
 #endif
     action *save_actions = new action[nactions];
     CoinMemcpyN(actions, nactions, save_actions);
-    next = new slack_doubleton_action(nactions, save_actions, next);
+    next = new slack_FloatTton_action(nactions, save_actions, next);
 
     if (nfixed_cols)
       next = remove_fixed_action::presolve(prob, fixed_cols, nfixed_cols, next);
@@ -349,7 +349,7 @@ slack_doubleton_action::presolve(CoinPresolveMatrix *prob,
   delete[] actions;
 
 #if COIN_PRESOLVE_TUNING > 0
-  double thisTime = 0.0;
+  FloatT thisTime = 0.0;
   if (prob->tuning_)
     thisTime = CoinCpuTime();
 #endif
@@ -363,7 +363,7 @@ slack_doubleton_action::presolve(CoinPresolveMatrix *prob,
   int droppedRows = prob->countEmptyRows() - startEmptyRows;
   int droppedColumns = prob->countEmptyCols() - startEmptyColumns;
   std::cout
-    << "Leaving slack_doubleton_action::presolve, "
+    << "Leaving slack_FloatTton_action::presolve, "
     << droppedRows << " rows, " << droppedColumns
     << " columns dropped";
 #if COIN_PRESOLVE_TUNING > 0
@@ -377,32 +377,32 @@ slack_doubleton_action::presolve(CoinPresolveMatrix *prob,
   return (next);
 }
 
-void slack_doubleton_action::postsolve(CoinPostsolveMatrix *prob) const
+void slack_FloatTton_action::postsolve(CoinPostsolveMatrix *prob) const
 {
   const action *const actions = actions_;
   const int nactions = nactions_;
 
-  double *colels = prob->colels_;
+  FloatT *colels = prob->colels_;
   int *hrow = prob->hrow_;
   CoinBigIndex *mcstrt = prob->mcstrt_;
   int *hincol = prob->hincol_;
   CoinBigIndex *link = prob->link_;
 
-  double *clo = prob->clo_;
-  double *cup = prob->cup_;
-  double *sol = prob->sol_;
-  double *rcosts = prob->rcosts_;
+  FloatT *clo = prob->clo_;
+  FloatT *cup = prob->cup_;
+  FloatT *sol = prob->sol_;
+  FloatT *rcosts = prob->rcosts_;
   unsigned char *colstat = prob->colstat_;
 
-  double *rlo = prob->rlo_;
-  double *rup = prob->rup_;
-  double *acts = prob->acts_;
-  double *rowduals = prob->rowduals_;
+  FloatT *rlo = prob->rlo_;
+  FloatT *rup = prob->rup_;
+  FloatT *acts = prob->acts_;
+  FloatT *rowduals = prob->rowduals_;
 
 #if PRESOLVE_DEBUG
   char *rdone = prob->rdone_;
   std::cout
-    << "Entering slack_doubleton_action::postsolve, "
+    << "Entering slack_FloatTton_action::postsolve, "
     << nactions << " constraints to process." << std::endl;
   presolve_check_sol(prob, 2, 2, 2);
   presolve_check_nbasic(prob);
@@ -410,13 +410,13 @@ void slack_doubleton_action::postsolve(CoinPostsolveMatrix *prob) const
 
   CoinBigIndex &free_list = prob->free_list_;
 
-  const double ztolzb = prob->ztolzb_;
+  const FloatT ztolzb = prob->ztolzb_;
 
   for (const action *f = &actions[nactions - 1]; actions <= f; f--) {
     int irow = f->row;
-    double lo0 = f->clo;
-    double up0 = f->cup;
-    double coeff = f->coeff;
+    FloatT lo0 = f->clo;
+    FloatT up0 = f->cup;
+    FloatT coeff = f->coeff;
     int jcol = f->col;
 
     rlo[irow] = f->rlo;
@@ -500,7 +500,7 @@ void slack_doubleton_action::postsolve(CoinPostsolveMatrix *prob) const
   presolve_check_nbasic(prob);
 #endif
 #if PRESOLVE_DEBUG > 0
-  std::cout << "Leaving slack_doubleton_action::postsolve." << std::endl;
+  std::cout << "Leaving slack_FloatTton_action::postsolve." << std::endl;
 #endif
 
   return;
@@ -514,9 +514,9 @@ void slack_doubleton_action::postsolve(CoinPostsolveMatrix *prob) const
 const CoinPresolveAction *
 slack_singleton_action::presolve(CoinPresolveMatrix *prob,
   const CoinPresolveAction *next,
-  double *rowObjective)
+  FloatT *rowObjective)
 {
-  double startTime = 0.0;
+  FloatT startTime = 0.0;
   int startEmptyRows = 0;
   int startEmptyColumns = 0;
   if (prob->tuning_) {
@@ -524,34 +524,34 @@ slack_singleton_action::presolve(CoinPresolveMatrix *prob,
     startEmptyRows = prob->countEmptyRows();
     startEmptyColumns = prob->countEmptyCols();
   }
-  double *colels = prob->colels_;
+  FloatT *colels = prob->colels_;
   int *hrow = prob->hrow_;
   CoinBigIndex *mcstrt = prob->mcstrt_;
   int *hincol = prob->hincol_;
   //int ncols		= prob->ncols_ ;
 
-  double *clo = prob->clo_;
-  double *cup = prob->cup_;
+  FloatT *clo = prob->clo_;
+  FloatT *cup = prob->cup_;
 
-  double *rowels = prob->rowels_;
+  FloatT *rowels = prob->rowels_;
   int *hcol = prob->hcol_;
   CoinBigIndex *mrstrt = prob->mrstrt_;
   int *hinrow = prob->hinrow_;
   int nrows = prob->nrows_;
 
-  double *rlo = prob->rlo_;
-  double *rup = prob->rup_;
+  FloatT *rlo = prob->rlo_;
+  FloatT *rup = prob->rup_;
 
   // Existence of
   unsigned char *rowstat = prob->rowstat_;
-  double *acts = prob->acts_;
-  double *sol = prob->sol_;
+  FloatT *acts = prob->acts_;
+  FloatT *sol = prob->sol_;
 
   const unsigned char *integerType = prob->integerType_;
 
-  const double ztolzb = prob->ztolzb_;
-  double *dcost = prob->cost_;
-  //const double maxmin	= prob->maxmin_ ;
+  const FloatT ztolzb = prob->ztolzb_;
+  FloatT *dcost = prob->cost_;
+  //const FloatT maxmin	= prob->maxmin_ ;
 
 #if PRESOLVE_DEBUG
   std::cout << "Entering slack_singleton_action::presolve." << std::endl;
@@ -569,15 +569,15 @@ slack_singleton_action::presolve(CoinPresolveMatrix *prob,
   int *fixed_cols = new int[numberLook];
   int nfixed_cols = 0;
   int nWithCosts = 0;
-  double costOffset = 0.0;
+  FloatT costOffset = 0.0;
   for (iLook = 0; iLook < numberLook; iLook++) {
     int iCol = look[iLook];
     if (dcost[iCol])
       continue;
     if (hincol[iCol] == 1) {
       int iRow = hrow[mcstrt[iCol]];
-      double coeff = colels[mcstrt[iCol]];
-      double acoeff = fabs(coeff);
+      FloatT coeff = colels[mcstrt[iCol]];
+      FloatT acoeff = fabs(coeff);
       if (acoeff < ZTOLDP2)
         continue;
       // don't bother with fixed cols
@@ -588,15 +588,15 @@ slack_singleton_action::presolve(CoinPresolveMatrix *prob,
         // check everything else a bit later
         if (acoeff != 1.0)
           continue;
-        double currentLower = rlo[iRow];
-        double currentUpper = rup[iRow];
+        FloatT currentLower = rlo[iRow];
+        FloatT currentUpper = rup[iRow];
         if (coeff == 1.0 && currentLower == 1.0 && currentUpper == 1.0) {
           // leave if integer slack on sum x == 1
           bool allInt = true;
           for (CoinBigIndex j = mrstrt[iRow];
                j < mrstrt[iRow] + hinrow[iRow]; j++) {
             int iColumn = hcol[j];
-            double value = fabs(rowels[j]);
+            FloatT value = fabs(rowels[j]);
             if (!integerType[iColumn] || value != 1.0) {
               allInt = false;
               break;
@@ -607,16 +607,16 @@ slack_singleton_action::presolve(CoinPresolveMatrix *prob,
         }
       }
       if (!prob->colProhibited(iCol)) {
-        double currentLower = rlo[iRow];
-        double currentUpper = rup[iRow];
+        FloatT currentLower = rlo[iRow];
+        FloatT currentUpper = rup[iRow];
         if (!rowObjective) {
           if (dcost[iCol])
             continue;
         } else if ((dcost[iCol] && currentLower != currentUpper) || rowObjective[iRow]) {
           continue;
         }
-        double newLower = currentLower;
-        double newUpper = currentUpper;
+        FloatT newLower = currentLower;
+        FloatT newUpper = currentUpper;
         if (coeff < 0.0) {
           if (currentUpper > 1.0e20 || cup[iCol] > 1.0e20) {
             newUpper = COIN_DBL_MAX;
@@ -662,7 +662,7 @@ slack_singleton_action::presolve(CoinPresolveMatrix *prob,
           for (CoinBigIndex j = mrstrt[iRow];
                j < mrstrt[iRow] + hinrow[iRow]; j++) {
             int iColumn = hcol[j];
-            double value = fabs(rowels[j]);
+            FloatT value = fabs(rowels[j]);
             if (!integerType[iColumn] || value != floor(value + 0.5)) {
               allInt = false;
               break;
@@ -726,7 +726,7 @@ slack_singleton_action::presolve(CoinPresolveMatrix *prob,
           prob->dobias_ -= currentLower * rowObjective[iRow];
         }
         if (sol) {
-          double movement;
+          FloatT movement;
           if (fabs(sol[iCol] - clo[iCol]) < fabs(sol[iCol] - cup[iCol])) {
             movement = clo[iCol] - sol[iCol];
             sol[iCol] = clo[iCol];
@@ -771,7 +771,7 @@ slack_singleton_action::presolve(CoinPresolveMatrix *prob,
   delete[] actions;
   delete[] fixed_cols;
   if (prob->tuning_) {
-    double thisTime = CoinCpuTime();
+    FloatT thisTime = CoinCpuTime();
     int droppedRows = prob->countEmptyRows() - startEmptyRows;
     int droppedColumns = prob->countEmptyCols() - startEmptyColumns;
     printf("CoinPresolveSingleton(3) - %d rows, %d columns dropped in time %g, total %g\n",
@@ -792,31 +792,31 @@ void slack_singleton_action::postsolve(CoinPostsolveMatrix *prob) const
   const action *const actions = actions_;
   const int nactions = nactions_;
 
-  double *colels = prob->colels_;
+  FloatT *colels = prob->colels_;
   int *hrow = prob->hrow_;
   CoinBigIndex *mcstrt = prob->mcstrt_;
   int *hincol = prob->hincol_;
   CoinBigIndex *link = prob->link_;
   //  int ncols		= prob->ncols_ ;
 
-  //double *rowels	= prob->rowels_ ;
+  //FloatT *rowels	= prob->rowels_ ;
   //int *hcol	= prob->hcol_ ;
   //CoinBigIndex *mrstrt	= prob->mrstrt_ ;
   //int *hinrow		= prob->hinrow_ ;
 
-  double *clo = prob->clo_;
-  double *cup = prob->cup_;
+  FloatT *clo = prob->clo_;
+  FloatT *cup = prob->cup_;
 
-  double *rlo = prob->rlo_;
-  double *rup = prob->rup_;
+  FloatT *rlo = prob->rlo_;
+  FloatT *rup = prob->rup_;
 
-  double *sol = prob->sol_;
-  double *rcosts = prob->rcosts_;
+  FloatT *sol = prob->sol_;
+  FloatT *rcosts = prob->rcosts_;
 
-  double *acts = prob->acts_;
-  double *rowduals = prob->rowduals_;
-  double *dcost = prob->cost_;
-  //const double maxmin	= prob->maxmin_ ;
+  FloatT *acts = prob->acts_;
+  FloatT *rowduals = prob->rowduals_;
+  FloatT *dcost = prob->cost_;
+  //const FloatT maxmin	= prob->maxmin_ ;
 
   unsigned char *colstat = prob->colstat_;
   //  unsigned char *rowstat		= prob->rowstat_ ;
@@ -831,12 +831,12 @@ void slack_singleton_action::postsolve(CoinPostsolveMatrix *prob) const
 
   CoinBigIndex &free_list = prob->free_list_;
 
-  const double ztolzb = prob->ztolzb_;
+  const FloatT ztolzb = prob->ztolzb_;
 #ifdef CHECK_ONE_ROW
   {
-    double act = 0.0;
+    FloatT act = 0.0;
     for (int i = 0; i < prob->ncols_; i++) {
-      double solV = sol[i];
+      FloatT solV = sol[i];
       assert(solV >= clo[i] - ztolzb && solV <= cup[i] + ztolzb);
       int j = mcstrt[i];
       for (int k = 0; k < hincol[i]; k++) {
@@ -852,9 +852,9 @@ void slack_singleton_action::postsolve(CoinPostsolveMatrix *prob) const
 #endif
   for (const action *f = &actions[nactions - 1]; actions <= f; f--) {
     int iRow = f->row;
-    double lo0 = f->clo;
-    double up0 = f->cup;
-    double coeff = f->coeff;
+    FloatT lo0 = f->clo;
+    FloatT up0 = f->cup;
+    FloatT coeff = f->coeff;
     int iCol = f->col;
     assert(!hincol[iCol]);
 #ifdef CHECK_ONE_ROW
@@ -867,14 +867,14 @@ void slack_singleton_action::postsolve(CoinPostsolveMatrix *prob) const
 
     clo[iCol] = lo0;
     cup[iCol] = up0;
-    double movement = 0.0;
+    FloatT movement = 0.0;
     // acts was without coefficient - adjust
     acts[iRow] += coeff * sol[iCol];
     if (acts[iRow] < rlo[iRow] - ztolzb)
       movement = rlo[iRow] - acts[iRow];
     else if (acts[iRow] > rup[iRow] + ztolzb)
       movement = rup[iRow] - acts[iRow];
-    double cMove = movement / coeff;
+    FloatT cMove = movement / coeff;
     sol[iCol] += cMove;
     acts[iRow] += movement;
     if (!dcost[iCol]) {
@@ -921,7 +921,7 @@ void slack_singleton_action::postsolve(CoinPostsolveMatrix *prob) const
     } else {
       // must have been equality row
       assert(rlo[iRow] == rup[iRow]);
-      double cost = rcosts[iCol];
+      FloatT cost = rcosts[iCol];
       // adjust for coefficient
       cost -= rowduals[iRow] * coeff;
       bool basic = true;
@@ -1008,9 +1008,9 @@ void slack_singleton_action::postsolve(CoinPostsolveMatrix *prob) const
     hincol[iCol]++; // right?
 #ifdef CHECK_ONE_ROW
     {
-      double act = 0.0;
+      FloatT act = 0.0;
       for (int i = 0; i < prob->ncols_; i++) {
-        double solV = sol[i];
+        FloatT solV = sol[i];
         assert(solV >= clo[i] - ztolzb && solV <= cup[i] + ztolzb);
         int j = mcstrt[i];
         for (int k = 0; k < hincol[i]; k++) {

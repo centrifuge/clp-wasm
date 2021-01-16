@@ -93,7 +93,7 @@ public:
          This could obviously be changed to make more user friendly
      */
   ClpNonLinearCost(ClpSimplex *model, const int *starts,
-    const double *lower, const double *cost);
+    const FloatT *lower, const FloatT *cost);
   /// Destructor
   ~ClpNonLinearCost();
   // Copy
@@ -108,7 +108,7 @@ public:
          Puts all non-basic (non free) variables to bounds
          and all free variables to zero if oldTolerance is non-zero
          - but does not move those <= oldTolerance away*/
-  void checkInfeasibilities(double oldTolerance = 0.0);
+  void checkInfeasibilities(FloatT oldTolerance = 0.0);
   /** Changes infeasible costs for each variable
          The indices are row indices and need converting to sequences
      */
@@ -126,13 +126,13 @@ public:
          Temporary offsets may be set
          Rhs entries are increased
      */
-  void goThru(int numberInArray, double multiplier,
-    const int *index, const double *work,
-    double *rhs);
+  void goThru(int numberInArray, FloatT multiplier,
+    const int *index, const FloatT *work,
+    FloatT *rhs);
   /** Takes off last iteration (i.e. offsets closer to 0)
      */
   void goBack(int numberInArray, const int *index,
-    double *rhs);
+    FloatT *rhs);
   /** Puts back correct infeasible costs for each variable
          The input indices are row indices and need converting to sequences
          for costs.
@@ -142,7 +142,7 @@ public:
   /// Temporary zeroing of feasible costs
   void zapCosts();
   /// Refreshes costs always makes row costs zero
-  void refreshCosts(const double *columnCosts);
+  void refreshCosts(const FloatT *columnCosts);
   /// Puts feasible bounds into lower and upper
   void feasibleBounds();
   /// Refresh - assuming regions OK
@@ -152,23 +152,23 @@ public:
   /** Sets bounds and cost for one variable
          Returns change in cost
       May need to be inline for speed */
-  double setOne(int sequence, double solutionValue);
+  FloatT setOne(int sequence, FloatT solutionValue);
   /** Sets bounds and infeasible cost and true cost for one variable
          This is for gub and column generation etc */
-  void setOne(int sequence, double solutionValue, double lowerValue, double upperValue,
-    double costValue = 0.0);
+  void setOne(int sequence, FloatT solutionValue, FloatT lowerValue, FloatT upperValue,
+    FloatT costValue = 0.0);
   /** Sets bounds and cost for outgoing variable
          may change value
          Returns direction */
-  int setOneOutgoing(int sequence, double &solutionValue);
+  int setOneOutgoing(int sequence, FloatT &solutionValue);
   /// Returns nearest bound
-  double nearest(int sequence, double solutionValue);
+  FloatT nearest(int sequence, FloatT solutionValue);
   /** Returns change in cost - one down if alpha >0.0, up if <0.0
          Value is current - new
       */
-  inline double changeInCost(int sequence, double alpha) const
+  inline FloatT changeInCost(int sequence, FloatT alpha) const
   {
-    double returnValue = 0.0;
+    FloatT returnValue = 0.0;
     if (CLP_METHOD1) {
       int iRange = whichRange_[sequence] + offset_[sequence];
       if (alpha > 0.0)
@@ -181,9 +181,9 @@ public:
     }
     return returnValue;
   }
-  inline double changeUpInCost(int sequence) const
+  inline FloatT changeUpInCost(int sequence) const
   {
-    double returnValue = 0.0;
+    FloatT returnValue = 0.0;
     if (CLP_METHOD1) {
       int iRange = whichRange_[sequence] + offset_[sequence];
       if (iRange + 1 != start_[sequence + 1] && !infeasible(iRange + 1))
@@ -196,9 +196,9 @@ public:
     }
     return returnValue;
   }
-  inline double changeDownInCost(int sequence) const
+  inline FloatT changeDownInCost(int sequence) const
   {
-    double returnValue = 0.0;
+    FloatT returnValue = 0.0;
     if (CLP_METHOD1) {
       int iRange = whichRange_[sequence] + offset_[sequence];
       if (iRange != start_[sequence] && !infeasible(iRange - 1))
@@ -212,11 +212,11 @@ public:
     return returnValue;
   }
   /// This also updates next bound
-  inline double changeInCost(int sequence, double alpha, double &rhs)
+  inline FloatT changeInCost(int sequence, FloatT alpha, FloatT &rhs)
   {
-    double returnValue = 0.0;
+    FloatT returnValue = 0.0;
 #ifdef NONLIN_DEBUG
-    double saveRhs = rhs;
+    FloatT saveRhs = rhs;
 #endif
     if (CLP_METHOD1) {
       int iRange = whichRange_[sequence] + offset_[sequence];
@@ -234,7 +234,7 @@ public:
     }
     if (CLP_METHOD2) {
 #ifdef NONLIN_DEBUG
-      double saveRhs1 = rhs;
+      FloatT saveRhs1 = rhs;
       rhs = saveRhs;
 #endif
       unsigned char iStatus = status_[sequence];
@@ -272,17 +272,17 @@ public:
     return returnValue;
   }
   /// Returns current lower bound
-  inline double lower(int sequence) const
+  inline FloatT lower(int sequence) const
   {
     return lower_[whichRange_[sequence] + offset_[sequence]];
   }
   /// Returns current upper bound
-  inline double upper(int sequence) const
+  inline FloatT upper(int sequence) const
   {
     return lower_[whichRange_[sequence] + offset_[sequence] + 1];
   }
   /// Returns current cost
-  inline double cost(int sequence) const
+  inline FloatT cost(int sequence) const
   {
     return cost_[whichRange_[sequence] + offset_[sequence]];
   }
@@ -307,37 +307,37 @@ public:
     return numberInfeasibilities_;
   }
   /// Change in cost
-  inline double changeInCost() const
+  inline FloatT changeInCost() const
   {
     return changeCost_;
   }
   /// Feasible cost
-  inline double feasibleCost() const
+  inline FloatT feasibleCost() const
   {
     return feasibleCost_;
   }
   /// Feasible cost with offset and direction (i.e. for reporting)
-  double feasibleReportCost() const;
+  FloatT feasibleReportCost() const;
   /// Sum of infeasibilities
-  inline double sumInfeasibilities() const
+  inline FloatT sumInfeasibilities() const
   {
     return sumInfeasibilities_;
   }
   /// Largest infeasibility
-  inline double largestInfeasibility() const
+  inline FloatT largestInfeasibility() const
   {
     return largestInfeasibility_;
   }
   /// Average theta
-  inline double averageTheta() const
+  inline FloatT averageTheta() const
   {
     return averageTheta_;
   }
-  inline void setAverageTheta(double value)
+  inline void setAverageTheta(FloatT value)
   {
     averageTheta_ = value;
   }
-  inline void setChangeInCost(double value)
+  inline void setChangeInCost(FloatT value)
   {
     changeCost_ = value;
   }
@@ -377,17 +377,17 @@ private:
   /**@name Data members */
   //@{
   /// Change in cost because of infeasibilities
-  double changeCost_;
+  FloatT changeCost_;
   /// Feasible cost
-  double feasibleCost_;
+  FloatT feasibleCost_;
   /// Current infeasibility weight
-  double infeasibilityWeight_;
+  FloatT infeasibilityWeight_;
   /// Largest infeasibility
-  double largestInfeasibility_;
+  FloatT largestInfeasibility_;
   /// Sum of infeasibilities
-  double sumInfeasibilities_;
+  FloatT sumInfeasibilities_;
   /// Average theta - kept here as only for primal
-  double averageTheta_;
+  FloatT averageTheta_;
   /// Number of rows (mainly for checking and copy)
   int numberRows_;
   /// Number of columns (mainly for checking and copy)
@@ -401,9 +401,9 @@ private:
   /** Lower bound for each range (upper bound is next lower).
          For various reasons there is always an infeasible range
          at bottom - even if lower bound is - infinity */
-  double *lower_;
+  FloatT *lower_;
   /// Cost for each range
-  double *cost_;
+  FloatT *cost_;
   /// Model
   ClpSimplex *model_;
   // Array to say which regions are infeasible
@@ -414,9 +414,9 @@ private:
   /// Contains status at beginning and current
   unsigned char *status_;
   /// Bound which has been replaced in lower_ or upper_
-  double *bound_;
+  FloatT *bound_;
   /// Feasible cost array
-  double *cost2_;
+  FloatT *cost2_;
   /// Method 1 old, 2 new, 3 both!
   int method_;
   /// If all non-linear costs convex

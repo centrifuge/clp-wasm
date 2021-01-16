@@ -140,25 +140,25 @@ CoinPrePostsolveMatrix::~CoinPrePostsolveMatrix()
   tolerances.
 */
 
-void CoinPrePostsolveMatrix::setObjOffset(double offset)
+void CoinPrePostsolveMatrix::setObjOffset(FloatT offset)
 
 {
   originalOffset_ = offset;
 }
 
-void CoinPrePostsolveMatrix::setObjSense(double objSense)
+void CoinPrePostsolveMatrix::setObjSense(FloatT objSense)
 
 {
   maxmin_ = objSense;
 }
 
-void CoinPrePostsolveMatrix::setPrimalTolerance(double primTol)
+void CoinPrePostsolveMatrix::setPrimalTolerance(FloatT primTol)
 
 {
   ztolzb_ = primTol;
 }
 
-void CoinPrePostsolveMatrix::setDualTolerance(double dualTol)
+void CoinPrePostsolveMatrix::setDualTolerance(FloatT dualTol)
 
 {
   ztoldj_ = dualTol;
@@ -178,7 +178,7 @@ void CoinPrePostsolveMatrix::setDualTolerance(double dualTol)
   or nrows0_, as appropriate.
 */
 
-void CoinPrePostsolveMatrix::setColLower(const double *colLower, int lenParam)
+void CoinPrePostsolveMatrix::setColLower(const FloatT *colLower, int lenParam)
 
 {
   int len;
@@ -193,13 +193,13 @@ void CoinPrePostsolveMatrix::setColLower(const double *colLower, int lenParam)
   }
 
   if (clo_ == 0)
-    clo_ = new double[ncols0_];
+    clo_ = new FloatT[ncols0_];
   CoinMemcpyN(colLower, len, clo_);
 
   return;
 }
 
-void CoinPrePostsolveMatrix::setColUpper(const double *colUpper, int lenParam)
+void CoinPrePostsolveMatrix::setColUpper(const FloatT *colUpper, int lenParam)
 
 {
   int len;
@@ -214,13 +214,13 @@ void CoinPrePostsolveMatrix::setColUpper(const double *colUpper, int lenParam)
   }
 
   if (cup_ == 0)
-    cup_ = new double[ncols0_];
+    cup_ = new FloatT[ncols0_];
   CoinMemcpyN(colUpper, len, cup_);
 
   return;
 }
 
-void CoinPrePostsolveMatrix::setColSolution(const double *colSol,
+void CoinPrePostsolveMatrix::setColSolution(const FloatT *colSol,
   int lenParam)
 
 {
@@ -236,13 +236,13 @@ void CoinPrePostsolveMatrix::setColSolution(const double *colSol,
   }
 
   if (sol_ == 0)
-    sol_ = new double[ncols0_];
+    sol_ = new FloatT[ncols0_];
   CoinMemcpyN(colSol, len, sol_);
 
   return;
 }
 
-void CoinPrePostsolveMatrix::setCost(const double *cost, int lenParam)
+void CoinPrePostsolveMatrix::setCost(const FloatT *cost, int lenParam)
 
 {
   int len;
@@ -257,13 +257,13 @@ void CoinPrePostsolveMatrix::setCost(const double *cost, int lenParam)
   }
 
   if (cost_ == 0)
-    cost_ = new double[ncols0_];
+    cost_ = new FloatT[ncols0_];
   CoinMemcpyN(cost, len, cost_);
 
   return;
 }
 
-void CoinPrePostsolveMatrix::setReducedCost(const double *redCost,
+void CoinPrePostsolveMatrix::setReducedCost(const FloatT *redCost,
   int lenParam)
 
 {
@@ -279,13 +279,13 @@ void CoinPrePostsolveMatrix::setReducedCost(const double *redCost,
   }
 
   if (rcosts_ == 0)
-    rcosts_ = new double[ncols0_];
+    rcosts_ = new FloatT[ncols0_];
   CoinMemcpyN(redCost, len, rcosts_);
 
   return;
 }
 
-void CoinPrePostsolveMatrix::setRowLower(const double *rowLower, int lenParam)
+void CoinPrePostsolveMatrix::setRowLower(const FloatT *rowLower, int lenParam)
 
 {
   int len;
@@ -300,13 +300,13 @@ void CoinPrePostsolveMatrix::setRowLower(const double *rowLower, int lenParam)
   }
 
   if (rlo_ == 0)
-    rlo_ = new double[nrows0_];
+    rlo_ = new FloatT[nrows0_];
   CoinMemcpyN(rowLower, len, rlo_);
 
   return;
 }
 
-void CoinPrePostsolveMatrix::setRowUpper(const double *rowUpper, int lenParam)
+void CoinPrePostsolveMatrix::setRowUpper(const FloatT *rowUpper, int lenParam)
 
 {
   int len;
@@ -321,13 +321,13 @@ void CoinPrePostsolveMatrix::setRowUpper(const double *rowUpper, int lenParam)
   }
 
   if (rup_ == 0)
-    rup_ = new double[nrows0_];
+    rup_ = new FloatT[nrows0_];
   CoinMemcpyN(rowUpper, len, rup_);
 
   return;
 }
 
-void CoinPrePostsolveMatrix::setRowPrice(const double *rowSol, int lenParam)
+void CoinPrePostsolveMatrix::setRowPrice(const FloatT *rowSol, int lenParam)
 
 {
   int len;
@@ -342,13 +342,13 @@ void CoinPrePostsolveMatrix::setRowPrice(const double *rowSol, int lenParam)
   }
 
   if (rowduals_ == 0)
-    rowduals_ = new double[nrows0_];
+    rowduals_ = new FloatT[nrows0_];
   CoinMemcpyN(rowSol, len, rowduals_);
 
   return;
 }
 
-void CoinPrePostsolveMatrix::setRowActivity(const double *rowAct, int lenParam)
+void CoinPrePostsolveMatrix::setRowActivity(const FloatT *rowAct, int lenParam)
 
 {
   int len;
@@ -363,7 +363,7 @@ void CoinPrePostsolveMatrix::setRowActivity(const double *rowAct, int lenParam)
   }
 
   if (acts_ == 0)
-    acts_ = new double[nrows0_];
+    acts_ = new FloatT[nrows0_];
   CoinMemcpyN(rowAct, len, acts_);
 
   return;
@@ -491,9 +491,9 @@ CoinWarmStartBasis *CoinPrePostsolveMatrix::getStatus()
 void CoinPrePostsolveMatrix::setRowStatusUsingValue(int iRow)
 
 {
-  double value = acts_[iRow];
-  double lower = rlo_[iRow];
-  double upper = rup_[iRow];
+  FloatT value = acts_[iRow];
+  FloatT lower = rlo_[iRow];
+  FloatT upper = rup_[iRow];
   if (lower < -1.0e20 && upper > 1.0e20) {
     setRowStatus(iRow, isFree);
   } else if (fabs(lower - value) <= ztolzb_) {
@@ -512,9 +512,9 @@ void CoinPrePostsolveMatrix::setRowStatusUsingValue(int iRow)
 
 void CoinPrePostsolveMatrix::setColumnStatusUsingValue(int iColumn)
 {
-  double value = sol_[iColumn];
-  double lower = clo_[iColumn];
-  double upper = cup_[iColumn];
+  FloatT value = sol_[iColumn];
+  FloatT lower = clo_[iColumn];
+  FloatT upper = cup_[iColumn];
   if (lower < -1.0e20 && upper > 1.0e20) {
     setColumnStatus(iColumn, isFree);
   } else if (fabs(lower - value) <= ztolzb_) {

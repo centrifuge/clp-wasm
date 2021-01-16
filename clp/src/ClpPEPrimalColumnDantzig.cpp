@@ -19,7 +19,7 @@
 //-------------------------------------------------------------------
 // Default Constructor
 //-------------------------------------------------------------------
-ClpPEPrimalColumnDantzig::ClpPEPrimalColumnDantzig(double psi)
+ClpPEPrimalColumnDantzig::ClpPEPrimalColumnDantzig(FloatT psi)
   : ClpPrimalColumnDantzig()
   , modelPE_(NULL)
   , psi_(psi)
@@ -102,8 +102,8 @@ int ClpPEPrimalColumnDantzig::pivotColumn(CoinIndexedVector *updates,
   int iSection, j;
   int number;
   int *index;
-  double *updateBy;
-  double *reducedCost;
+  FloatT *updateBy;
+  FloatT *reducedCost;
 
   bool anyUpdates;
 
@@ -144,7 +144,7 @@ int ClpPEPrimalColumnDantzig::pivotColumn(CoinIndexedVector *updates,
 
       for (j = 0; j < number; j++) {
         int iSequence = index[j];
-        double value = reducedCost[iSequence];
+        FloatT value = reducedCost[iSequence];
         value -= updateBy[j];
         updateBy[j] = 0.0;
         reducedCost[iSequence] = value;
@@ -158,7 +158,7 @@ int ClpPEPrimalColumnDantzig::pivotColumn(CoinIndexedVector *updates,
   //
   // store the number of degenerate pivots on compatible variables and the
   // overal number of degenerate pivots
-  double progress = fabs(modelPE_->lastObjectiveValue() - model_->objectiveValue());
+  FloatT progress = fabs(modelPE_->lastObjectiveValue() - model_->objectiveValue());
   bool isLastDegenerate = progress <= 1.0e-12 * fabs(model_->objectiveValue()) ? true : false;
   if (isLastDegenerate) {
     modelPE_->addDegeneratePivot();
@@ -202,7 +202,7 @@ int ClpPEPrimalColumnDantzig::pivotColumn(CoinIndexedVector *updates,
   //
   if (modelPE_->doStatistics())
     modelPE_->startTimer();
-  double psiTmp = psi_;
+  FloatT psiTmp = psi_;
   if ((psi_ < 1.0) && (iCurrent_ >= iInterval_) && (updateCompatibles_ || iCurrent_ >= 1000)) {
     // the compatible variables are never updated if the last pivot is non degenerate
     // this could be counterproductive
@@ -262,15 +262,15 @@ int ClpPEPrimalColumnDantzig::pivotColumn(CoinIndexedVector *updates,
   //
 
   // we can't really trust infeasibilities if there is primal error
-  double largest = model_->currentPrimalTolerance();
+  FloatT largest = model_->currentPrimalTolerance();
   if (model_->largestDualError() > 1.0e-8)
     largest *= model_->largestDualError() / 1.0e-8;
 
   // initialize the best reduced cost values
-  double dualTolerance = model_->dualTolerance();
-  double bestDj = 1.0e-30;
+  FloatT dualTolerance = model_->dualTolerance();
+  FloatT bestDj = 1.0e-30;
   int bestSequence = -1;
-  double bestDjComp = 1.0e-30;
+  FloatT bestDjComp = 1.0e-30;
   int bestSequenceComp = -1;
 
   number = model_->numberRows() + model_->numberColumns();
@@ -279,7 +279,7 @@ int ClpPEPrimalColumnDantzig::pivotColumn(CoinIndexedVector *updates,
   // only check the compatible variables when the bidimensional factor is less than 1
   // and the ratio of compatible variables is larger than 0.01
   bool checkCompatibles = true;
-  double ratioCompatibles = static_cast< double >(modelPE_->coCompatibleCols()) / static_cast< double >((model_->numberRows() + model_->numberColumns()));
+  FloatT ratioCompatibles = static_cast< FloatT >(modelPE_->coCompatibleCols()) / static_cast< FloatT >((model_->numberRows() + model_->numberColumns()));
 
   if (psi_ >= 1.0 || ratioCompatibles < 0.01)
     checkCompatibles = false;
@@ -288,8 +288,8 @@ int ClpPEPrimalColumnDantzig::pivotColumn(CoinIndexedVector *updates,
   for (int iSequence = 0; iSequence < number; iSequence++) {
     // check flagged variable
     if (!model_->flagged(iSequence)) {
-      double value = reducedCost[iSequence];
-      double largestDj = std::max(psi_ * bestDj, bestDjComp);
+      FloatT value = reducedCost[iSequence];
+      FloatT largestDj = std::max(psi_ * bestDj, bestDjComp);
       ClpSimplex::Status status = model_->getStatus(iSequence);
 
       // we choose the nonbasic column whose reduced cost is either

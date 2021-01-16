@@ -180,7 +180,7 @@ void CoinPresolveMatrix::setMatrix(const CoinPackedMatrix *mtx)
   if (hrow_ == 0)
     hrow_ = new int[bulk0_];
   if (colels_ == 0)
-    colels_ = new double[bulk0_];
+    colels_ = new FloatT[bulk0_];
 
   if (mrstrt_ == 0)
     mrstrt_ = new CoinBigIndex[nrows0_ + 1];
@@ -189,13 +189,13 @@ void CoinPresolveMatrix::setMatrix(const CoinPackedMatrix *mtx)
   if (hcol_ == 0)
     hcol_ = new int[bulk0_];
   if (rowels_ == 0)
-    rowels_ = new double[bulk0_];
+    rowels_ = new FloatT[bulk0_];
   /*
   Grab the corresponding vectors from the source matrix.
 */
   const CoinBigIndex *src_mcstrt = mtx->getVectorStarts();
   const int *src_hincol = mtx->getVectorLengths();
-  const double *src_colels = mtx->getElements();
+  const FloatT *src_colels = mtx->getElements();
   const int *src_hrow = mtx->getIndices();
   /*
   Bulk copy the column starts and lengths.
@@ -243,12 +243,12 @@ void CoinPresolveMatrix::setMatrix(const CoinPackedMatrix *mtx)
   mrstrt_[nrows_] = totalCoeffs;
   for (j = ncols_ - 1; j >= 0; j--) {
     int lenj = hincol_[j];
-    double *colCoeffs = colels_ + mcstrt_[j];
+    FloatT *colCoeffs = colels_ + mcstrt_[j];
     int *rowIndices = hrow_ + mcstrt_[j];
     for (int k = 0; k < lenj; k++) {
       int ri;
       ri = rowIndices[k];
-      double aij = colCoeffs[k];
+      FloatT aij = colCoeffs[k];
       CoinBigIndex l = --mrstrt_[ri];
       rowels_[l] = aij;
       hcol_[l] = j;
@@ -320,19 +320,19 @@ int CoinPresolveMatrix::recomputeSums(int oneRow)
   const int &numberRows = nrows_;
   const int &numberColumns = ncols_;
 
-  const double *const columnLower = clo_;
-  const double *const columnUpper = cup_;
+  const FloatT *const columnLower = clo_;
+  const FloatT *const columnUpper = cup_;
 
-  double *const rowLower = rlo_;
-  double *const rowUpper = rup_;
+  FloatT *const rowLower = rlo_;
+  FloatT *const rowUpper = rup_;
 
-  const double *element = rowels_;
+  const FloatT *element = rowels_;
   const int *column = hcol_;
   const CoinBigIndex *rowStart = mrstrt_;
   const int *rowLength = hinrow_;
 
-  const double large = PRESOLVE_SMALL_INF;
-  const double &tolerance = feasibilityTolerance_;
+  const FloatT large = PRESOLVE_SMALL_INF;
+  const FloatT &tolerance = feasibilityTolerance_;
 
   const int iFirst = ((oneRow >= 0) ? oneRow : 0);
   const int iLast = ((oneRow >= 0) ? oneRow : numberRows);
@@ -352,15 +352,15 @@ int CoinPresolveMatrix::recomputeSums(int oneRow)
     if ((rowLower[iRow] > -large || rowUpper[iRow] < large) && rowLength[iRow] > 0) {
       int infiniteUpper = 0;
       int infiniteLower = 0;
-      double maximumUp = 0.0;
-      double maximumDown = 0.0;
+      FloatT maximumUp = 0.0;
+      FloatT maximumDown = 0.0;
       const CoinBigIndex &rStart = rowStart[iRow];
       const CoinBigIndex rEnd = rStart + rowLength[iRow];
       for (CoinBigIndex j = rStart; j < rEnd; ++j) {
-        const double &value = element[j];
+        const FloatT &value = element[j];
         const int &iColumn = column[j];
-        const double &lj = columnLower[iColumn];
-        const double &uj = columnUpper[iColumn];
+        const FloatT &lj = columnLower[iColumn];
+        const FloatT &uj = columnUpper[iColumn];
         if (value > 0.0) {
           if (uj < large)
             maximumUp += uj * value;
@@ -385,8 +385,8 @@ int CoinPresolveMatrix::recomputeSums(int oneRow)
       sumUp_[iRow] = maximumUp;
       infiniteDown_[iRow] = infiniteLower;
       sumDown_[iRow] = maximumDown;
-      double maxUp = maximumUp + infiniteUpper * large;
-      double maxDown = maximumDown - infiniteLower * large;
+      FloatT maxUp = maximumUp + infiniteUpper * large;
+      FloatT maxDown = maximumDown - infiniteLower * large;
       /*
   Check for redundant or infeasible row.
 */
@@ -412,7 +412,7 @@ int CoinPresolveMatrix::recomputeSums(int oneRow)
 */
       assert(rowLength[iRow] == 0);
       if (rowLower[iRow] > 0.0 || rowUpper[iRow] < 0.0) {
-        double tolerance2 = 10.0 * tolerance;
+        FloatT tolerance2 = 10.0 * tolerance;
         if (rowLower[iRow] > 0.0 && rowLower[iRow] < tolerance2)
           rowLower[iRow] = 0.0;
         else
@@ -433,16 +433,16 @@ int CoinPresolveMatrix::recomputeSums(int oneRow)
 void CoinPresolveMatrix::initializeStuff()
 {
   usefulRowInt_ = new int[3 * nrows_];
-  usefulRowDouble_ = new double[2 * nrows_];
+  usefulRowDouble_ = new FloatT[2 * nrows_];
   usefulColumnInt_ = new int[2 * ncols_];
-  usefulColumnDouble_ = new double[2 * ncols_];
+  usefulColumnDouble_ = new FloatT[2 * ncols_];
   int k = CoinMax(ncols_ + 1, nrows_ + 1);
-  randomNumber_ = new double[k];
+  randomNumber_ = new FloatT[k];
   coin_init_random_vec(randomNumber_, k);
   infiniteUp_ = new int[nrows_];
-  sumUp_ = new double[nrows_];
+  sumUp_ = new FloatT[nrows_];
   infiniteDown_ = new int[nrows_];
-  sumDown_ = new double[nrows_];
+  sumDown_ = new FloatT[nrows_];
   return;
 }
 

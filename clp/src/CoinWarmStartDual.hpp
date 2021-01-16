@@ -19,19 +19,19 @@ public:
   /// return the size of the dual vector
   inline int size() const { return dual_.size(); }
   /// return a pointer to the array of duals
-  inline const double *dual() const { return dual_.values(); }
+  inline const FloatT *dual() const { return dual_.values(); }
 
   /** Assign the dual vector to be the warmstart information. In this method
        the object assumes ownership of the pointer and upon return "dual" will
        be a NULL pointer. If copying is desirable use the constructor. */
-  inline void assignDual(int size, double *&dual)
+  inline void assignDual(int size, FloatT *&dual)
   {
     dual_.assignVector(size, dual);
   }
 
   CoinWarmStartDual() {}
 
-  CoinWarmStartDual(int size, const double *dual)
+  CoinWarmStartDual(int size, const FloatT *dual)
     : dual_(size, dual)
   {
   }
@@ -80,14 +80,14 @@ public:
 
 #if 0
 protected:
-  inline const CoinWarmStartVector<double>& warmStartVector() const { return dual_; }
+  inline const CoinWarmStartVector<FloatT>& warmStartVector() const { return dual_; }
 #endif
 
   //@}
 
 private:
   ///@name Private data members
-  CoinWarmStartVector< double > dual_;
+  CoinWarmStartVector< FloatT > dual_;
 };
 
 //#############################################################################
@@ -162,7 +162,7 @@ private:
 
   /*! \brief Standard constructor */
   CoinWarmStartDualDiff(int sze, const unsigned int *const diffNdxs,
-    const double *const diffVals)
+    const FloatT *const diffVals)
     : diff_(sze, diffNdxs, diffVals)
   {
   }
@@ -171,7 +171,7 @@ private:
       \brief The difference in the dual vector is simply the difference in a
       vector.
   */
-  CoinWarmStartVectorDiff< double > diff_;
+  CoinWarmStartVectorDiff< FloatT > diff_;
 };
 
 #endif

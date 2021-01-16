@@ -59,11 +59,11 @@ int ClpDualRowDantzig::pivotRow()
   assert(model_);
   int iRow;
   const int *pivotVariable = model_->pivotVariable();
-  double tolerance = model_->currentPrimalTolerance();
+  FloatT tolerance = model_->currentPrimalTolerance();
   // we can't really trust infeasibilities if there is primal error
   if (model_->largestPrimalError() > 1.0e-8)
     tolerance *= model_->largestPrimalError() / 1.0e-8;
-  double largest = 0.0;
+  FloatT largest = 0.0;
   int chosenRow = -1;
   int numberRows = model_->numberRows();
 #ifdef CLP_DUAL_COLUMN_MULTIPLIER
@@ -71,10 +71,10 @@ int ClpDualRowDantzig::pivotRow()
 #endif
   for (iRow = 0; iRow < numberRows; iRow++) {
     int iSequence = pivotVariable[iRow];
-    double value = model_->solution(iSequence);
-    double lower = model_->lower(iSequence);
-    double upper = model_->upper(iSequence);
-    double infeas = CoinMax(value - upper, lower - value);
+    FloatT value = model_->solution(iSequence);
+    FloatT lower = model_->lower(iSequence);
+    FloatT upper = model_->upper(iSequence);
+    FloatT infeas = CoinMax(value - upper, lower - value);
     if (infeas > tolerance) {
 #ifdef CLP_DUAL_COLUMN_MULTIPLIER
       if (iSequence < numberColumns)
@@ -91,7 +91,7 @@ int ClpDualRowDantzig::pivotRow()
   return chosenRow;
 }
 // FT update and returns pivot alpha
-double
+FloatT
 ClpDualRowDantzig::updateWeights(CoinIndexedVector * /*input*/,
   CoinIndexedVector *spare,
   CoinIndexedVector * /*spare2*/,
@@ -100,9 +100,9 @@ ClpDualRowDantzig::updateWeights(CoinIndexedVector * /*input*/,
   // Do FT update
   model_->factorization()->updateColumnFT(spare, updatedColumn);
   // pivot element
-  double alpha = 0.0;
+  FloatT alpha = 0.0;
   // look at updated column
-  double *work = updatedColumn->denseVector();
+  FloatT *work = updatedColumn->denseVector();
   int number = updatedColumn->getNumElements();
   int *which = updatedColumn->getIndices();
   int i;
@@ -127,22 +127,22 @@ ClpDualRowDantzig::updateWeights(CoinIndexedVector * /*input*/,
    Computes change in objective function
 */
 void ClpDualRowDantzig::updatePrimalSolution(CoinIndexedVector *primalUpdate,
-  double primalRatio,
-  double &objectiveChange)
+  FloatT primalRatio,
+  FloatT &objectiveChange)
 {
-  double *work = primalUpdate->denseVector();
+  FloatT *work = primalUpdate->denseVector();
   int number = primalUpdate->getNumElements();
   int *which = primalUpdate->getIndices();
   int i;
-  double changeObj = 0.0;
+  FloatT changeObj = 0.0;
   const int *pivotVariable = model_->pivotVariable();
   if (primalUpdate->packedMode()) {
     for (i = 0; i < number; i++) {
       int iRow = which[i];
       int iPivot = pivotVariable[iRow];
-      double &value = model_->solutionAddress(iPivot);
-      double cost = model_->cost(iPivot);
-      double change = primalRatio * work[i];
+      FloatT &value = model_->solutionAddress(iPivot);
+      FloatT cost = model_->cost(iPivot);
+      FloatT change = primalRatio * work[i];
       value -= change;
       changeObj -= change * cost;
       work[i] = 0.0;
@@ -151,9 +151,9 @@ void ClpDualRowDantzig::updatePrimalSolution(CoinIndexedVector *primalUpdate,
     for (i = 0; i < number; i++) {
       int iRow = which[i];
       int iPivot = pivotVariable[iRow];
-      double &value = model_->solutionAddress(iPivot);
-      double cost = model_->cost(iPivot);
-      double change = primalRatio * work[iRow];
+      FloatT &value = model_->solutionAddress(iPivot);
+      FloatT cost = model_->cost(iPivot);
+      FloatT change = primalRatio * work[iRow];
       value -= change;
       changeObj -= change * cost;
       work[iRow] = 0.0;

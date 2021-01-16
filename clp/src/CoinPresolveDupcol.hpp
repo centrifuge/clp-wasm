@@ -35,14 +35,14 @@ class dupcol_action : public CoinPresolveAction {
   dupcol_action &operator=(const dupcol_action &rhs);
 
   struct action {
-    double thislo;
-    double thisup;
-    double lastlo;
-    double lastup;
+    FloatT thislo;
+    FloatT thisup;
+    FloatT lastlo;
+    FloatT lastup;
     int ithis;
     int ilast;
 
-    double *colels;
+    FloatT *colels;
     int nincol;
   };
 
@@ -87,8 +87,8 @@ public:
 class duprow_action : public CoinPresolveAction {
   struct action {
     int row;
-    double lbound;
-    double ubound;
+    FloatT lbound;
+    FloatT ubound;
   };
 
   const int nactions_;
@@ -123,8 +123,8 @@ public:
 class duprow3_action : public CoinPresolveAction {
   struct action {
     int row;
-    double lbound;
-    double ubound;
+    FloatT lbound;
+    FloatT ubound;
   };
 
   const int nactions_;
@@ -168,10 +168,10 @@ public:
 
 class gubrow_action : public CoinPresolveAction {
   struct action {
-    double rhs;
+    FloatT rhs;
     // last is row itself
     int *deletedRow;
-    double *rowels;
+    FloatT *rowels;
     int *indices; // indices in gub row
     int nDrop;
     int ninrow;
@@ -213,12 +213,12 @@ public:
 
 class twoxtwo_action : public CoinPresolveAction {
   struct action {
-    double lbound_row;
-    double ubound_row;
-    double lbound_col;
-    double ubound_col;
-    double cost_col;
-    double cost_othercol;
+    FloatT lbound_row;
+    FloatT ubound_row;
+    FloatT lbound_col;
+    FloatT ubound_col;
+    FloatT cost_col;
+    FloatT cost_othercol;
     int row;
     int col;
     int othercol;

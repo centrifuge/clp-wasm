@@ -6,6 +6,8 @@
 #ifndef ClpPrimalcolumnPivot_H
 #define ClpPrimalcolumnPivot_H
 
+#include "floatdef.h"
+
 class ClpSimplex;
 class CoinIndexedVector;
 
@@ -73,7 +75,7 @@ public:
          -1 to numberRows-1 - use this (will be checked)
          way should be -1 to go to lower bound, +1 to upper bound
      */
-  virtual int pivotRow(double &way)
+  virtual int pivotRow(FloatT &way)
   {
     way = 0;
     return -2;

@@ -94,7 +94,7 @@ decodePhrase(char *phrase, ftnlen length)
   return 0;
 }
 static void
-sos_kludge(int nsos, int *sosbeg, double *sosref, int *sosind)
+sos_kludge(int nsos, int *sosbeg, FloatT *sosref, int *sosind)
 {
   // Adjust sosref if necessary to make monotonic increasing
   int i, j, k;
@@ -104,7 +104,7 @@ sos_kludge(int nsos, int *sosbeg, double *sosref, int *sosind)
     int end = sosbeg[i + 1];
     CoinSort_2(sosref + k, sosref + end, sosind + k);
   }
-  double t, t1;
+  FloatT t, t1;
   for (i = j = 0; i++ < nsos;) {
     k = sosbeg[i];
     t = sosref[j];
@@ -194,7 +194,7 @@ static void
 mip_stuff(void)
 {
   int i;
-  double *pseudoUp, *pseudoDown;
+  FloatT *pseudoUp, *pseudoDown;
   int *priority, *direction;
   // To label cuts (there will be other uses for special)
   int *cut;
@@ -292,10 +292,10 @@ mip_stuff(void)
     if (!pseudoDown || !pseudoUp)
       fprintf(Stderr,
         "Only one set of pseudocosts - assumed same\n");
-    saveInfo->pseudoDown = (double *)malloc(numberColumns * sizeof(double));
-    saveInfo->pseudoUp = (double *)malloc(numberColumns * sizeof(double));
+    saveInfo->pseudoDown = (FloatT *)malloc(numberColumns * sizeof(FloatT));
+    saveInfo->pseudoUp = (FloatT *)malloc(numberColumns * sizeof(FloatT));
     for (i = 0; i < numberColumns; i++) {
-      double valueD = 0.0, valueU = 0.0;
+      FloatT valueD = 0.0, valueU = 0.0;
       if (pseudoDown) {
         valueD = pseudoDown[i];
         if (valueD < 0) {
@@ -357,14 +357,14 @@ int readAmpl(ampl_info *info, int argc, char **argv, void **coinModel)
   SufDesc *csd;
   SufDesc *rsd;
   /*bool *basis, *lower;*/
-  /*double *LU, *c, lb, objadj, *rshift, *shift, t, ub, *x, *x0, *x1;*/
+  /*FloatT *LU, *c, lb, objadj, *rshift, *shift, t, ub, *x, *x0, *x1;*/
   char *environment = getenv("clp_options");
   char tempBuffer[20];
-  double *obj;
-  double *columnLower;
-  double *columnUpper;
-  double *rowLower;
-  double *rowUpper;
+  FloatT *obj;
+  FloatT *columnLower;
+  FloatT *columnUpper;
+  FloatT *rowLower;
+  FloatT *rowUpper;
   char **saveArgv = argv;
   char fileName[1000];
   if (argc > 1)
@@ -399,7 +399,7 @@ int readAmpl(ampl_info *info, int argc, char **argv, void **coinModel)
   suf_declare(suftab, sizeof(suftab) / sizeof(SufDecl));
 
   /* set A_vals to get the constraints column-wise (malloc so can be freed) */
-  A_vals = (double *)malloc(nzc * sizeof(double));
+  A_vals = (FloatT *)malloc(nzc * sizeof(FloatT));
   if (!A_vals) {
     printf("no memory\n");
     return 1;
@@ -426,7 +426,7 @@ int readAmpl(ampl_info *info, int argc, char **argv, void **coinModel)
     if (true) {
       char *sostype;
       int nsosnz, *sosbeg, *sosind, *sospri;
-      double *sosref;
+      FloatT *sosref;
       int nsos;
       int i = ASL_suf_sos_explict_free;
       int copri[2], **p_sospri;
@@ -441,7 +441,7 @@ int readAmpl(ampl_info *info, int argc, char **argv, void **coinModel)
         info->sosPriority = (int *)malloc(nsos * sizeof(int));
         info->sosStart = (int *)malloc((nsos + 1) * sizeof(int));
         info->sosIndices = (int *)malloc(nsosnz * sizeof(int));
-        info->sosReference = (double *)malloc(nsosnz * sizeof(double));
+        info->sosReference = (FloatT *)malloc(nsosnz * sizeof(FloatT));
         sos_kludge(nsos, sosbeg, sosref, sosind);
         for (int i = 0; i < nsos; i++) {
           char ichar = sostype[i];
@@ -451,7 +451,7 @@ int readAmpl(ampl_info *info, int argc, char **argv, void **coinModel)
         memcpy(info->sosPriority, sospri, nsos * sizeof(int));
         memcpy(info->sosStart, sosbeg, (nsos + 1) * sizeof(int));
         memcpy(info->sosIndices, sosind, nsosnz * sizeof(int));
-        memcpy(info->sosReference, sosref, nsosnz * sizeof(double));
+        memcpy(info->sosReference, sosref, nsosnz * sizeof(FloatT));
       }
     }
 
@@ -460,7 +460,7 @@ int readAmpl(ampl_info *info, int argc, char **argv, void **coinModel)
     if (getopts(argv, &Oinfo))
       return 1;
     /* objective*/
-    obj = (double *)malloc(n_var * sizeof(double));
+    obj = (FloatT *)malloc(n_var * sizeof(FloatT));
     for (i = 0; i < n_var; i++)
       obj[i] = 0.0;
     if (n_obj) {
@@ -473,8 +473,8 @@ int readAmpl(ampl_info *info, int argc, char **argv, void **coinModel)
       info->direction = 1.0;
     info->offset = objconst(0);
     /* Column bounds*/
-    columnLower = (double *)malloc(n_var * sizeof(double));
-    columnUpper = (double *)malloc(n_var * sizeof(double));
+    columnLower = (FloatT *)malloc(n_var * sizeof(FloatT));
+    columnUpper = (FloatT *)malloc(n_var * sizeof(FloatT));
     for (i = 0; i < n_var; i++) {
       columnLower[i] = LUv[2 * i];
       if (columnLower[i] <= negInfinity)
@@ -484,8 +484,8 @@ int readAmpl(ampl_info *info, int argc, char **argv, void **coinModel)
         columnUpper[i] = COIN_DBL_MAX;
     }
     /* Row bounds*/
-    rowLower = (double *)malloc(n_con * sizeof(double));
-    rowUpper = (double *)malloc(n_con * sizeof(double));
+    rowLower = (FloatT *)malloc(n_con * sizeof(FloatT));
+    rowUpper = (FloatT *)malloc(n_con * sizeof(FloatT));
     for (i = 0; i < n_con; i++) {
       rowLower[i] = LUrhs[2 * i];
       if (rowLower[i] <= negInfinity)
@@ -517,8 +517,8 @@ int readAmpl(ampl_info *info, int argc, char **argv, void **coinModel)
     info->primalSolution = NULL;
     /* put in primalSolution if exists */
     if (X0) {
-      info->primalSolution = (double *)malloc(n_var * sizeof(double));
-      memcpy(info->primalSolution, X0, n_var * sizeof(double));
+      info->primalSolution = (FloatT *)malloc(n_var * sizeof(FloatT));
+      memcpy(info->primalSolution, X0, n_var * sizeof(FloatT));
     }
     info->dualSolution = NULL;
     if (niv + nbv > 0)
@@ -800,7 +800,7 @@ CoinModel::CoinModel(int nonLinear, const char *fileName, const void *info)
 static real
 qterm(ASL *asl, fint *colq, fint *rowq, real *delsq)
 {
-  double t, t1, *x, *x0, *xe;
+  FloatT t, t1, *x, *x0, *xe;
   fint *rq0, *rqe;
 
   t = 0.;
@@ -818,13 +818,13 @@ qterm(ASL *asl, fint *colq, fint *rowq, real *delsq)
 #endif
 // stolen from IPopt with changes
 typedef struct {
-  double obj_sign_;
+  FloatT obj_sign_;
   ASL_pfgh *asl_;
-  double *non_const_x_;
+  FloatT *non_const_x_;
   int *column_; // for jacobian
   int *rowStart_;
-  double *gradient_;
-  double *constraintValues_;
+  FloatT *gradient_;
+  FloatT *constraintValues_;
   int nz_h_full_; // number of nonzeros in hessian
   int nerror_;
   bool objval_called_with_current_x_;
@@ -840,13 +840,13 @@ void CoinModel::gdb(int nonLinear, const char *fileName, const void *info)
   SufDesc *csd = NULL;
   SufDesc *rsd = NULL;
   /*bool *basis, *lower;*/
-  /*double *LU, *c, lb, objadj, *rshift, *shift, t, ub, *x, *x0, *x1;*/
+  /*FloatT *LU, *c, lb, objadj, *rshift, *shift, t, ub, *x, *x0, *x1;*/
   //char tempBuffer[20];
-  double *objective = NULL;
-  double *columnLower = NULL;
-  double *columnUpper = NULL;
-  double *rowLower = NULL;
-  double *rowUpper = NULL;
+  FloatT *objective = NULL;
+  FloatT *columnLower = NULL;
+  FloatT *columnUpper = NULL;
+  FloatT *rowLower = NULL;
+  FloatT *rowUpper = NULL;
   int *columnStatus = NULL;
   int *rowStatus = NULL;
   int numberRows = -1;
@@ -860,8 +860,8 @@ void CoinModel::gdb(int nonLinear, const char *fileName, const void *info)
   int numberIntegerNonLinearConstraints = 0;
   int numberAllNonLinearObjective = 0;
   int numberIntegerNonLinearObjective = 0;
-  double *primalSolution = NULL;
-  double direction = 1.0;
+  FloatT *primalSolution = NULL;
+  FloatT direction = 1.0;
   char *stub = strdup(fileName);
   CoinPackedMatrix matrixByRow;
   fint **colqp = NULL;
@@ -874,7 +874,7 @@ void CoinModel::gdb(int nonLinear, const char *fileName, const void *info)
     suf_declare(suftab, sizeof(suftab) / sizeof(SufDecl));
 
     /* set A_vals to get the constraints column-wise (malloc so can be freed) */
-    A_vals = (double *)malloc(nzc * sizeof(double));
+    A_vals = (FloatT *)malloc(nzc * sizeof(FloatT));
     if (!A_vals) {
       printf("no memory\n");
       return;
@@ -896,7 +896,7 @@ void CoinModel::gdb(int nonLinear, const char *fileName, const void *info)
     if (true) {
       char *sostype;
       int nsosnz, *sosbeg, *sosind, *sospri;
-      double *sosref;
+      FloatT *sosref;
       int nsos;
       int i = ASL_suf_sos_explict_free;
       int copri[2], **p_sospri;
@@ -913,7 +913,7 @@ void CoinModel::gdb(int nonLinear, const char *fileName, const void *info)
         info->sosPriority = (int *)malloc(nsos * sizeof(int));
         info->sosStart = (int *)malloc((nsos + 1) * sizeof(int));
         info->sosIndices = (int *)malloc(nsosnz * sizeof(int));
-        info->sosReference = (double *)malloc(nsosnz * sizeof(double));
+        info->sosReference = (FloatT *)malloc(nsosnz * sizeof(FloatT));
         sos_kludge(nsos, sosbeg, sosref, sosind);
         for (int i = 0; i < nsos; i++) {
           int ichar = sostype[i];
@@ -923,7 +923,7 @@ void CoinModel::gdb(int nonLinear, const char *fileName, const void *info)
         memcpy(info->sosPriority, sospri, nsos * sizeof(int));
         memcpy(info->sosStart, sosbeg, (nsos + 1) * sizeof(int));
         memcpy(info->sosIndices, sosind, nsosnz * sizeof(int));
-        memcpy(info->sosReference, sosref, nsosnz * sizeof(double));
+        memcpy(info->sosReference, sosref, nsosnz * sizeof(FloatT));
 #endif
       }
     }
@@ -933,7 +933,7 @@ void CoinModel::gdb(int nonLinear, const char *fileName, const void *info)
     //if (getopts(argv, &Oinfo))
     //return 1;
     /* objective*/
-    objective = (double *)malloc(n_var * sizeof(double));
+    objective = (FloatT *)malloc(n_var * sizeof(FloatT));
     for (i = 0; i < n_var; i++)
       objective[i] = 0.0;
     if (n_obj) {
@@ -946,8 +946,8 @@ void CoinModel::gdb(int nonLinear, const char *fileName, const void *info)
       direction = 1.0;
     objectiveOffset_ = objconst(0);
     /* Column bounds*/
-    columnLower = (double *)malloc(n_var * sizeof(double));
-    columnUpper = (double *)malloc(n_var * sizeof(double));
+    columnLower = (FloatT *)malloc(n_var * sizeof(FloatT));
+    columnUpper = (FloatT *)malloc(n_var * sizeof(FloatT));
     for (i = 0; i < n_var; i++) {
       columnLower[i] = LUv[2 * i];
       if (columnLower[i] <= negInfinity)
@@ -957,8 +957,8 @@ void CoinModel::gdb(int nonLinear, const char *fileName, const void *info)
         columnUpper[i] = COIN_DBL_MAX;
     }
     /* Row bounds*/
-    rowLower = (double *)malloc(n_con * sizeof(double));
-    rowUpper = (double *)malloc(n_con * sizeof(double));
+    rowLower = (FloatT *)malloc(n_con * sizeof(FloatT));
+    rowUpper = (FloatT *)malloc(n_con * sizeof(FloatT));
     for (i = 0; i < n_con; i++) {
       rowLower[i] = LUrhs[2 * i];
       if (rowLower[i] <= negInfinity)
@@ -974,10 +974,10 @@ void CoinModel::gdb(int nonLinear, const char *fileName, const void *info)
     numberIntegers = niv;
     /* put in primalSolution if exists */
     if (X0) {
-      primalSolution = (double *)malloc(n_var * sizeof(double));
-      memcpy(primalSolution, X0, n_var * sizeof(double));
+      primalSolution = (FloatT *)malloc(n_var * sizeof(FloatT));
+      memcpy(primalSolution, X0, n_var * sizeof(FloatT));
     }
-    //double * dualSolution=NULL;
+    //FloatT * dualSolution=NULL;
     if (niv + nbv > 0)
       mip_stuff(); // get any extra info
     if ((!(niv + nbv) && (csd->kind & ASL_Sufkind_input))
@@ -1012,21 +1012,21 @@ void CoinModel::gdb(int nonLinear, const char *fileName, const void *info)
     free(stub);
     suf_declare(suftab, sizeof(suftab) / sizeof(SufDecl));
     /* read  model*/
-    X0 = (double *)malloc(n_var * sizeof(double));
+    X0 = (FloatT *)malloc(n_var * sizeof(FloatT));
     CoinZeroN(X0, n_var);
     qp_read(nl, 0);
     assert(n_obj == 1);
     int nz = 1 + n_con;
-    colqp = (fint **)malloc(nz * (2 * sizeof(int *) + sizeof(double *)));
+    colqp = (fint **)malloc(nz * (2 * sizeof(int *) + sizeof(FloatT *)));
     fint **rowqp = colqp + nz;
-    double **delsqp = (double **)(rowqp + nz);
+    FloatT **delsqp = (FloatT **)(rowqp + nz);
     z = (int *)malloc(nz * sizeof(int));
     for (i = 0; i <= n_con; i++) {
       z[i] = nqpcheck(-i, rowqp + i, colqp + i, delsqp + i);
     }
     qp_opify();
     /* objective*/
-    objective = (double *)malloc(n_var * sizeof(double));
+    objective = (FloatT *)malloc(n_var * sizeof(FloatT));
     for (i = 0; i < n_var; i++)
       objective[i] = 0.0;
     if (n_obj) {
@@ -1039,8 +1039,8 @@ void CoinModel::gdb(int nonLinear, const char *fileName, const void *info)
       direction = 1.0;
     objectiveOffset_ = objconst(0);
     /* Column bounds*/
-    columnLower = (double *)malloc(n_var * sizeof(double));
-    columnUpper = (double *)malloc(n_var * sizeof(double));
+    columnLower = (FloatT *)malloc(n_var * sizeof(FloatT));
+    columnUpper = (FloatT *)malloc(n_var * sizeof(FloatT));
     for (i = 0; i < n_var; i++) {
       columnLower[i] = LUv[2 * i];
       if (columnLower[i] <= negInfinity)
@@ -1054,11 +1054,11 @@ void CoinModel::gdb(int nonLinear, const char *fileName, const void *info)
     // say row orderded
     matrixByRow.transpose();
     /* Row bounds*/
-    rowLower = (double *)malloc(n_con * sizeof(double));
-    rowUpper = (double *)malloc(n_con * sizeof(double));
+    rowLower = (FloatT *)malloc(n_con * sizeof(FloatT));
+    rowUpper = (FloatT *)malloc(n_con * sizeof(FloatT));
     CoinBigIndex *rowStart = new CoinBigIndex[n_con + 1];
     int *column = new int[nzc];
-    double *element = new double[nzc];
+    FloatT *element = new FloatT[nzc];
     rowStart[0] = 0;
     numberElements = 0;
     for (i = 0; i < n_con; i++) {
@@ -1092,7 +1092,7 @@ void CoinModel::gdb(int nonLinear, const char *fileName, const void *info)
     numberIntegerNonLinearObjective = nlvoi;
     /* say we want primal solution */
     want_xpi0 = 1;
-    //double * dualSolution=NULL;
+    //FloatT * dualSolution=NULL;
     // save asl
     // Fix memory leak one day
     ClpAmplInfo *info = new ClpAmplInfo;
@@ -1117,7 +1117,7 @@ void CoinModel::gdb(int nonLinear, const char *fileName, const void *info)
     free(stub);
     suf_declare(suftab, sizeof(suftab) / sizeof(SufDecl));
     /* read  model*/
-    X0 = (double *)malloc(n_var * sizeof(double));
+    X0 = (FloatT *)malloc(n_var * sizeof(FloatT));
     CoinZeroN(X0, n_var);
     // code stolen from Ipopt
     int retcode = pfgh_read(nl, ASL_return_read_err | ASL_findgroups);
@@ -1210,11 +1210,11 @@ void CoinModel::gdb(int nonLinear, const char *fileName, const void *info)
         }
         rowStart[i + 1] = current_nz;
       }
-      info->gradient_ = new double[nzc];
-      info->constraintValues_ = new double[nlc];
+      info->gradient_ = new FloatT[nzc];
+      info->constraintValues_ = new FloatT[nlc];
     }
     /* objective*/
-    objective = (double *)malloc(n_var * sizeof(double));
+    objective = (FloatT *)malloc(n_var * sizeof(FloatT));
     for (i = 0; i < n_var; i++)
       objective[i] = 0.0;
     if (n_obj) {
@@ -1227,8 +1227,8 @@ void CoinModel::gdb(int nonLinear, const char *fileName, const void *info)
       direction = 1.0;
     objectiveOffset_ = objconst(0);
     /* Column bounds*/
-    columnLower = (double *)malloc(n_var * sizeof(double));
-    columnUpper = (double *)malloc(n_var * sizeof(double));
+    columnLower = (FloatT *)malloc(n_var * sizeof(FloatT));
+    columnUpper = (FloatT *)malloc(n_var * sizeof(FloatT));
     for (i = 0; i < n_var; i++) {
       columnLower[i] = LUv[2 * i];
       if (columnLower[i] <= negInfinity)
@@ -1243,12 +1243,12 @@ void CoinModel::gdb(int nonLinear, const char *fileName, const void *info)
     matrixByRow.transpose();
     CoinBigIndex *rowStart = new CoinBigIndex[n_con + 1];
     int *column = new int[nzc];
-    double *element = new double[nzc];
+    FloatT *element = new FloatT[nzc];
     rowStart[0] = 0;
     numberElements = 0;
     /* Row bounds*/
-    rowLower = (double *)malloc(n_con * sizeof(double));
-    rowUpper = (double *)malloc(n_con * sizeof(double));
+    rowLower = (FloatT *)malloc(n_con * sizeof(FloatT));
+    rowUpper = (FloatT *)malloc(n_con * sizeof(FloatT));
     for (i = 0; i < n_con; i++) {
       rowLower[i] = LUrhs[2 * i];
       if (rowLower[i] <= negInfinity)
@@ -1258,7 +1258,7 @@ void CoinModel::gdb(int nonLinear, const char *fileName, const void *info)
         rowUpper[i] = COIN_DBL_MAX;
       for (cgrad *cg = Cgrad[i]; cg; cg = cg->next) {
         column[numberElements] = cg->varno;
-        double value = cg->coef;
+        FloatT value = cg->coef;
         if (!value)
           value = -1.2345e-29;
         element[numberElements++] = value;
@@ -1283,7 +1283,7 @@ void CoinModel::gdb(int nonLinear, const char *fileName, const void *info)
     numberIntegerNonLinearObjective = nlvoi;
     /* say we want primal solution */
     want_xpi0 = 1;
-    //double * dualSolution=NULL;
+    //FloatT * dualSolution=NULL;
   } else {
     abort();
   }
@@ -1291,7 +1291,7 @@ void CoinModel::gdb(int nonLinear, const char *fileName, const void *info)
   problemName_ = "???";
 
   // Build by row from scratch
-  const double *element = matrixByRow.getElements();
+  const FloatT *element = matrixByRow.getElements();
   const int *column = matrixByRow.getIndices();
   const CoinBigIndex *rowStart = matrixByRow.getVectorStarts();
   const int *rowLength = matrixByRow.getVectorLengths();
@@ -1344,11 +1344,11 @@ void CoinModel::gdb(int nonLinear, const char *fileName, const void *info)
     int nz = 1 + n_con;
     int nOdd = 0;
     fint **rowqp = colqp + nz;
-    double **delsqp = (double **)(rowqp + nz);
+    FloatT **delsqp = (FloatT **)(rowqp + nz);
     for (i = 0; i <= n_con; i++) {
       int nels = z[i];
       if (nels) {
-        double *element = delsqp[i];
+        FloatT *element = delsqp[i];
         int *start = (int *)colqp[i];
         int *row = (int *)rowqp[i];
         if (!element) {
@@ -1368,14 +1368,14 @@ void CoinModel::gdb(int nonLinear, const char *fileName, const void *info)
           for (int j = 0; j < n_var; j++) {
             for (int k = start[j]; k < start[j + 1]; k++) {
               int kColumn = row[k];
-              double value = element[k];
+              FloatT value = element[k];
               // ampl gives twice with assumed 0.5
               if (kColumn < j)
                 continue;
               else if (kColumn == j)
                 value *= 0.5;
               const char *expr = getElementAsString(iRow, j);
-              double constant = 0.0;
+              FloatT constant = 0.0;
               bool linear;
               if (expr && strcmp(expr, "Numeric")) {
                 linear = false;
@@ -1413,14 +1413,14 @@ void CoinModel::gdb(int nonLinear, const char *fileName, const void *info)
           for (int j = 0; j < n_var; j++) {
             for (int k = start[j]; k < start[j + 1]; k++) {
               int kColumn = row[k];
-              double value = element[k];
+              FloatT value = element[k];
               // ampl gives twice with assumed 0.5
               if (kColumn < j)
                 continue;
               else if (kColumn == j)
                 value *= 0.5;
               const char *expr = getColumnObjectiveAsString(j);
-              double constant = 0.0;
+              FloatT constant = 0.0;
               bool linear;
               if (expr && strcmp(expr, "Numeric")) {
                 linear = false;
@@ -1467,7 +1467,7 @@ void CoinModel::gdb(int nonLinear, const char *fileName, const void *info)
   {
     char *sostype;
     int nsosnz, *sosbeg, *sosind, *sospri;
-    double *sosref;
+    FloatT *sosref;
     int nsos;
     int i = ASL_suf_sos_explict_free;
     int copri[2], **p_sospri;
@@ -1482,7 +1482,7 @@ void CoinModel::gdb(int nonLinear, const char *fileName, const void *info)
       prioritySOS_ = new int[numberSOS_];
       startSOS_ = new int[numberSOS_ + 1];
       memberSOS_ = new int[nsosnz];
-      referenceSOS_ = new double[nsosnz];
+      referenceSOS_ = new FloatT[nsosnz];
       sos_kludge(nsos, sosbeg, sosref, sosind);
       for (int i = 0; i < nsos; i++) {
         int ichar = sostype[i];
@@ -1492,7 +1492,7 @@ void CoinModel::gdb(int nonLinear, const char *fileName, const void *info)
       memcpy(prioritySOS_, sospri, nsos * sizeof(int));
       memcpy(startSOS_, sosbeg, (nsos + 1) * sizeof(int));
       memcpy(memberSOS_, sosind, nsosnz * sizeof(int));
-      memcpy(referenceSOS_, sosref, nsosnz * sizeof(double));
+      memcpy(referenceSOS_, sosref, nsosnz * sizeof(FloatT));
     }
   }
 }

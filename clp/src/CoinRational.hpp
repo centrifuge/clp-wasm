@@ -5,7 +5,8 @@
 #ifndef CoinRational_H
 #define CoinRational_H
 
-#include <cmath>
+#include "floatdef.h"
+
 
 //Small class for rational numbers
 class CoinRational {
@@ -22,7 +23,7 @@ public:
     : numerator_(n)
     , denominator_(d) {};
 
-  CoinRational(double val, double maxdelta, long maxdnom)
+  CoinRational(FloatT val, FloatT maxdelta, long maxdnom)
   {
     if (!nearestRational_(val, maxdelta, maxdnom)) {
       numerator_ = 0;
@@ -34,7 +35,7 @@ private:
   long numerator_;
   long denominator_;
 
-  bool nearestRational_(double val, double maxdelta, long maxdnom);
+  bool nearestRational_(FloatT val, FloatT maxdelta, long maxdnom);
 };
 
 #endif

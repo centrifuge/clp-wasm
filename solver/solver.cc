@@ -89,8 +89,8 @@ int main(int argc, char * argv[])
     {
         const auto problemFile = std::string(argv[k]);
 
-      //  rc = runClpSolverForFile(problemFile);
-        rc = runCpplexSolverForFile(problemFile);
+        rc = runClpSolverForFile(problemFile);
+        //  rc = runCpplexSolverForFile(problemFile);
 
         if (rc != 0)
             break;

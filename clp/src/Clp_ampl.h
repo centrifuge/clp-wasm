@@ -17,34 +17,34 @@ typedef struct {
   int numberElements;
   int numberArguments;
   int problemStatus;
-  double direction;
-  double offset;
-  double objValue;
-  double *objective;
-  double *rowLower;
-  double *rowUpper;
-  double *columnLower;
-  double *columnUpper;
+  FloatT direction;
+  FloatT offset;
+  FloatT objValue;
+  FloatT *objective;
+  FloatT *rowLower;
+  FloatT *rowUpper;
+  FloatT *columnLower;
+  FloatT *columnUpper;
 #if COIN_BIG_INDEX == 0
   int *starts;
 #else
   long unsigned int *starts;
 #endif
   int *rows;
-  double *elements;
-  double *primalSolution;
-  double *dualSolution;
+  FloatT *elements;
+  FloatT *primalSolution;
+  FloatT *dualSolution;
   int *columnStatus;
   int *rowStatus;
   int *priorities;
   int *branchDirection;
-  double *pseudoDown;
-  double *pseudoUp;
+  FloatT *pseudoDown;
+  FloatT *pseudoUp;
   char *sosType;
   int *sosPriority;
   int *sosStart;
   int *sosIndices;
-  double *sosReference;
+  FloatT *sosReference;
   int *cut;
   int *special;
   char **arguments;

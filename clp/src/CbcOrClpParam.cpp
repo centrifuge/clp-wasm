@@ -84,7 +84,7 @@ CbcOrClpParam::CbcOrClpParam()
   , currentKeyWord_(-1)
   , display_(0)
   , intValue_(-1)
-  , doubleValue_(-1.0)
+  , FloatTValue_(-1.0)
   , stringValue_("")
   , whereUsed_(7)
   , fakeKeyWord_(-1)
@@ -93,7 +93,7 @@ CbcOrClpParam::CbcOrClpParam()
 }
 // Other constructors
 CbcOrClpParam::CbcOrClpParam(std::string name, std::string help,
-  double lower, double upper, CbcOrClpParameterType type,
+  FloatT lower, FloatT upper, CbcOrClpParameterType type,
   int display)
   : type_(type)
   , lowerIntValue_(0)
@@ -106,7 +106,7 @@ CbcOrClpParam::CbcOrClpParam(std::string name, std::string help,
   , currentKeyWord_(-1)
   , display_(display)
   , intValue_(-1)
-  , doubleValue_(-1.0)
+  , FloatTValue_(-1.0)
   , stringValue_("")
   , whereUsed_(7)
   , fakeKeyWord_(-1)
@@ -130,7 +130,7 @@ CbcOrClpParam::CbcOrClpParam(std::string name, std::string help,
   , currentKeyWord_(-1)
   , display_(display)
   , intValue_(-1)
-  , doubleValue_(-1.0)
+  , FloatTValue_(-1.0)
   , stringValue_("")
   , whereUsed_(7)
   , fakeKeyWord_(-1)
@@ -158,7 +158,7 @@ CbcOrClpParam::CbcOrClpParam(std::string name, std::string help,
   , currentKeyWord_(0)
   , display_(display)
   , intValue_(-1)
-  , doubleValue_(-1.0)
+  , FloatTValue_(-1.0)
   , stringValue_("")
   , whereUsed_(whereUsed)
   , fakeKeyWord_(-1)
@@ -184,7 +184,7 @@ CbcOrClpParam::CbcOrClpParam(std::string name, std::string help,
   , currentKeyWord_(-1)
   , display_(display)
   , intValue_(-1)
-  , doubleValue_(-1.0)
+  , FloatTValue_(-1.0)
   , stringValue_("")
   , fakeKeyWord_(-1)
   , fakeValue_(0)
@@ -213,7 +213,7 @@ CbcOrClpParam::CbcOrClpParam(const CbcOrClpParam &rhs)
   currentKeyWord_ = rhs.currentKeyWord_;
   display_ = rhs.display_;
   intValue_ = rhs.intValue_;
-  doubleValue_ = rhs.doubleValue_;
+  FloatTValue_ = rhs.FloatTValue_;
   stringValue_ = rhs.stringValue_;
   whereUsed_ = rhs.whereUsed_;
   fakeKeyWord_ = rhs.fakeKeyWord_;
@@ -249,7 +249,7 @@ CbcOrClpParam::operator=(const CbcOrClpParam &rhs)
     currentKeyWord_ = rhs.currentKeyWord_;
     display_ = rhs.display_;
     intValue_ = rhs.intValue_;
-    doubleValue_ = rhs.doubleValue_;
+    FloatTValue_ = rhs.FloatTValue_;
     stringValue_ = rhs.stringValue_;
     whereUsed_ = rhs.whereUsed_;
     fakeKeyWord_ = rhs.fakeKeyWord_;
@@ -485,7 +485,7 @@ void CbcOrClpParam::printLongHelp() const
   if (type_ >= 1 && type_ < 600) {
     CoinReadPrintit(longHelp_.c_str());
     if (type_ < CLP_PARAM_INT_SOLVERLOGLEVEL) {
-      printf("<Range of values is %g to %g;\n\tcurrent %g>\n", lowerDoubleValue_, upperDoubleValue_, doubleValue_);
+      printf("<Range of values is %g to %g;\n\tcurrent %g>\n", lowerDoubleValue_, upperDoubleValue_, FloatTValue_);
       assert(upperDoubleValue_ > lowerDoubleValue_);
     } else if (type_ < CLP_PARAM_STR_DIRECTION) {
       printf("<Range of values is %d to %d;\n\tcurrent %d>\n", lowerIntValue_, upperIntValue_, intValue_);
@@ -496,7 +496,7 @@ void CbcOrClpParam::printLongHelp() const
   }
 }
 #ifdef COIN_HAS_CBC
-int CbcOrClpParam::setDoubleParameter(OsiSolverInterface *model, double value)
+int CbcOrClpParam::setDoubleParameter(OsiSolverInterface *model, FloatT value)
 {
   int returnCode;
   setDoubleParameterWithMessage(model, value, returnCode);
@@ -504,9 +504,9 @@ int CbcOrClpParam::setDoubleParameter(OsiSolverInterface *model, double value)
     std::cout << printArray << std::endl;
   return returnCode;
 }
-// Sets double parameter and returns printable string and error code
+// Sets FloatT parameter and returns printable string and error code
 const char *
-CbcOrClpParam::setDoubleParameterWithMessage(OsiSolverInterface *model, double value, int &returnCode)
+CbcOrClpParam::setDoubleParameterWithMessage(OsiSolverInterface *model, FloatT value, int &returnCode)
 {
   if (value < lowerDoubleValue_ || value > upperDoubleValue_) {
     sprintf(printArray, "%g was provided for %s - valid range is %g to %g",
@@ -514,8 +514,8 @@ CbcOrClpParam::setDoubleParameterWithMessage(OsiSolverInterface *model, double v
     std::cout << value << " was provided for " << name_ << " - valid range is " << lowerDoubleValue_ << " to " << upperDoubleValue_ << std::endl;
     returnCode = 1;
   } else {
-    double oldValue = doubleValue_;
-    doubleValue_ = value;
+    FloatT oldValue = FloatTValue_;
+    FloatTValue_ = value;
     switch (type_) {
     case CLP_PARAM_DBL_DUALTOLERANCE:
       model->getDblParam(OsiDualTolerance, oldValue);
@@ -536,7 +536,7 @@ CbcOrClpParam::setDoubleParameterWithMessage(OsiSolverInterface *model, double v
 }
 #endif
 #ifdef COIN_HAS_CLP
-int CbcOrClpParam::setDoubleParameter(ClpSimplex *model, double value)
+int CbcOrClpParam::setDoubleParameter(ClpSimplex *model, FloatT value)
 {
   int returnCode;
   setDoubleParameterWithMessage(model, value, returnCode);
@@ -546,9 +546,9 @@ int CbcOrClpParam::setDoubleParameter(ClpSimplex *model, double value)
 }
 // Sets int parameter and returns printable string and error code
 const char *
-CbcOrClpParam::setDoubleParameterWithMessage(ClpSimplex *model, double value, int &returnCode)
+CbcOrClpParam::setDoubleParameterWithMessage(ClpSimplex *model, FloatT value, int &returnCode)
 {
-  double oldValue = doubleValue_;
+  FloatT oldValue = FloatTValue_;
   if (value < lowerDoubleValue_ || value > upperDoubleValue_) {
     sprintf(printArray, "%g was provided for %s - valid range is %g to %g",
       value, name_.c_str(), lowerDoubleValue_, upperDoubleValue_);
@@ -557,7 +557,7 @@ CbcOrClpParam::setDoubleParameterWithMessage(ClpSimplex *model, double value, in
     sprintf(printArray, "%s was changed from %g to %g",
       name_.c_str(), oldValue, value);
     returnCode = 0;
-    doubleValue_ = value;
+    FloatTValue_ = value;
     switch (type_) {
     case CLP_PARAM_DBL_DUALTOLERANCE:
       model->setDualTolerance(value);
@@ -594,10 +594,10 @@ CbcOrClpParam::setDoubleParameterWithMessage(ClpSimplex *model, double value, in
   }
   return printArray;
 }
-double
-CbcOrClpParam::doubleParameter(ClpSimplex *model) const
+FloatT
+CbcOrClpParam::FloatTParameter(ClpSimplex *model) const
 {
-  double value;
+  FloatT value;
   switch (type_) {
 #ifndef COIN_HAS_CBC
   case CLP_PARAM_DBL_DUALTOLERANCE:
@@ -631,7 +631,7 @@ CbcOrClpParam::doubleParameter(ClpSimplex *model) const
     value = model->presolveTolerance();
     break;
   default:
-    value = doubleValue_;
+    value = FloatTValue_;
     break;
   }
   return value;
@@ -680,7 +680,7 @@ CbcOrClpParam::setIntParameterWithMessage(ClpSimplex *model, int value, int &ret
       break;
     case CLP_PARAM_INT_RANDOMSEED: {
       if (value == 0) {
-        double time = fabs(CoinGetTimeOfDay());
+        FloatT time = fabs(CoinGetTimeOfDay());
         while (time >= COIN_INT_MAX)
           time *= 0.5;
         value = static_cast< int >(time);
@@ -753,7 +753,7 @@ int CbcOrClpParam::intParameter(ClpSimplex *model) const
   return value;
 }
 #endif
-int CbcOrClpParam::checkDoubleParameter(double value) const
+int CbcOrClpParam::checkDoubleParameter(FloatT value) const
 {
   if (value < lowerDoubleValue_ || value > upperDoubleValue_) {
     std::cout << value << " was provided for " << name_ << " - valid range is " << lowerDoubleValue_ << " to " << upperDoubleValue_ << std::endl;
@@ -763,10 +763,10 @@ int CbcOrClpParam::checkDoubleParameter(double value) const
   }
 }
 #ifdef COIN_HAS_CBC
-double
-CbcOrClpParam::doubleParameter(OsiSolverInterface *model) const
+FloatT
+CbcOrClpParam::FloatTParameter(OsiSolverInterface *model) const
 {
-  double value = 0.0;
+  FloatT value = 0.0;
   switch (type_) {
   case CLP_PARAM_DBL_DUALTOLERANCE:
     model->getDblParam(OsiDualTolerance, value);
@@ -775,7 +775,7 @@ CbcOrClpParam::doubleParameter(OsiSolverInterface *model) const
     model->getDblParam(OsiPrimalTolerance, value);
     break;
   default:
-    return doubleValue_;
+    return FloatTValue_;
     break;
   }
   return value;
@@ -825,7 +825,7 @@ int CbcOrClpParam::intParameter(OsiSolverInterface *model) const
   }
   return value;
 }
-int CbcOrClpParam::setDoubleParameter(CbcModel &model, double value)
+int CbcOrClpParam::setDoubleParameter(CbcModel &model, FloatT value)
 {
   int returnCode = 0;
   setDoubleParameterWithMessage(model, value, returnCode);
@@ -833,17 +833,17 @@ int CbcOrClpParam::setDoubleParameter(CbcModel &model, double value)
     std::cout << printArray << std::endl;
   return returnCode;
 }
-// Sets double parameter and returns printable string and error code
+// Sets FloatT parameter and returns printable string and error code
 const char *
-CbcOrClpParam::setDoubleParameterWithMessage(CbcModel &model, double value, int &returnCode)
+CbcOrClpParam::setDoubleParameterWithMessage(CbcModel &model, FloatT value, int &returnCode)
 {
   if (value < lowerDoubleValue_ || value > upperDoubleValue_) {
     sprintf(printArray, "%g was provided for %s - valid range is %g to %g",
       value, name_.c_str(), lowerDoubleValue_, upperDoubleValue_);
     returnCode = 1;
   } else {
-    double oldValue = doubleValue_;
-    doubleValue_ = value;
+    FloatT oldValue = FloatTValue_;
+    FloatTValue_ = value;
     switch (type_) {
     case CBC_PARAM_DBL_INFEASIBILITYWEIGHT:
       oldValue = model.getDblParam(CbcModel::CbcInfeasibilityWeight);
@@ -890,10 +890,10 @@ CbcOrClpParam::setDoubleParameterWithMessage(CbcModel &model, double value, int 
   }
   return printArray;
 }
-double
-CbcOrClpParam::doubleParameter(CbcModel &model) const
+FloatT
+CbcOrClpParam::FloatTParameter(CbcModel &model) const
 {
-  double value;
+  FloatT value;
   switch (type_) {
   case CBC_PARAM_DBL_INFEASIBILITYWEIGHT:
     value = model.getDblParam(CbcModel::CbcInfeasibilityWeight);
@@ -918,10 +918,10 @@ CbcOrClpParam::doubleParameter(CbcModel &model) const
     break;
   case CLP_PARAM_DBL_DUALTOLERANCE:
   case CLP_PARAM_DBL_PRIMALTOLERANCE:
-    value = doubleParameter(model.solver());
+    value = FloatTParameter(model.solver());
     break;
   default:
-    value = doubleValue_;
+    value = FloatTValue_;
     break;
   }
   return value;
@@ -1169,27 +1169,27 @@ CbcOrClpParam::setIntValueWithMessage(int value)
   }
   return printArray;
 }
-void CbcOrClpParam::setDoubleValue(double value)
+void CbcOrClpParam::setDoubleValue(FloatT value)
 {
   if (value < lowerDoubleValue_ || value > upperDoubleValue_) {
     std::cout << value << " was provided for " << name_ << " - valid range is " << lowerDoubleValue_ << " to " << upperDoubleValue_ << std::endl;
   } else {
-    doubleValue_ = value;
+    FloatTValue_ = value;
   }
 }
 const char *
-CbcOrClpParam::setDoubleValueWithMessage(double value)
+CbcOrClpParam::setDoubleValueWithMessage(FloatT value)
 {
   printArray[0] = '\0';
   if (value < lowerDoubleValue_ || value > upperDoubleValue_) {
     sprintf(printArray, "%g was provided for %s - valid range is %g to %g",
       value, name_.c_str(), lowerDoubleValue_, upperDoubleValue_);
   } else {
-    if (value == doubleValue_)
+    if (value == FloatTValue_)
       return NULL;
     sprintf(printArray, "%s was changed from %g to %g",
-      name_.c_str(), doubleValue_, value);
-    doubleValue_ = value;
+      name_.c_str(), FloatTValue_, value);
+    FloatTValue_ = value;
   }
   return printArray;
 }
@@ -1444,7 +1444,7 @@ int CoinReadGetIntField(int argc, const char *argv[], int *valid)
   }
   return static_cast< int >(value);
 }
-double
+FloatT
 CoinReadGetDoubleField(int argc, const char *argv[], int *valid)
 {
   std::string field = "EOL";
@@ -1466,7 +1466,7 @@ CoinReadGetDoubleField(int argc, const char *argv[], int *valid)
     field = afterEquals;
     afterEquals = "";
   }
-  double value = 0.0;
+  FloatT value = 0.0;
   //std::cout<<field<<std::endl;
   if (field != "EOL") {
     const char *start = field.c_str();
@@ -1957,19 +1957,19 @@ The actual logic is too twisted to describe here.");
     parameters.push_back(p);
   }
   {
-    CbcOrClpParam p("dextra3", "Extra double parameter 3",
+    CbcOrClpParam p("dextra3", "Extra FloatT parameter 3",
       -COIN_DBL_MAX, COIN_DBL_MAX, CBC_PARAM_DBL_DEXTRA3, 0);
     p.setDoubleValue(0.0);
     parameters.push_back(p);
   }
   {
-    CbcOrClpParam p("dextra4", "Extra double parameter 4",
+    CbcOrClpParam p("dextra4", "Extra FloatT parameter 4",
       -COIN_DBL_MAX, COIN_DBL_MAX, CBC_PARAM_DBL_DEXTRA4, 0);
     p.setDoubleValue(0.0);
     parameters.push_back(p);
   }
   {
-    CbcOrClpParam p("dextra4", "Extra double parameter 5",
+    CbcOrClpParam p("dextra4", "Extra FloatT parameter 5",
       -COIN_DBL_MAX, COIN_DBL_MAX, CBC_PARAM_DBL_DEXTRA5, 0);
     p.setDoubleValue(0.0);
     parameters.push_back(p);
@@ -3705,7 +3705,7 @@ See option cuts for more information on the possible values.");
       "This will write a binary solution file to the given file name.  It will use the default\
  directory given by 'directory'.  A name of '$' will use the previous value for the name.  This\
  is initialized to 'solution.file'.  To read the file use fread(int) twice to pick up number of rows \
-and columns, then fread(double) to pick up objective value, then pick up row activities, row duals, column \
+and columns, then fread(FloatT) to pick up objective value, then pick up row activities, row duals, column \
 activities and reduced costs - see bottom of CbcOrClpParam.cpp for code that reads or writes file. \
 If name contains '_fix_read_' then does not write but reads and will fix all variables");
     parameters.push_back(p);
@@ -4144,7 +4144,7 @@ void restoreSolution(ClpSimplex *lpSolver, std::string fileName, int mode)
     int numberColumns = lpSolver->numberColumns();
     int numberRowsFile;
     int numberColumnsFile;
-    double objectiveValue;
+    FloatT objectiveValue;
     size_t nRead;
     nRead = fread(&numberRowsFile, sizeof(int), 1, fp);
     if (nRead != 1)
@@ -4152,19 +4152,19 @@ void restoreSolution(ClpSimplex *lpSolver, std::string fileName, int mode)
     nRead = fread(&numberColumnsFile, sizeof(int), 1, fp);
     if (nRead != 1)
       throw("Error in fread");
-    nRead = fread(&objectiveValue, sizeof(double), 1, fp);
+    nRead = fread(&objectiveValue, sizeof(FloatT), 1, fp);
     if (nRead != 1)
       throw("Error in fread");
-    double *dualRowSolution = lpSolver->dualRowSolution();
-    double *primalRowSolution = lpSolver->primalRowSolution();
-    double *dualColumnSolution = lpSolver->dualColumnSolution();
-    double *primalColumnSolution = lpSolver->primalColumnSolution();
+    FloatT *dualRowSolution = lpSolver->dualRowSolution();
+    FloatT *primalRowSolution = lpSolver->primalRowSolution();
+    FloatT *dualColumnSolution = lpSolver->dualColumnSolution();
+    FloatT *primalColumnSolution = lpSolver->primalColumnSolution();
     if (mode) {
       // swap
       int k = numberRows;
       numberRows = numberColumns;
       numberColumns = k;
-      double *temp;
+      FloatT *temp;
       temp = dualRowSolution;
       dualRowSolution = primalColumnSolution;
       primalColumnSolution = temp;
@@ -4177,34 +4177,34 @@ void restoreSolution(ClpSimplex *lpSolver, std::string fileName, int mode)
     } else {
       lpSolver->setObjectiveValue(objectiveValue);
       if (numberRows == numberRowsFile && numberColumns == numberColumnsFile) {
-        nRead = fread(primalRowSolution, sizeof(double), numberRows, fp);
+        nRead = fread(primalRowSolution, sizeof(FloatT), numberRows, fp);
         if (nRead != static_cast< size_t >(numberRows))
           throw("Error in fread");
-        nRead = fread(dualRowSolution, sizeof(double), numberRows, fp);
+        nRead = fread(dualRowSolution, sizeof(FloatT), numberRows, fp);
         if (nRead != static_cast< size_t >(numberRows))
           throw("Error in fread");
-        nRead = fread(primalColumnSolution, sizeof(double), numberColumns, fp);
+        nRead = fread(primalColumnSolution, sizeof(FloatT), numberColumns, fp);
         if (nRead != static_cast< size_t >(numberColumns))
           throw("Error in fread");
-        nRead = fread(dualColumnSolution, sizeof(double), numberColumns, fp);
+        nRead = fread(dualColumnSolution, sizeof(FloatT), numberColumns, fp);
         if (nRead != static_cast< size_t >(numberColumns))
           throw("Error in fread");
       } else {
         std::cout << "Mismatch on rows and/or columns - truncating" << std::endl;
-        double *temp = new double[CoinMax(numberRowsFile, numberColumnsFile)];
-        nRead = fread(temp, sizeof(double), numberRowsFile, fp);
+        FloatT *temp = new FloatT[CoinMax(numberRowsFile, numberColumnsFile)];
+        nRead = fread(temp, sizeof(FloatT), numberRowsFile, fp);
         if (nRead != static_cast< size_t >(numberRowsFile))
           throw("Error in fread");
         CoinMemcpyN(temp, numberRows, primalRowSolution);
-        nRead = fread(temp, sizeof(double), numberRowsFile, fp);
+        nRead = fread(temp, sizeof(FloatT), numberRowsFile, fp);
         if (nRead != static_cast< size_t >(numberRowsFile))
           throw("Error in fread");
         CoinMemcpyN(temp, numberRows, dualRowSolution);
-        nRead = fread(temp, sizeof(double), numberColumnsFile, fp);
+        nRead = fread(temp, sizeof(FloatT), numberColumnsFile, fp);
         if (nRead != static_cast< size_t >(numberColumnsFile))
           throw("Error in fread");
         CoinMemcpyN(temp, numberColumns, primalColumnSolution);
-        nRead = fread(temp, sizeof(double), numberColumnsFile, fp);
+        nRead = fread(temp, sizeof(FloatT), numberColumnsFile, fp);
         if (nRead != static_cast< size_t >(numberColumnsFile))
           throw("Error in fread");
         CoinMemcpyN(temp, numberColumns, dualColumnSolution);
@@ -4239,11 +4239,11 @@ void saveSolution(const ClpSimplex *lpSolver, std::string fileName)
       int logLevel = solver->logLevel();
       int iColumn;
       int numberColumns = solver->numberColumns();
-      double *primalColumnSolution = solver->primalColumnSolution();
-      double *columnLower = solver->columnLower();
-      double *columnUpper = solver->columnUpper();
+      FloatT *primalColumnSolution = solver->primalColumnSolution();
+      FloatT *columnLower = solver->columnLower();
+      FloatT *columnUpper = solver->columnUpper();
       for (iColumn = 0; iColumn < numberColumns; iColumn++) {
-        double value = primalColumnSolution[iColumn];
+        FloatT value = primalColumnSolution[iColumn];
         if (value > columnUpper[iColumn]) {
           if (value > columnUpper[iColumn] + 1.0e-6 && logLevel > 1)
             printf("%d value of %g - bounds %g %g\n",
@@ -4265,7 +4265,7 @@ void saveSolution(const ClpSimplex *lpSolver, std::string fileName)
   if (fp) {
     int numberRows = lpSolver->numberRows();
     int numberColumns = lpSolver->numberColumns();
-    double objectiveValue = lpSolver->objectiveValue();
+    FloatT objectiveValue = lpSolver->objectiveValue();
     size_t nWrite;
     nWrite = fwrite(&numberRows, sizeof(int), 1, fp);
     if (nWrite != 1)
@@ -4273,23 +4273,23 @@ void saveSolution(const ClpSimplex *lpSolver, std::string fileName)
     nWrite = fwrite(&numberColumns, sizeof(int), 1, fp);
     if (nWrite != 1)
       throw("Error in fwrite");
-    nWrite = fwrite(&objectiveValue, sizeof(double), 1, fp);
+    nWrite = fwrite(&objectiveValue, sizeof(FloatT), 1, fp);
     if (nWrite != 1)
       throw("Error in fwrite");
-    double *dualRowSolution = lpSolver->dualRowSolution();
-    double *primalRowSolution = lpSolver->primalRowSolution();
-    nWrite = fwrite(primalRowSolution, sizeof(double), numberRows, fp);
+    FloatT *dualRowSolution = lpSolver->dualRowSolution();
+    FloatT *primalRowSolution = lpSolver->primalRowSolution();
+    nWrite = fwrite(primalRowSolution, sizeof(FloatT), numberRows, fp);
     if (nWrite != static_cast< size_t >(numberRows))
       throw("Error in fwrite");
-    nWrite = fwrite(dualRowSolution, sizeof(double), numberRows, fp);
+    nWrite = fwrite(dualRowSolution, sizeof(FloatT), numberRows, fp);
     if (nWrite != static_cast< size_t >(numberRows))
       throw("Error in fwrite");
-    double *dualColumnSolution = lpSolver->dualColumnSolution();
-    double *primalColumnSolution = lpSolver->primalColumnSolution();
-    nWrite = fwrite(primalColumnSolution, sizeof(double), numberColumns, fp);
+    FloatT *dualColumnSolution = lpSolver->dualColumnSolution();
+    FloatT *primalColumnSolution = lpSolver->primalColumnSolution();
+    nWrite = fwrite(primalColumnSolution, sizeof(FloatT), numberColumns, fp);
     if (nWrite != static_cast< size_t >(numberColumns))
       throw("Error in fwrite");
-    nWrite = fwrite(dualColumnSolution, sizeof(double), numberColumns, fp);
+    nWrite = fwrite(dualColumnSolution, sizeof(FloatT), numberColumns, fp);
     if (nWrite != static_cast< size_t >(numberColumns))
       throw("Error in fwrite");
     fclose(fp);

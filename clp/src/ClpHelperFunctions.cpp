@@ -16,23 +16,23 @@
 #include "CoinHelperFunctions.hpp"
 #include "CoinTypes.hpp"
 
-double
-maximumAbsElement(const double *region, int size)
+FloatT
+maximumAbsElement(const FloatT *region, int size)
 {
   int i;
-  double maxValue = 0.0;
+  FloatT maxValue = 0.0;
   for (i = 0; i < size; i++)
     maxValue = CoinMax(maxValue, fabs(region[i]));
   return maxValue;
 }
-void setElements(double *region, int size, double value)
+void setElements(FloatT *region, int size, FloatT value)
 {
   int i;
   for (i = 0; i < size; i++)
     region[i] = value;
 }
-void multiplyAdd(const double *region1, int size, double multiplier1,
-  double *region2, double multiplier2)
+void multiplyAdd(const FloatT *region1, int size, FloatT multiplier1,
+  FloatT *region2, FloatT multiplier2)
 {
   int i;
   if (multiplier1 == 1.0) {
@@ -92,16 +92,16 @@ void multiplyAdd(const double *region1, int size, double multiplier1,
     }
   }
 }
-double
-innerProduct(const double *region1, int size, const double *region2)
+FloatT
+innerProduct(const FloatT *region1, int size, const FloatT *region2)
 {
   int i;
-  double value = 0.0;
+  FloatT value = 0.0;
   for (i = 0; i < size; i++)
     value += region1[i] * region2[i];
   return value;
 }
-void getNorms(const double *region, int size, double &norm1, double &norm2)
+void getNorms(const FloatT *region, int size, FloatT &norm1, FloatT &norm2)
 {
   norm1 = 0.0;
   norm2 = 0.0;
@@ -130,7 +130,7 @@ void ClpTracePrint(std::string fileName, std::string message, int lineNumber)
 }
 #endif
 #if COIN_LONG_WORK
-// For long double versions
+// For FloatT versions
 CoinWorkDouble
 maximumAbsElement(const CoinWorkDouble *region, int size)
 {

@@ -55,7 +55,7 @@ public:
          might be gaps in this list, entries that do not belong to any
          major-dimension vector. To get the actual elements one should look at
          this vector together with vectorStarts and vectorLengths. */
-  virtual const double *getElements() const = 0;
+  virtual const FloatT *getElements() const = 0;
   /** A vector containing the minor indices of the elements in the packed
          matrix. Note that there might be gaps in this list, entries that do not
          belong to any major-dimension vector. To get the actual elements one
@@ -81,7 +81,7 @@ public:
   /** Modify one element of packed matrix.  An element may be added.
          This works for either ordering If the new element is zero it will be
          deleted unless keepZero true */
-  virtual void modifyCoefficient(int row, int column, double newElement,
+  virtual void modifyCoefficient(int row, int column, FloatT newElement,
     bool keepZero = false);
   /** Append a set of rows/columns to the end of the matrix. Returns number of errors
          i.e. if any of the new rows/columns contain an index that's larger than the
@@ -89,7 +89,7 @@ public:
          If 0 then rows, 1 if columns */
   virtual int appendMatrix(int number, int type,
     const CoinBigIndex *starts, const int *index,
-    const double *element, int numberOther = -1);
+    const FloatT *element, int numberOther = -1);
 
   /** Returns a new matrix in reverse order without gaps
          Is allowed to return NULL if doesn't want to have row copy */
@@ -144,7 +144,7 @@ public:
          8 - report on large and small
      */
   virtual bool allElementsInRange(ClpModel *,
-    double, double,
+    FloatT, FloatT,
     int = 15)
   {
     return true;
@@ -158,8 +158,8 @@ public:
   /** Returns largest and smallest elements of both signs.
          Largest refers to largest absolute value.
          If returns zeros then can't tell anything */
-  virtual void rangeOfElements(double &smallestNegative, double &largestNegative,
-    double &smallestPositive, double &largestPositive);
+  virtual void rangeOfElements(FloatT &smallestNegative, FloatT &largestNegative,
+    FloatT &smallestPositive, FloatT &largestPositive);
 
   /** Unpacks a column into an CoinIndexedvector
       */
@@ -182,7 +182,7 @@ public:
   }
 
   // Really scale matrix
-  virtual void reallyScale(const double *rowScale, const double *columnScale);
+  virtual void reallyScale(const FloatT *rowScale, const FloatT *columnScale);
   /** Given positive integer weights for each row fills in sum of weights
          for each column (and slack).
          Returns weights vector
@@ -192,10 +192,10 @@ public:
   /** Adds multiple of a column into an CoinIndexedvector
          You can use quickAdd to add to vector */
   virtual void add(const ClpSimplex *model, CoinIndexedVector *rowArray,
-    int column, double multiplier) const = 0;
+    int column, FloatT multiplier) const = 0;
   /** Adds multiple of a column into an array */
-  virtual void add(const ClpSimplex *model, double *array,
-    int column, double multiplier) const = 0;
+  virtual void add(const ClpSimplex *model, FloatT *array,
+    int column, FloatT multiplier) const = 0;
   /// Allow any parts of a created CoinPackedMatrix to be deleted
   virtual void releasePackedMatrix() const = 0;
   /// Says whether it can do partial pricing
@@ -203,7 +203,7 @@ public:
   /// Returns number of hidden rows e.g. gub
   virtual int hiddenRows() const;
   /// Partial pricing
-  virtual void partialPricing(ClpSimplex *model, double start, double end,
+  virtual void partialPricing(ClpSimplex *model, FloatT start, FloatT end,
     int &bestSequence, int &numberWanted);
   /** expands an updated column to allow for extra rows which the main
          solver does not know about and returns number added.
@@ -232,7 +232,7 @@ public:
          mode=4  - Modify before updateTranspose in partial pricing
      */
   virtual void dualExpanded(ClpSimplex *model, CoinIndexedVector *array,
-    double *other, int mode);
+    FloatT *other, int mode);
   /**
          general utility function for dealing with dynamic constraints
          mode=0  - Create list of non-key basics in pivotVariable_ using
@@ -256,16 +256,16 @@ public:
   /**
         update information for a pivot (and effective rhs)
      */
-  virtual int updatePivot(ClpSimplex *model, double oldInValue, double oldOutValue);
+  virtual int updatePivot(ClpSimplex *model, FloatT oldInValue, FloatT oldOutValue);
   /** Creates a variable.  This is called after partial pricing and may modify matrix.
          May update bestSequence.
      */
   virtual void createVariable(ClpSimplex *model, int &bestSequence);
   /** Just for debug if odd type matrix.
          Returns number of primal infeasibilities. */
-  virtual int checkFeasible(ClpSimplex *model, double &sum) const;
+  virtual int checkFeasible(ClpSimplex *model, FloatT &sum) const;
   /// Returns reduced cost of a variable
-  double reducedCost(ClpSimplex *model, int sequence) const;
+  FloatT reducedCost(ClpSimplex *model, int sequence) const;
   /// Correct sequence in and out to give true value (if both -1 maybe do whole matrix)
   virtual void correctSequence(const ClpSimplex *model, int &sequenceIn, int &sequenceOut);
   //@}
@@ -278,30 +278,30 @@ public:
   /** Return <code>y + A * x * scalar</code> in <code>y</code>.
          @pre <code>x</code> must be of size <code>numColumns()</code>
          @pre <code>y</code> must be of size <code>numRows()</code> */
-  virtual void times(double scalar,
-    const double *COIN_RESTRICT x, double *COIN_RESTRICT y) const = 0;
+  virtual void times(FloatT scalar,
+    const FloatT *COIN_RESTRICT x, FloatT *COIN_RESTRICT y) const = 0;
   /** And for scaling - default aborts for when scaling not supported
          (unless pointers NULL when as normal)
      */
-  virtual void times(double scalar,
-    const double *COIN_RESTRICT x, double *COIN_RESTRICT y,
-    const double *COIN_RESTRICT rowScale,
-    const double *COIN_RESTRICT columnScale) const;
+  virtual void times(FloatT scalar,
+    const FloatT *COIN_RESTRICT x, FloatT *COIN_RESTRICT y,
+    const FloatT *COIN_RESTRICT rowScale,
+    const FloatT *COIN_RESTRICT columnScale) const;
   /** Return <code>y + x * scalar * A</code> in <code>y</code>.
          @pre <code>x</code> must be of size <code>numRows()</code>
          @pre <code>y</code> must be of size <code>numColumns()</code> */
-  virtual void transposeTimes(double scalar,
-    const double *COIN_RESTRICT x, double *COIN_RESTRICT y) const = 0;
+  virtual void transposeTimes(FloatT scalar,
+    const FloatT *COIN_RESTRICT x, FloatT *COIN_RESTRICT y) const = 0;
   /** And for scaling - default aborts for when scaling not supported
          (unless pointers NULL when as normal)
      */
-  virtual void transposeTimes(double scalar,
-    const double *COIN_RESTRICT x, double *COIN_RESTRICT y,
-    const double *COIN_RESTRICT rowScale,
-    const double *COIN_RESTRICT columnScale,
-    double *COIN_RESTRICT spare = NULL) const;
+  virtual void transposeTimes(FloatT scalar,
+    const FloatT *COIN_RESTRICT x, FloatT *COIN_RESTRICT y,
+    const FloatT *COIN_RESTRICT rowScale,
+    const FloatT *COIN_RESTRICT columnScale,
+    FloatT *COIN_RESTRICT spare = NULL) const;
 #if COIN_LONG_WORK
-  // For long double versions (aborts if not supported)
+  // For FloatT versions (aborts if not supported)
   virtual void times(CoinWorkDouble scalar,
     const CoinWorkDouble *COIN_RESTRICT x, CoinWorkDouble *COIN_RESTRICT y) const;
   virtual void transposeTimes(CoinWorkDouble scalar,
@@ -311,7 +311,7 @@ public:
          Can use y as temporary array (will be empty at end)
          Note - If x packed mode - then z packed mode
          Squashes small elements and knows about ClpSimplex */
-  virtual void transposeTimes(const ClpSimplex *model, double scalar,
+  virtual void transposeTimes(const ClpSimplex *model, FloatT scalar,
     const CoinIndexedVector *x,
     CoinIndexedVector *y,
     CoinIndexedVector *z) const = 0;
@@ -338,28 +338,28 @@ public:
     const CoinIndexedVector *pi1, CoinIndexedVector *dj1,
     const CoinIndexedVector *pi2,
     CoinIndexedVector *spare,
-    double *infeas, double *reducedCost,
-    double referenceIn, double devex,
+    FloatT *infeas, FloatT *reducedCost,
+    FloatT referenceIn, FloatT devex,
     // Array for exact devex to say what is in reference framework
     unsigned int *reference,
-    double *weights, double scaleFactor);
+    FloatT *weights, FloatT scaleFactor);
   /// Updates second array for steepest and does devex weights (need not be coded)
   virtual void subsetTimes2(const ClpSimplex *model,
     CoinIndexedVector *dj1,
     const CoinIndexedVector *pi2, CoinIndexedVector *dj2,
-    double referenceIn, double devex,
+    FloatT referenceIn, FloatT devex,
     // Array for exact devex to say what is in reference framework
     unsigned int *reference,
-    double *weights, double scaleFactor);
+    FloatT *weights, FloatT scaleFactor);
   /** Return <code>x *A</code> in <code>z</code> but
          just for number indices in y.
          Default cheats with fake CoinIndexedVector and
          then calls subsetTransposeTimes */
   virtual void listTransposeTimes(const ClpSimplex *model,
-    double *x,
+    FloatT *x,
     int *y,
     int number,
-    double *z) const;
+    FloatT *z) const;
   //@}
   //@{
   ///@name Other
@@ -394,7 +394,7 @@ public:
   /** Returns effective RHS offset if it is being used.  This is used for long problems
          or big gub or anywhere where going through full columns is
          expensive.  This may re-compute */
-  virtual double *rhsOffset(ClpSimplex *model, bool forceRefresh = false,
+  virtual FloatT *rhsOffset(ClpSimplex *model, bool forceRefresh = false,
     bool check = false);
   /// If rhsOffset used this is iteration last refreshed
   inline int lastRefresh() const
@@ -439,29 +439,29 @@ public:
     minimumGoodReducedCosts_ = value;
   }
   /// Current start of search space in matrix (as fraction)
-  inline double startFraction() const
+  inline FloatT startFraction() const
   {
     return startFraction_;
   }
-  inline void setStartFraction(double value)
+  inline void setStartFraction(FloatT value)
   {
     startFraction_ = value;
   }
   /// Current end of search space in matrix (as fraction)
-  inline double endFraction() const
+  inline FloatT endFraction() const
   {
     return endFraction_;
   }
-  inline void setEndFraction(double value)
+  inline void setEndFraction(FloatT value)
   {
     endFraction_ = value;
   }
   /// Current best reduced cost
-  inline double savedBestDj() const
+  inline FloatT savedBestDj() const
   {
     return savedBestDj_;
   }
-  inline void setSavedBestDj(double value)
+  inline void setSavedBestDj(FloatT value)
   {
     savedBestDj_ = value;
   }
@@ -519,13 +519,13 @@ protected:
   /** Effective RHS offset if it is being used.  This is used for long problems
          or big gub or anywhere where going through full columns is
          expensive */
-  double *rhsOffset_;
+  FloatT *rhsOffset_;
   /// Current start of search space in matrix (as fraction)
-  double startFraction_;
+  FloatT startFraction_;
   /// Current end of search space in matrix (as fraction)
-  double endFraction_;
+  FloatT endFraction_;
   /// Best reduced cost so far
-  double savedBestDj_;
+  FloatT savedBestDj_;
   /// Initial number of negative reduced costs wanted
   int originalWanted_;
   /// Current number of negative reduced costs which we still need

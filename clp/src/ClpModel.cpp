@@ -215,20 +215,20 @@ void ClpModel::gutsOfDelete(int type)
   ray_ = NULL;
   specialOptions_ = 0;
 }
-void ClpModel::setRowScale(double *scale)
+void ClpModel::setRowScale(FloatT *scale)
 {
   if (!savedRowScale_) {
-    delete[] reinterpret_cast< double * >(rowScale_);
+    delete[] reinterpret_cast< FloatT * >(rowScale_);
     rowScale_ = scale;
   } else {
     assert(!scale);
     rowScale_ = NULL;
   }
 }
-void ClpModel::setColumnScale(double *scale)
+void ClpModel::setColumnScale(FloatT *scale)
 {
   if (!savedColumnScale_) {
-    delete[] reinterpret_cast< double * >(columnScale_);
+    delete[] reinterpret_cast< FloatT * >(columnScale_);
     columnScale_ = scale;
   } else {
     assert(!scale);
@@ -236,25 +236,25 @@ void ClpModel::setColumnScale(double *scale)
   }
 }
 //#############################################################################
-void ClpModel::setPrimalTolerance(double value)
+void ClpModel::setPrimalTolerance(FloatT value)
 {
   if (value > 0.0 && value < 1.0e10)
     dblParam_[ClpPrimalTolerance] = value;
 }
-void ClpModel::setDualTolerance(double value)
+void ClpModel::setDualTolerance(FloatT value)
 {
   if (value > 0.0 && value < 1.0e10)
     dblParam_[ClpDualTolerance] = value;
 }
-void ClpModel::setOptimizationDirection(double value)
+void ClpModel::setOptimizationDirection(FloatT value)
 {
   optimizationDirection_ = value;
 }
 void ClpModel::gutsOfLoadModel(int numberRows, int numberColumns,
-  const double *collb, const double *colub,
-  const double *obj,
-  const double *rowlb, const double *rowub,
-  const double *rowObjective)
+  const FloatT *collb, const FloatT *colub,
+  const FloatT *obj,
+  const FloatT *rowlb, const FloatT *rowub,
+  const FloatT *rowObjective)
 {
   // save event handler in case already set
   ClpEventHandler *handler = eventHandler_->clone();
@@ -265,10 +265,10 @@ void ClpModel::gutsOfLoadModel(int numberRows, int numberColumns,
   eventHandler_ = handler;
   numberRows_ = numberRows;
   numberColumns_ = numberColumns;
-  rowActivity_ = new double[numberRows_];
-  columnActivity_ = new double[numberColumns_];
-  dual_ = new double[numberRows_];
-  reducedCost_ = new double[numberColumns_];
+  rowActivity_ = new FloatT[numberRows_];
+  columnActivity_ = new FloatT[numberColumns_];
+  dual_ = new FloatT[numberRows_];
+  reducedCost_ = new FloatT[numberColumns_];
 
   CoinZeroN(dual_, numberRows_);
   CoinZeroN(reducedCost_, numberColumns_);
@@ -276,7 +276,7 @@ void ClpModel::gutsOfLoadModel(int numberRows, int numberColumns,
 
   rowLower_ = ClpCopyOfArray(rowlb, numberRows_, -COIN_DBL_MAX);
   rowUpper_ = ClpCopyOfArray(rowub, numberRows_, COIN_DBL_MAX);
-  double *objective = ClpCopyOfArray(obj, numberColumns_, 0.0);
+  FloatT *objective = ClpCopyOfArray(obj, numberColumns_, 0.0);
   objective_ = new ClpLinearObjective(objective, numberColumns_);
   delete[] objective;
   rowObjective_ = ClpCopyOfArray(rowObjective, numberRows_);
@@ -311,17 +311,17 @@ void ClpModel::gutsOfLoadModel(int numberRows, int numberColumns,
   }
 }
 // This just loads up a row objective
-void ClpModel::setRowObjective(const double *rowObjective)
+void ClpModel::setRowObjective(const FloatT *rowObjective)
 {
   delete[] rowObjective_;
   rowObjective_ = ClpCopyOfArray(rowObjective, numberRows_);
   whatsChanged_ = 0;
 }
 void ClpModel::loadProblem(const ClpMatrixBase &matrix,
-  const double *collb, const double *colub,
-  const double *obj,
-  const double *rowlb, const double *rowub,
-  const double *rowObjective)
+  const FloatT *collb, const FloatT *colub,
+  const FloatT *obj,
+  const FloatT *rowlb, const FloatT *rowub,
+  const FloatT *rowObjective)
 {
   gutsOfLoadModel(matrix.getNumRows(), matrix.getNumCols(),
     collb, colub, obj, rowlb, rowub, rowObjective);
@@ -339,10 +339,10 @@ void ClpModel::loadProblem(const ClpMatrixBase &matrix,
   matrix_->setDimensions(numberRows_, numberColumns_);
 }
 void ClpModel::loadProblem(const CoinPackedMatrix &matrix,
-  const double *collb, const double *colub,
-  const double *obj,
-  const double *rowlb, const double *rowub,
-  const double *rowObjective)
+  const FloatT *collb, const FloatT *colub,
+  const FloatT *obj,
+  const FloatT *rowlb, const FloatT *rowub,
+  const FloatT *rowObjective)
 {
   ClpPackedMatrix *clpMatrix = dynamic_cast< ClpPackedMatrix * >(matrix_);
   bool special = (clpMatrix) ? clpMatrix->wantsSpecialColumnCopy() : false;
@@ -366,11 +366,11 @@ void ClpModel::loadProblem(const CoinPackedMatrix &matrix,
 void ClpModel::loadProblem(
   const int numcols, const int numrows,
   const CoinBigIndex *start, const int *index,
-  const double *value,
-  const double *collb, const double *colub,
-  const double *obj,
-  const double *rowlb, const double *rowub,
-  const double *rowObjective)
+  const FloatT *value,
+  const FloatT *collb, const FloatT *colub,
+  const FloatT *obj,
+  const FloatT *rowlb, const FloatT *rowub,
+  const FloatT *rowObjective)
 {
   gutsOfLoadModel(numrows, numcols,
     collb, colub, obj, rowlb, rowub, rowObjective);
@@ -383,11 +383,11 @@ void ClpModel::loadProblem(
 void ClpModel::loadProblem(
   const int numcols, const int numrows,
   const CoinBigIndex *start, const int *index,
-  const double *value, const int *length,
-  const double *collb, const double *colub,
-  const double *obj,
-  const double *rowlb, const double *rowub,
-  const double *rowObjective)
+  const FloatT *value, const int *length,
+  const FloatT *collb, const FloatT *colub,
+  const FloatT *obj,
+  const FloatT *rowlb, const FloatT *rowub,
+  const FloatT *rowObjective)
 {
   gutsOfLoadModel(numrows, numcols,
     collb, colub, obj, rowlb, rowub, rowObjective);
@@ -408,13 +408,13 @@ int ClpModel::loadProblem(CoinModel &modelObject, bool tryPlusMinusOne)
     return 0;
   int numberErrors = 0;
   // Set arrays for normal use
-  double *rowLower = modelObject.rowLowerArray();
-  double *rowUpper = modelObject.rowUpperArray();
-  double *columnLower = modelObject.columnLowerArray();
-  double *columnUpper = modelObject.columnUpperArray();
-  double *objective = modelObject.objectiveArray();
+  FloatT *rowLower = modelObject.rowLowerArray();
+  FloatT *rowUpper = modelObject.rowUpperArray();
+  FloatT *columnLower = modelObject.columnLowerArray();
+  FloatT *columnUpper = modelObject.columnUpperArray();
+  FloatT *objective = modelObject.objectiveArray();
   int *integerType = modelObject.integerTypeArray();
-  double *associated = modelObject.associatedArray();
+  FloatT *associated = modelObject.associatedArray();
   // If strings then do copies
   if (modelObject.stringsExist()) {
     numberErrors = modelObject.createArrays(rowLower, rowUpper, columnLower, columnUpper,
@@ -496,7 +496,7 @@ int ClpModel::loadProblem(CoinModel &modelObject, bool tryPlusMinusOne)
   return numberErrors;
 }
 #endif
-void ClpModel::getRowBound(int iRow, double &lower, double &upper) const
+void ClpModel::getRowBound(int iRow, FloatT &lower, FloatT &upper) const
 {
   lower = -COIN_DBL_MAX;
   upper = COIN_DBL_MAX;
@@ -517,7 +517,7 @@ static void indexError(int index,
 }
 #endif
 /* Set an objective function coefficient */
-void ClpModel::setObjectiveCoefficient(int elementIndex, double elementValue)
+void ClpModel::setObjectiveCoefficient(int elementIndex, FloatT elementValue)
 {
 #ifndef NDEBUG
   if (elementIndex < 0 || elementIndex >= numberColumns_) {
@@ -529,7 +529,7 @@ void ClpModel::setObjectiveCoefficient(int elementIndex, double elementValue)
 }
 /* Set a single row lower bound<br>
    Use -DBL_MAX for -infinity. */
-void ClpModel::setRowLower(int elementIndex, double elementValue)
+void ClpModel::setRowLower(int elementIndex, FloatT elementValue)
 {
   if (elementValue < -1.0e27)
     elementValue = -COIN_DBL_MAX;
@@ -539,7 +539,7 @@ void ClpModel::setRowLower(int elementIndex, double elementValue)
 
 /* Set a single row upper bound<br>
    Use DBL_MAX for infinity. */
-void ClpModel::setRowUpper(int elementIndex, double elementValue)
+void ClpModel::setRowUpper(int elementIndex, FloatT elementValue)
 {
   if (elementValue > 1.0e27)
     elementValue = COIN_DBL_MAX;
@@ -549,7 +549,7 @@ void ClpModel::setRowUpper(int elementIndex, double elementValue)
 
 /* Set a single row lower and upper bound */
 void ClpModel::setRowBounds(int elementIndex,
-  double lower, double upper)
+  FloatT lower, FloatT upper)
 {
   if (lower < -1.0e27)
     lower = -COIN_DBL_MAX;
@@ -562,13 +562,13 @@ void ClpModel::setRowBounds(int elementIndex,
 }
 void ClpModel::setRowSetBounds(const int *indexFirst,
   const int *indexLast,
-  const double *boundList)
+  const FloatT *boundList)
 {
 #ifndef NDEBUG
   int n = numberRows_;
 #endif
-  double *lower = rowLower_;
-  double *upper = rowUpper_;
+  FloatT *lower = rowLower_;
+  FloatT *upper = rowUpper_;
   whatsChanged_ = 0; // Can't be sure (use ClpSimplex to keep)
   while (indexFirst != indexLast) {
     const int iRow = *indexFirst++;
@@ -589,7 +589,7 @@ void ClpModel::setRowSetBounds(const int *indexFirst,
 //-----------------------------------------------------------------------------
 /* Set a single column lower bound<br>
    Use -DBL_MAX for -infinity. */
-void ClpModel::setColumnLower(int elementIndex, double elementValue)
+void ClpModel::setColumnLower(int elementIndex, FloatT elementValue)
 {
 #ifndef NDEBUG
   int n = numberColumns_;
@@ -605,7 +605,7 @@ void ClpModel::setColumnLower(int elementIndex, double elementValue)
 
 /* Set a single column upper bound<br>
    Use DBL_MAX for infinity. */
-void ClpModel::setColumnUpper(int elementIndex, double elementValue)
+void ClpModel::setColumnUpper(int elementIndex, FloatT elementValue)
 {
 #ifndef NDEBUG
   int n = numberColumns_;
@@ -621,7 +621,7 @@ void ClpModel::setColumnUpper(int elementIndex, double elementValue)
 
 /* Set a single column lower and upper bound */
 void ClpModel::setColumnBounds(int elementIndex,
-  double lower, double upper)
+  FloatT lower, FloatT upper)
 {
 #ifndef NDEBUG
   int n = numberColumns_;
@@ -640,10 +640,10 @@ void ClpModel::setColumnBounds(int elementIndex,
 }
 void ClpModel::setColumnSetBounds(const int *indexFirst,
   const int *indexLast,
-  const double *boundList)
+  const FloatT *boundList)
 {
-  double *lower = columnLower_;
-  double *upper = columnUpper_;
+  FloatT *lower = columnLower_;
+  FloatT *upper = columnUpper_;
   whatsChanged_ = 0; // Can't be sure (use ClpSimplex to keep)
 #ifndef NDEBUG
   int n = numberColumns_;
@@ -1057,7 +1057,7 @@ bool ClpModel::setIntParam(ClpIntParam key, int value)
 
 //-----------------------------------------------------------------------------
 
-bool ClpModel::setDblParam(ClpDblParam key, double value)
+bool ClpModel::setDblParam(ClpDblParam key, FloatT value)
 {
 
   switch (key) {
@@ -1125,12 +1125,12 @@ bool ClpModel::setStrParam(ClpStrParam key, const std::string &value)
 #endif
 // Useful routines
 // Returns resized array and deletes incoming
-double *resizeDouble(double *array, int size, int newSize, double fill,
+FloatT *resizeDouble(FloatT *array, int size, int newSize, FloatT fill,
   bool createArray)
 {
   if ((array || createArray) && size < newSize) {
     int i;
-    double *newArray = new double[newSize];
+    FloatT *newArray = new FloatT[newSize];
     if (array)
       CoinMemcpyN(array, CoinMin(newSize, size), newArray);
     delete[] array;
@@ -1141,7 +1141,7 @@ double *resizeDouble(double *array, int size, int newSize, double fill,
   return array;
 }
 // Returns resized array and updates size
-double *deleteDouble(double *array, int size,
+FloatT *deleteDouble(FloatT *array, int size,
   int number, const int *which, int &newSize)
 {
   if (array) {
@@ -1157,7 +1157,7 @@ double *deleteDouble(double *array, int size,
       }
     }
     newSize = size - numberDeleted;
-    double *newArray = new double[newSize];
+    FloatT *newArray = new FloatT[newSize];
     int put = 0;
     for (i = 0; i < size; i++) {
       if (!deleted[i]) {
@@ -1217,7 +1217,7 @@ void ClpModel::createEmptyMatrix()
    returns number of elements eliminated or -1 if not ClpMatrix
 */
 CoinBigIndex
-ClpModel::cleanMatrix(double threshold)
+ClpModel::cleanMatrix(FloatT threshold)
 {
   ClpPackedMatrix *matrix = (dynamic_cast< ClpPackedMatrix * >(matrix_));
   if (matrix) {
@@ -1257,8 +1257,8 @@ void ClpModel::resize(int newNumberRows, int newNumberColumns)
       newNumberColumns, 0.0, true);
   }
   if (savedRowScale_ && numberRows2 > maximumInternalRows_) {
-    double *temp;
-    temp = new double[4 * newNumberRows];
+    FloatT *temp;
+    temp = new FloatT[4 * newNumberRows];
     CoinFillN(temp, 4 * newNumberRows, 1.0);
     CoinMemcpyN(savedRowScale_, numberRows_, temp);
     CoinMemcpyN(savedRowScale_ + maximumInternalRows_, numberRows_, temp + newNumberRows);
@@ -1268,8 +1268,8 @@ void ClpModel::resize(int newNumberRows, int newNumberColumns)
     savedRowScale_ = temp;
   }
   if (savedColumnScale_ && numberColumns2 > maximumInternalColumns_) {
-    double *temp;
-    temp = new double[4 * newNumberColumns];
+    FloatT *temp;
+    temp = new FloatT[4 * newNumberColumns];
     CoinFillN(temp, 4 * newNumberColumns, 1.0);
     CoinMemcpyN(savedColumnScale_, numberColumns_, temp);
     CoinMemcpyN(savedColumnScale_ + maximumInternalColumns_, numberColumns_, temp + newNumberColumns);
@@ -1612,7 +1612,7 @@ void ClpModel::deleteRowsAndColumns(int numberRows, const int *whichRows,
         backColumns[iColumn] = -1;
     }
     assert(objective_->type() == 1);
-    double *obj = objective();
+    FloatT *obj = objective();
     for (int i = 0; i < numberColumns_; i++) {
       if (!backColumns[i]) {
         columnActivity_[newNumberColumns] = columnActivity_[i];
@@ -1692,7 +1692,7 @@ void ClpModel::deleteRowsAndColumns(int numberRows, const int *whichRows,
       int *row = matrix->getMutableIndices();
       CoinBigIndex *columnStart = matrix->getMutableVectorStarts();
       int *columnLength = matrix->getMutableVectorLengths();
-      double *element = matrix->getMutableElements();
+      FloatT *element = matrix->getMutableElements();
       newNumberColumns = 0;
       CoinBigIndex n = 0;
       for (int iColumn = 0; iColumn < numberColumns_; iColumn++) {
@@ -1746,7 +1746,7 @@ void ClpModel::deleteRowsAndColumns(int numberRows, const int *whichRows,
 }
 // Add one row
 void ClpModel::addRow(int numberInRow, const int *columns,
-  const double *elements, double rowLower, double rowUpper)
+  const FloatT *elements, FloatT rowLower, FloatT rowUpper)
 {
   CoinBigIndex starts[2];
   starts[0] = 0;
@@ -1754,21 +1754,21 @@ void ClpModel::addRow(int numberInRow, const int *columns,
   addRows(1, &rowLower, &rowUpper, starts, columns, elements);
 }
 // Add rows
-void ClpModel::addRows(int number, const double *rowLower,
-  const double *rowUpper,
+void ClpModel::addRows(int number, const FloatT *rowLower,
+  const FloatT *rowUpper,
   const CoinBigIndex *rowStarts, const int *columns,
-  const double *elements)
+  const FloatT *elements)
 {
   if (number) {
     whatsChanged_ &= ~(1 + 2 + 8 + 16 + 32); // all except columns changed
     int numberRowsNow = numberRows_;
     resize(numberRowsNow + number, numberColumns_);
-    double *lower = rowLower_ + numberRowsNow;
-    double *upper = rowUpper_ + numberRowsNow;
+    FloatT *lower = rowLower_ + numberRowsNow;
+    FloatT *upper = rowUpper_ + numberRowsNow;
     int iRow;
     if (rowLower) {
       for (iRow = 0; iRow < number; iRow++) {
-        double value = rowLower[iRow];
+        FloatT value = rowLower[iRow];
         if (value < -1.0e20)
           value = -COIN_DBL_MAX;
         lower[iRow] = value;
@@ -1780,7 +1780,7 @@ void ClpModel::addRows(int number, const double *rowLower,
     }
     if (rowUpper) {
       for (iRow = 0; iRow < number; iRow++) {
-        double value = rowUpper[iRow];
+        FloatT value = rowUpper[iRow];
         if (value > 1.0e20)
           value = COIN_DBL_MAX;
         upper[iRow] = value;
@@ -1813,11 +1813,11 @@ void ClpModel::addRows(int number, const double *rowLower,
   }
 }
 // Add rows
-void ClpModel::addRows(int number, const double *rowLower,
-  const double *rowUpper,
+void ClpModel::addRows(int number, const FloatT *rowLower,
+  const FloatT *rowUpper,
   const CoinBigIndex *rowStarts,
   const int *rowLengths, const int *columns,
-  const double *elements)
+  const FloatT *elements)
 {
   if (number) {
     CoinBigIndex numberElements = 0;
@@ -1826,7 +1826,7 @@ void ClpModel::addRows(int number, const double *rowLower,
       numberElements += rowLengths[iRow];
     CoinBigIndex *newStarts = new CoinBigIndex[number + 1];
     int *newIndex = new int[numberElements];
-    double *newElements = new double[numberElements];
+    FloatT *newElements = new FloatT[numberElements];
     numberElements = 0;
     newStarts[0] = 0;
     for (iRow = 0; iRow < number; iRow++) {
@@ -1845,8 +1845,8 @@ void ClpModel::addRows(int number, const double *rowLower,
   }
 }
 #ifndef CLP_NO_VECTOR
-void ClpModel::addRows(int number, const double *rowLower,
-  const double *rowUpper,
+void ClpModel::addRows(int number, const FloatT *rowLower,
+  const FloatT *rowUpper,
   const CoinPackedVectorBase *const *rows)
 {
   if (!number)
@@ -1854,12 +1854,12 @@ void ClpModel::addRows(int number, const double *rowLower,
   whatsChanged_ &= ~(1 + 2 + 8 + 16 + 32); // all except columns changed
   int numberRowsNow = numberRows_;
   resize(numberRowsNow + number, numberColumns_);
-  double *lower = rowLower_ + numberRowsNow;
-  double *upper = rowUpper_ + numberRowsNow;
+  FloatT *lower = rowLower_ + numberRowsNow;
+  FloatT *upper = rowUpper_ + numberRowsNow;
   int iRow;
   if (rowLower) {
     for (iRow = 0; iRow < number; iRow++) {
-      double value = rowLower[iRow];
+      FloatT value = rowLower[iRow];
       if (value < -1.0e20)
         value = -COIN_DBL_MAX;
       lower[iRow] = value;
@@ -1871,7 +1871,7 @@ void ClpModel::addRows(int number, const double *rowLower,
   }
   if (rowUpper) {
     for (iRow = 0; iRow < number; iRow++) {
-      double value = rowUpper[iRow];
+      FloatT value = rowUpper[iRow];
       if (value > 1.0e20)
         value = COIN_DBL_MAX;
       upper[iRow] = value;
@@ -1908,13 +1908,13 @@ int ClpModel::addRows(const CoinBuild &buildObject, bool tryPlusMinusOne, bool c
   if (number) {
     CoinBigIndex size = 0;
     int iRow;
-    double *lower = new double[number];
-    double *upper = new double[number];
+    FloatT *lower = new FloatT[number];
+    FloatT *upper = new FloatT[number];
     if ((!matrix_ || !matrix_->getNumElements()) && tryPlusMinusOne) {
       // See if can be +-1
       for (iRow = 0; iRow < number; iRow++) {
         const int *columns;
-        const double *elements;
+        const FloatT *elements;
         int numberElements = buildObject.row(iRow, lower[iRow],
           upper[iRow],
           columns, elements);
@@ -1940,12 +1940,12 @@ int ClpModel::addRows(const CoinBuild &buildObject, bool tryPlusMinusOne, bool c
       CoinBigIndex numberElements = buildObject.numberElements();
       CoinBigIndex *starts = new CoinBigIndex[number + 1];
       int *column = new int[numberElements];
-      double *element = new double[numberElements];
+      FloatT *element = new FloatT[numberElements];
       starts[0] = 0;
       numberElements = 0;
       for (iRow = 0; iRow < number; iRow++) {
         const int *columns;
-        const double *elements;
+        const FloatT *elements;
         int numberElementsThis = buildObject.row(iRow, lower[iRow], upper[iRow],
           columns, elements);
         CoinMemcpyN(columns, numberElementsThis, column + numberElements);
@@ -1979,7 +1979,7 @@ int ClpModel::addRows(const CoinBuild &buildObject, bool tryPlusMinusOne, bool c
       // need two passes
       for (iRow = 0; iRow < number; iRow++) {
         const int *columns;
-        const double *elements;
+        const FloatT *elements;
         int numberElements = buildObject.row(iRow, lower[iRow],
           upper[iRow],
           columns, elements);
@@ -2028,7 +2028,7 @@ int ClpModel::addRows(const CoinBuild &buildObject, bool tryPlusMinusOne, bool c
       startPositive[numberColumns_] = size;
       for (iRow = 0; iRow < number; iRow++) {
         const int *columns;
-        const double *elements;
+        const FloatT *elements;
         int numberElements = buildObject.row(iRow, lower[iRow],
           upper[iRow],
           columns, elements);
@@ -2087,9 +2087,9 @@ int ClpModel::addRows(CoinModel &modelObject, bool tryPlusMinusOne, bool checkDu
   if (modelObject.columnLowerArray()) {
     // some column information exists
     int numberColumns2 = modelObject.numberColumns();
-    const double *columnLower = modelObject.columnLowerArray();
-    const double *columnUpper = modelObject.columnUpperArray();
-    const double *objective = modelObject.objectiveArray();
+    const FloatT *columnLower = modelObject.columnLowerArray();
+    const FloatT *columnUpper = modelObject.columnUpperArray();
+    const FloatT *objective = modelObject.objectiveArray();
     const int *integerType = modelObject.integerTypeArray();
     for (int i = 0; i < numberColumns2; i++) {
       if (columnLower[i] != 0.0)
@@ -2105,13 +2105,13 @@ int ClpModel::addRows(CoinModel &modelObject, bool tryPlusMinusOne, bool checkDu
   if (goodState) {
     // can do addRows
     // Set arrays for normal use
-    double *rowLower = modelObject.rowLowerArray();
-    double *rowUpper = modelObject.rowUpperArray();
-    double *columnLower = modelObject.columnLowerArray();
-    double *columnUpper = modelObject.columnUpperArray();
-    double *objective = modelObject.objectiveArray();
+    FloatT *rowLower = modelObject.rowLowerArray();
+    FloatT *rowUpper = modelObject.rowUpperArray();
+    FloatT *columnLower = modelObject.columnLowerArray();
+    FloatT *columnUpper = modelObject.columnUpperArray();
+    FloatT *objective = modelObject.objectiveArray();
     int *integerType = modelObject.integerTypeArray();
-    double *associated = modelObject.associatedArray();
+    FloatT *associated = modelObject.associatedArray();
     // If strings then do copies
     if (modelObject.stringsExist()) {
       numberErrors = modelObject.createArrays(rowLower, rowUpper, columnLower, columnUpper,
@@ -2152,7 +2152,7 @@ int ClpModel::addRows(CoinModel &modelObject, bool tryPlusMinusOne, bool checkDu
           const int *column = matrix.getIndices();
           //const int * rowLength = matrix.getVectorLengths();
           const CoinBigIndex *rowStart = matrix.getVectorStarts();
-          const double *element = matrix.getElements();
+          const FloatT *element = matrix.getElements();
           // make sure matrix has enough columns
           matrix_->setDimensions(-1, numberColumns_);
           numberErrors += matrix_->appendMatrix(numberRows2, 0, rowStart, column, element,
@@ -2209,10 +2209,10 @@ int ClpModel::addRows(CoinModel &modelObject, bool tryPlusMinusOne, bool checkDu
 // Add one column
 void ClpModel::addColumn(int numberInColumn,
   const int *rows,
-  const double *elements,
-  double columnLower,
-  double columnUpper,
-  double objective)
+  const FloatT *elements,
+  FloatT columnLower,
+  FloatT columnUpper,
+  FloatT objective)
 {
   CoinBigIndex starts[2];
   starts[0] = 0;
@@ -2220,24 +2220,24 @@ void ClpModel::addColumn(int numberInColumn,
   addColumns(1, &columnLower, &columnUpper, &objective, starts, rows, elements);
 }
 // Add columns
-void ClpModel::addColumns(int number, const double *columnLower,
-  const double *columnUpper,
-  const double *objIn,
+void ClpModel::addColumns(int number, const FloatT *columnLower,
+  const FloatT *columnUpper,
+  const FloatT *objIn,
   const CoinBigIndex *columnStarts, const int *rows,
-  const double *elements)
+  const FloatT *elements)
 {
   // Create a list of CoinPackedVectors
   if (number) {
     whatsChanged_ &= ~(1 + 2 + 4 + 64 + 128 + 256); // all except rows changed
     int numberColumnsNow = numberColumns_;
     resize(numberRows_, numberColumnsNow + number);
-    double *lower = columnLower_ + numberColumnsNow;
-    double *upper = columnUpper_ + numberColumnsNow;
-    double *obj = objective() + numberColumnsNow;
+    FloatT *lower = columnLower_ + numberColumnsNow;
+    FloatT *upper = columnUpper_ + numberColumnsNow;
+    FloatT *obj = objective() + numberColumnsNow;
     int iColumn;
     if (columnLower) {
       for (iColumn = 0; iColumn < number; iColumn++) {
-        double value = columnLower[iColumn];
+        FloatT value = columnLower[iColumn];
         if (value < -1.0e20)
           value = -COIN_DBL_MAX;
         lower[iColumn] = value;
@@ -2249,7 +2249,7 @@ void ClpModel::addColumns(int number, const double *columnLower,
     }
     if (columnUpper) {
       for (iColumn = 0; iColumn < number; iColumn++) {
-        double value = columnUpper[iColumn];
+        FloatT value = columnUpper[iColumn];
         if (value > 1.0e20)
           value = COIN_DBL_MAX;
         upper[iColumn] = value;
@@ -2288,12 +2288,12 @@ void ClpModel::addColumns(int number, const double *columnLower,
   }
 }
 // Add columns
-void ClpModel::addColumns(int number, const double *columnLower,
-  const double *columnUpper,
-  const double *objIn,
+void ClpModel::addColumns(int number, const FloatT *columnLower,
+  const FloatT *columnUpper,
+  const FloatT *objIn,
   const CoinBigIndex *columnStarts,
   const int *columnLengths, const int *rows,
-  const double *elements)
+  const FloatT *elements)
 {
   if (number) {
     CoinBigIndex numberElements = 0;
@@ -2302,7 +2302,7 @@ void ClpModel::addColumns(int number, const double *columnLower,
       numberElements += columnLengths[iColumn];
     CoinBigIndex *newStarts = new CoinBigIndex[number + 1];
     int *newIndex = new int[numberElements];
-    double *newElements = new double[numberElements];
+    FloatT *newElements = new FloatT[numberElements];
     numberElements = 0;
     newStarts[0] = 0;
     for (iColumn = 0; iColumn < number; iColumn++) {
@@ -2321,9 +2321,9 @@ void ClpModel::addColumns(int number, const double *columnLower,
   }
 }
 #ifndef CLP_NO_VECTOR
-void ClpModel::addColumns(int number, const double *columnLower,
-  const double *columnUpper,
-  const double *objIn,
+void ClpModel::addColumns(int number, const FloatT *columnLower,
+  const FloatT *columnUpper,
+  const FloatT *objIn,
   const CoinPackedVectorBase *const *columns)
 {
   if (!number)
@@ -2331,13 +2331,13 @@ void ClpModel::addColumns(int number, const double *columnLower,
   whatsChanged_ &= ~(1 + 2 + 4 + 64 + 128 + 256); // all except rows changed
   int numberColumnsNow = numberColumns_;
   resize(numberRows_, numberColumnsNow + number);
-  double *lower = columnLower_ + numberColumnsNow;
-  double *upper = columnUpper_ + numberColumnsNow;
-  double *obj = objective() + numberColumnsNow;
+  FloatT *lower = columnLower_ + numberColumnsNow;
+  FloatT *upper = columnUpper_ + numberColumnsNow;
+  FloatT *obj = objective() + numberColumnsNow;
   int iColumn;
   if (columnLower) {
     for (iColumn = 0; iColumn < number; iColumn++) {
-      double value = columnLower[iColumn];
+      FloatT value = columnLower[iColumn];
       if (value < -1.0e20)
         value = -COIN_DBL_MAX;
       lower[iColumn] = value;
@@ -2349,7 +2349,7 @@ void ClpModel::addColumns(int number, const double *columnLower,
   }
   if (columnUpper) {
     for (iColumn = 0; iColumn < number; iColumn++) {
-      double value = columnUpper[iColumn];
+      FloatT value = columnUpper[iColumn];
       if (value > 1.0e20)
         value = COIN_DBL_MAX;
       upper[iColumn] = value;
@@ -2395,15 +2395,15 @@ int ClpModel::addColumns(const CoinBuild &buildObject, bool tryPlusMinusOne, boo
   if (number) {
     CoinBigIndex size = 0;
     int maximumLength = 0;
-    double *lower = new double[number];
-    double *upper = new double[number];
+    FloatT *lower = new FloatT[number];
+    FloatT *upper = new FloatT[number];
     int iColumn;
-    double *objective = new double[number];
+    FloatT *objective = new FloatT[number];
     if ((!matrix_ || !matrix_->getNumElements()) && tryPlusMinusOne) {
       // See if can be +-1
       for (iColumn = 0; iColumn < number; iColumn++) {
         const int *rows;
-        const double *elements;
+        const FloatT *elements;
         int numberElements = buildObject.column(iColumn, lower[iColumn],
           upper[iColumn], objective[iColumn],
           rows, elements);
@@ -2430,12 +2430,12 @@ int ClpModel::addColumns(const CoinBuild &buildObject, bool tryPlusMinusOne, boo
       CoinBigIndex numberElements = buildObject.numberElements();
       CoinBigIndex *starts = new CoinBigIndex[number + 1];
       int *row = new int[numberElements];
-      double *element = new double[numberElements];
+      FloatT *element = new FloatT[numberElements];
       starts[0] = 0;
       numberElements = 0;
       for (iColumn = 0; iColumn < number; iColumn++) {
         const int *rows;
-        const double *elements;
+        const FloatT *elements;
         int numberElementsThis = buildObject.column(iColumn, lower[iColumn], upper[iColumn],
           objective[iColumn], rows, elements);
         CoinMemcpyN(rows, numberElementsThis, row + numberElements);
@@ -2469,7 +2469,7 @@ int ClpModel::addColumns(const CoinBuild &buildObject, bool tryPlusMinusOne, boo
       int maxRow = -1;
       for (iColumn = 0; iColumn < number; iColumn++) {
         const int *rows;
-        const double *elements;
+        const FloatT *elements;
         int numberElements = buildObject.column(iColumn, lower[iColumn],
           upper[iColumn], objective[iColumn],
           rows, elements);
@@ -2530,8 +2530,8 @@ int ClpModel::addColumns(CoinModel &modelObject, bool tryPlusMinusOne, bool chec
   if (modelObject.rowLowerArray()) {
     // some row information exists
     int numberRows2 = modelObject.numberRows();
-    const double *rowLower = modelObject.rowLowerArray();
-    const double *rowUpper = modelObject.rowUpperArray();
+    const FloatT *rowLower = modelObject.rowLowerArray();
+    const FloatT *rowUpper = modelObject.rowUpperArray();
     for (int i = 0; i < numberRows2; i++) {
       if (rowLower[i] != -COIN_DBL_MAX)
         goodState = false;
@@ -2543,13 +2543,13 @@ int ClpModel::addColumns(CoinModel &modelObject, bool tryPlusMinusOne, bool chec
     // can do addColumns
     int numberErrors = 0;
     // Set arrays for normal use
-    double *rowLower = modelObject.rowLowerArray();
-    double *rowUpper = modelObject.rowUpperArray();
-    double *columnLower = modelObject.columnLowerArray();
-    double *columnUpper = modelObject.columnUpperArray();
-    double *objective = modelObject.objectiveArray();
+    FloatT *rowLower = modelObject.rowLowerArray();
+    FloatT *rowUpper = modelObject.rowUpperArray();
+    FloatT *columnLower = modelObject.columnLowerArray();
+    FloatT *columnUpper = modelObject.columnUpperArray();
+    FloatT *objective = modelObject.objectiveArray();
     int *integerType = modelObject.integerTypeArray();
-    double *associated = modelObject.associatedArray();
+    FloatT *associated = modelObject.associatedArray();
     // If strings then do copies
     if (modelObject.stringsExist()) {
       numberErrors = modelObject.createArrays(rowLower, rowUpper, columnLower, columnUpper,
@@ -2584,7 +2584,7 @@ int ClpModel::addColumns(CoinModel &modelObject, bool tryPlusMinusOne, bool chec
         const int *row = matrix.getIndices();
         //const int * columnLength = matrix.getVectorLengths();
         const CoinBigIndex *columnStart = matrix.getVectorStarts();
-        const double *element = matrix.getElements();
+        const FloatT *element = matrix.getElements();
         // make sure matrix has enough rows
         matrix_->setDimensions(numberRows_, -1);
         addColumns(numberColumns2, columnLower, columnUpper,
@@ -2644,14 +2644,14 @@ int ClpModel::addColumns(CoinModel &modelObject, bool tryPlusMinusOne, bool chec
 }
 #endif
 // chgRowLower
-void ClpModel::chgRowLower(const double *rowLower)
+void ClpModel::chgRowLower(const FloatT *rowLower)
 {
   int numberRows = numberRows_;
   int iRow;
   whatsChanged_ = 0; // Use ClpSimplex stuff to keep
   if (rowLower) {
     for (iRow = 0; iRow < numberRows; iRow++) {
-      double value = rowLower[iRow];
+      FloatT value = rowLower[iRow];
       if (value < -1.0e20)
         value = -COIN_DBL_MAX;
       rowLower_[iRow] = value;
@@ -2663,14 +2663,14 @@ void ClpModel::chgRowLower(const double *rowLower)
   }
 }
 // chgRowUpper
-void ClpModel::chgRowUpper(const double *rowUpper)
+void ClpModel::chgRowUpper(const FloatT *rowUpper)
 {
   whatsChanged_ = 0; // Use ClpSimplex stuff to keep
   int numberRows = numberRows_;
   int iRow;
   if (rowUpper) {
     for (iRow = 0; iRow < numberRows; iRow++) {
-      double value = rowUpper[iRow];
+      FloatT value = rowUpper[iRow];
       if (value > 1.0e20)
         value = COIN_DBL_MAX;
       rowUpper_[iRow] = value;
@@ -2683,14 +2683,14 @@ void ClpModel::chgRowUpper(const double *rowUpper)
   }
 }
 // chgColumnLower
-void ClpModel::chgColumnLower(const double *columnLower)
+void ClpModel::chgColumnLower(const FloatT *columnLower)
 {
   whatsChanged_ = 0; // Use ClpSimplex stuff to keep
   int numberColumns = numberColumns_;
   int iColumn;
   if (columnLower) {
     for (iColumn = 0; iColumn < numberColumns; iColumn++) {
-      double value = columnLower[iColumn];
+      FloatT value = columnLower[iColumn];
       if (value < -1.0e20)
         value = -COIN_DBL_MAX;
       columnLower_[iColumn] = value;
@@ -2702,14 +2702,14 @@ void ClpModel::chgColumnLower(const double *columnLower)
   }
 }
 // chgColumnUpper
-void ClpModel::chgColumnUpper(const double *columnUpper)
+void ClpModel::chgColumnUpper(const FloatT *columnUpper)
 {
   whatsChanged_ = 0; // Use ClpSimplex stuff to keep
   int numberColumns = numberColumns_;
   int iColumn;
   if (columnUpper) {
     for (iColumn = 0; iColumn < numberColumns; iColumn++) {
-      double value = columnUpper[iColumn];
+      FloatT value = columnUpper[iColumn];
       if (value > 1.0e20)
         value = COIN_DBL_MAX;
       columnUpper_[iColumn] = value;
@@ -2722,10 +2722,10 @@ void ClpModel::chgColumnUpper(const double *columnUpper)
   }
 }
 // chgObjCoefficients
-void ClpModel::chgObjCoefficients(const double *objIn)
+void ClpModel::chgObjCoefficients(const FloatT *objIn)
 {
   whatsChanged_ = 0; // Use ClpSimplex stuff to keep
-  double *obj = objective();
+  FloatT *obj = objective();
   int numberColumns = numberColumns_;
   int iColumn;
   if (objIn) {
@@ -2739,26 +2739,26 @@ void ClpModel::chgObjCoefficients(const double *objIn)
   }
 }
 // Infeasibility/unbounded ray (NULL returned if none/wrong)
-double *
+FloatT *
 ClpModel::infeasibilityRay(bool fullRay) const
 {
-  double *array = NULL;
+  FloatT *array = NULL;
   if (problemStatus_ == 1 && ray_) {
     if (!fullRay) {
       array = ClpCopyOfArray(ray_, numberRows_);
     } else {
-      array = new double[numberRows_ + numberColumns_];
-      memcpy(array, ray_, numberRows_ * sizeof(double));
-      memset(array + numberRows_, 0, numberColumns_ * sizeof(double));
+      array = new FloatT[numberRows_ + numberColumns_];
+      memcpy(array, ray_, numberRows_ * sizeof(FloatT));
+      memset(array + numberRows_, 0, numberColumns_ * sizeof(FloatT));
       transposeTimes(-1.0, array, array + numberRows_);
     }
   }
   return array;
 }
-double *
+FloatT *
 ClpModel::unboundedRay() const
 {
-  double *array = NULL;
+  FloatT *array = NULL;
   if (problemStatus_ == 2)
     array = ClpCopyOfArray(ray_, numberColumns_);
   return array;
@@ -2768,14 +2768,14 @@ void ClpModel::setMaximumIterations(int value)
   if (value >= 0)
     intParam_[ClpMaxNumIteration] = value;
 }
-void ClpModel::setMaximumSeconds(double value)
+void ClpModel::setMaximumSeconds(FloatT value)
 {
   if (value >= 0)
     dblParam_[ClpMaxSeconds] = value + CoinCpuTime();
   else
     dblParam_[ClpMaxSeconds] = -1.0;
 }
-void ClpModel::setMaximumWallSeconds(double value)
+void ClpModel::setMaximumWallSeconds(FloatT value)
 {
   if (value >= 0)
     dblParam_[ClpMaxWallSeconds] = value + CoinWallclockTime();
@@ -2869,7 +2869,7 @@ int ClpModel::readMps(const char *fileName,
   bool savePrefix = m.messageHandler()->prefix();
   m.messageHandler()->setPrefix(handler_->prefix());
   m.setSmallElementValue(CoinMax(smallElement_, m.getSmallElementValue()));
-  double time1 = CoinCpuTime(), time2;
+  FloatT time1 = CoinCpuTime(), time2;
   int status = 0;
   try {
     status = m.readMps(fileName, "");
@@ -2894,7 +2894,7 @@ int ClpModel::readMps(const char *fileName,
     if (m.reader()->whichSection() == COIN_QUAD_SECTION) {
       CoinBigIndex *start = NULL;
       int *column = NULL;
-      double *element = NULL;
+      FloatT *element = NULL;
       status = m.readQuadraticMps(NULL, start, column, element, 2);
       if (!status || ignoreErrors)
         loadQuadraticObjective(numberColumns_, start, column, element);
@@ -2972,7 +2972,7 @@ int ClpModel::readGMPL(const char *fileName, const char *dataName,
   *m.messagesPointer() = coinMessages();
   bool savePrefix = m.messageHandler()->prefix();
   m.messageHandler()->setPrefix(handler_->prefix());
-  double time1 = CoinCpuTime(), time2;
+  FloatT time1 = CoinCpuTime(), time2;
   int status = m.readGMPL(fileName, dataName, keepNames);
   m.messageHandler()->setPrefix(savePrefix);
   if (!status) {
@@ -3029,15 +3029,15 @@ int ClpModel::readGMPL(const char *fileName, const char *dataName,
 #endif
 bool ClpModel::isPrimalObjectiveLimitReached() const
 {
-  double limit = 0.0;
+  FloatT limit = 0.0;
   getDblParam(ClpPrimalObjectiveLimit, limit);
   if (limit > 1e30) {
     // was not ever set
     return false;
   }
 
-  const double obj = objectiveValue();
-  const double maxmin = optimizationDirection();
+  const FloatT obj = objectiveValue();
+  const FloatT maxmin = optimizationDirection();
 
   if (problemStatus_ == 0) // optimal
     return maxmin > 0 ? (obj < limit) /*minim*/ : (-obj < limit) /*maxim*/;
@@ -3050,15 +3050,15 @@ bool ClpModel::isPrimalObjectiveLimitReached() const
 bool ClpModel::isDualObjectiveLimitReached() const
 {
 
-  double limit = 0.0;
+  FloatT limit = 0.0;
   getDblParam(ClpDualObjectiveLimit, limit);
   if (limit > 1e30) {
     // was not ever set
     return false;
   }
 
-  const double obj = objectiveValue();
-  const double maxmin = optimizationDirection();
+  const FloatT obj = objectiveValue();
+  const FloatT maxmin = optimizationDirection();
 
   if (problemStatus_ == 0) // optimal
     return maxmin > 0 ? (obj > limit) /*minim*/ : (-obj > limit) /*maxim*/;
@@ -3153,12 +3153,12 @@ void ClpModel::copyinStatus(const unsigned char *statusArray)
 #ifndef SLIM_CLP
 // Load up quadratic objective
 void ClpModel::loadQuadraticObjective(const int numberColumns, const CoinBigIndex *start,
-  const int *column, const double *element)
+  const int *column, const FloatT *element)
 {
   whatsChanged_ = 0; // Use ClpSimplex stuff to keep
   CoinAssert(numberColumns == numberColumns_);
   assert((dynamic_cast< ClpLinearObjective * >(objective_)));
-  double offset;
+  FloatT offset;
   ClpObjective *obj = new ClpQuadraticObjective(objective_->gradient(NULL, NULL, offset, false),
     numberColumns,
     start, column, element);
@@ -3170,7 +3170,7 @@ void ClpModel::loadQuadraticObjective(const CoinPackedMatrix &matrix)
   whatsChanged_ = 0; // Use ClpSimplex stuff to keep
   CoinAssert(matrix.getNumCols() == numberColumns_);
   assert((dynamic_cast< ClpLinearObjective * >(objective_)));
-  double offset;
+  FloatT offset;
   ClpQuadraticObjective *obj = new ClpQuadraticObjective(objective_->gradient(NULL, NULL, offset, false),
     numberColumns_,
     NULL, NULL, NULL);
@@ -3194,12 +3194,12 @@ void ClpModel::setObjective(ClpObjective *objective)
   objective_ = objective->clone();
 }
 // Returns resized array and updates size
-double *whichDouble(double *array, int number, const int *which)
+FloatT *whichDouble(FloatT *array, int number, const int *which)
 {
-  double *newArray = NULL;
+  FloatT *newArray = NULL;
   if (array && number) {
     int i;
-    newArray = new double[number];
+    newArray = new FloatT[number];
     for (i = 0; i < number; i++)
       newArray[i] = array[which[i]];
   }
@@ -3581,22 +3581,22 @@ void ClpModel::copyColumnNames(const char *const *columnNames, int first, int la
 }
 #endif
 // Primal objective limit
-void ClpModel::setPrimalObjectiveLimit(double value)
+void ClpModel::setPrimalObjectiveLimit(FloatT value)
 {
   dblParam_[ClpPrimalObjectiveLimit] = value;
 }
 // Dual objective limit
-void ClpModel::setDualObjectiveLimit(double value)
+void ClpModel::setDualObjectiveLimit(FloatT value)
 {
   dblParam_[ClpDualObjectiveLimit] = value;
 }
 // Objective offset
-void ClpModel::setObjectiveOffset(double value)
+void ClpModel::setObjectiveOffset(FloatT value)
 {
   dblParam_[ClpObjOffset] = value;
 }
 // Solve a problem with no elements - return status
-int ClpModel::emptyProblem(int *infeasNumber, double *infeasSum, bool printMessage)
+int ClpModel::emptyProblem(int *infeasNumber, FloatT *infeasSum, bool printMessage)
 {
   secondaryStatus_ = 6; // so user can see something odd
   if (printMessage)
@@ -3615,9 +3615,9 @@ int ClpModel::emptyProblem(int *infeasNumber, double *infeasSum, bool printMessa
   // status is set directly (as can be used by Interior methods)
   // check feasible
   int numberPrimalInfeasibilities = 0;
-  double sumPrimalInfeasibilities = 0.0;
+  FloatT sumPrimalInfeasibilities = 0.0;
   int numberDualInfeasibilities = 0;
-  double sumDualInfeasibilities = 0.0;
+  FloatT sumDualInfeasibilities = 0.0;
   if (numberRows_) {
     for (int i = 0; i < numberRows_; i++) {
       dual_[i] = 0.0;
@@ -3648,12 +3648,12 @@ int ClpModel::emptyProblem(int *infeasNumber, double *infeasSum, bool printMessa
   }
   objectiveValue_ = 0.0;
   int badColumn = -1;
-  double badValue = 0.0;
+  FloatT badValue = 0.0;
   if (numberColumns_) {
-    const double *cost = objective();
+    const FloatT *cost = objective();
     for (int i = 0; i < numberColumns_; i++) {
       reducedCost_[i] = cost[i];
-      double objValue = cost[i] * optimizationDirection_;
+      FloatT objValue = cost[i] * optimizationDirection_;
       if (columnLower_[i] <= columnUpper_[i]) {
         if (columnLower_[i] > -1.0e30 || columnUpper_[i] < 1.0e30) {
           if (!objValue) {
@@ -3731,7 +3731,7 @@ int ClpModel::emptyProblem(int *infeasNumber, double *infeasSum, bool printMessa
   if (returnCode == 2) {
     // create ray
     delete[] ray_;
-    ray_ = new double[numberColumns_];
+    ray_ = new FloatT[numberColumns_];
     CoinZeroN(ray_, numberColumns_);
     ray_[badColumn] = badValue;
   }
@@ -3752,12 +3752,12 @@ Returns non-zero on I/O error
 */
 int ClpModel::writeMps(const char *filename,
   int formatType, int numberAcross,
-  double objSense) const
+  FloatT objSense) const
 {
   matrix_->setDimensions(numberRows_, numberColumns_);
 
   // Get multiplier for objective function - default 1.0
-  double *objective = new double[numberColumns_];
+  FloatT *objective = new FloatT[numberColumns_];
   CoinMemcpyN(getObjCoefficients(), numberColumns_, objective);
   if (objSense * getObjSense() < 0.0) {
     for (int i = 0; i < numberColumns_; ++i)
@@ -3913,8 +3913,8 @@ void ClpModel::scaling(int mode)
     setColumnScale(NULL);
   }
 }
-void ClpModel::times(double scalar,
-  const double *x, double *y) const
+void ClpModel::times(FloatT scalar,
+  const FloatT *x, FloatT *y) const
 {
   if (!scaledMatrix_ || !rowScale_) {
     if (rowScale_)
@@ -3925,8 +3925,8 @@ void ClpModel::times(double scalar,
     scaledMatrix_->times(scalar, x, y);
   }
 }
-void ClpModel::transposeTimes(double scalar,
-  const double *x, double *y) const
+void ClpModel::transposeTimes(FloatT scalar,
+  const FloatT *x, FloatT *y) const
 {
   if (!scaledMatrix_ || !rowScale_) {
     if (rowScale_)
@@ -3946,8 +3946,8 @@ void ClpModel::gutsOfScaling()
       rowObjective_[i] /= rowScale_[i];
   }
   for (i = 0; i < numberRows_; i++) {
-    double multiplier = rowScale_[i];
-    double inverseMultiplier = 1.0 / multiplier;
+    FloatT multiplier = rowScale_[i];
+    FloatT inverseMultiplier = 1.0 / multiplier;
     rowActivity_[i] *= multiplier;
     dual_[i] *= inverseMultiplier;
     if (rowLower_[i] > -1.0e30)
@@ -3960,7 +3960,7 @@ void ClpModel::gutsOfScaling()
       rowUpper_[i] = COIN_DBL_MAX;
   }
   for (i = 0; i < numberColumns_; i++) {
-    double multiplier = 1.0 * inverseColumnScale_[i];
+    FloatT multiplier = 1.0 * inverseColumnScale_[i];
     columnActivity_[i] *= multiplier;
     reducedCost_[i] *= columnScale_[i];
     if (columnLower_[i] > -1.0e30)
@@ -4013,7 +4013,7 @@ ClpModel::createCoinModel() const
   coinModel->setProblemName(problemName().c_str());
 
   // Build by row from scratch
-  const double *element = matrixByRow.getElements();
+  const FloatT *element = matrixByRow.getElements();
   const int *column = matrixByRow.getIndices();
   const CoinBigIndex *rowStart = matrixByRow.getVectorStarts();
   const int *rowLength = matrixByRow.getVectorLengths();
@@ -4023,7 +4023,7 @@ ClpModel::createCoinModel() const
       element + rowStart[i], rowLower_[i], rowUpper_[i]);
   }
   // Now do column part
-  const double *objective = this->objective();
+  const FloatT *objective = this->objective();
   for (i = 0; i < numberColumns_; i++) {
     coinModel->setColumnBounds(i, columnLower_[i], columnUpper_[i]);
     coinModel->setColumnObjective(i, objective[i]);
@@ -4060,7 +4060,7 @@ ClpModel::createCoinModel() const
   if (obj) {
     const CoinPackedMatrix *quadObj = obj->quadraticObjective();
     // add in quadratic
-    const double *element = quadObj->getElements();
+    const FloatT *element = quadObj->getElements();
     const int *row = quadObj->getIndices();
     const CoinBigIndex *columnStart = quadObj->getVectorStarts();
     const int *columnLength = quadObj->getVectorLengths();
@@ -4068,13 +4068,13 @@ ClpModel::createCoinModel() const
       int nels = columnLength[i];
       if (nels) {
         CoinBigIndex start = columnStart[i];
-        double constant = coinModel->getColumnObjective(i);
+        FloatT constant = coinModel->getColumnObjective(i);
         char temp[100000];
         char temp2[30];
         sprintf(temp, "%g", constant);
         for (CoinBigIndex k = start; k < start + nels; k++) {
           int kColumn = row[k];
-          double value = element[k];
+          FloatT value = element[k];
 #if 1
           // ampl gives twice with assumed 0.5
           if (kColumn < i)
@@ -4168,7 +4168,7 @@ void ClpModel::setNewRowCopy(ClpMatrixBase *newCopy)
   Returns number of network rows (positive if exact network, negative if needs extra row)
   From Gulpinar, Gutin, Maros and Mitra
 */
-int ClpModel::findNetwork(char *rotate, double fractionNeeded)
+int ClpModel::findNetwork(char *rotate, FloatT fractionNeeded)
 {
   int *mapping = new int[numberRows_];
   // Get column copy
@@ -4184,7 +4184,7 @@ int ClpModel::findNetwork(char *rotate, double fractionNeeded)
   const int *columnIn = copy->getIndices();
   const CoinBigIndex *rowStartIn = copy->getVectorStarts();
   const int *rowLength = copy->getVectorLengths();
-  const double *elementByRowIn = copy->getElements();
+  const FloatT *elementByRowIn = copy->getElements();
   int iRow, iColumn;
   int numberEligible = 0;
   int numberIn = 0;
@@ -4195,7 +4195,7 @@ int ClpModel::findNetwork(char *rotate, double fractionNeeded)
     rotate[iRow] = -1;
     for (CoinBigIndex j = rowStartIn[iRow]; j < rowStartIn[iRow] + rowLength[iRow]; j++) {
       //int iColumn = column[j];
-      double value = elementByRowIn[j];
+      FloatT value = elementByRowIn[j];
       if (fabs(value) != 1.0) {
         possible = false;
         break;
@@ -4227,7 +4227,7 @@ int ClpModel::findNetwork(char *rotate, double fractionNeeded)
     rotate[numberEligible] = 0;
     for (CoinBigIndex j = rowStartIn[iRow]; j < rowStartIn[iRow] + rowLength[iRow]; j++) {
       column[numberElements] = columnIn[j];
-      double value = elementByRowIn[j];
+      FloatT value = elementByRowIn[j];
       if (value == 1.0)
         elementByRow[numberElements++] = 1;
       else
@@ -4241,13 +4241,13 @@ int ClpModel::findNetwork(char *rotate, double fractionNeeded)
   const int *rowIn = columnCopy->getIndices();
   const CoinBigIndex *columnStartIn = columnCopy->getVectorStarts();
   const int *columnLengthIn = columnCopy->getVectorLengths();
-  const double *elementByColumnIn = columnCopy->getElements();
+  const FloatT *elementByColumnIn = columnCopy->getElements();
   int *columnLength = new int[numberColumns_];
   // May just be that is a network - worth checking
   bool isNetworkAlready = true;
   bool trueNetwork = true;
   for (iColumn = 0; iColumn < numberColumns_; iColumn++) {
-    double product = 1.0;
+    FloatT product = 1.0;
     int n = 0;
     for (CoinBigIndex j = columnStartIn[iColumn]; j < columnStartIn[iColumn] + columnLengthIn[iColumn]; j++) {
       iRow = mapping[rowIn[j]];
@@ -4266,7 +4266,7 @@ int ClpModel::findNetwork(char *rotate, double fractionNeeded)
   }
   if (!isNetworkAlready) {
     // For sorting
-    double *count = new double[numberRows_];
+    FloatT *count = new FloatT[numberRows_];
     int *which = new int[numberRows_];
     int numberLast = -1;
     // Count for columns
@@ -4300,7 +4300,7 @@ int ClpModel::findNetwork(char *rotate, double fractionNeeded)
           }
           if (merit > -2 && (OK || reflectionOK) && (!OK || !reflectionOK || !numberIn)) {
             //if (!numberLast) merit=1;
-            count[numberLeft++] = (rowStart[iRow + 1] - rowStart[iRow] - 1) * (static_cast< double >(merit));
+            count[numberLeft++] = (rowStart[iRow + 1] - rowStart[iRow] - 1) * (static_cast< FloatT >(merit));
             if (OK)
               rotate[iRow] = 0;
             else
@@ -4477,7 +4477,7 @@ void ClpModel::generateCpp(FILE *fp)
   ClpModel defaultModel;
   ClpModel *other = &defaultModel;
   int iValue1, iValue2;
-  double dValue1, dValue2;
+  FloatT dValue1, dValue2;
   iValue1 = this->maximumIterations();
   iValue2 = other->maximumIterations();
   fprintf(fp, "%d  int save_maximumIterations = clpModel->maximumIterations();\n", iValue1 == iValue2 ? 2 : 1);
@@ -4485,12 +4485,12 @@ void ClpModel::generateCpp(FILE *fp)
   fprintf(fp, "%d  clpModel->setMaximumIterations(save_maximumIterations);\n", iValue1 == iValue2 ? 7 : 6);
   dValue1 = this->primalTolerance();
   dValue2 = other->primalTolerance();
-  fprintf(fp, "%d  double save_primalTolerance = clpModel->primalTolerance();\n", dValue1 == dValue2 ? 2 : 1);
+  fprintf(fp, "%d  FloatT save_primalTolerance = clpModel->primalTolerance();\n", dValue1 == dValue2 ? 2 : 1);
   fprintf(fp, "%d  clpModel->setPrimalTolerance(%g);\n", dValue1 == dValue2 ? 4 : 3, dValue1);
   fprintf(fp, "%d  clpModel->setPrimalTolerance(save_primalTolerance);\n", dValue1 == dValue2 ? 7 : 6);
   dValue1 = this->dualTolerance();
   dValue2 = other->dualTolerance();
-  fprintf(fp, "%d  double save_dualTolerance = clpModel->dualTolerance();\n", dValue1 == dValue2 ? 2 : 1);
+  fprintf(fp, "%d  FloatT save_dualTolerance = clpModel->dualTolerance();\n", dValue1 == dValue2 ? 2 : 1);
   fprintf(fp, "%d  clpModel->setDualTolerance(%g);\n", dValue1 == dValue2 ? 4 : 3, dValue1);
   fprintf(fp, "%d  clpModel->setDualTolerance(save_dualTolerance);\n", dValue1 == dValue2 ? 7 : 6);
   iValue1 = this->numberIterations();
@@ -4500,22 +4500,22 @@ void ClpModel::generateCpp(FILE *fp)
   fprintf(fp, "%d  clpModel->setNumberIterations(save_numberIterations);\n", iValue1 == iValue2 ? 7 : 6);
   dValue1 = this->maximumSeconds();
   dValue2 = other->maximumSeconds();
-  fprintf(fp, "%d  double save_maximumSeconds = clpModel->maximumSeconds();\n", dValue1 == dValue2 ? 2 : 1);
+  fprintf(fp, "%d  FloatT save_maximumSeconds = clpModel->maximumSeconds();\n", dValue1 == dValue2 ? 2 : 1);
   fprintf(fp, "%d  clpModel->setMaximumSeconds(%g);\n", dValue1 == dValue2 ? 4 : 3, dValue1);
   fprintf(fp, "%d  clpModel->setMaximumSeconds(save_maximumSeconds);\n", dValue1 == dValue2 ? 7 : 6);
   dValue1 = this->optimizationDirection();
   dValue2 = other->optimizationDirection();
-  fprintf(fp, "%d  double save_optimizationDirection = clpModel->optimizationDirection();\n", dValue1 == dValue2 ? 2 : 1);
+  fprintf(fp, "%d  FloatT save_optimizationDirection = clpModel->optimizationDirection();\n", dValue1 == dValue2 ? 2 : 1);
   fprintf(fp, "%d  clpModel->setOptimizationDirection(%g);\n", dValue1 == dValue2 ? 4 : 3, dValue1);
   fprintf(fp, "%d  clpModel->setOptimizationDirection(save_optimizationDirection);\n", dValue1 == dValue2 ? 7 : 6);
   dValue1 = this->objectiveScale();
   dValue2 = other->objectiveScale();
-  fprintf(fp, "%d  double save_objectiveScale = clpModel->objectiveScale();\n", dValue1 == dValue2 ? 2 : 1);
+  fprintf(fp, "%d  FloatT save_objectiveScale = clpModel->objectiveScale();\n", dValue1 == dValue2 ? 2 : 1);
   fprintf(fp, "%d  clpModel->setObjectiveScale(%g);\n", dValue1 == dValue2 ? 4 : 3, dValue1);
   fprintf(fp, "%d  clpModel->setObjectiveScale(save_objectiveScale);\n", dValue1 == dValue2 ? 7 : 6);
   dValue1 = this->rhsScale();
   dValue2 = other->rhsScale();
-  fprintf(fp, "%d  double save_rhsScale = clpModel->rhsScale();\n", dValue1 == dValue2 ? 2 : 1);
+  fprintf(fp, "%d  FloatT save_rhsScale = clpModel->rhsScale();\n", dValue1 == dValue2 ? 2 : 1);
   fprintf(fp, "%d  clpModel->setRhsScale(%g);\n", dValue1 == dValue2 ? 4 : 3, dValue1);
   fprintf(fp, "%d  clpModel->setRhsScale(save_rhsScale);\n", dValue1 == dValue2 ? 7 : 6);
   iValue1 = this->scalingFlag();
@@ -4525,7 +4525,7 @@ void ClpModel::generateCpp(FILE *fp)
   fprintf(fp, "%d  clpModel->scaling(save_scalingFlag);\n", iValue1 == iValue2 ? 7 : 6);
   dValue1 = this->getSmallElementValue();
   dValue2 = other->getSmallElementValue();
-  fprintf(fp, "%d  double save_getSmallElementValue = clpModel->getSmallElementValue();\n", dValue1 == dValue2 ? 2 : 1);
+  fprintf(fp, "%d  FloatT save_getSmallElementValue = clpModel->getSmallElementValue();\n", dValue1 == dValue2 ? 2 : 1);
   fprintf(fp, "%d  clpModel->setSmallElementValue(%g);\n", dValue1 == dValue2 ? 4 : 3, dValue1);
   fprintf(fp, "%d  clpModel->setSmallElementValue(save_getSmallElementValue);\n", dValue1 == dValue2 ? 7 : 6);
   iValue1 = this->logLevel();

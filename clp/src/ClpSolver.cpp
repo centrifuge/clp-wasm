@@ -83,17 +83,17 @@ extern glp_prob *cbc_glp_prob;
 #include "dmalloc.h"
 #endif
 #ifdef CLP_USEFUL_PRINTOUT
-static double startElapsed = 0.0;
-static double startCpu = 0.0;
+static FloatT startElapsed = 0.0;
+static FloatT startCpu = 0.0;
 static std::string mpsFile = "";
-extern double debugDouble[10];
+extern FloatT debugDouble[10];
 extern int debugInt[24];
 #endif
 #if defined(COIN_HAS_WSMP) || defined(COIN_HAS_AMD) || defined(COIN_HAS_CHOLMOD) || defined(TAUCS_BARRIER) || defined(COIN_HAS_MUMPS)
 #define FOREIGN_BARRIER
 #endif
 
-static double totalTime = 0.0;
+static FloatT totalTime = 0.0;
 static bool maskMatches(const int *starts, char **masks,
   std::string &check);
 #ifndef ABC_INHERIT
@@ -150,10 +150,10 @@ extern int CbcOrClpEnvironmentIndex;
 */
 bool userChoiceValid1(const ClpSimplex *model,
   int sequenceOut,
-  double currentValue,
-  double currentTheta,
-  double alpha,
-  double realAlpha)
+  FloatT currentValue,
+  FloatT currentTheta,
+  FloatT alpha,
+  FloatT realAlpha)
 {
   return true;
 }
@@ -191,7 +191,7 @@ int ClpMain1(int argc, const char *argv[], ClpSimplex *models)
 int ClpMain1(int argc, const char *argv[], AbcSimplex *models)
 #endif
 {
-  double time1 = CoinCpuTime(), time2;
+  FloatT time1 = CoinCpuTime(), time2;
   // Set up all non-standard stuff
   //int numberModels=1;
 #ifdef CLP_USEFUL_PRINTOUT
@@ -603,14 +603,14 @@ int ClpMain1(int argc, const char *argv[], AbcSimplex *models)
             std::cout << std::endl;
         }
       } else if (type < 101) {
-        // get next field as double
-        double value = CoinReadGetDoubleField(argc, argv, &valid);
+        // get next field as FloatT
+        FloatT value = CoinReadGetDoubleField(argc, argv, &valid);
         if (!valid) {
           parameters[iParam].setDoubleParameter(thisModel, value);
         } else if (valid == 1) {
-          std::cout << " is illegal for double parameter " << parameters[iParam].name() << " value remains " << parameters[iParam].doubleValue() << std::endl;
+          std::cout << " is illegal for FloatT parameter " << parameters[iParam].name() << " value remains " << parameters[iParam].FloatTValue() << std::endl;
         } else {
-          std::cout << parameters[iParam].name() << " has value " << parameters[iParam].doubleValue() << std::endl;
+          std::cout << parameters[iParam].name() << " has value " << parameters[iParam].FloatTValue() << std::endl;
         }
       } else if (type < 201) {
         // get next field as int
@@ -711,11 +711,11 @@ int ClpMain1(int argc, const char *argv[], AbcSimplex *models)
 #endif
             } else if (action == 4) {
               // Positive edge steepest
-              ClpPEDualRowSteepest p(fabs(parameters[whichParam(CLP_PARAM_DBL_PSI, parameters)].doubleValue()));
+              ClpPEDualRowSteepest p(fabs(parameters[whichParam(CLP_PARAM_DBL_PSI, parameters)].FloatTValue()));
               thisModel->setDualRowPivotAlgorithm(p);
             } else if (action == 5) {
               // Positive edge Dantzig
-              ClpPEDualRowDantzig p(fabs(parameters[whichParam(CLP_PARAM_DBL_PSI, parameters)].doubleValue()));
+              ClpPEDualRowDantzig p(fabs(parameters[whichParam(CLP_PARAM_DBL_PSI, parameters)].FloatTValue()));
               thisModel->setDualRowPivotAlgorithm(p);
             }
             break;
@@ -743,11 +743,11 @@ int ClpMain1(int argc, const char *argv[], AbcSimplex *models)
               thisModel->setPrimalColumnPivotAlgorithm(steep);
             } else if (action == 7) {
               // Positive edge steepest
-              ClpPEPrimalColumnSteepest p(fabs(parameters[whichParam(CLP_PARAM_DBL_PSI, parameters)].doubleValue()));
+              ClpPEPrimalColumnSteepest p(fabs(parameters[whichParam(CLP_PARAM_DBL_PSI, parameters)].FloatTValue()));
               thisModel->setPrimalColumnPivotAlgorithm(p);
             } else if (action == 8) {
               // Positive edge Dantzig
-              ClpPEPrimalColumnDantzig p(fabs(parameters[whichParam(CLP_PARAM_DBL_PSI, parameters)].doubleValue()));
+              ClpPEPrimalColumnDantzig p(fabs(parameters[whichParam(CLP_PARAM_DBL_PSI, parameters)].FloatTValue()));
               thisModel->setPrimalColumnPivotAlgorithm(p);
             }
             break;
@@ -869,7 +869,7 @@ int ClpMain1(int argc, const char *argv[], AbcSimplex *models)
 #endif
             //openblas_set_num_threads(4);
             // deal with positive edge
-            double psi = parameters[whichParam(CLP_PARAM_DBL_PSI, parameters)].doubleValue();
+            FloatT psi = parameters[whichParam(CLP_PARAM_DBL_PSI, parameters)].FloatTValue();
             if (psi > 0.0) {
               ClpDualRowPivot *dualp = clpModel->dualRowPivot();
               ClpDualRowSteepest *d1 = dynamic_cast< ClpDualRowSteepest * >(dualp);
@@ -894,15 +894,15 @@ int ClpMain1(int argc, const char *argv[], AbcSimplex *models)
             }
             if (type == CLP_PARAM_ACTION_EITHERSIMPLEX || type == CBC_PARAM_ACTION_BAB)
               models[iModel].setMoreSpecialOptions(16384 | models[iModel].moreSpecialOptions());
-            double objScale = parameters[whichParam(CLP_PARAM_DBL_OBJSCALE2, parameters)].doubleValue();
+            FloatT objScale = parameters[whichParam(CLP_PARAM_DBL_OBJSCALE2, parameters)].FloatTValue();
             if (objScale != 1.0) {
               int iColumn;
               int numberColumns = models[iModel].numberColumns();
-              double *dualColumnSolution = models[iModel].dualColumnSolution();
+              FloatT *dualColumnSolution = models[iModel].dualColumnSolution();
               ClpObjective *obj = models[iModel].objectiveAsObject();
               assert(dynamic_cast< ClpLinearObjective * >(obj));
-              double offset;
-              double *objective = obj->gradient(NULL, NULL, offset, true);
+              FloatT offset;
+              FloatT *objective = obj->gradient(NULL, NULL, offset, true);
               for (iColumn = 0; iColumn < numberColumns; iColumn++) {
                 dualColumnSolution[iColumn] *= objScale;
                 objective[iColumn] *= objScale;
@@ -910,7 +910,7 @@ int ClpMain1(int argc, const char *argv[], AbcSimplex *models)
               }
               int iRow;
               int numberRows = models[iModel].numberRows();
-              double *dualRowSolution = models[iModel].dualRowSolution();
+              FloatT *dualRowSolution = models[iModel].dualRowSolution();
               for (iRow = 0; iRow < numberRows; iRow++)
                 dualRowSolution[iRow] *= objScale;
               models[iModel].setObjectiveOffset(objScale * models[iModel].objectiveOffset());
@@ -931,8 +931,8 @@ int ClpMain1(int argc, const char *argv[], AbcSimplex *models)
             }
             if (dualize) {
               bool tryIt = true;
-              double fractionColumn = 1.0;
-              double fractionRow = 1.0;
+              FloatT fractionColumn = 1.0;
+              FloatT fractionRow = 1.0;
               if (dualize == 3) {
                 dualize = 1;
                 int numberColumns = model2->numberColumns();
@@ -1120,7 +1120,7 @@ int ClpMain1(int argc, const char *argv[], AbcSimplex *models)
               status = model2->initialSolve(solveOptions);
 #ifdef COIN_HAS_ASL
               if (usingAmpl) {
-                double value = model2->getObjValue() * model2->getObjSense();
+                FloatT value = model2->getObjValue() * model2->getObjSense();
                 char buf[300];
                 int pos = 0;
                 int iStat = model2->status();
@@ -1156,11 +1156,11 @@ int ClpMain1(int argc, const char *argv[], AbcSimplex *models)
                   model2->getIterationCount());
                 free(info.primalSolution);
                 int numberColumns = model2->numberColumns();
-                info.primalSolution = reinterpret_cast< double * >(malloc(numberColumns * sizeof(double)));
+                info.primalSolution = reinterpret_cast< FloatT * >(malloc(numberColumns * sizeof(FloatT)));
                 CoinCopyN(model2->primalColumnSolution(), numberColumns, info.primalSolution);
                 int numberRows = model2->numberRows();
                 free(info.dualSolution);
-                info.dualSolution = reinterpret_cast< double * >(malloc(numberRows * sizeof(double)));
+                info.dualSolution = reinterpret_cast< FloatT * >(malloc(numberRows * sizeof(FloatT)));
                 CoinCopyN(model2->dualRowSolution(), numberRows, info.dualSolution);
                 CoinWarmStartBasis *basis = model2->getBasis();
                 free(info.rowStatus);
@@ -1190,25 +1190,25 @@ int ClpMain1(int argc, const char *argv[], AbcSimplex *models)
                 if (simplex->ray()) {
                   // make sure we use non-scaled versions
                   ClpPackedMatrix *saveMatrix = simplex->swapScaledMatrix(NULL);
-                  double *saveScale = simplex->swapRowScale(NULL);
+                  FloatT *saveScale = simplex->swapRowScale(NULL);
                   // could use existing arrays
                   int numberRows = simplex->numberRows();
                   int numberColumns = simplex->numberColumns();
-                  double *farkas = new double[2 * numberColumns + numberRows];
-                  double *bound = farkas + numberColumns;
-                  double *effectiveRhs = bound + numberColumns;
+                  FloatT *farkas = new FloatT[2 * numberColumns + numberRows];
+                  FloatT *bound = farkas + numberColumns;
+                  FloatT *effectiveRhs = bound + numberColumns;
                   // get ray as user would
-                  double *ray = simplex->infeasibilityRay();
+                  FloatT *ray = simplex->infeasibilityRay();
                   // get farkas row
-                  memset(farkas, 0, (2 * numberColumns + numberRows) * sizeof(double));
+                  memset(farkas, 0, (2 * numberColumns + numberRows) * sizeof(FloatT));
                   simplex->transposeTimes(-1.0, ray, farkas);
                   // Put nonzero bounds in bound
-                  const double *columnLower = simplex->columnLower();
-                  const double *columnUpper = simplex->columnUpper();
+                  const FloatT *columnLower = simplex->columnLower();
+                  const FloatT *columnUpper = simplex->columnUpper();
                   int numberBad = 0;
                   for (int i = 0; i < numberColumns; i++) {
-                    double value = farkas[i];
-                    double boundValue = 0.0;
+                    FloatT value = farkas[i];
+                    FloatT boundValue = 0.0;
                     if (simplex->getStatus(i) == ClpSimplex::basic) {
                       // treat as zero if small
                       if (fabs(value) < 1.0e-8) {
@@ -1233,14 +1233,14 @@ int ClpMain1(int argc, const char *argv[], AbcSimplex *models)
                     if (fabs(boundValue) > 1.0e10)
                       numberBad++;
                   }
-                  const double *rowLower = simplex->rowLower();
-                  const double *rowUpper = simplex->rowUpper();
+                  const FloatT *rowLower = simplex->rowLower();
+                  const FloatT *rowUpper = simplex->rowUpper();
                   bool printBad = simplex->logLevel() > 3;
                   //int pivotRow = simplex->spareIntArray_[3];
                   //bool badPivot=pivotRow<0;
                   for (int i = 0; i < numberRows; i++) {
-                    double value = ray[i];
-                    double rhsValue = 0.0;
+                    FloatT value = ray[i];
+                    FloatT rhsValue = 0.0;
                     if (simplex->getRowStatus(i) == ClpSimplex::basic) {
                       // treat as zero if small
                       if (fabs(value) < 1.0e-8) {
@@ -1267,7 +1267,7 @@ int ClpMain1(int argc, const char *argv[], AbcSimplex *models)
                         i, effectiveRhs[i]);
                   }
                   simplex->times(-1.0, bound, effectiveRhs);
-                  double bSum = 0.0;
+                  FloatT bSum = 0.0;
                   for (int i = 0; i < numberRows; i++) {
                     bSum += effectiveRhs[i] * ray[i];
                     if (fabs(effectiveRhs[i]) > 1.0e10 && printBad)
@@ -1342,7 +1342,7 @@ int ClpMain1(int argc, const char *argv[], AbcSimplex *models)
               pinfo.setSubstitution(substitution);
               if ((printOptions & 1) != 0)
                 pinfo.statistics();
-              double presolveTolerance = parameters[whichParam(CLP_PARAM_DBL_PRESOLVETOLERANCE, parameters)].doubleValue();
+              FloatT presolveTolerance = parameters[whichParam(CLP_PARAM_DBL_PRESOLVETOLERANCE, parameters)].FloatTValue();
               model2 = pinfo.presolvedModel(models[iModel], presolveTolerance,
                 true, preSolve);
               if (model2) {
@@ -1555,15 +1555,15 @@ int ClpMain1(int argc, const char *argv[], AbcSimplex *models)
         } break;
         case CLP_PARAM_ACTION_EXPORT:
           if (goodModels[iModel]) {
-            double objScale = parameters[whichParam(CLP_PARAM_DBL_OBJSCALE2, parameters)].doubleValue();
+            FloatT objScale = parameters[whichParam(CLP_PARAM_DBL_OBJSCALE2, parameters)].FloatTValue();
             if (objScale != 1.0) {
               int iColumn;
               int numberColumns = models[iModel].numberColumns();
-              double *dualColumnSolution = models[iModel].dualColumnSolution();
+              FloatT *dualColumnSolution = models[iModel].dualColumnSolution();
               ClpObjective *obj = models[iModel].objectiveAsObject();
               assert(dynamic_cast< ClpLinearObjective * >(obj));
-              double offset;
-              double *objective = obj->gradient(NULL, NULL, offset, true);
+              FloatT offset;
+              FloatT *objective = obj->gradient(NULL, NULL, offset, true);
               for (iColumn = 0; iColumn < numberColumns; iColumn++) {
                 dualColumnSolution[iColumn] *= objScale;
                 objective[iColumn] *= objScale;
@@ -1571,7 +1571,7 @@ int ClpMain1(int argc, const char *argv[], AbcSimplex *models)
               }
               int iRow;
               int numberRows = models[iModel].numberRows();
-              double *dualRowSolution = models[iModel].dualRowSolution();
+              FloatT *dualRowSolution = models[iModel].dualRowSolution();
               for (iRow = 0; iRow < numberRows; iRow++)
                 dualRowSolution[iRow] *= objScale;
               models[iModel].setObjectiveOffset(objScale * models[iModel].objectiveOffset());
@@ -1629,7 +1629,7 @@ int ClpMain1(int argc, const char *argv[], AbcSimplex *models)
                 pinfo.setSubstitution(substitution);
                 if ((printOptions & 1) != 0)
                   pinfo.statistics();
-                double presolveTolerance = parameters[whichParam(CLP_PARAM_DBL_PRESOLVETOLERANCE, parameters)].doubleValue();
+                FloatT presolveTolerance = parameters[whichParam(CLP_PARAM_DBL_PRESOLVETOLERANCE, parameters)].FloatTValue();
                 model2 = pinfo.presolvedModel(models[iModel], presolveTolerance,
                   true, preSolve, false, false);
                 if (model2) {
@@ -1915,7 +1915,7 @@ int ClpMain1(int argc, const char *argv[], AbcSimplex *models)
             ClpSimplex *model2 = models + iModel;
             if (preSolve) {
               ClpPresolve pinfo;
-              double presolveTolerance = parameters[whichParam(CLP_PARAM_DBL_PRESOLVETOLERANCE, parameters)].doubleValue();
+              FloatT presolveTolerance = parameters[whichParam(CLP_PARAM_DBL_PRESOLVETOLERANCE, parameters)].FloatTValue();
               model2 = pinfo.presolvedModel(models[iModel], presolveTolerance,
                 false, preSolve);
               if (model2) {
@@ -2016,18 +2016,18 @@ int ClpMain1(int argc, const char *argv[], AbcSimplex *models)
           if (goodModels[iModel]) {
             int iColumn;
             int numberColumns = models[iModel].numberColumns();
-            double *dualColumnSolution = models[iModel].dualColumnSolution();
+            FloatT *dualColumnSolution = models[iModel].dualColumnSolution();
             ClpObjective *obj = models[iModel].objectiveAsObject();
             assert(dynamic_cast< ClpLinearObjective * >(obj));
-            double offset;
-            double *objective = obj->gradient(NULL, NULL, offset, true);
+            FloatT offset;
+            FloatT *objective = obj->gradient(NULL, NULL, offset, true);
             for (iColumn = 0; iColumn < numberColumns; iColumn++) {
               dualColumnSolution[iColumn] = -dualColumnSolution[iColumn];
               objective[iColumn] = -objective[iColumn];
             }
             int iRow;
             int numberRows = models[iModel].numberRows();
-            double *dualRowSolution = models[iModel].dualRowSolution();
+            FloatT *dualRowSolution = models[iModel].dualRowSolution();
             for (iRow = 0; iRow < numberRows; iRow++) {
               dualRowSolution[iRow] = -dualRowSolution[iRow];
             }
@@ -2223,13 +2223,13 @@ int ClpMain1(int argc, const char *argv[], AbcSimplex *models)
         case CLP_PARAM_ACTION_FAKEBOUND:
           if (goodModels[iModel]) {
             // get bound
-            double value = CoinReadGetDoubleField(argc, argv, &valid);
+            FloatT value = CoinReadGetDoubleField(argc, argv, &valid);
             if (!valid) {
               std::cout << "Setting " << parameters[iParam].name() << " to DEBUG " << value << std::endl;
               int iRow;
               int numberRows = models[iModel].numberRows();
-              double *rowLower = models[iModel].rowLower();
-              double *rowUpper = models[iModel].rowUpper();
+              FloatT *rowLower = models[iModel].rowLower();
+              FloatT *rowUpper = models[iModel].rowUpper();
               for (iRow = 0; iRow < numberRows; iRow++) {
                 // leave free ones for now
                 if (rowLower[iRow] > -1.0e20 || rowUpper[iRow] < 1.0e20) {
@@ -2239,8 +2239,8 @@ int ClpMain1(int argc, const char *argv[], AbcSimplex *models)
               }
               int iColumn;
               int numberColumns = models[iModel].numberColumns();
-              double *columnLower = models[iModel].columnLower();
-              double *columnUpper = models[iModel].columnUpper();
+              FloatT *columnLower = models[iModel].columnLower();
+              FloatT *columnUpper = models[iModel].columnUpper();
               for (iColumn = 0; iColumn < numberColumns; iColumn++) {
                 // leave free ones for now
                 if (columnLower[iColumn] > -1.0e20 || columnUpper[iColumn] < 1.0e20) {
@@ -2366,7 +2366,7 @@ clp watson.mps -\nscaling off\nprimalsimplex");
                 } else if (iStat >= 3 && iStat <= 5) {
                   iStat2 = GLP_FEAS;
                 }
-                double objValue = models[iModel].getObjValue()
+                FloatT objValue = models[iModel].getObjValue()
                   * models[iModel].getObjSense();
                 fprintf(fp, "%d 2 %g\n", iStat2, objValue);
                 if (numberGlpkRows > numberRows) {
@@ -2374,14 +2374,14 @@ clp watson.mps -\nscaling off\nprimalsimplex");
                   fprintf(fp, "4 %g 1.0\n", objValue);
                 }
                 int lookup[6] = { 4, 1, 3, 2, 4, 5 };
-                const double *primalRowSolution = models[iModel].primalRowSolution();
-                const double *dualRowSolution = models[iModel].dualRowSolution();
+                const FloatT *primalRowSolution = models[iModel].primalRowSolution();
+                const FloatT *dualRowSolution = models[iModel].dualRowSolution();
                 for (int i = 0; i < numberRows; i++) {
                   fprintf(fp, "%d %g %g\n", lookup[models[iModel].getRowStatus(i)],
                     primalRowSolution[i], dualRowSolution[i]);
                 }
-                const double *primalColumnSolution = models[iModel].primalColumnSolution();
-                const double *dualColumnSolution = models[iModel].dualColumnSolution();
+                const FloatT *primalColumnSolution = models[iModel].primalColumnSolution();
+                const FloatT *dualColumnSolution = models[iModel].dualColumnSolution();
                 for (int i = 0; i < numberColumns; i++) {
                   fprintf(fp, "%d %g %g\n", lookup[models[iModel].getColumnStatus(i)],
                     primalColumnSolution[i], dualColumnSolution[i]);
@@ -2406,7 +2406,7 @@ clp watson.mps -\nscaling off\nprimalsimplex");
                 break;
               }
               // Write solution header (suggested by Luigi Poderico)
-              double objValue = models[iModel].getObjValue();
+              FloatT objValue = models[iModel].getObjValue();
               int iStat = models[iModel].status();
               if (iStat == 0) {
                 fprintf(fp, "Optimal");
@@ -2432,15 +2432,15 @@ clp watson.mps -\nscaling off\nprimalsimplex");
               if (printMode == 9) {
                 // just statistics
                 int numberRows = models[iModel].numberRows();
-                double *dualRowSolution = models[iModel].dualRowSolution();
-                double *primalRowSolution = models[iModel].primalRowSolution();
-                double *rowLower = models[iModel].rowLower();
-                double *rowUpper = models[iModel].rowUpper();
-                double highestPrimal;
-                double lowestPrimal;
-                double highestDual;
-                double lowestDual;
-                double largestAway;
+                FloatT *dualRowSolution = models[iModel].dualRowSolution();
+                FloatT *primalRowSolution = models[iModel].primalRowSolution();
+                FloatT *rowLower = models[iModel].rowLower();
+                FloatT *rowUpper = models[iModel].rowUpper();
+                FloatT highestPrimal;
+                FloatT lowestPrimal;
+                FloatT highestDual;
+                FloatT lowestDual;
+                FloatT largestAway;
                 int numberAtLower;
                 int numberAtUpper;
                 int numberBetween;
@@ -2454,10 +2454,10 @@ clp watson.mps -\nscaling off\nprimalsimplex");
                 numberAtUpper = 0;
                 numberBetween = 0;
                 for (int iRow = 0; iRow < numberRows; iRow++) {
-                  double primal = primalRowSolution[iRow];
-                  double lower = rowLower[iRow];
-                  double upper = rowUpper[iRow];
-                  double dual = dualRowSolution[iRow];
+                  FloatT primal = primalRowSolution[iRow];
+                  FloatT lower = rowLower[iRow];
+                  FloatT upper = rowUpper[iRow];
+                  FloatT dual = dualRowSolution[iRow];
                   highestPrimal = CoinMax(highestPrimal, primal);
                   lowestPrimal = CoinMin(lowestPrimal, primal);
                   highestDual = CoinMax(highestDual, dual);
@@ -2477,10 +2477,10 @@ clp watson.mps -\nscaling off\nprimalsimplex");
                   lowestPrimal, highestPrimal, largestAway,
                   lowestDual, highestDual);
                 int numberColumns = models[iModel].numberColumns();
-                double *dualColumnSolution = models[iModel].dualColumnSolution();
-                double *primalColumnSolution = models[iModel].primalColumnSolution();
-                double *columnLower = models[iModel].columnLower();
-                double *columnUpper = models[iModel].columnUpper();
+                FloatT *dualColumnSolution = models[iModel].dualColumnSolution();
+                FloatT *primalColumnSolution = models[iModel].primalColumnSolution();
+                FloatT *columnLower = models[iModel].columnLower();
+                FloatT *columnUpper = models[iModel].columnUpper();
                 highestPrimal = -COIN_DBL_MAX;
                 lowestPrimal = COIN_DBL_MAX;
                 highestDual = -COIN_DBL_MAX;
@@ -2491,10 +2491,10 @@ clp watson.mps -\nscaling off\nprimalsimplex");
                 numberAtUpper = 0;
                 numberBetween = 0;
                 for (int iColumn = 0; iColumn < numberColumns; iColumn++) {
-                  double primal = primalColumnSolution[iColumn];
-                  double lower = columnLower[iColumn];
-                  double upper = columnUpper[iColumn];
-                  double dual = dualColumnSolution[iColumn];
+                  FloatT primal = primalColumnSolution[iColumn];
+                  FloatT lower = columnLower[iColumn];
+                  FloatT upper = columnUpper[iColumn];
+                  FloatT dual = dualColumnSolution[iColumn];
                   highestPrimal = CoinMax(highestPrimal, primal);
                   lowestPrimal = CoinMin(lowestPrimal, primal);
                   highestDual = CoinMax(highestDual, dual);
@@ -2525,11 +2525,11 @@ clp watson.mps -\nscaling off\nprimalsimplex");
               std::vector< std::string > rowNames = *(models[iModel].rowNames());
               std::vector< std::string > columnNames = *(models[iModel].columnNames());
 
-              double *dualRowSolution = models[iModel].dualRowSolution();
-              double *primalRowSolution = models[iModel].primalRowSolution();
-              double *rowLower = models[iModel].rowLower();
-              double *rowUpper = models[iModel].rowUpper();
-              double primalTolerance = models[iModel].primalTolerance();
+              FloatT *dualRowSolution = models[iModel].dualRowSolution();
+              FloatT *primalRowSolution = models[iModel].primalRowSolution();
+              FloatT *rowLower = models[iModel].rowLower();
+              FloatT *rowUpper = models[iModel].rowUpper();
+              FloatT primalTolerance = models[iModel].primalTolerance();
               bool doMask = (printMask != "" && lengthName);
               int *maskStarts = NULL;
               int maxMasks = 0;
@@ -2689,9 +2689,9 @@ clp watson.mps -\nscaling off\nprimalsimplex");
                     }
                   }
                 }
-                double *valueIncrease = new double[number];
+                FloatT *valueIncrease = new FloatT[number];
                 int *sequenceIncrease = new int[number];
-                double *valueDecrease = new double[number];
+                FloatT *valueDecrease = new FloatT[number];
                 int *sequenceDecrease = new int[number];
                 switch (printMode) {
                 // bound or rhs ranging
@@ -2802,10 +2802,10 @@ clp watson.mps -\nscaling off\nprimalsimplex");
               }
               int iColumn;
               int numberColumns = models[iModel].numberColumns();
-              double *dualColumnSolution = models[iModel].dualColumnSolution();
-              double *primalColumnSolution = models[iModel].primalColumnSolution();
-              double *columnLower = models[iModel].columnLower();
-              double *columnUpper = models[iModel].columnUpper();
+              FloatT *dualColumnSolution = models[iModel].dualColumnSolution();
+              FloatT *primalColumnSolution = models[iModel].primalColumnSolution();
+              FloatT *columnLower = models[iModel].columnLower();
+              FloatT *columnUpper = models[iModel].columnUpper();
               for (iColumn = 0; iColumn < numberColumns; iColumn++) {
                 int type = (printMode > 3) ? 1 : 0;
                 if (primalColumnSolution[iColumn] > columnUpper[iColumn] + primalTolerance || primalColumnSolution[iColumn] < columnLower[iColumn] - primalTolerance) {
@@ -2960,9 +2960,9 @@ clp watson.mps -\nscaling off\nprimalsimplex");
 #endif
   return 0;
 }
-static void breakdown(const char *name, CoinBigIndex numberLook, const double *region)
+static void breakdown(const char *name, CoinBigIndex numberLook, const FloatT *region)
 {
-  double range[] = {
+  FloatT range[] = {
     -COIN_DBL_MAX,
     -1.0e15, -1.0e11, -1.0e8, -1.0e5, -1.0e4, -1.0e3, -1.0e2, -1.0e1,
     -1.0,
@@ -2973,14 +2973,14 @@ static void breakdown(const char *name, CoinBigIndex numberLook, const double *r
     1.0e1, 1.0e2, 1.0e3, 1.0e4, 1.0e5, 1.0e8, 1.0e11, 1.0e15,
     COIN_DBL_MAX
   };
-  int nRanges = static_cast< int >(sizeof(range) / sizeof(double));
+  int nRanges = static_cast< int >(sizeof(range) / sizeof(FloatT));
   int *number = new int[nRanges];
   memset(number, 0, nRanges * sizeof(int));
   int *numberExact = new int[nRanges];
   memset(numberExact, 0, nRanges * sizeof(int));
   int i;
   for (i = 0; i < numberLook; i++) {
-    double value = region[i];
+    FloatT value = region[i];
     for (int j = 0; j < nRanges; j++) {
       if (value == range[j]) {
         numberExact[j]++;
@@ -3052,8 +3052,8 @@ static void statistics(ClpSimplex *originalModel, ClpSimplex *model)
 {
   int numberColumns = originalModel->numberColumns();
   const char *integerInformation = originalModel->integerInformation();
-  const double *columnLower = originalModel->columnLower();
-  const double *columnUpper = originalModel->columnUpper();
+  const FloatT *columnLower = originalModel->columnLower();
+  const FloatT *columnUpper = originalModel->columnUpper();
   int numberIntegers = 0;
   int numberBinary = 0;
   int iRow, iColumn;
@@ -3074,14 +3074,14 @@ static void statistics(ClpSimplex *originalModel, ClpSimplex *model)
   int numberRows = model->numberRows();
   columnLower = model->columnLower();
   columnUpper = model->columnUpper();
-  const double *rowLower = model->rowLower();
-  const double *rowUpper = model->rowUpper();
-  const double *objective = model->objective();
+  const FloatT *rowLower = model->rowLower();
+  const FloatT *rowUpper = model->rowUpper();
+  const FloatT *objective = model->objective();
   if (model->integerInformation()) {
     const char *integerInformation = model->integerInformation();
     int numberIntegers = 0;
     int numberBinary = 0;
-    double *obj = new double[numberColumns];
+    FloatT *obj = new FloatT[numberColumns];
     int *which = new int[numberColumns];
     for (int iColumn = 0; iColumn < numberColumns; iColumn++) {
       if (columnUpper[iColumn] > columnLower[iColumn]) {
@@ -3111,7 +3111,7 @@ static void statistics(ClpSimplex *originalModel, ClpSimplex *model)
           }
         }
         CoinSort_2(obj, obj + numberSort, which);
-        double last = obj[0];
+        FloatT last = obj[0];
         for (int jColumn = 1; jColumn < numberSort; jColumn++) {
           if (fabs(obj[jColumn] - last) > 1.0e-12) {
             numberDifferentObj++;
@@ -3141,7 +3141,7 @@ static void statistics(ClpSimplex *originalModel, ClpSimplex *model)
           target -= 100;
         if (numberDifferentObj < target) {
           int iLast = 0;
-          double last = obj[0];
+          FloatT last = obj[0];
           for (int jColumn = 1; jColumn < numberSort; jColumn++) {
             if (fabs(obj[jColumn] - last) > 1.0e-12) {
               printf("%d variables have objective of %g\n",
@@ -3156,21 +3156,21 @@ static void statistics(ClpSimplex *originalModel, ClpSimplex *model)
             int spaceNeeded = numberSort + numberDifferentObj;
             int *columnAdd = new int[spaceNeeded];
             CoinBigIndex *startAdd = new CoinBigIndex[numberDifferentObj + 1];
-            double *elementAdd = new double[spaceNeeded];
+            FloatT *elementAdd = new FloatT[spaceNeeded];
             CoinBigIndex *rowAdd = new CoinBigIndex[2 * numberDifferentObj + 1];
             int *newIsInteger = reinterpret_cast< int * >(rowAdd + numberDifferentObj + 1);
-            double *objectiveNew = new double[3 * numberDifferentObj];
-            double *lowerNew = objectiveNew + numberDifferentObj;
-            double *upperNew = lowerNew + numberDifferentObj;
+            FloatT *objectiveNew = new FloatT[3 * numberDifferentObj];
+            FloatT *lowerNew = objectiveNew + numberDifferentObj;
+            FloatT *upperNew = lowerNew + numberDifferentObj;
             memset(startAdd, 0,
               (numberDifferentObj + 1) * sizeof(CoinBigIndex));
             ClpSimplex tempModel = *model;
             int iLast = 0;
-            double last = obj[0];
+            FloatT last = obj[0];
             numberDifferentObj = 0;
             int numberElements = 0;
             rowAdd[0] = 0;
-            double *objective = tempModel.objective();
+            FloatT *objective = tempModel.objective();
             for (int jColumn = 1; jColumn < numberSort + 1; jColumn++) {
               if (jColumn == numberSort || fabs(obj[jColumn] - last) > 1.0e-12) {
                 // not if just one
@@ -3178,14 +3178,14 @@ static void statistics(ClpSimplex *originalModel, ClpSimplex *model)
                   bool allInteger = integerInformation != NULL;
                   int iColumn = which[iLast];
                   objectiveNew[numberDifferentObj] = objective[iColumn];
-                  double lower = 0.0;
-                  double upper = 0.0;
+                  FloatT lower = 0.0;
+                  FloatT upper = 0.0;
                   for (int kColumn = iLast; kColumn < jColumn; kColumn++) {
                     iColumn = which[kColumn];
                     objective[iColumn] = 0.0;
-                    double lowerValue = columnLower[iColumn];
-                    double upperValue = columnUpper[iColumn];
-                    double elementValue = -1.0;
+                    FloatT lowerValue = columnLower[iColumn];
+                    FloatT upperValue = columnUpper[iColumn];
+                    FloatT elementValue = -1.0;
                     if (objectiveNew[numberDifferentObj] * objective[iColumn] < 0.0) {
                       lowerValue = -columnUpper[iColumn];
                       upperValue = -columnLower[iColumn];
@@ -3258,7 +3258,7 @@ static void statistics(ClpSimplex *originalModel, ClpSimplex *model)
   CoinBigIndex numberElements = matrix->getNumElements();
   const int *columnLength = matrix->getVectorLengths();
   //const CoinBigIndex * columnStart = matrix->getVectorStarts();
-  const double *elementByColumn = matrix->getElements();
+  const FloatT *elementByColumn = matrix->getElements();
   int *number = new int[numberRows + 1];
   memset(number, 0, (numberRows + 1) * sizeof(int));
   int numberObjSingletons = 0;
@@ -3447,7 +3447,7 @@ static void statistics(ClpSimplex *originalModel, ClpSimplex *model)
     }
     int *row = columnCopy.getMutableIndices();
     const CoinBigIndex *columnStart = columnCopy.getVectorStarts();
-    double *element = columnCopy.getMutableElements();
+    FloatT *element = columnCopy.getMutableElements();
     int *order = new int[numberColumns];
     int *other = new int[numberColumns];
     for (iColumn = 0; iColumn < numberColumns; iColumn++) {
@@ -3502,8 +3502,8 @@ static void statistics(ClpSimplex *originalModel, ClpSimplex *model)
     const int *columnLength = columnCopy.getVectorLengths();
     const int *row = columnCopy.getIndices();
     const CoinBigIndex *columnStart = columnCopy.getVectorStarts();
-    const double *element = columnCopy.getElements();
-    const double *elementByRow = rowCopy.getElements();
+    const FloatT *element = columnCopy.getElements();
+    const FloatT *elementByRow = rowCopy.getElements();
     const CoinBigIndex *rowStart = rowCopy.getVectorStarts();
     const int *column = rowCopy.getIndices();
     int nPossibleZeroCost = 0;
@@ -3516,8 +3516,8 @@ static void statistics(ClpSimplex *originalModel, ClpSimplex *model)
         } else if (length == 2) {
           int iRow0 = row[columnStart[iColumn]];
           int iRow1 = row[columnStart[iColumn] + 1];
-          double element0 = element[columnStart[iColumn]];
-          double element1 = element[columnStart[iColumn] + 1];
+          FloatT element0 = element[columnStart[iColumn]];
+          FloatT element1 = element[columnStart[iColumn] + 1];
           int n0 = rowLength[iRow0];
           int n1 = rowLength[iRow1];
           printf("Doubleton free %d - cost %g - %g in %srow with %d entries and %g in %srow with %d entries\n",
@@ -3527,7 +3527,7 @@ static void statistics(ClpSimplex *originalModel, ClpSimplex *model)
       }
       if (length == 1) {
         int iRow = row[columnStart[iColumn]];
-        double value = COIN_DBL_MAX;
+        FloatT value = COIN_DBL_MAX;
         for (CoinBigIndex i = rowStart[iRow]; i < rowStart[iRow] + rowLength[iRow]; i++) {
           int jColumn = column[i];
           if (jColumn != iColumn) {
@@ -3567,7 +3567,7 @@ static void statistics(ClpSimplex *originalModel, ClpSimplex *model)
     memset(countIntegers, 0, numberColumns * sizeof(int));
     int direction[2] = { -1, 1 };
     int bestBreak = -1;
-    double bestValue = 0.0;
+    FloatT bestValue = 0.0;
     int iPass = 0;
     int halfway = (numberRows + 1) / 2;
     int firstMaster = -1;
@@ -3578,7 +3578,7 @@ static void statistics(ClpSimplex *originalModel, ClpSimplex *model)
       int stop = increment > 0 ? numberRows : -1;
       int numberBlocks = 0;
       int thisBestBreak = -1;
-      double thisBestValue = COIN_DBL_MAX;
+      FloatT thisBestValue = COIN_DBL_MAX;
       int numberRowsDone = 0;
       int numberMarkedColumns = 0;
       int maximumBlockSize = 0;
@@ -3654,7 +3654,7 @@ static void statistics(ClpSimplex *originalModel, ClpSimplex *model)
         numberRowsDone++;
         if (thisBestValue * numberRowsDone > maximumBlockSize && numberRowsDone > halfway) {
           thisBestBreak = iRow;
-          thisBestValue = static_cast< double >(maximumBlockSize) / static_cast< double >(numberRowsDone);
+          thisBestValue = static_cast< FloatT >(maximumBlockSize) / static_cast< FloatT >(numberRowsDone);
         }
       }
       // If wanted minimize master rows
@@ -3875,7 +3875,7 @@ static void statistics(ClpSimplex *originalModel, ClpSimplex *model)
   ) {
     int *column = rowCopy.getMutableIndices();
     const CoinBigIndex *rowStart = rowCopy.getVectorStarts();
-    double *element = rowCopy.getMutableElements();
+    FloatT *element = rowCopy.getMutableElements();
     int *order = new int[numberRows];
     int *other = new int[numberRows];
     for (iRow = 0; iRow < numberRows; iRow++) {
@@ -3887,9 +3887,9 @@ static void statistics(ClpSimplex *originalModel, ClpSimplex *model)
     }
     CoinSort_2(other, other + numberRows, order);
     int jRow = number[0] + number[1];
-    double *weight = new double[numberRows];
-    double *randomColumn = new double[numberColumns + 1];
-    double *randomRow = new double[numberRows + 1];
+    FloatT *weight = new FloatT[numberRows];
+    FloatT *randomColumn = new FloatT[numberColumns + 1];
+    FloatT *randomRow = new FloatT[numberRows + 1];
     int *sortRow = new int[numberRows];
     int *possibleRow = new int[numberRows];
     int *backRow = new int[numberRows];
@@ -3901,12 +3901,12 @@ static void statistics(ClpSimplex *originalModel, ClpSimplex *model)
     int *mapRow = new int[numberRows];
     int *mapColumn = new int[numberColumns];
     int *stackColumn = new int[numberColumns];
-    double randomLower = CoinDrand48();
-    double randomUpper = CoinDrand48();
-    double randomInteger = CoinDrand48();
+    FloatT randomLower = CoinDrand48();
+    FloatT randomUpper = CoinDrand48();
+    FloatT randomInteger = CoinDrand48();
     CoinBigIndex *startAdd = new CoinBigIndex[numberRows + 1];
     int *columnAdd = new int[2 * numberElements];
-    double *elementAdd = new double[2 * numberElements];
+    FloatT *elementAdd = new FloatT[2 * numberElements];
     int nAddRows = 0;
     startAdd[0] = 0;
     for (iColumn = 0; iColumn < numberColumns; iColumn++) {
@@ -3932,10 +3932,10 @@ static void statistics(ClpSimplex *originalModel, ClpSimplex *model)
               printf("<= %g\n", rowUpper[iRow]);
             }
             int first = column[start];
-            double sum = 0.0;
+            FloatT sum = 0.0;
             for (CoinBigIndex i = start; i < start + iColumn; i++) {
               int jColumn = column[i];
-              double value = element[i];
+              FloatT value = element[i];
               jColumn -= first;
               assert(jColumn >= 0);
               sum += value * randomColumn[jColumn];
@@ -3958,7 +3958,7 @@ static void statistics(ClpSimplex *originalModel, ClpSimplex *model)
           assert(nLook <= numberRows);
           CoinSort_2(randomRow, randomRow + nLook, sortRow);
           randomRow[nLook] = COIN_DBL_MAX;
-          double last = -COIN_DBL_MAX;
+          FloatT last = -COIN_DBL_MAX;
           int iLast = -1;
           for (int iLook = 0; iLook < nLook + 1; iLook++) {
             if (randomRow[iLook] > last) {
@@ -3980,11 +3980,11 @@ static void statistics(ClpSimplex *originalModel, ClpSimplex *model)
     const int *columnLength = columnCopy.getVectorLengths();
     const int *row = columnCopy.getIndices();
     const CoinBigIndex *columnStart = columnCopy.getVectorStarts();
-    const double *elementByColumn = columnCopy.getElements();
+    const FloatT *elementByColumn = columnCopy.getElements();
     for (iColumn = 0; iColumn < numberColumns; iColumn++) {
       int length = columnLength[iColumn];
       CoinBigIndex start = columnStart[iColumn];
-      double sum = objective[iColumn];
+      FloatT sum = objective[iColumn];
       if (columnLower[iColumn] > -1.0e30 && columnLower[iColumn])
         sum += columnLower[iColumn] * randomLower;
       else if (!columnLower[iColumn])
@@ -4009,7 +4009,7 @@ static void statistics(ClpSimplex *originalModel, ClpSimplex *model)
         backColumn[i] = iColumn;
       }
       randomColumn[numberColumns] = COIN_DBL_MAX;
-      double last = -COIN_DBL_MAX;
+      FloatT last = -COIN_DBL_MAX;
       int iLast = -1;
       for (int iLook = 0; iLook < numberColumns + 1; iLook++) {
         if (randomColumn[iLook] > last) {
@@ -4028,11 +4028,11 @@ static void statistics(ClpSimplex *originalModel, ClpSimplex *model)
       }
       for (iRow = 0; iRow < numberRows; iRow++) {
         CoinBigIndex start = rowStart[iRow];
-        double sum = 0.0;
+        FloatT sum = 0.0;
         int length = rowLength[iRow];
         for (CoinBigIndex i = start; i < start + length; i++) {
           int jColumn = column[i];
-          double value = element[i];
+          FloatT value = element[i];
           jColumn = backColumn[jColumn];
           sum += value * randomColumn[jColumn];
           //if (iColumn==23089||iRow==23729)
@@ -4266,9 +4266,9 @@ static void statistics(ClpSimplex *originalModel, ClpSimplex *model)
                   CoinBigIndex offset2 = rowStart[row2] - start;
                   for (CoinBigIndex i = start; i < start + length; i++) {
                     int jColumn = column[i];
-                    double value = element[i];
+                    FloatT value = element[i];
                     int jColumn2 = column[i + offset2];
-                    double value2 = element[i + offset2];
+                    FloatT value2 = element[i + offset2];
                     if (value != value2 || mapColumn[jColumn] != jColumn2 || mapColumn[jColumn2] != jColumn)
                       good = false;
                   }
@@ -4293,7 +4293,7 @@ static void statistics(ClpSimplex *originalModel, ClpSimplex *model)
               if (good) {
                 // temp
                 if (nMapRow < 0) {
-                  //const double * solution = model->primalColumnSolution();
+                  //const FloatT * solution = model->primalColumnSolution();
                   // find mapped
                   int nMapColumn = 0;
                   for (int i = 0; i < numberColumns; i++) {
@@ -4331,8 +4331,8 @@ static void statistics(ClpSimplex *originalModel, ClpSimplex *model)
                 int length = rowLength[row1];
                 assert(length == rowLength[row2]);
                 CoinBigIndex put = startAdd[nAddRows];
-                double multiplier = length < 11 ? 2.0 : 1.125;
-                double value = 1.0;
+                FloatT multiplier = length < 11 ? 2.0 : 1.125;
+                FloatT value = 1.0;
                 for (CoinBigIndex i = start1; i < start1 + length; i++) {
                   int jColumn1 = column[i];
                   int jColumn2 = column[i + offset2];
@@ -4355,10 +4355,10 @@ static void statistics(ClpSimplex *originalModel, ClpSimplex *model)
       }
     }
     if (nAddRows) {
-      double *lower = new double[nAddRows];
-      double *upper = new double[nAddRows];
+      FloatT *lower = new FloatT[nAddRows];
+      FloatT *upper = new FloatT[nAddRows];
       int i;
-      //const double * solution = model->primalColumnSolution();
+      //const FloatT * solution = model->primalColumnSolution();
       for (i = 0; i < nAddRows; i++) {
         lower[i] = 0.0;
         upper[i] = COIN_DBL_MAX;
@@ -4400,12 +4400,12 @@ static void statistics(ClpSimplex *originalModel, ClpSimplex *model)
   breakdown("ColumnUpper", numberColumns, columnUpper);
   breakdown("Objective", numberColumns, objective);
   // do integer objective
-  double *obj = CoinCopyOfArray(objective, numberColumns);
+  FloatT *obj = CoinCopyOfArray(objective, numberColumns);
   int n = 0;
   //#define FIX_COSTS 1.0
 #ifdef FIX_COSTS
-  double *obj2 = originalModel->objective();
-  double *upper2 = originalModel->columnUpper();
+  FloatT *obj2 = originalModel->objective();
+  FloatT *upper2 = originalModel->columnUpper();
 #endif
   for (int i = 0; i < numberColumns; i++) {
     if (integerInformation && integerInformation[i]) {

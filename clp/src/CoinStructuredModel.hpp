@@ -61,9 +61,9 @@ public:
   int addBlock(const std::string &rowBlock,
     const std::string &columnBlock,
     const CoinPackedMatrix &matrix,
-    const double *rowLower, const double *rowUpper,
-    const double *columnLower, const double *columnUpper,
-    const double *objective);
+    const FloatT *rowLower, const FloatT *rowUpper,
+    const FloatT *columnLower, const FloatT *columnUpper,
+    const FloatT *objective);
 
   /** Write the problem in MPS format to a file with the given filename.
       
@@ -112,11 +112,11 @@ public:
       Returns number of blocks or zero if no structure
   */
   int decompose(const CoinPackedMatrix &matrix,
-    const double *rowLower, const double *rowUpper,
-    const double *columnLower, const double *columnUpper,
-    const double *objective, int type, int maxBlocks = 50,
+    const FloatT *rowLower, const FloatT *rowUpper,
+    const FloatT *columnLower, const FloatT *columnUpper,
+    const FloatT *objective, int type, int maxBlocks = 50,
     int *starts = NULL,
-    double objectiveOffset = 0.0);
+    FloatT objectiveOffset = 0.0);
 
   //@}
 
@@ -196,16 +196,16 @@ public:
   /** Fill pointers corresponding to row and column */
 
   CoinModelBlockInfo block(int row, int column,
-    const double *&rowLower, const double *&rowUpper,
-    const double *&columnLower, const double *&columnUpper,
-    const double *&objective) const;
+    const FloatT *&rowLower, const FloatT *&rowUpper,
+    const FloatT *&columnLower, const FloatT *&columnUpper,
+    const FloatT *&objective) const;
   /// Direction of optimization (1 - minimize, -1 - maximize, 0 - ignore
-  inline double optimizationDirection() const
+  inline FloatT optimizationDirection() const
   {
     return optimizationDirection_;
   }
   /// Set direction of optimization (1 - minimize, -1 - maximize, 0 - ignore
-  inline void setOptimizationDirection(double value)
+  inline void setOptimizationDirection(FloatT value)
   {
     optimizationDirection_ = value;
   }

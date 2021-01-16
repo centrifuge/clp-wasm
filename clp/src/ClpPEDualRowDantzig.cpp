@@ -23,7 +23,7 @@
 //-------------------------------------------------------------------
 // Default Constructor
 //-------------------------------------------------------------------
-ClpPEDualRowDantzig::ClpPEDualRowDantzig(double psi)
+ClpPEDualRowDantzig::ClpPEDualRowDantzig(FloatT psi)
   : ClpDualRowDantzig()
   , modelPE_(NULL)
   , psi_(psi)
@@ -93,7 +93,7 @@ int ClpPEDualRowDantzig::pivotRow()
 */
   // store the number of degenerate pivots on compatible variables and the
   // overal number of degenerate pivots
-  double progress = fabs(modelPE_->lastObjectiveValue() - model_->objectiveValue());
+  FloatT progress = fabs(modelPE_->lastObjectiveValue() - model_->objectiveValue());
   bool isLastDegenerate = progress <= 1.0e-12 * fabs(model_->objectiveValue()) ? true : false;
   if (isLastDegenerate) {
     modelPE_->addDegeneratePivot();
@@ -137,7 +137,7 @@ int ClpPEDualRowDantzig::pivotRow()
   //
   if (modelPE_->doStatistics())
     modelPE_->startTimer();
-  double psiTmp = psi_;
+  FloatT psiTmp = psi_;
   if ((psi_ < 1.0) && (iCurrent_ >= iInterval_) && (updateCompatibles_ || iCurrent_ >= 1000)) {
     // the compatible variables are never updated if the last pivot is non degenerate
     // this could be counterproductive
@@ -197,12 +197,12 @@ int ClpPEDualRowDantzig::pivotRow()
   //
   int iRow;
   const int *pivotVariable = model_->pivotVariable();
-  double tolerance = model_->currentPrimalTolerance();
+  FloatT tolerance = model_->currentPrimalTolerance();
   // we can't really trust infeasibilities if there is primal error
   if (model_->largestPrimalError() > 1.0e-8)
     tolerance *= model_->largestPrimalError() / 1.0e-8;
-  double largest = 0.0;
-  double largestComp = 0.0;
+  FloatT largest = 0.0;
+  FloatT largestComp = 0.0;
   int chosenRow = -1;
   int chosenRowComp = -1;
   int numberRows = model_->numberRows();
@@ -215,7 +215,7 @@ int ClpPEDualRowDantzig::pivotRow()
   // the percentage of compatible variables is computed as the ratio to the
   // smallest number among columns and rows
   bool checkCompatibles = true;
-  double ratioCompatibles = static_cast< double >(modelPE_->coCompatibleRows()) / static_cast< double >(std::min(model_->numberRows(), model_->numberColumns()));
+  FloatT ratioCompatibles = static_cast< FloatT >(modelPE_->coCompatibleRows()) / static_cast< FloatT >(std::min(model_->numberRows(), model_->numberColumns()));
 
   if (psi_ >= 1.0 || ratioCompatibles < 0.01)
     checkCompatibles = false;
@@ -223,11 +223,11 @@ int ClpPEDualRowDantzig::pivotRow()
   // check the infeasibility of the variables (there is no partial pricing!)
   for (iRow = 0; iRow < numberRows; iRow++) {
     int iSequence = pivotVariable[iRow];
-    double value = model_->solution(iSequence);
-    double lower = model_->lower(iSequence);
-    double upper = model_->upper(iSequence);
-    double infeas = CoinMax(value - upper, lower - value);
-    double largestMax = std::max(psi_ * largest, largestComp);
+    FloatT value = model_->solution(iSequence);
+    FloatT lower = model_->lower(iSequence);
+    FloatT upper = model_->upper(iSequence);
+    FloatT infeas = CoinMax(value - upper, lower - value);
+    FloatT largestMax = std::max(psi_ * largest, largestComp);
     if (infeas > tolerance) {
 #ifdef CLP_DUAL_COLUMN_MULTIPLIER
       if (iSequence < numberColumns)
@@ -281,12 +281,12 @@ int ClpPEDualRowDantzig::pivotRow()
 // call the base class method to update weights
 //-------------------------------------------------------------------
 
-double ClpPEDualRowDantzig::updateWeights(CoinIndexedVector *input,
+FloatT ClpPEDualRowDantzig::updateWeights(CoinIndexedVector *input,
   CoinIndexedVector *spare,
   CoinIndexedVector *spare2,
   CoinIndexedVector *updatedColumn)
 {
-  double value = ClpDualRowDantzig::updateWeights(input, spare, spare2, updatedColumn);
+  FloatT value = ClpDualRowDantzig::updateWeights(input, spare, spare2, updatedColumn);
 
   return value;
 }

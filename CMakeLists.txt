@@ -29,13 +29,14 @@ message(STATUS CMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS})
 
 
 include_directories($ENV{BOOST_ROOT})
+include_directories(common)
 
 # CLP library
 add_definitions(-DHAVE_CONFIG_H -DCLP_BUILD -DCOINUTILS_BUILD -DCOIN_HAS_CLP)
 include_directories(clp/src)
 file(GLOB CLP_CXX_FILES "clp/src/*.cpp")
 add_library(libclp ${CLP_CXX_FILES} )
-target_link_libraries(libclp)
+target_link_libraries(libclp ${Boost_LIBRARIES} )
 
 # CLP application
 add_executable(clp clp/app/ClpMain.cpp )

@@ -13,22 +13,22 @@ class isolated_constraint_action : public CoinPresolveAction {
   isolated_constraint_action(const isolated_constraint_action &rhs);
   isolated_constraint_action &operator=(const isolated_constraint_action &rhs);
 
-  double rlo_;
-  double rup_;
+  FloatT rlo_;
+  FloatT rup_;
   int row_;
   int ninrow_;
   // the arrays are owned by the class and must be deleted at destruction
   const int *rowcols_;
-  const double *rowels_;
-  const double *costs_;
+  const FloatT *rowels_;
+  const FloatT *costs_;
 
-  isolated_constraint_action(double rlo,
-    double rup,
+  isolated_constraint_action(FloatT rlo,
+    FloatT rup,
     int row,
     int ninrow,
     const int *rowcols,
-    const double *rowels,
-    const double *costs,
+    const FloatT *rowels,
+    const FloatT *costs,
     const CoinPresolveAction *next)
     : CoinPresolveAction(next)
     , rlo_(rlo)

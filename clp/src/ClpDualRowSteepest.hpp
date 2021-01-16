@@ -28,7 +28,7 @@ public:
 
   /** Updates weights and returns pivot alpha.
          Also does FT update */
-  virtual double updateWeights(CoinIndexedVector *input,
+  virtual FloatT updateWeights(CoinIndexedVector *input,
     CoinIndexedVector *spare,
     CoinIndexedVector *spare2,
     CoinIndexedVector *updatedColumn);
@@ -38,8 +38,8 @@ public:
          Computes change in objective function
      */
   virtual void updatePrimalSolution(CoinIndexedVector *input,
-    double theta,
-    double &changeInObjective);
+    FloatT theta,
+    FloatT &changeInObjective);
 
   /** Saves any weights round factorization as pivot rows may change
          Save model
@@ -142,7 +142,7 @@ protected:
   /// Life of weights
   Persistence persistence_;
   /// weight array
-  double *weights_;
+  FloatT *weights_;
   /// square of infeasibility array (just for infeasible rows)
   CoinIndexedVector *infeasible_;
   /// alternate weight array (so we can unroll)

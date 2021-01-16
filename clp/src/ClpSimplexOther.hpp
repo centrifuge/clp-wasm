@@ -46,9 +46,9 @@ public:
          When here - guaranteed optimal
      */
   void dualRanging(int numberCheck, const int *which,
-    double *costIncrease, int *sequenceIncrease,
-    double *costDecrease, int *sequenceDecrease,
-    double *valueIncrease = NULL, double *valueDecrease = NULL);
+    FloatT *costIncrease, int *sequenceIncrease,
+    FloatT *costDecrease, int *sequenceDecrease,
+    FloatT *valueIncrease = NULL, FloatT *valueDecrease = NULL);
   /** Primal ranging.
          This computes increase/decrease in value for each given variable and corresponding
          sequence numbers which would change basis.  Sequence numbers are 0..numberColumns
@@ -64,8 +64,8 @@ public:
          When here - guaranteed optimal
      */
   void primalRanging(int numberCheck, const int *which,
-    double *valueIncrease, int *sequenceIncrease,
-    double *valueDecrease, int *sequenceDecrease);
+    FloatT *valueIncrease, int *sequenceIncrease,
+    FloatT *valueDecrease, int *sequenceDecrease);
   /** Parametrics
          This is an initial slow version.
          The code uses current bounds + theta * change (if change array not NULL)
@@ -79,10 +79,10 @@ public:
          if event handler exists it may do more
          On exit endingTheta is maximum reached (can be used for next startingTheta)
      */
-  int parametrics(double startingTheta, double &endingTheta, double reportIncrement,
-    const double *changeLowerBound, const double *changeUpperBound,
-    const double *changeLowerRhs, const double *changeUpperRhs,
-    const double *changeObjective);
+  int parametrics(FloatT startingTheta, FloatT &endingTheta, FloatT reportIncrement,
+    const FloatT *changeLowerBound, const FloatT *changeUpperBound,
+    const FloatT *changeLowerRhs, const FloatT *changeUpperRhs,
+    const FloatT *changeObjective);
   /** Version of parametrics which reads from file
 	 See CbcClpParam.cpp for details of format
 	 Returns -2 if unable to open file */
@@ -96,30 +96,30 @@ public:
          Event handler may do more
          On exit endingTheta is maximum reached (can be used for next startingTheta)
      */
-  int parametrics(double startingTheta, double &endingTheta,
-    const double *changeLowerBound, const double *changeUpperBound,
-    const double *changeLowerRhs, const double *changeUpperRhs);
-  int parametricsObj(double startingTheta, double &endingTheta,
-    const double *changeObjective);
+  int parametrics(FloatT startingTheta, FloatT &endingTheta,
+    const FloatT *changeLowerBound, const FloatT *changeUpperBound,
+    const FloatT *changeLowerRhs, const FloatT *changeUpperRhs);
+  int parametricsObj(FloatT startingTheta, FloatT &endingTheta,
+    const FloatT *changeObjective);
   /// Finds best possible pivot
-  double bestPivot(bool justColumns = false);
+  FloatT bestPivot(bool justColumns = false);
   typedef struct {
-    double startingTheta;
-    double endingTheta;
-    double maxTheta;
-    double acceptableMaxTheta; // if this far then within tolerances
-    double *lowerChange; // full array of lower bound changes
+    FloatT startingTheta;
+    FloatT endingTheta;
+    FloatT maxTheta;
+    FloatT acceptableMaxTheta; // if this far then within tolerances
+    FloatT *lowerChange; // full array of lower bound changes
     int *lowerList; // list of lower bound changes
-    double *upperChange; // full array of upper bound changes
+    FloatT *upperChange; // full array of upper bound changes
     int *upperList; // list of upper bound changes
     char *markDone; // mark which ones looked at
     int *backwardBasic; // from sequence to pivot row
     int *lowerActive;
-    double *lowerGap;
-    double *lowerCoefficient;
+    FloatT *lowerGap;
+    FloatT *lowerCoefficient;
     int *upperActive;
-    double *upperGap;
-    double *upperCoefficient;
+    FloatT *upperGap;
+    FloatT *upperCoefficient;
     int unscaledChangesOffset;
     bool firstIteration; // so can update rhs for accuracy
   } parametricsData;
@@ -133,9 +133,9 @@ private:
          Normal report is just theta and objective but
          if event handler exists it may do more
      */
-  int parametricsLoop(parametricsData &paramData, double reportIncrement,
-    const double *changeLower, const double *changeUpper,
-    const double *changeObjective, ClpDataSave &data,
+  int parametricsLoop(parametricsData &paramData, FloatT reportIncrement,
+    const FloatT *changeLower, const FloatT *changeUpper,
+    const FloatT *changeObjective, ClpDataSave &data,
     bool canTryQuick);
   int parametricsLoop(parametricsData &paramData,
     ClpDataSave &data, bool canSkipFactorization = false);
@@ -160,21 +160,21 @@ private:
          +1 looks infeasible
          +3 max iterations
       */
-  int whileIterating(parametricsData &paramData, double reportIncrement,
-    const double *changeObjective);
+  int whileIterating(parametricsData &paramData, FloatT reportIncrement,
+    const FloatT *changeObjective);
   /** Computes next theta and says if objective or bounds (0= bounds, 1 objective, -1 none).
          theta is in theta_.
          type 1 bounds, 2 objective, 3 both.
      */
-  int nextTheta(int type, double maxTheta, parametricsData &paramData,
-    const double *changeObjective);
+  int nextTheta(int type, FloatT maxTheta, parametricsData &paramData,
+    const FloatT *changeObjective);
   int whileIteratingObj(parametricsData &paramData);
-  int nextThetaObj(double maxTheta, parametricsData &paramData);
+  int nextThetaObj(FloatT maxTheta, parametricsData &paramData);
   /// Restores bound to original bound
-  void originalBound(int iSequence, double theta, const double *changeLower,
-    const double *changeUpper);
+  void originalBound(int iSequence, FloatT theta, const FloatT *changeLower,
+    const FloatT *changeUpper);
   /// Compute new rowLower_ etc (return negative if infeasible - otherwise largest change)
-  double computeRhsEtc(parametricsData &paramData);
+  FloatT computeRhsEtc(parametricsData &paramData);
   /// Redo lower_ from rowLower_ etc
   void redoInternalArrays();
   /**
@@ -184,8 +184,8 @@ private:
      */
   void checkDualRatios(CoinIndexedVector *rowArray,
     CoinIndexedVector *columnArray,
-    double &costIncrease, int &sequenceIncrease, double &alphaIncrease,
-    double &costDecrease, int &sequenceDecrease, double &alphaDecrease);
+    FloatT &costIncrease, int &sequenceIncrease, FloatT &alphaIncrease,
+    FloatT &costDecrease, int &sequenceDecrease, FloatT &alphaDecrease);
   /**
          Row array has pivot column
          This is used in primal ranging
@@ -193,7 +193,7 @@ private:
   void checkPrimalRatios(CoinIndexedVector *rowArray,
     int direction);
   /// Returns new value of whichOther when whichIn enters basis
-  double primalRanging1(int whichIn, int whichOther);
+  FloatT primalRanging1(int whichIn, int whichOther);
 
 public:
   /** Write the basis in MPS format to the specified file.
@@ -220,7 +220,7 @@ public:
          fractionRowRanges is fraction of rows allowed to have ranges
          fractionColumnRanges is fraction of columns allowed to have ranges
      */
-  ClpSimplex *dualOfModel(double fractionRowRanges = 1.0, double fractionColumnRanges = 1.0) const;
+  ClpSimplex *dualOfModel(FloatT fractionRowRanges = 1.0, FloatT fractionColumnRanges = 1.0) const;
   /** Restores solution from dualized problem
          non-zero return code indicates minor problems
      */
@@ -233,7 +233,7 @@ public:
   /** Does very cursory presolve.
          rhs is numberRows, whichRows is 3*numberRows and whichColumns is 2*numberColumns.
      */
-  ClpSimplex *crunch(double *rhs, int *whichRows, int *whichColumns,
+  ClpSimplex *crunch(FloatT *rhs, int *whichRows, int *whichColumns,
     int &nBound, bool moreBounds = false, bool tightenBounds = false);
   /** After very cursory presolve.
          rhs is numberRows, whichRows is 3*numberRows and whichColumns is 2*numberColumns.
@@ -257,7 +257,7 @@ public:
   void cleanupAfterPostsolve();
   /** Tightens integer bounds - returns number tightened or -1 if infeasible
      */
-  int tightenIntegerBounds(double *rhsSpace);
+  int tightenIntegerBounds(FloatT *rhsSpace);
   /** Expands out all possible combinations for a knapsack
          If buildObj NULL then just computes space needed - returns number elements
          On entry numberOutput is maximum allowed, on exit it is number needed or
@@ -269,8 +269,8 @@ public:
          in expanded knapsack.  Values in buildRow and buildElement;
      */
   int expandKnapsack(int knapsackRow, int &numberOutput,
-    double *buildObj, CoinBigIndex *buildStart,
-    int *buildRow, double *buildElement, int reConstruct = -1) const;
+    FloatT *buildObj, CoinBigIndex *buildStart,
+    int *buildRow, FloatT *buildElement, int reConstruct = -1) const;
   /// Create a string of commands to guess at best strategy for model
   /// At present mode is ignored
   char *guess(int mode) const;

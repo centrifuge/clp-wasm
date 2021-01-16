@@ -35,7 +35,7 @@ public:
   /**@name Main functions provided */
   //@{
   /// Partial pricing
-  virtual void partialPricing(ClpSimplex *model, double start, double end,
+  virtual void partialPricing(ClpSimplex *model, FloatT start, FloatT end,
     int &bestSequence, int &numberWanted);
 
   /** Creates a variable.  This is called after partial pricing and will modify matrix.
@@ -61,10 +61,10 @@ public:
       */
   ClpDynamicExampleMatrix(ClpSimplex *model, int numberSets,
     int numberColumns, const CoinBigIndex *starts,
-    const double *lower, const double *upper,
+    const FloatT *lower, const FloatT *upper,
     const CoinBigIndex *startColumn, const int *row,
-    const double *element, const double *cost,
-    const double *columnLower = NULL, const double *columnUpper = NULL,
+    const FloatT *element, const FloatT *cost,
+    const FloatT *columnLower = NULL, const FloatT *columnUpper = NULL,
     const unsigned char *status = NULL,
     const unsigned char *dynamicStatus = NULL,
     int numberIds = 0, const int *ids = NULL);
@@ -72,10 +72,10 @@ public:
      /// This constructor just takes over ownership (except for lower, upper)
      ClpDynamicExampleMatrix(ClpSimplex * model, int numberSets,
                              int numberColumns, int * starts,
-                             const double * lower, const double * upper,
+                             const FloatT * lower, const FloatT * upper,
                              int * startColumn, int * row,
-                             double * element, double * cost,
-                             double * columnLower = NULL, double * columnUpper = NULL,
+                             FloatT * element, FloatT * cost,
+                             FloatT * columnLower = NULL, FloatT * columnUpper = NULL,
                              const unsigned char * status = NULL,
                              const unsigned char * dynamicStatus = NULL,
                              int numberIds = 0, const int *ids = NULL);
@@ -105,12 +105,12 @@ public:
     return rowGen_;
   }
   /// elements
-  inline double *elementGen() const
+  inline FloatT *elementGen() const
   {
     return elementGen_;
   }
   /// costs
-  inline double *costGen() const
+  inline FloatT *costGen() const
   {
     return costGen_;
   }
@@ -125,12 +125,12 @@ public:
     return idGen_;
   }
   /// Optional lower bounds on columns
-  inline double *columnLowerGen() const
+  inline FloatT *columnLowerGen() const
   {
     return columnLowerGen_;
   }
   /// Optional upper bounds on columns
-  inline double *columnUpperGen() const
+  inline FloatT *columnUpperGen() const
   {
     return columnUpperGen_;
   }
@@ -175,9 +175,9 @@ protected:
   /// rows
   int *rowGen_;
   /// elements
-  double *elementGen_;
+  FloatT *elementGen_;
   /// costs
-  double *costGen_;
+  FloatT *costGen_;
   /// start of each set
   CoinBigIndex *fullStartGen_;
   /// for status and which bound
@@ -187,9 +187,9 @@ protected:
          at this level */
   int *idGen_;
   /// Optional lower bounds on columns
-  double *columnLowerGen_;
+  FloatT *columnLowerGen_;
   /// Optional upper bounds on columns
-  double *columnUpperGen_;
+  FloatT *columnUpperGen_;
   //@}
 };
 

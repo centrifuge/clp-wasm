@@ -22,7 +22,7 @@
 extern "C" {
 /** LAPACK Fortran subroutine DGETRF. */
 void F77_FUNC(dgetrf, DGETRF)(ipfint *m, ipfint *n,
-  double *A, ipfint *ldA,
+  FloatT *A, ipfint *ldA,
   ipfint *ipiv, ipfint *info);
 }
 #elif COIN_FACTORIZATION_DENSE_CODE == 2
@@ -30,7 +30,7 @@ void F77_FUNC(dgetrf, DGETRF)(ipfint *m, ipfint *n,
 enum CBLAS_ORDER { CblasRowMajor = 101,
   CblasColMajor = 102 };
 extern "C" {
-int clapack_dgetrf(const enum CBLAS_ORDER Order, const int M, const int N, double *A, const int lda, int *ipiv);
+int clapack_dgetrf(const enum CBLAS_ORDER Order, const int M, const int N, FloatT *A, const int lda, int *ipiv);
 }
 #elif COIN_FACTORIZATION_DENSE_CODE == 3
 // Intel compiler
@@ -147,7 +147,7 @@ int CoinFactorization::factorSparseSmall()
   int *nextRow = nextRow_.array();
   int *lastRow = lastRow_.array();
 #endif
-  double pivotTolerance = pivotTolerance_;
+  FloatT pivotTolerance = pivotTolerance_;
   int numberTrials = numberTrials_;
   int numberRows = numberRows_;
   // Put column singletons first - (if false)
@@ -190,7 +190,7 @@ int CoinFactorization::factorSparseSmall()
     }
 #endif
     int minimumCount = COIN_INT_MAX;
-    double minimumCost = COIN_DBL_MAX;
+    FloatT minimumCost = COIN_DBL_MAX;
 
     int iPivotRow = -1;
     int iPivotColumn = -1;
@@ -246,11 +246,11 @@ int CoinFactorization::factorSparseSmall()
         for (i = start; i < end; i++) {
           int iColumn = indexColumn[i];
           assert(numberInColumn[iColumn] > 0);
-          double cost = (count - 1) * numberInColumn[iColumn];
+          FloatT cost = (count - 1) * numberInColumn[iColumn];
 
           if (cost < minimumCost) {
             int where = startColumn[iColumn];
-            double minimumValue = element[where];
+            FloatT minimumValue = element[where];
 
             minimumValue = fabs(minimumValue) * pivotTolerance;
             while (indexRow[where] != iRow) {
@@ -308,7 +308,7 @@ int CoinFactorization::factorSparseSmall()
             int iRow = indexRow[i];
             int nInRow = numberInRow[iRow];
             assert(nInRow > 0);
-            double cost = (count - 1) * nInRow;
+            FloatT cost = (count - 1) * nInRow;
 
             if (cost < minimumCost) {
               minimumCost = cost;
@@ -415,11 +415,11 @@ int CoinFactorization::factorSparseSmall()
       // Even if no dense code may be better to use naive dense
       if (!denseThreshold_&&totalElements_>1000) {
         int leftRows=numberRows_-numberGoodU_;
-        double full = leftRows;
+        FloatT full = leftRows;
         full *= full;
         assert (full>=0.0);
-        double leftElements = totalElements_;
-        double ratio;
+        FloatT leftElements = totalElements_;
+        FloatT ratio;
         if (leftRows>2000)
           ratio=4.0;
         else 
@@ -431,13 +431,13 @@ int CoinFactorization::factorSparseSmall()
       if (denseThreshold) {
         // see whether to go dense
         int leftRows = numberRows_ - numberGoodU_;
-        double full = leftRows;
+        FloatT full = leftRows;
         full *= full;
         assert(full >= 0.0);
-        double leftElements = totalElements_;
+        FloatT leftElements = totalElements_;
         //if (leftRows==100)
         //printf("at 100 %d elements\n",totalElements_);
-        double ratio;
+        FloatT ratio;
 #define COIN_DENSE_MULTIPLIER 1.0
 #ifndef COIN_DENSE_MULTIPLIER
 #define COIN_DENSE_MULTIPLIER 1.0
@@ -525,7 +525,7 @@ int CoinFactorization::factorDense()
   newSize += ((numberRows_ + 3) / (sizeof(CoinFactorizationDouble) / sizeof(short)));
   // so we can align on 256 byte
   newSize += 32;
-  denseArea_ = new double[newSize];
+  denseArea_ = new FloatT[newSize];
   denseAreaAddress_ = denseArea_;
   CoinInt64 xx = reinterpret_cast< CoinInt64 >(denseAreaAddress_);
   int iBottom = static_cast< int >(xx & 63);
@@ -533,7 +533,7 @@ int CoinFactorization::factorDense()
   denseAreaAddress_ += offset;
   CoinZeroN(denseArea_, newSize);
 #else
-  denseArea_ = new double[full];
+  denseArea_ = new FloatT[full];
   denseAreaAddress_ = denseArea_;
   CoinZeroN(denseArea_, full);
 #endif
@@ -566,7 +566,7 @@ int CoinFactorization::factorDense()
   int *indexRowL = indexRowL_.array();
   int endL = startColumnL[numberGoodL_];
   //take out of U
-  double *column = denseAreaAddress_;
+  FloatT *column = denseAreaAddress_;
   int rowsDone = 0;
   int iColumn = 0;
   int *pivotColumn = pivotColumn_.array();
@@ -629,7 +629,7 @@ int CoinFactorization::factorDense()
   int iDense;
   int numberToDo = -denseThreshold_;
   denseThreshold_ = 0;
-  double tolerance = zeroTolerance_;
+  FloatT tolerance = zeroTolerance_;
   tolerance = 1.0e-30;
   int *nextColumn = nextColumn_.array();
   const int *pivotColumnConst = pivotColumn_.array();
@@ -669,7 +669,7 @@ int CoinFactorization::factorDense()
     int iRow;
     int jDense;
     int pivotRow = -1;
-    double *element = denseAreaAddress_ + iDense * numberDense_;
+    FloatT *element = denseAreaAddress_ + iDense * numberDense_;
     CoinFactorizationDouble largest = 1.0e-12;
     for (iRow = iDense; iRow < numberDense_; iRow++) {
       if (fabs(element[iRow]) > largest) {
@@ -724,11 +724,11 @@ int CoinFactorization::factorDense()
       numberInColumnPlus[iColumn] += start - startColumnU[iColumn];
       startColumnU[iColumn] = start;
       // update other columns
-      double *element2 = element + numberDense_;
+      FloatT *element2 = element + numberDense_;
       for (jDense = iDense + 1; jDense < numberToDo; jDense++) {
         CoinFactorizationDouble value = element2[iDense];
         for (iRow = iDense + 1; iRow < numberDense_; iRow++) {
-          //double oldValue=element2[iRow];
+          //FloatT oldValue=element2[iRow];
           element2[iRow] -= value * element[iRow];
           //if (oldValue&&!element2[iRow]) {
           //printf("Updated element for column %d, row %d old %g",
@@ -1126,12 +1126,12 @@ int CoinFactorization::factorSparseLarge()
   int *firstCount = firstCount_.array();
   int *startRow = startRowU_.array();
   int *startColumn = startColumnU;
-  //double *elementL = elementL_.array();
+  //FloatT *elementL = elementL_.array();
   //int *indexRowL = indexRowL_.array();
   //int *saveColumn = saveColumn_.array();
   //int *nextRow = nextRow_.array();
   //int *lastRow = lastRow_.array() ;
-  double pivotTolerance = pivotTolerance_;
+  FloatT pivotTolerance = pivotTolerance_;
   int numberTrials = numberTrials_;
   int numberRows = numberRows_;
   // Put column singletons first - (if false)
@@ -1174,7 +1174,7 @@ int CoinFactorization::factorSparseLarge()
     }
 #endif
     int minimumCount = COIN_INT_MAX;
-    double minimumCost = COIN_DBL_MAX;
+    FloatT minimumCost = COIN_DBL_MAX;
 
     int iPivotRow = -1;
     int iPivotColumn = -1;
@@ -1230,7 +1230,7 @@ int CoinFactorization::factorSparseLarge()
         for (i = start; i < end; i++) {
           int iColumn = indexColumn[i];
           assert(numberInColumn[iColumn] > 0);
-          double cost = (count - 1) * numberInColumn[iColumn];
+          FloatT cost = (count - 1) * numberInColumn[iColumn];
 
           if (cost < minimumCost) {
             int where = startColumn[iColumn];
@@ -1292,7 +1292,7 @@ int CoinFactorization::factorSparseLarge()
             int iRow = indexRow[i];
             int nInRow = numberInRow[iRow];
             assert(nInRow > 0);
-            double cost = (count - 1) * nInRow;
+            FloatT cost = (count - 1) * nInRow;
 
             if (cost < minimumCost) {
               minimumCost = cost;
@@ -1401,11 +1401,11 @@ int CoinFactorization::factorSparseLarge()
       // Even if no dense code may be better to use naive dense
       if (!denseThreshold_&&totalElements_>1000) {
         int leftRows=numberRows_-numberGoodU_;
-        double full = leftRows;
+        FloatT full = leftRows;
         full *= full;
         assert (full>=0.0);
-        double leftElements = totalElements_;
-        double ratio;
+        FloatT leftElements = totalElements_;
+        FloatT ratio;
         if (leftRows>2000)
           ratio=4.0;
         else 
@@ -1417,13 +1417,13 @@ int CoinFactorization::factorSparseLarge()
       if (denseThreshold) {
         // see whether to go dense
         int leftRows = numberRows_ - numberGoodU_;
-        double full = leftRows;
+        FloatT full = leftRows;
         full *= full;
         assert(full >= 0.0);
-        double leftElements = totalElements_;
+        FloatT leftElements = totalElements_;
         //if (leftRows==100)
         //printf("at 100 %d elements\n",totalElements_);
-        double ratio;
+        FloatT ratio;
         if (leftRows > 2000) {
           ratio = 4.0;
 #if COIN_DENSE_MULTIPLIER2 == 1

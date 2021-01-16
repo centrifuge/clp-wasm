@@ -30,12 +30,12 @@ public:
   struct action {
     int col; ///< column index of variable
     int start; ///< start of coefficients in #colels_ and #colrows_
-    double sol; ///< value of variable
+    FloatT sol; ///< value of variable
   };
   /// Array of row indices for coefficients of excised columns
   int *colrows_;
   /// Array of coefficients of excised columns
-  double *colels_;
+  FloatT *colels_;
   /// Number of entries in #actions_
   int nactions_;
   /// Vector specifying variable(s) affected by this object
@@ -45,7 +45,7 @@ private:
   /*! \brief Constructor */
   remove_fixed_action(int nactions,
     action *actions,
-    double *colels,
+    FloatT *colels,
     int *colrows,
     const CoinPresolveAction *next);
 
@@ -94,7 +94,7 @@ class make_fixed_action : public CoinPresolveAction {
 
   /// Structure to preserve the bound overwritten when fixing a variable
   struct action {
-    double bound; ///< Value of bound overwritten to fix variable.
+    FloatT bound; ///< Value of bound overwritten to fix variable.
     int col; ///< column index of variable
   };
 

@@ -359,7 +359,7 @@ void CoinOslFactorization::postProcess(const int *sequence, int *pivotVariable)
   {
     int lstart = numberRows_ + factInfo_.maxinv + 5;
     int ndo = factInfo_.xnetal - lstart;
-    double *dluval = factInfo_.xeeadr;
+    FloatT *dluval = factInfo_.xeeadr;
     int *mcstrt = factInfo_.xcsadr + lstart;
     if (ndo)
       assert(dluval[mcstrt[ndo] + 1] < 1.0e50);
@@ -375,16 +375,16 @@ void CoinOslFactorization::postProcess(const int *sequence, int *pivotVariable)
    partial update already in U */
 int CoinOslFactorization::replaceColumn(CoinIndexedVector *regionSparse,
   int pivotRow,
-  double pivotCheck,
+  FloatT pivotCheck,
   bool /*checkBeforeModifying*/,
-  double acceptablePivot)
+  FloatT acceptablePivot)
 {
   if (numberPivots_ + 1 == maximumPivots_)
     return 3;
   int *regionIndex = regionSparse->getIndices();
-  double *region = regionSparse->denseVector();
+  FloatT *region = regionSparse->denseVector();
   int orig_nincol = 0;
-  double saveTolerance = factInfo_.drtpiv;
+  FloatT saveTolerance = factInfo_.drtpiv;
   factInfo_.drtpiv = acceptablePivot;
   int returnCode = c_ekketsj(&factInfo_, region - 1,
     regionIndex,
@@ -399,7 +399,7 @@ int CoinOslFactorization::replaceColumn(CoinIndexedVector *regionSparse,
   {
     int lstart = numberRows_ + factInfo_.maxinv + 5;
     int ndo = factInfo_.xnetal - lstart;
-    double *dluval = factInfo_.xeeadr;
+    FloatT *dluval = factInfo_.xeeadr;
     int *mcstrt = factInfo_.xcsadr + lstart;
     if (ndo)
       assert(dluval[mcstrt[ndo] + 1] < 1.0e50);
@@ -417,17 +417,17 @@ int CoinOslFactorization::updateColumn(CoinIndexedVector *regionSparse,
   {
     int lstart = numberRows_ + factInfo_.maxinv + 5;
     int ndo = factInfo_.xnetal - lstart;
-    double *dluval = factInfo_.xeeadr;
+    FloatT *dluval = factInfo_.xeeadr;
     int *mcstrt = factInfo_.xcsadr + lstart;
     if (ndo)
       assert(dluval[mcstrt[ndo] + 1] < 1.0e50);
   }
 #endif
   assert(numberRows_ == numberColumns_);
-  double *region2 = regionSparse2->denseVector();
+  FloatT *region2 = regionSparse2->denseVector();
   int *regionIndex2 = regionSparse2->getIndices();
   int numberNonZero = regionSparse2->getNumElements();
-  double *region = regionSparse->denseVector();
+  FloatT *region = regionSparse->denseVector();
   //const int * permuteIn = factInfo_.mpermu+1;
   // Stuff is put one up so won't get illegal read
   assert(!region[numberRows_]);
@@ -458,15 +458,15 @@ int CoinOslFactorization::updateColumnFT(CoinIndexedVector *regionSparse,
   bool /*noPermute*/)
 {
   assert(numberRows_ == numberColumns_);
-  double *region2 = regionSparse2->denseVector();
+  FloatT *region2 = regionSparse2->denseVector();
   int *regionIndex2 = regionSparse2->getIndices();
   int numberNonZero = regionSparse2->getNumElements();
   assert(regionSparse2->packedMode());
   // packed mode
   //int numberNonInOriginal=numberNonZero;
-  //double *dpermu = factInfo_.kadrpm;
+  //FloatT *dpermu = factInfo_.kadrpm;
   // Use region instead of dpermu
-  double *save = factInfo_.kadrpm;
+  FloatT *save = factInfo_.kadrpm;
   factInfo_.kadrpm = regionSparse->denseVector() - 1;
   int nuspike = c_ekkftrn_ft(&factInfo_, region2, regionIndex2,
     &numberNonZero);
@@ -485,21 +485,21 @@ int CoinOslFactorization::updateTwoColumnsFT(CoinIndexedVector *regionSparse1,
 #if 1
   // probably best to merge on a LU part by part
   // but can try full merge
-  double *region2 = regionSparse2->denseVector();
+  FloatT *region2 = regionSparse2->denseVector();
   int *regionIndex2 = regionSparse2->getIndices();
   int numberNonZero2 = regionSparse2->getNumElements();
   assert(regionSparse2->packedMode());
 
   assert(numberRows_ == numberColumns_);
-  double *region3 = regionSparse3->denseVector();
+  FloatT *region3 = regionSparse3->denseVector();
   int *regionIndex3 = regionSparse3->getIndices();
   int numberNonZero3 = regionSparse3->getNumElements();
-  double *region = regionSparse1->denseVector();
+  FloatT *region = regionSparse1->denseVector();
   // Stuff is put one up so won't get illegal read
   assert(!region[numberRows_]);
   assert(!regionSparse3->packedMode());
   // packed mode
-  //double *dpermu = factInfo_.kadrpm;
+  //FloatT *dpermu = factInfo_.kadrpm;
 #if 0
   factInfo_.nuspike=c_ekkftrn_ft(&factInfo_, region2,regionIndex2,
 			       &numberNonZero2);
@@ -532,23 +532,23 @@ int CoinOslFactorization::updateColumnTranspose(CoinIndexedVector *regionSparse,
   CoinIndexedVector *regionSparse2) const
 {
   assert(numberRows_ == numberColumns_);
-  double *region2 = regionSparse2->denseVector();
+  FloatT *region2 = regionSparse2->denseVector();
   int *regionIndex2 = regionSparse2->getIndices();
   int numberNonZero = regionSparse2->getNumElements();
-  //double *region = regionSparse->denseVector (  );
+  //FloatT *region = regionSparse->denseVector (  );
   /*int *regionIndex = regionSparse->getIndices (  );*/
   const int *permuteIn = factInfo_.mpermu + 1;
   factInfo_.packedMode = regionSparse2->packedMode() ? 1 : 0;
   // Use region instead of dpermu
-  double *save = factInfo_.kadrpm;
+  FloatT *save = factInfo_.kadrpm;
   factInfo_.kadrpm = regionSparse->denseVector() - 1;
   // use internal one for now (address is one off)
-  double *region = factInfo_.kadrpm;
+  FloatT *region = factInfo_.kadrpm;
   if (numberNonZero < 2) {
     if (numberNonZero) {
       int ipivrw = regionIndex2[0];
       if (factInfo_.packedMode) {
-        double value = region2[0];
+        FloatT value = region2[0];
         region2[0] = 0.0;
         region2[ipivrw] = value;
       }
@@ -737,14 +737,14 @@ struct malloc_struct {
   int when;
   int type;
 };
-static double malloc_times = 0.0;
-static double malloc_total = 0.0;
-static double malloc_current = 0.0;
-static double malloc_max = 0.0;
+static FloatT malloc_times = 0.0;
+static FloatT malloc_total = 0.0;
+static FloatT malloc_current = 0.0;
+static FloatT malloc_max = 0.0;
 static int malloc_amount[] = { 0, 32, 128, 256, 1024, 4096, 16384, 65536, 262144,
   2000000000 };
 static int malloc_n = 10;
-double malloc_counts[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+FloatT malloc_counts[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 typedef struct malloc_struct malloc_struct;
 static malloc_struct startM = { 0, 0, 0, 0 };
 static malloc_struct endM = { 0, 0, 0, 0 };
@@ -758,7 +758,7 @@ void clp_memory(int type)
     endM.previous = &startM;
   } else {
     /* summary */
-    double average = malloc_total / malloc_times;
+    FloatT average = malloc_total / malloc_times;
     int i;
     malloc_struct *previous = (malloc_struct *)endM.previous;
     printf("count %g bytes %g - average %g\n", malloc_times, malloc_total, average);
@@ -818,16 +818,16 @@ static void clp_adjust(void *temp, int size, int type)
 }
 #endif
 /* covers */
-double *clp_double(int number_entries)
+FloatT *clp_FloatT(int number_entries)
 {
 #if CLP_DEBUG_MALLOC == 0
-  return reinterpret_cast< double * >(malloc(number_entries * sizeof(double)));
+  return reinterpret_cast< FloatT * >(malloc(number_entries * sizeof(FloatT)));
 #else
-  double *temp = reinterpret_cast< double * >(malloc((number_entries + extra) * sizeof(double)));
-  clp_adjust(temp, number_entries * sizeof(double), 1);
+  FloatT *temp = reinterpret_cast< FloatT * >(malloc((number_entries + extra) * sizeof(FloatT)));
+  clp_adjust(temp, number_entries * sizeof(FloatT), 1);
 #if CLP_DEBUG_MALLOC > 1
-  if (number_entries * sizeof(double) >= CLP_DEBUG_MALLOC)
-    printf("WWW %x malloced by double %d - size %d\n",
+  if (number_entries * sizeof(FloatT) >= CLP_DEBUG_MALLOC)
+    printf("WWW %x malloced by FloatT %d - size %d\n",
       temp + extra, malloc_number, number_entries);
 #endif
   return temp + extra;
@@ -838,7 +838,7 @@ int *clp_int(int number_entries)
 #if CLP_DEBUG_MALLOC == 0
   return reinterpret_cast< int * >(malloc(number_entries * sizeof(int)));
 #else
-  double *temp = reinterpret_cast< double * >(malloc(((number_entries + 1) / 2 + extra) * sizeof(double)));
+  FloatT *temp = reinterpret_cast< FloatT * >(malloc(((number_entries + 1) / 2 + extra) * sizeof(FloatT)));
   clp_adjust(temp, number_entries * sizeof(int), 2);
 #if CLP_DEBUG_MALLOC > 1
   if (number_entries * sizeof(int) >= CLP_DEBUG_MALLOC)
@@ -853,7 +853,7 @@ void *clp_malloc(int number_entries)
 #if CLP_DEBUG_MALLOC == 0
   return malloc(number_entries);
 #else
-  double *temp = reinterpret_cast< double * >(malloc(number_entries + extra * sizeof(double)));
+  FloatT *temp = reinterpret_cast< FloatT * >(malloc(number_entries + extra * sizeof(FloatT)));
   clp_adjust(temp, number_entries, 0);
 #if CLP_DEBUG_MALLOC > 1
   if (number_entries >= CLP_DEBUG_MALLOC)
@@ -869,7 +869,7 @@ void clp_free(void *oldArray)
   free(oldArray);
 #else
   if (oldArray) {
-    double *temp = (reinterpret_cast< double * >(oldArray) - extra);
+    FloatT *temp = (reinterpret_cast< FloatT * >(oldArray) - extra);
     malloc_struct *itemp = (malloc_struct *)temp;
     malloc_struct *next = (malloc_struct *)itemp->next;
     malloc_struct *previous = (malloc_struct *)itemp->previous;
@@ -951,7 +951,7 @@ static void clp_adjust_pointers(EKKfactinfo *fact, int adjust)
 /* deals with memory for complicated array 
    0 just do addresses 
    1 just get memory */
-static double *
+static FloatT *
 clp_alloc_memory(EKKfactinfo *fact, int type, int *length)
 {
   int nDouble = 0;
@@ -962,7 +962,7 @@ clp_alloc_memory(EKKfactinfo *fact, int type, int *length)
   int ntot3;
   int nrowmx;
   int *tempI;
-  double *tempD;
+  FloatT *tempD;
   nrowmx = fact->nrowmx;
   nrowmxp = nrowmx + 2;
   ntot1 = nrowmxp;
@@ -978,24 +978,24 @@ clp_alloc_memory(EKKfactinfo *fact, int type, int *length)
   /* now doing all at once - far too much - reduce later */
   tempD = fact->kw1adr;
   tempD += nrowmxp;
-  tempD = reinterpret_cast< double * >(clp_align(tempD));
+  tempD = reinterpret_cast< FloatT * >(clp_align(tempD));
   fact->kw2adr = tempD;
   tempD += nrowmxp;
-  tempD = reinterpret_cast< double * >(clp_align(tempD));
+  tempD = reinterpret_cast< FloatT * >(clp_align(tempD));
   fact->kw3adr = tempD - 1;
   tempD += nrowmxp;
-  tempD = reinterpret_cast< double * >(clp_align(tempD));
+  tempD = reinterpret_cast< FloatT * >(clp_align(tempD));
   fact->kp1adr = reinterpret_cast< EKKHlink * >(tempD);
   tempD += nrowmxp;
-  tempD = reinterpret_cast< double * >(clp_align(tempD));
+  tempD = reinterpret_cast< FloatT * >(clp_align(tempD));
   fact->kp2adr = reinterpret_cast< EKKHlink * >(tempD);
   //tempD+=ntot3;
   tempD += nrowmxp;
-  tempD = reinterpret_cast< double * >(clp_align(tempD));
+  tempD = reinterpret_cast< FloatT * >(clp_align(tempD));
   /*printf("zz %x %x\n",tempD,fact->kadrpm);*/
   fact->kadrpm = tempD;
   /* seems a lot */
-  tempD += ((6 * nrowmx + 8) * (sizeof(int)) / sizeof(double));
+  tempD += ((6 * nrowmx + 8) * (sizeof(int)) / sizeof(FloatT));
   /* integer arrays */
   tempI = reinterpret_cast< int * >(tempD);
   tempI = reinterpret_cast< int * >(clp_align(tempI));
@@ -1029,15 +1029,15 @@ clp_alloc_memory(EKKfactinfo *fact, int type, int *length)
   fact->R_etas_start = fact->xcsadr + nrowmx + fact->maxinv + 4;
   fact->R_etas_start += FIX_ADD;
   nInt = static_cast< int >(tempI - (reinterpret_cast< int * >(fact->trueStart)));
-  nDouble = static_cast< int >(sizeof(int) * (nInt + 1) / sizeof(double));
+  nDouble = static_cast< int >(sizeof(int) * (nInt + 1) / sizeof(FloatT));
   *length = nDouble;
   /*printf("nDouble %d - type %d\n",nDouble,type);*/
-  nDouble += static_cast< int >((2 * ALIGNMENT) / sizeof(double));
+  nDouble += static_cast< int >((2 * ALIGNMENT) / sizeof(FloatT));
   if (type) {
     /*printf("%d allocated\n",nDouble);*/
-    tempD = reinterpret_cast< double * >(clp_double(nDouble));
+    tempD = reinterpret_cast< FloatT * >(clp_FloatT(nDouble));
 #ifndef NDEBUG
-    memset(tempD, CLP_FILL, nDouble * sizeof(double));
+    memset(tempD, CLP_FILL, nDouble * sizeof(FloatT));
 #endif
   }
   return tempD;
@@ -1058,7 +1058,7 @@ static void c_ekksmem(EKKfactinfo *fact, int nrow, int maximumPivots)
     fact->trueStart = 0;
     fact->kw1adr = 0;
     fact->trueStart = clp_alloc_memory(fact, 1, &length);
-    fact->kw1adr = reinterpret_cast< double * >(clp_align(fact->trueStart));
+    fact->kw1adr = reinterpret_cast< FloatT * >(clp_align(fact->trueStart));
     clp_alloc_memory(fact, 0, &length);
   }
   /*if (!fact->iterno) fact->eta_size+=1000000;*/ /* TEMP*/
@@ -1068,9 +1068,9 @@ static void c_ekksmem(EKKfactinfo *fact, int nrow, int maximumPivots)
     /* if malloc fails - we have lost memory - start again */
     if (!fact->ndenuc && fact->if_sparse_update) {
       /* allow second copy of elements */
-      fact->xe2adr = clp_double(nnetas);
+      fact->xe2adr = clp_FloatT(nnetas);
 #ifndef NDEBUG
-      memset(fact->xe2adr, CLP_FILL, nnetas * sizeof(double));
+      memset(fact->xe2adr, CLP_FILL, nnetas * sizeof(FloatT));
 #endif
       if (!fact->xe2adr) {
         fact->maxNNetas = fact->last_eta_size; /* dont allow any increase */
@@ -1108,9 +1108,9 @@ static void c_ekksmem(EKKfactinfo *fact, int nrow, int maximumPivots)
     }
     if (nnetas) {
       clp_free(fact->xeeadr);
-      fact->xeeadr = clp_double(nnetas);
+      fact->xeeadr = clp_FloatT(nnetas);
 #ifndef NDEBUG
-      memset(fact->xeeadr, CLP_FILL, nnetas * sizeof(double));
+      memset(fact->xeeadr, CLP_FILL, nnetas * sizeof(FloatT));
 #endif
       if (!fact->xeeadr) {
         nnetas = 0;
@@ -1137,7 +1137,7 @@ static void c_ekksmem_copy(EKKfactinfo *fact, const EKKfactinfo *rhsFact)
   clp_adjust_pointers(const_cast< EKKfactinfo * >(rhsFact), +1);
   /*memset(fact,0,sizeof(EKKfactinfo));*/
   /* copy scalars */
-  memcpy(&fact->drtpiv, &rhsFact->drtpiv, 5 * sizeof(double));
+  memcpy(&fact->drtpiv, &rhsFact->drtpiv, 5 * sizeof(FloatT));
   memcpy(&fact->nrow, &rhsFact->nrow, ((&fact->maxNNetas - &fact->nrow) + 1) * sizeof(int));
   if (nrowmx) {
     int length;
@@ -1157,7 +1157,7 @@ static void c_ekksmem_copy(EKKfactinfo *fact, const EKKfactinfo *rhsFact)
       fact->trueStart = 0;
       fact->kw1adr = 0;
       fact->trueStart = clp_alloc_memory(fact, 1, &length);
-      fact->kw1adr = reinterpret_cast< double * >(clp_align(fact->trueStart));
+      fact->kw1adr = reinterpret_cast< FloatT * >(clp_align(fact->trueStart));
     }
     clp_alloc_memory(fact, 0, &length);
     nnetas = fact->eta_size;
@@ -1178,9 +1178,9 @@ static void c_ekksmem_copy(EKKfactinfo *fact, const EKKfactinfo *rhsFact)
     /* copy */
     if (nCopyStart || nCopyEnd || true) {
 #if 1
-      memcpy(fact->kw1adr, rhsFact->kw1adr, length * sizeof(double));
+      memcpy(fact->kw1adr, rhsFact->kw1adr, length * sizeof(FloatT));
 #else
-      c_ekkscpy((length*sizeof(double))/sizeof(int),
+      c_ekkscpy((length*sizeof(FloatT))/sizeof(int),
 	      reinterpret_cast<int *>( rhsFact->kw1adr,reinterpret_cast<int *>( fact->kw1adr));
 #endif
     }
@@ -1188,7 +1188,7 @@ static void c_ekksmem_copy(EKKfactinfo *fact, const EKKfactinfo *rhsFact)
     if (!fact->ndenuc && fact->if_sparse_update) {
       /* allow second copy of elements */
       if (!canReuseEtas)
-        fact->xe2adr = clp_double(nnetas);
+        fact->xe2adr = clp_FloatT(nnetas);
       if (!fact->xe2adr) {
         fact->maxNNetas = nnetas; /* dont allow any increase */
 #ifdef PRINT_DEBUG
@@ -1199,7 +1199,7 @@ static void c_ekksmem_copy(EKKfactinfo *fact, const EKKfactinfo *rhsFact)
         fact->if_sparse_update = 0;
       } else {
 #ifndef NDEBUG
-        memset(fact->xe2adr, CLP_FILL, nnetas * sizeof(double));
+        memset(fact->xe2adr, CLP_FILL, nnetas * sizeof(FloatT));
 #endif
       }
     } else {
@@ -1258,11 +1258,11 @@ static void c_ekksmem_copy(EKKfactinfo *fact, const EKKfactinfo *rhsFact)
               memcpy(hcoli + istart, hcoliR + istart, hinrow[i] * sizeof(int));
             }
           } else {
-            double *de2valR = rhsFact->xe2adr - 1;
-            double *de2val = fact->xe2adr - 1;
+            FloatT *de2valR = rhsFact->xe2adr - 1;
+            FloatT *de2val = fact->xe2adr - 1;
 #if 0
 	    memcpy(fact->xe2adr+kCopyEnd,rhsFact->xe2adr+kCopyEnd,
-		   nCopyEnd*sizeof(double));
+		   nCopyEnd*sizeof(FloatT));
 #else
             c_ekkdcpy(nCopyEnd, rhsFact->xe2adr + kCopyEnd, fact->xe2adr + kCopyEnd);
 #endif
@@ -1271,7 +1271,7 @@ static void c_ekksmem_copy(EKKfactinfo *fact, const EKKfactinfo *rhsFact)
               assert(istart > 0 && istart <= nnetas);
               assert(hinrow[i] >= 0 && hinrow[i] <= fact->nrow);
               memcpy(hcoli + istart, hcoliR + istart, hinrow[i] * sizeof(int));
-              memcpy(de2val + istart, de2valR + istart, hinrow[i] * sizeof(double));
+              memcpy(de2val + istart, de2valR + istart, hinrow[i] * sizeof(FloatT));
 #ifndef NDEBUG
               {
                 int j;
@@ -1286,18 +1286,18 @@ static void c_ekksmem_copy(EKKfactinfo *fact, const EKKfactinfo *rhsFact)
     }
     if (nnetas) {
       if (!canReuseEtas)
-        fact->xeeadr = clp_double(nnetas);
+        fact->xeeadr = clp_FloatT(nnetas);
       if (!fact->xeeadr) {
         nnetas = 0;
       } else {
 #ifndef NDEBUG
-        memset(fact->xeeadr, CLP_FILL, nnetas * sizeof(double));
+        memset(fact->xeeadr, CLP_FILL, nnetas * sizeof(FloatT));
 #endif
         /* copy */
         if (nCopyStart || nCopyEnd) {
 #if 0
-	  memcpy(fact->xeeadr,rhsFact->xeeadr,nCopyStart*sizeof(double));
-	  memcpy(fact->xeeadr+kCopyEnd,rhsFact->xeeadr+kCopyEnd,nCopyEnd*sizeof(double));
+	  memcpy(fact->xeeadr,rhsFact->xeeadr,nCopyStart*sizeof(FloatT));
+	  memcpy(fact->xeeadr+kCopyEnd,rhsFact->xeeadr+kCopyEnd,nCopyEnd*sizeof(FloatT));
 #else
           c_ekkdcpy(nCopyStart,
             rhsFact->xeeadr, fact->xeeadr);
@@ -1373,7 +1373,7 @@ int CoinOslFactorization::factorize(
   const CoinPackedMatrix &matrix,
   int rowIsBasic[],
   int columnIsBasic[],
-  double areaFactor)
+  FloatT areaFactor)
 {
   setSolveMode(10);
   if (areaFactor)
@@ -1381,7 +1381,7 @@ int CoinOslFactorization::factorize(
   const int *row = matrix.getIndices();
   const CoinBigIndex *columnStart = matrix.getVectorStarts();
   const int *columnLength = matrix.getVectorLengths();
-  const double *element = matrix.getElements();
+  const FloatT *element = matrix.getElements();
   int numberRows = matrix.getNumRows();
   int numberColumns = matrix.getNumCols();
   int numberBasic = 0;
@@ -1418,7 +1418,7 @@ int CoinOslFactorization::factorize(
   numberBasic = 0;
   numberElements = 0;
   // Fill in counts so we can skip part of preProcess
-  double *elementU = elements();
+  FloatT *elementU = elements();
   int *indexRowU = indices();
   int *startColumnU = starts();
   int *numberInRow = this->numberInRow();
@@ -1474,15 +1474,15 @@ int CoinOslFactorization::factorize(
   return status_;
 }
 // Condition number - product of pivots after factorization
-double
+FloatT
 CoinOslFactorization::conditionNumber() const
 {
-  double condition = 1.0;
-  const double *dluval = factInfo_.xeeadr + 1 - 1; // stored before
+  FloatT condition = 1.0;
+  const FloatT *dluval = factInfo_.xeeadr + 1 - 1; // stored before
   const int *mcstrt = factInfo_.xcsadr + 1;
   for (int i = 0; i < numberRows_; i++) {
     const int kx = mcstrt[i];
-    const double dpiv = dluval[kx];
+    const FloatT dpiv = dluval[kx];
     condition *= dpiv;
   }
   condition = CoinMax(fabs(condition), 1.0e-50);

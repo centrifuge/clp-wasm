@@ -106,10 +106,10 @@ ClpMatrixBase::operator=(const ClpMatrixBase &rhs)
   return *this;
 }
 // And for scaling - default aborts for when scaling not supported
-void ClpMatrixBase::times(double scalar,
-  const double *x, double *y,
-  const double *rowScale,
-  const double * /*columnScale*/) const
+void ClpMatrixBase::times(FloatT scalar,
+  const FloatT *x, FloatT *y,
+  const FloatT *rowScale,
+  const FloatT * /*columnScale*/) const
 {
   if (rowScale) {
     std::cerr << "Scaling not supported - ClpMatrixBase" << std::endl;
@@ -119,11 +119,11 @@ void ClpMatrixBase::times(double scalar,
   }
 }
 // And for scaling - default aborts for when scaling not supported
-void ClpMatrixBase::transposeTimes(double scalar,
-  const double *x, double *y,
-  const double *rowScale,
-  const double * /*columnScale*/,
-  double * /*spare*/) const
+void ClpMatrixBase::transposeTimes(FloatT scalar,
+  const FloatT *x, FloatT *y,
+  const FloatT *rowScale,
+  const FloatT * /*columnScale*/,
+  FloatT * /*spare*/) const
 {
   if (rowScale) {
     std::cerr << "Scaling not supported - ClpMatrixBase" << std::endl;
@@ -180,8 +180,8 @@ void ClpMatrixBase::appendRows(int /*number*/,
 /* Returns largest and smallest elements of both signs.
    Largest refers to largest absolute value.
 */
-void ClpMatrixBase::rangeOfElements(double &smallestNegative, double &largestNegative,
-  double &smallestPositive, double &largestPositive)
+void ClpMatrixBase::rangeOfElements(FloatT &smallestNegative, FloatT &largestNegative,
+  FloatT &smallestPositive, FloatT &largestPositive)
 {
   smallestNegative = 0.0;
   largestNegative = 0.0;
@@ -203,10 +203,10 @@ bool ClpMatrixBase::canDoPartialPricing() const
    Default cheats with fake CoinIndexedVector and
    then calls subsetTransposeTimes */
 void ClpMatrixBase::listTransposeTimes(const ClpSimplex *model,
-  double *x,
+  FloatT *x,
   int *y,
   int number,
-  double *z) const
+  FloatT *z) const
 {
   CoinIndexedVector pi;
   CoinIndexedVector list;
@@ -214,9 +214,9 @@ void ClpMatrixBase::listTransposeTimes(const ClpSimplex *model,
   int *saveIndices = list.getIndices();
   list.setNumElements(number);
   list.setIndexVector(y);
-  double *savePi = pi.denseVector();
+  FloatT *savePi = pi.denseVector();
   pi.setDenseVector(x);
-  double *saveOutput = output.denseVector();
+  FloatT *saveOutput = output.denseVector();
   output.setDenseVector(z);
   output.setPacked();
   subsetTransposeTimes(model, &pi, &list, &output);
@@ -226,7 +226,7 @@ void ClpMatrixBase::listTransposeTimes(const ClpSimplex *model,
   output.setDenseVector(saveOutput);
 }
 // Partial pricing
-void ClpMatrixBase::partialPricing(ClpSimplex *, double, double,
+void ClpMatrixBase::partialPricing(ClpSimplex *, FloatT, FloatT,
   int &, int &)
 {
   std::cerr << "partialPricing not supported - ClpMatrixBase" << std::endl;
@@ -257,7 +257,7 @@ void ClpMatrixBase::primalExpanded(ClpSimplex *, int)
 */
 void ClpMatrixBase::dualExpanded(ClpSimplex *,
   CoinIndexedVector *,
-  double *, int)
+  FloatT *, int)
 {
 }
 /*
@@ -305,7 +305,7 @@ void ClpMatrixBase::useEffectiveRhs(ClpSimplex *)
 /* Returns effective RHS if it is being used.  This is used for long problems
    or big gub or anywhere where going through full columns is
    expensive.  This may re-compute */
-double *
+FloatT *
 ClpMatrixBase::rhsOffset(ClpSimplex *model, bool forceRefresh, bool
 #ifdef CLP_DEBUG
                                                                  check
@@ -319,9 +319,9 @@ ClpMatrixBase::rhsOffset(ClpSimplex *model, bool forceRefresh, bool
       // zero out basic
       int numberRows = model->numberRows();
       int numberColumns = model->numberColumns();
-      double *solution = new double[numberColumns];
-      double *rhs = new double[numberRows];
-      const double *solutionSlack = model->solutionRegion(0);
+      FloatT *solution = new FloatT[numberColumns];
+      FloatT *rhs = new FloatT[numberRows];
+      const FloatT *solutionSlack = model->solutionRegion(0);
       CoinMemcpyN(model->solutionRegion(), numberColumns, solution);
       int iRow;
       for (iRow = 0; iRow < numberRows; iRow++) {
@@ -346,8 +346,8 @@ ClpMatrixBase::rhsOffset(ClpSimplex *model, bool forceRefresh, bool
       // zero out basic
       int numberRows = model->numberRows();
       int numberColumns = model->numberColumns();
-      double *solution = new double[numberColumns];
-      const double *solutionSlack = model->solutionRegion(0);
+      FloatT *solution = new FloatT[numberColumns];
+      const FloatT *solutionSlack = model->solutionRegion(0);
       CoinMemcpyN(model->solutionRegion(), numberColumns, solution);
       for (int iRow = 0; iRow < numberRows; iRow++) {
         if (model->getRowStatus(iRow) != ClpSimplex::basic)
@@ -369,13 +369,13 @@ ClpMatrixBase::rhsOffset(ClpSimplex *model, bool forceRefresh, bool
 /*
    update information for a pivot (and effective rhs)
 */
-int ClpMatrixBase::updatePivot(ClpSimplex *model, double oldInValue, double)
+int ClpMatrixBase::updatePivot(ClpSimplex *model, FloatT oldInValue, FloatT)
 {
   if (rhsOffset_) {
     // update effective rhs
     int sequenceIn = model->sequenceIn();
     int sequenceOut = model->sequenceOut();
-    double *solution = model->solutionRegion();
+    FloatT *solution = model->solutionRegion();
     int numberColumns = model->numberColumns();
     if (sequenceIn == sequenceOut) {
       if (sequenceIn < numberColumns)
@@ -400,7 +400,7 @@ void ClpMatrixBase::createVariable(ClpSimplex *, int &)
 {
 }
 // Returns reduced cost of a variable
-double
+FloatT
 ClpMatrixBase::reducedCost(ClpSimplex *model, int sequence) const
 {
   int numberRows = model->numberRows();
@@ -413,10 +413,10 @@ ClpMatrixBase::reducedCost(ClpSimplex *model, int sequence) const
 /* Just for debug if odd type matrix.
    Returns number and sum of primal infeasibilities.
 */
-int ClpMatrixBase::checkFeasible(ClpSimplex *model, double &sum) const
+int ClpMatrixBase::checkFeasible(ClpSimplex *model, FloatT &sum) const
 {
   int numberRows = model->numberRows();
-  double *rhs = new double[numberRows];
+  FloatT *rhs = new FloatT[numberRows];
   int numberColumns = model->numberColumns();
   int iRow;
   CoinZeroN(rhs, numberRows);
@@ -424,15 +424,15 @@ int ClpMatrixBase::checkFeasible(ClpSimplex *model, double &sum) const
   int iColumn;
   int logLevel = model->messageHandler()->logLevel();
   int numberInfeasible = 0;
-  const double *rowLower = model->lowerRegion(0);
-  const double *rowUpper = model->upperRegion(0);
-  const double *solution;
+  const FloatT *rowLower = model->lowerRegion(0);
+  const FloatT *rowUpper = model->upperRegion(0);
+  const FloatT *solution;
   solution = model->solutionRegion(0);
-  double tolerance = model->primalTolerance() * 1.01;
+  FloatT tolerance = model->primalTolerance() * 1.01;
   sum = 0.0;
   for (iRow = 0; iRow < numberRows; iRow++) {
-    double value = rhs[iRow];
-    double value2 = solution[iRow];
+    FloatT value = rhs[iRow];
+    FloatT value2 = solution[iRow];
     if (logLevel > 3) {
       if (fabs(value - value2) > 1.0e-8)
         printf("Row %d stored %g, computed %g\n", iRow, value2, value);
@@ -445,11 +445,11 @@ int ClpMatrixBase::checkFeasible(ClpSimplex *model, double &sum) const
       assert(model->getRowStatus(iRow) == ClpSimplex::superBasic);
     }
   }
-  const double *columnLower = model->lowerRegion(1);
-  const double *columnUpper = model->upperRegion(1);
+  const FloatT *columnLower = model->lowerRegion(1);
+  const FloatT *columnUpper = model->upperRegion(1);
   solution = model->solutionRegion(1);
   for (iColumn = 0; iColumn < numberColumns; iColumn++) {
-    double value = solution[iColumn];
+    FloatT value = solution[iColumn];
     if (value < columnLower[iColumn] - tolerance || value > columnUpper[iColumn] + tolerance) {
       numberInfeasible++;
       sum += CoinMax(columnLower[iColumn] - value, value - columnUpper[iColumn]);
@@ -467,10 +467,10 @@ int ClpMatrixBase::checkFeasible(ClpSimplex *model, double &sum) const
 void ClpMatrixBase::subsetTimes2(const ClpSimplex *model,
   CoinIndexedVector *dj1,
   const CoinIndexedVector *pi2, CoinIndexedVector *dj2,
-  double referenceIn, double devex,
+  FloatT referenceIn, FloatT devex,
   // Array for exact devex to say what is in reference framework
   unsigned int *reference,
-  double *weights, double scaleFactor)
+  FloatT *weights, FloatT scaleFactor)
 {
   // get subset which have nonzero tableau elements
   subsetTransposeTimes(model, pi2, dj1, dj2);
@@ -481,18 +481,18 @@ void ClpMatrixBase::subsetTimes2(const ClpSimplex *model,
 
   int number = dj1->getNumElements();
   const int *index = dj1->getIndices();
-  double *updateBy = dj1->denseVector();
-  double *updateBy2 = dj2->denseVector();
+  FloatT *updateBy = dj1->denseVector();
+  FloatT *updateBy2 = dj2->denseVector();
 
   for (int j = 0; j < number; j++) {
-    double thisWeight;
-    double pivot;
-    double pivotSquared;
+    FloatT thisWeight;
+    FloatT pivot;
+    FloatT pivotSquared;
     int iSequence = index[j];
-    double value2 = updateBy[j];
+    FloatT value2 = updateBy[j];
     if (killDjs)
       updateBy[j] = 0.0;
-    double modification = updateBy2[j];
+    FloatT modification = updateBy2[j];
     updateBy2[j] = 0.0;
     ClpSimplex::Status status = model->getStatus(iSequence);
 
@@ -524,7 +524,7 @@ void ClpMatrixBase::correctSequence(const ClpSimplex *, int &, int &)
 {
 }
 // Really scale matrix
-void ClpMatrixBase::reallyScale(const double *, const double *)
+void ClpMatrixBase::reallyScale(const FloatT *, const FloatT *)
 {
   std::cerr << "reallyScale not supported - ClpMatrixBase" << std::endl;
   abort();
@@ -534,11 +534,11 @@ int ClpMatrixBase::transposeTimes2(const ClpSimplex *,
   const CoinIndexedVector *, CoinIndexedVector *,
   const CoinIndexedVector *,
   CoinIndexedVector *,
-  double *, double *,
-  double, double,
+  FloatT *, FloatT *,
+  FloatT, FloatT,
   // Array for exact devex to say what is in reference framework
   unsigned int *,
-  double *, double)
+  FloatT *, FloatT)
 {
   std::cerr << "transposeTimes2 not supported - ClpMatrixBase" << std::endl;
   abort();
@@ -559,7 +559,7 @@ void ClpMatrixBase::setDimensions(int, int)
    If 0 then rows, 1 if columns */
 int ClpMatrixBase::appendMatrix(int, int,
   const CoinBigIndex *, const int *,
-  const double *, int)
+  const FloatT *, int)
 {
   std::cerr << "appendMatrix not supported - ClpMatrixBase" << std::endl;
   abort();
@@ -569,14 +569,14 @@ int ClpMatrixBase::appendMatrix(int, int,
 /* Modify one element of packed matrix.  An element may be added.
    This works for either ordering If the new element is zero it will be
    deleted unless keepZero true */
-void ClpMatrixBase::modifyCoefficient(int, int, double,
+void ClpMatrixBase::modifyCoefficient(int, int, FloatT,
   bool)
 {
   std::cerr << "modifyCoefficient not supported - ClpMatrixBase" << std::endl;
   abort();
 }
 #if COIN_LONG_WORK
-// For long double versions (aborts if not supported)
+// For FloatT versions (aborts if not supported)
 void ClpMatrixBase::times(CoinWorkDouble scalar,
   const CoinWorkDouble *x, CoinWorkDouble *y) const
 {

@@ -29,10 +29,10 @@
 class implied_free_action : public CoinPresolveAction {
   struct action {
     int row, col;
-    double clo, cup;
-    double rlo, rup;
-    const double *rowels;
-    const double *costs;
+    FloatT clo, cup;
+    FloatT rlo, rup;
+    const FloatT *rowels;
+    const FloatT *costs;
     int ninrow;
   };
 

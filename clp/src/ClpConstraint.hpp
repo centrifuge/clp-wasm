@@ -28,15 +28,15 @@ public:
          Returns non-zero if gradient undefined at current solution
      */
   virtual int gradient(const ClpSimplex *model,
-    const double *solution,
-    double *gradient,
-    double &functionValue,
-    double &offset,
+    const FloatT *solution,
+    FloatT *gradient,
+    FloatT &functionValue,
+    FloatT &offset,
     bool useScaling = false,
     bool refresh = true) const = 0;
   /// Constraint function value
-  virtual double functionValue(const ClpSimplex *model,
-    const double *solution,
+  virtual FloatT functionValue(const ClpSimplex *model,
+    const FloatT *solution,
     bool useScaling = false,
     bool refresh = true) const;
   /// Resize constraint
@@ -44,7 +44,7 @@ public:
   /// Delete columns in  constraint
   virtual void deleteSome(int numberToDelete, const int *which) = 0;
   /// Scale constraint
-  virtual void reallyScale(const double *columnScale) = 0;
+  virtual void reallyScale(const FloatT *columnScale) = 0;
   /** Given a zeroed array sets nonlinear columns to 1.
          Returns number of nonlinear columns
       */
@@ -91,13 +91,13 @@ public:
   virtual int numberCoefficients() const = 0;
 
   /// Stored constraint function value
-  inline double functionValue() const
+  inline FloatT functionValue() const
   {
     return functionValue_;
   }
 
   /// Constraint offset
-  inline double offset() const
+  inline FloatT offset() const
   {
     return offset_;
   }
@@ -111,11 +111,11 @@ protected:
   ///@name Protected member data
   //@{
   /// Gradient at last evaluation
-  mutable double *lastGradient_;
+  mutable FloatT *lastGradient_;
   /// Value of non-linear part of constraint
-  mutable double functionValue_;
+  mutable FloatT functionValue_;
   /// Value of offset for constraint
-  mutable double offset_;
+  mutable FloatT offset_;
   /// Type of constraint - linear is 1
   int type_;
   /// Row number (-1 is objective)

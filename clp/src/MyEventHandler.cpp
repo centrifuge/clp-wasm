@@ -73,9 +73,9 @@ int MyEventHandler::event(Event whichEvent)
      // This is how one can get some progress information at the end of each iteration.
      if (whichEvent == endOfIteration) {
           int numIter = model_->getIterationCount();
-          double sumDualInfeas = model_->sumDualInfeasibilities();
-          double sumPrimalInfeas = model_->sumPrimalInfeasibilities();
-          double obj = model_->getObjValue();
+          FloatT sumDualInfeas = model_->sumDualInfeasibilities();
+          FloatT sumPrimalInfeas = model_->sumPrimalInfeasibilities();
+          FloatT obj = model_->getObjValue();
      }
 
      // This is how one can tell CLP to stop now.
