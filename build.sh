@@ -31,7 +31,7 @@ fi
 cd $BUILD_DIR && ninja && cd ..
 
 if [ $BUILD_PLATFORM == "wasm" ]; then
-    cp $BUILD_DIR/cpplex.wasm* web/
-    cp $BUILD_DIR/cpplex.js* web/
+    cp $BUILD_DIR/solver.wasm* web/
+    cp $BUILD_DIR/solver.js* web/
 fi
 

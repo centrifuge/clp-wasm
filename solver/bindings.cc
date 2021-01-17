@@ -1,5 +1,6 @@
 #ifdef __EMSCRIPTEN__
 #include "ClpWrapper.h"
+#include "simplex.h"
 
 #include <emscripten/bind.h>
 #include <sstream>
@@ -18,7 +19,7 @@ std::string bn_round(std::string number)
     return bm::round(x).str();
 }
 
-std::string solveLinarProblem(std::string problem)
+std::string solveLinearProblem(std::string problem)
 {
     ClpWrapper clpWrapper;
     return clpWrapper.solveProblem(problem);
@@ -38,8 +39,8 @@ EMSCRIPTEN_BINDINGS(solver)
         .function("is_unlimited", &Simplex::is_unlimited)
         .function("has_solutions", &Simplex::has_solutions);
 
-    function("solveLinarProblem", &solveLinarProblem);
+    function("solveLinearProblem", &solveLinearProblem);
 
-    class_<ClpWrapper>("ClpWrapper").constructor<std::string>().function("solveProblem", &ClpWrapper::solveProblem);
+    class_<ClpWrapper>("ClpWrapper").constructor<>().function("solveProblem", &ClpWrapper::solveProblem);
 }
 #endif

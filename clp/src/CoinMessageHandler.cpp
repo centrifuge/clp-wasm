@@ -826,9 +826,9 @@ CoinMessageHandler::operator<<(FloatT FloatTvalue)
         if (format_[1] == '.' && format_[2] >= '0' && format_[2] <= '9') {
           // an explicitly specified precision currently overrides the
           // precision of the message handler
-          sprintf(messageOut_, format_, FloatTvalue);
+          sprintf(messageOut_, format_, (double)FloatTvalue);
         } else {
-          sprintf(messageOut_, g_format_, FloatTvalue);
+          sprintf(messageOut_, g_format_, (double)FloatTvalue);
           if (next != format_ + 2) {
             messageOut_ += strlen(messageOut_);
             strcpy(messageOut_, format_ + 2);
@@ -840,7 +840,7 @@ CoinMessageHandler::operator<<(FloatT FloatTvalue)
     } else {
       sprintf(messageOut_, " ");
       messageOut_ += 1;
-      sprintf(messageOut_, g_format_, FloatTvalue);
+      sprintf(messageOut_, g_format_, (double)FloatTvalue);
       messageOut_ += strlen(messageOut_);
     }
   }

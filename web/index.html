@@ -26,31 +26,32 @@
   </head>
   <body onload="init()">
     <script src="bn.js" type="text/javascript"></script>
-    <script src="cpplex.js" type="text/javascript"></script>
+    <script src="solver.js" type="text/javascript"></script>
     <div class="container-fluid">
       <div class="row">
         <div class="col">
           <h5>Test case</h5>
-          <textarea id="testCase" rows="40"></textarea>
-          <div class="btn btn-primary" onclick="solveProblemFromTestCase()">
+          <div class="btn btn-primary my-1" onclick="solveProblemFromTestCase()">
             Solve
           </div>
+          <textarea id="testCase" rows="40"></textarea>
         </div>
         <div class="col">
           <div class="container-fluid" style="height: 100%">
             <div class="row h-50">
               <div class="col">
                 <h5>Problem</h5>
-                <textarea id="lpProblem" rows="15"></textarea>
-                <div class="btn btn-primary" onclick="solveProblemFromFromLP()">
-                  Solve
+                <div class="btn btn-primary my-1" onclick="solveProblemFromFromLP()">
+                  Solve Linear Problem
                 </div>
+                <textarea id="lpProblem" rows="18"></textarea>
+                
               </div>
             </div>
             <div class="row h-50">
               <div class="col">
                 <h5>Solution</h5>
-                <textarea id="solution" rows="15"></textarea>
+                <textarea id="solution" rows="18"></textarea>
               </div>
             </div>
           </div>
@@ -134,8 +135,8 @@
         solutionElmt = document.getElementById("solution");
         testCaseElmt.value = JSON.stringify(testCase, null, 4);
 
-        // lpProblemElmt.value = prepareProblemFromTestCase();
-        lpProblemElmt.value = trivialProblem;
+        lpProblemElmt.value = prepareProblemFromTestCase();
+        // lpProblemElmt.value = trivialProblem;
       }
 
       function objToNum(jsonNumber) {
@@ -272,14 +273,18 @@ maximize 1 1
       };
 
       function solveLpProblem(lpProblem) {
-        const simplex = new Module.Simplex("Trivial");
-        simplex.load_problem(lpProblem);
-        simplex.solve();
-        const solution = simplex.get_solution();
-        simplex.delete();
+        const solution = Module.solveLinearProblem(lpProblem);
         return solution;
       }
 
+      // function solveLpProblem(lpProblem) {
+      //   const simplex = new Module.Simplex("Trivial");
+      //   simplex.load_problem(lpProblem);
+      //   simplex.solve();
+      //   const solution = simplex.get_solution();
+      //   simplex.delete();
+      //   return solution;
+      // }
       function solveProblemFromFromLP() {
         const solution = solveLpProblem(lpProblemElmt.value);
         const solObj = JSON.parse(solution);
