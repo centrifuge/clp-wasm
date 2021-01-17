@@ -595,7 +595,7 @@ public:
          array are in stuff (nNodes_ also in stuff) */
   int fathomMany(void *stuff);
   /// Double checks OK
-  FloatT FloatTCheck();
+  FloatT doubleCheck();
   /// Starts Fast dual2
   int startFastDual2(ClpNodeStuff *stuff);
   /// Like Fast dual

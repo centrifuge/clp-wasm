@@ -11449,7 +11449,7 @@ int ClpSimplex::fathom(void *stuff)
 #endif
       FloatT objectiveValue = 0.0;
       if (node->sequence() < 0) {
-        objectiveValue = FloatTCheck();
+        objectiveValue = doubleCheck();
         node->gutsOfConstructor(this, info, 1, depth);
       }
       if (node->sequence() < 0) {
@@ -12025,7 +12025,7 @@ int ClpSimplex::fathomMany(void *stuff)
       }
       if (node->sequence() < 0) {
         // solution
-        FloatT objectiveValue = FloatTCheck();
+        FloatT objectiveValue = doubleCheck();
         if (printing)
           printf("Solution of %g after %d nodes at depth %d\n",
             (double)objectiveValue, numberNodes, depth);
@@ -12158,7 +12158,7 @@ int ClpSimplex::fathomMany(void *stuff)
 }
 // Double checks OK
 FloatT
-ClpSimplex::FloatTCheck()
+ClpSimplex::doubleCheck()
 {
 #if 0
      FloatT * solution = CoinCopyOfArray(solution_, numberColumns_ + numberRows_);

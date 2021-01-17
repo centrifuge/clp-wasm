@@ -211,7 +211,7 @@ T &
 //#############################################################################
 
 // template class CoinDenseVector<int>; This works but causes warning messages
-template class CoinDenseVector< float >;
+// template class CoinDenseVector< float >;
 template class CoinDenseVector< FloatT >;
 
 /* vi: softtabstop=2 shiftwidth=2 expandtab tabstop=2

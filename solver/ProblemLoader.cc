@@ -1,13 +1,12 @@
+// Loads problem from CPPLEX format into CLP model
+#include "ClpSimplex.hpp"
+#include "CoinPackedMatrix.hpp"
 
-
-#include "problem.h"
-
+#include "ProblemLoader.h"
 #include "memstream.h"
 
 #include <fstream>
 #include <sstream>
-
-#include "ClpSimplex.hpp"
 
 FloatT frStr(const std::string & val)
 {
@@ -19,7 +18,7 @@ FloatT frStr(const std::string & val)
     if constexpr (std::is_same<double, FloatT>::value)
         return std::stod(val);
     else
-        return std::stod(val); // FloatT(val);
+        return FloatT(val);
 }
 
 enum ParsingContext
@@ -106,7 +105,7 @@ void ProblemLoader::loadProblem(const std::string & problemFileOrContent)
                         if (token == "name")
                         {
                             bufferInit.erase(0, 5);
-                            _name = bufferInit;
+                            _problemName = bufferInit;
                         }
                         else if (token == "vars")
                         {
@@ -244,40 +243,34 @@ void ProblemLoader::loadProblem(const std::string & problemFileOrContent)
     }
 }
 
-// std::string ProblemLoader::getResult() {
+std::string ProblemLoader::getProblemName() const
+{
+    return _problemName;
+}
 
-//     std::stringstream ss;
-//     ss << std::setprecision(std::numeric_limits<FloatT>::max_digits10) << std::boolalpha;
+const VariableDefinitionVector & ProblemLoader::getVariableDefinitions() const
+{
+    return _variables;
+}
 
-//     const auto printKeyVal =
-//         [&ss](int indentLevel, const std::string & name, const auto & value, const std::string & terminator = ",\n") {
-//             std::string indent(indentLevel * 4, ' ');
-//             ss << indent << '"' << name << "\": \"" << value << '"' << terminator;
-//         };
+const RowConstraintVector & ProblemLoader::getRowConstraints() const
+{
+    return _constraints;
+}
 
-//     ss << "{" << std::endl;
-//     for (int i = 0; i < ; ++i)
-//         printKeyVal(1, variables.at(i)->name, solution(i));
+const FloatVector & ProblemLoader::getObjective() const
+{
+    return _objective;
+}
 
-//     auto dual_problem_value = static_cast<float_type>(dual_variables * constraints_vector);
-//     if (changed_sign)
-//         dual_problem_value *= -1;
+ObjectiveDirection ProblemLoader::getObjectiveDirection() const
+{
+    return _objDirection;
+}
 
-//     printKeyVal(1, "unlimited", unlimited);
-//     printKeyVal(1, "overconstrained", overconstrained);
-//     printKeyVal(1, "solutionCostResult", solution_value);
-//     printKeyVal(1, "dualProblemValue", dual_problem_value, "\n");
-
-//     ss << "}";
-//     return ss.str();
-// }
-
-std::string ProblemLoader::runWithClp()
+void ProblemLoader::setProblemOnModel(ClpSimplex & simplex)
 {
     const auto dimension = _variables.size();
-
-    ClpSimplex simplex;
-
     FloatVector objective;
     objective.reserve(dimension);
     const auto sign = _objDirection == MAXIMIZE ? -1 : 1;
@@ -324,24 +317,14 @@ std::string ProblemLoader::runWithClp()
 
     const auto numElements = static_cast<int>(matrixData.size());
     const CoinPackedMatrix matrix(true, rowIndices.data(), colIndices.data(), matrixData.data(), numElements);
-
     simplex.loadProblem(matrix, collb.data(), colub.data(), objective.data(), rowlb.data(), rowub.data());
-    simplex.createStatus();
+}
 
-    ClpSolve solveOptions;
-
-    // solveOptions.setSpecialOption(3, 0);
-    // simplex.initialSolve(solveOptions);
-
-    simplex.primal();
-
-    // simplex.dual();
-
-    FloatVector solution;
-    const auto * p = simplex.getColSolution();
-    solution.assign(p, p + _variables.size());
-
-
-
-    return {};
+void ProblemLoader::reset()
+{
+    _objDirection = UNSET;
+    _objective.clear();
+    _variables.clear();
+    _constraints.clear();
+    _problemName.clear();
 }

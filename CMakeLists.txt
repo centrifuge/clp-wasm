@@ -54,7 +54,8 @@ add_library(libcpplex ${CLP_CXX_FILES} )
 add_executable(solver
     solver/solver.cc
     solver/bindings.cc
-    solver/problem.cc
+    solver/ClpWrapper.cc
+    solver/ProblemLoader.cc
 )
 target_link_libraries(solver ${Boost_LIBRARIES} libclp libcpplex) 
 

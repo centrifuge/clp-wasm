@@ -1857,7 +1857,7 @@ void CoinLpIO::readLp(const char *filename)
   input_ = NULL;
   bool readable = false;
   // see if just .lp
-  int length = strlen(filename);
+  const auto length = strlen(filename);
   if ((length > 3 && !strncmp(filename + length - 3, ".lp", 3))) {
     FILE *fp = fopen(filename, "r");
     if (fp) {

@@ -3,32 +3,34 @@
 #include <string>
 #include <vector>
 
+class ClpSimplex;
 inline auto MinusInf = std::numeric_limits<double>::min();
 inline auto PlusInf = std::numeric_limits<double>::max();
 
 using FloatVector = std::vector<FloatT>;
 using IntVector = std::vector<int>;
 
-struct Bound
+struct BoundedElement
 {
     FloatT lowerBound { MinusInf };
     FloatT upperBound { PlusInf };
     std::string name {};
-
     bool valid() const
     {
         return lowerBound <= upperBound;
     }
 };
 
-struct RowConstraint : Bound
+struct RowConstraint : BoundedElement
 {
     std::vector<FloatT> row;
 };
+using RowConstraintVector = std::vector<RowConstraint>;
 
-struct VariableDefinition : Bound
+struct VariableDefinition : BoundedElement
 {
 };
+using VariableDefinitionVector = std::vector<VariableDefinition>;
 
 enum ObjectiveDirection
 {
@@ -39,17 +41,28 @@ enum ObjectiveDirection
 
 class ProblemLoader
 {
-
 public:
     void loadProblem(const std::string & problemFileOrContent);
 
-    std::string runWithClp();
+    std::string getProblemName() const;
+
+    const VariableDefinitionVector & getVariableDefinitions() const;
+
+    const RowConstraintVector & getRowConstraints() const;
+
+    const FloatVector & getObjective() const;
+
+    ObjectiveDirection getObjectiveDirection() const;
+
+    void setProblemOnModel(ClpSimplex & simplex);
+
+    void reset();
 
 private:
-    std::vector<VariableDefinition> _variables;
-    std::vector<RowConstraint> _constraints;
+    VariableDefinitionVector _variables;
+    RowConstraintVector _constraints;
 
-    std::string _name;
+    std::string _problemName;
     ObjectiveDirection _objDirection { UNSET };
     FloatVector _objective;
 };

@@ -15,6 +15,8 @@ You should have received a copy of the GNU General Public License
 along with C++lex.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "ClpWrapper.h"
+#include "ProblemLoader.h"
 #include "matrix.h"
 #include "simplex.h"
 #include <iostream>
@@ -22,16 +24,11 @@ along with C++lex.  If not, see <http://www.gnu.org/licenses/>.
 using namespace pilal;
 using namespace optimization;
 
-#include "problem.h"
-
 int runClpSolverForFile(const std::string & problemFile)
 {
+    ClpWrapper _wrapper;
 
-    ProblemLoader loader;
-
-    loader.loadProblem(problemFile);
-
-    loader.runWithClp();
+    auto solution = _wrapper.solveProblem(problemFile);
 
     return 0;
 }

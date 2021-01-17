@@ -2,7 +2,7 @@
 name Tinlake Solver (WIP)
 vars 4
 [VARIABLES]
-0       tinInvest       20000000000000000000
+0       tinInvest       12400000000000000001
 0       dropInvest      40000000000000000000
 0       tinRedeem       10000000000000000000
 0       dropRedeem      30000000000000000000

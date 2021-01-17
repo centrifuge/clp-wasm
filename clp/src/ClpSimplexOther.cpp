@@ -8366,7 +8366,7 @@ int ClpSimplex::outDuplicateRows(int numberLook, int *whichRows, bool noOverlaps
     if (n + (put - where.startStuff) > where.maxStuff) {
       where.maxStuff += CoinMax(where.maxStuff / 2 + 10000, 2 * n);
       char *temp = new char[where.maxStuff];
-      long k = put - where.startStuff;
+      auto k = put - where.startStuff;
       memcpy(temp, where.startStuff, k);
       delete[] where.startStuff;
       where.startStuff = temp;

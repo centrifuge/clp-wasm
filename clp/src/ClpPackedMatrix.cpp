@@ -6917,8 +6917,8 @@ ClpPackedMatrix3::ClpPackedMatrix3(ClpSimplex *model, const CoinPackedMatrix *co
   // in case no blocks
   block_->startIndices_ = nTotal;
   // adjust nels so start on 8 FloatT boundary
-  FloatT *elements2 = reinterpret_cast< FloatT * >(clp_align(element_ + nInOdd));
-  nels = elements2 - element_;
+  FloatT *elements2 = static_cast< FloatT * >(clp_align(element_ + nInOdd));
+  nels = static_cast<int>(elements2 - element_);
   int nBlock = 0;
   for (i = 0; i <= CoinMin(MAXBLOCK, numberRows); i++) {
     if (counts[i] > 0) {

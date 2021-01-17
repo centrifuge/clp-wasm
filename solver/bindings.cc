@@ -1,10 +1,8 @@
 #ifdef __EMSCRIPTEN__
-#include "simplex.h"
+#include "ClpWrapper.h"
+
 #include <emscripten/bind.h>
-
 #include <sstream>
-
-#include
 
 #include <boost/math/special_functions/round.hpp>
 namespace bm = boost::math;
@@ -17,12 +15,13 @@ std::string bn_round(std::string number)
     ss << number;
     float_type x;
     ss >> x;
-    ss.clear();
     return bm::round(x).str();
 }
 
 std::string solveLinarProblem(std::string problem)
 {
+    ClpWrapper clpWrapper;
+    return clpWrapper.solveProblem(problem);
 }
 
 EMSCRIPTEN_BINDINGS(solver)
@@ -40,5 +39,7 @@ EMSCRIPTEN_BINDINGS(solver)
         .function("has_solutions", &Simplex::has_solutions);
 
     function("solveLinarProblem", &solveLinarProblem);
+
+    class_<ClpWrapper>("ClpWrapper").constructor<std::string>().function("solveProblem", &ClpWrapper::solveProblem);
 }
 #endif
