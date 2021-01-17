@@ -41,7 +41,7 @@ add_library(libclp ${CLP_CXX_FILES} )
 target_link_libraries(libclp ${Boost_LIBRARIES} )
 
 # CLP command line application
-add_executable(clp clp/app/ClpMain.cpp )
+add_executable(clp clp/app/ClpMain.cpp clp/app/ClpSolver.cpp clp/app/unitTest.cpp )
 target_link_libraries(clp ${Boost_LIBRARIES} libclp)
 
 # # CPPLEX library
