@@ -1,15 +1,16 @@
-#ifdef __EMSCRIPTEN__
 #include "ClpWrapper.h"
-#include "simplex.h"
 
+std::string solveLinearProblem(std::string problem)
+{
+    ClpWrapper clpWrapper;
+    return clpWrapper.solveProblem(problem);
+}
+
+#ifdef __EMSCRIPTEN__
 #include <emscripten/bind.h>
 #include <sstream>
 
-#include <boost/math/special_functions/round.hpp>
 namespace bm = boost::math;
-
-using namespace optimization;
-
 std::string bn_round(std::string number)
 {
     std::stringstream ss;
@@ -19,28 +20,27 @@ std::string bn_round(std::string number)
     return bm::round(x).str();
 }
 
-std::string solveLinearProblem(std::string problem)
-{
-    ClpWrapper clpWrapper;
-    return clpWrapper.solveProblem(problem);
-}
-
 EMSCRIPTEN_BINDINGS(solver)
 {
     using namespace emscripten;
 
     function("bn_round", &bn_round);
-
-    class_<Simplex>("Simplex")
-        .constructor<std::string>()
-        .function("load_problem", &Simplex::load_problem)
-        .function("solve", &Simplex::solve)
-        .function("get_solution", &Simplex::get_solution)
-        .function("is_unlimited", &Simplex::is_unlimited)
-        .function("has_solutions", &Simplex::has_solutions);
-
     function("solveLinearProblem", &solveLinearProblem);
 
     class_<ClpWrapper>("ClpWrapper").constructor<>().function("solveProblem", &ClpWrapper::solveProblem);
+}
+
+#else
+#include <iostream>
+int main(int argc, char * argv[])
+{
+    for (int k = 1; k < argc; ++k)
+    {
+        const auto problemFile = std::string(argv[k]);
+        auto solution = solveLinearProblem(problemFile);
+        std::cout << "Problem: " << problemFile << std::endl;
+        std::cout << "Solution: " << solution << std::endl;
+    }
+    return 0;
 }
 #endif

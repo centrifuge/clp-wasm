@@ -1,7 +1,6 @@
 
 #include "ClpWrapper.h"
 #include "ClpSimplex.hpp"
-#include "matrix.h"
 
 #include "ProblemLoader.h"
 #include <memory>

@@ -1,14 +1,12 @@
+call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\VC\Auxiliary\Build\vcvars64.bat"
+set BUILD_CONFIG=%1
+if [%1] == [] set BUILD_CONFIG=release
 
-:: git clone https://github.com/emscripten-core/emsdk.git
-:: cd emsdk
-:: emsdk install latest
+set BUILD_PLATFORM=x64
+set BUILD_DIR=build_%BUILD_PLATFORM%_%BUILD_CONFIG%
+echo 'Running x64 build ... '
+cmake -G Ninja -B%BUILD_DIR% -DCMAKE_BUILD_TYPE=%BUILD_CONFIG% .
 
-
-call C:\Code\Libs\emsdk\emsdk_env.bat
-
-set EM_CONFIG=%~dp0/.emscripten
-cmake -H%~dp0 -B%~dp0build_wasm -DCMAKE_MAKE_PROGRAM=ninja^
-  -DCMAKE_MODULE_PATH=%EMSDK%/upstream/emscripten/cmake^
-  -DCMAKE_TOOLCHAIN_FILE=%EMSDK%/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake
-
-
+pushd %BUILD_DIR% 
+ninja
+popd

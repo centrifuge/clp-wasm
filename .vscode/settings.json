@@ -14,7 +14,7 @@
         "--clang-tidy",
         "--background-index",
         "--suggest-missing-includes",
-        "--compile-commands-dir=build_x64_debug"
+        "--compile-commands-dir=build_x64_release"
     ],
     "files.associations": {
         "cctype": "cpp",

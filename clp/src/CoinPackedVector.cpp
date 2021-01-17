@@ -97,7 +97,7 @@ void CoinPackedVector::assignVector(int size, int *&inds, FloatT *&elems,
   if (testForDuplicateIndex) {
     try {
       CoinPackedVectorBase::setTestForDuplicateIndex(testForDuplicateIndex);
-    } catch (CoinError &e) {
+    } catch (CoinError &) {
       throw CoinError("duplicate index", "assignVector",
         "CoinPackedVector");
     }
@@ -476,7 +476,7 @@ void CoinPackedVector::gutsOfSetVector(int size,
   if (testForDuplicateIndex) {
     try {
       CoinPackedVectorBase::setTestForDuplicateIndex(testForDuplicateIndex);
-    } catch (CoinError &e) {
+    } catch (CoinError &) {
       throw CoinError("duplicate index", method, "CoinPackedVector");
     }
   } else {
@@ -500,7 +500,7 @@ void CoinPackedVector::gutsOfSetConstant(int size,
   }
   try {
     CoinPackedVectorBase::setTestForDuplicateIndex(testForDuplicateIndex);
-  } catch (CoinError &e) {
+  } catch (CoinError &) {
     throw CoinError("duplicate index", method, "CoinPackedVector");
   }
 }

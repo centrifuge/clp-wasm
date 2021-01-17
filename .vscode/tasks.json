@@ -1,5 +1,19 @@
 {
     "version": "2.0.0",
+    "linux": {
+        "options": {
+            "env": {
+                "build": "./build.sh"
+            }
+        }
+    },
+    "windows": {
+        "options": {
+            "env": {
+                "build": "build.bat"
+            }
+        }
+    },
     "tasks": [
         {
             "label": "Build WASM Debug",
@@ -30,21 +44,27 @@
         {
             "label": "Build x64 Debug",
             "type": "shell",
-            "command": "./build.sh debug x64",
+            "command": "build debug x64",
             "group": "build",
             "problemMatcher": {
                 "base": "$gcc",
-                "fileLocation": ["relative", "${workspaceRoot}/build_x64_debug"]
+                "fileLocation": [
+                    "relative",
+                    "${workspaceRoot}/build_x64_debug"
+                ]
             }
         },
         {
             "label": "Build x64 Release",
             "type": "shell",
-            "command": "./build.sh release x64",
+            "command": "build release x64",
             "group": "build",
             "problemMatcher": {
                 "base": "$gcc",
-                "fileLocation": ["relative", "${workspaceRoot}/build_x64_release"]
+                "fileLocation": [
+                    "relative",
+                    "${workspaceRoot}/build_x64_release"
+                ]
             }
         },
         {

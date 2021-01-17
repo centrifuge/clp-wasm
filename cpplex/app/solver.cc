@@ -14,24 +14,12 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with C++lex.  If not, see <http://www.gnu.org/licenses/>.
 */
-
-#include "ClpWrapper.h"
-#include "ProblemLoader.h"
 #include "matrix.h"
 #include "simplex.h"
 #include <iostream>
 
 using namespace pilal;
 using namespace optimization;
-
-int runClpSolverForFile(const std::string & problemFile)
-{
-    ClpWrapper _wrapper;
-
-    auto solution = _wrapper.solveProblem(problemFile);
-
-    return 0;
-}
 
 int runCpplexSolverForFile(const std::string & problemFile)
 {
@@ -85,10 +73,7 @@ int main(int argc, char * argv[])
     for (int k = 1; k < argc; ++k)
     {
         const auto problemFile = std::string(argv[k]);
-
-        rc = runClpSolverForFile(problemFile);
-        //  rc = runCpplexSolverForFile(problemFile);
-
+        rc = runCpplexSolverForFile(problemFile);
         if (rc != 0)
             break;
     }
