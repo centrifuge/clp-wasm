@@ -244,6 +244,34 @@ void ProblemLoader::loadProblem(const std::string & problemFileOrContent)
     }
 }
 
+// std::string ProblemLoader::getResult() {
+
+//     std::stringstream ss;
+//     ss << std::setprecision(std::numeric_limits<FloatT>::max_digits10) << std::boolalpha;
+
+//     const auto printKeyVal =
+//         [&ss](int indentLevel, const std::string & name, const auto & value, const std::string & terminator = ",\n") {
+//             std::string indent(indentLevel * 4, ' ');
+//             ss << indent << '"' << name << "\": \"" << value << '"' << terminator;
+//         };
+
+//     ss << "{" << std::endl;
+//     for (int i = 0; i < ; ++i)
+//         printKeyVal(1, variables.at(i)->name, solution(i));
+
+//     auto dual_problem_value = static_cast<float_type>(dual_variables * constraints_vector);
+//     if (changed_sign)
+//         dual_problem_value *= -1;
+
+//     printKeyVal(1, "unlimited", unlimited);
+//     printKeyVal(1, "overconstrained", overconstrained);
+//     printKeyVal(1, "solutionCostResult", solution_value);
+//     printKeyVal(1, "dualProblemValue", dual_problem_value, "\n");
+
+//     ss << "}";
+//     return ss.str();
+// }
+
 std::string ProblemLoader::runWithClp()
 {
     const auto dimension = _variables.size();
@@ -312,6 +340,8 @@ std::string ProblemLoader::runWithClp()
     FloatVector solution;
     const auto * p = simplex.getColSolution();
     solution.assign(p, p + _variables.size());
+
+
 
     return {};
 }
