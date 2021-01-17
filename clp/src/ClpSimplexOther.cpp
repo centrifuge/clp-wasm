@@ -2128,7 +2128,7 @@ int ClpSimplexOther::parametrics(FloatT startingTheta, FloatT &endingTheta, Floa
       if (maxTheta < endingTheta) {
         char line[100];
         sprintf(line, "Crossover considerations reduce ending  theta from %g to %g\n",
-          endingTheta, maxTheta);
+          (double)endingTheta, (double)maxTheta);
         handler_->message(CLP_GENERAL, messages_)
           << line << CoinMessageEol;
         endingTheta = maxTheta;
@@ -2239,7 +2239,7 @@ int ClpSimplexOther::parametrics(FloatT startingTheta, FloatT &endingTheta, Floa
         copyModel.dual();
         if (copyModel.problemStatus()) {
           char line[100];
-          sprintf(line, "Can not get to theta of %g\n", startingTheta);
+          sprintf(line, "Can not get to theta of %g\n", (double)startingTheta);
           handler_->message(CLP_GENERAL, messages_)
             << line << CoinMessageEol;
           canTryQuick = false; // do slowly to get exact amount
@@ -2264,7 +2264,7 @@ int ClpSimplexOther::parametrics(FloatT startingTheta, FloatT &endingTheta, Floa
   }
   perturbation_ = savePerturbation;
   char line[100];
-  sprintf(line, "Ending theta %g\n", endingTheta);
+  sprintf(line, "Ending theta %g\n", (double)endingTheta);
   handler_->message(CLP_GENERAL, messages_)
     << line << CoinMessageEol;
   return problemStatus_;
@@ -2276,7 +2276,7 @@ int ClpSimplexOther::parametrics(const char *dataFile)
 {
   int returnCode = -2;
   FILE *fp = fopen(dataFile, "r");
-  char line[200];
+  char line[256];
   if (!fp) {
     handler_->message(CLP_UNABLE_OPEN, messages_)
       << dataFile << CoinMessageEol;
@@ -2360,9 +2360,10 @@ int ClpSimplexOther::parametrics(const char *dataFile)
   if (intervalTheta >= endTheta)
     intervalTheta = 0.0;
   if (!good) {
-    sprintf(line, "Odd first line %s on file %s?", line, dataFile);
+    char line2[300];
+    sprintf(line2, "Odd first line %s on file %s?", line, dataFile);
     handler_->message(CLP_GENERAL, messages_)
-      << line << CoinMessageEol;
+      << line2 << CoinMessageEol;
     fclose(fp);
     return -2;
   }
@@ -3273,7 +3274,7 @@ int ClpSimplexOther::parametrics(FloatT startingTheta, FloatT &endingTheta,
   delete rowArray_[5];
   rowArray_[5] = NULL;
   char line[100];
-  sprintf(line, "Ending theta %g\n", endingTheta);
+  sprintf(line, "Ending theta %g\n", (double)endingTheta);
   handler_->message(CLP_GENERAL, messages_)
     << line << CoinMessageEol;
   return problemStatus_;
@@ -7438,8 +7439,8 @@ int ClpSimplex::pivotResultPart2(int algorithm, int state)
     if (objectiveChange + CoinAbs(movementOld * dualIn_) < -CoinMax(1.0e-5, 1.0e-12 * CoinAbs(objectiveValue_))) {
       if (handler_->logLevel() & 32)
         printf("movement %g, swap change %g, rest %g  * %g\n",
-          objectiveChange + CoinAbs(movement * dualIn_),
-          objectiveChange, movement, dualIn_);
+          (double)(objectiveChange + CoinAbs(movement * dualIn_)),
+          (double)objectiveChange, (double)movement, (double)dualIn_);
     }
     // if stable replace in basis
     int updateStatus = factorization_->replaceColumn(this,
@@ -7485,7 +7486,7 @@ int ClpSimplex::pivotResultPart2(int algorithm, int state)
     // update primal solution
     if (theta_ < 0.0) {
       if (handler_->logLevel() & 32)
-        printf("negative theta %g\n", theta_);
+        printf("negative theta %g\n", (double)theta_);
       theta_ = 0.0;
     }
     // do actual flips (should not be any?)

@@ -1062,7 +1062,7 @@ const CoinPresolveAction *ClpPresolve::presolve(CoinPresolveMatrix *prob)
     for (iLoop = 0; iLoop < numberPasses_; iLoop++) {
       // See if we want statistics
       if ((presolveActions_ & 0x80000000) != 0)
-        printf("Starting major pass %d after %g seconds with %d rows, %d columns\n", iLoop + 1, CoinCpuTime() - prob->startTime_,
+        printf("Starting major pass %d after %g seconds with %d rows, %d columns\n", iLoop + 1, (double)(CoinCpuTime() - prob->startTime_),
           nrows_ - prob->countEmptyRows(),
           ncols_ - prob->countEmptyCols());
 #ifdef PRESOLVE_SUMMARY

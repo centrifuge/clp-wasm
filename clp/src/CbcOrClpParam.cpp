@@ -485,7 +485,7 @@ void CbcOrClpParam::printLongHelp() const
   if (type_ >= 1 && type_ < 600) {
     CoinReadPrintit(longHelp_.c_str());
     if (type_ < CLP_PARAM_INT_SOLVERLOGLEVEL) {
-      printf("<Range of values is %g to %g;\n\tcurrent %g>\n", lowerDoubleValue_, upperDoubleValue_, FloatTValue_);
+      printf("<Range of values is %g to %g;\n\tcurrent %g>\n", (double)lowerDoubleValue_, (double)upperDoubleValue_, (double)FloatTValue_);
       assert(upperDoubleValue_ > lowerDoubleValue_);
     } else if (type_ < CLP_PARAM_STR_DIRECTION) {
       printf("<Range of values is %d to %d;\n\tcurrent %d>\n", lowerIntValue_, upperIntValue_, intValue_);
@@ -551,11 +551,11 @@ CbcOrClpParam::setDoubleParameterWithMessage(ClpSimplex *model, FloatT value, in
   FloatT oldValue = FloatTValue_;
   if (value < lowerDoubleValue_ || value > upperDoubleValue_) {
     sprintf(printArray, "%g was provided for %s - valid range is %g to %g",
-      value, name_.c_str(), lowerDoubleValue_, upperDoubleValue_);
+      (double)value, name_.c_str(), (double)lowerDoubleValue_, (double)upperDoubleValue_);
     returnCode = 1;
   } else {
     sprintf(printArray, "%s was changed from %g to %g",
-      name_.c_str(), oldValue, value);
+      name_.c_str(), (double)oldValue, (double)value);
     returnCode = 0;
     FloatTValue_ = value;
     switch (type_) {
@@ -1183,12 +1183,12 @@ CbcOrClpParam::setDoubleValueWithMessage(FloatT value)
   printArray[0] = '\0';
   if (value < lowerDoubleValue_ || value > upperDoubleValue_) {
     sprintf(printArray, "%g was provided for %s - valid range is %g to %g",
-      value, name_.c_str(), lowerDoubleValue_, upperDoubleValue_);
+      (double)value, name_.c_str(), (double)lowerDoubleValue_, (double)upperDoubleValue_);
   } else {
     if (value == FloatTValue_)
       return NULL;
     sprintf(printArray, "%s was changed from %g to %g",
-      name_.c_str(), FloatTValue_, value);
+      name_.c_str(), (double)FloatTValue_, (double)value);
     FloatTValue_ = value;
   }
   return printArray;
@@ -2152,7 +2152,7 @@ Doing this may also set cutoff, which can help with preprocessing.");
   {
     CbcOrClpParam p("dualB!ound", "Initially algorithm acts as if no \
 gap between bounds exceeds this value",
-      1.0e-20, 1.0e12, CLP_PARAM_DBL_DUALBOUND);
+      fd(1.0e-20), fd(1.0e12), CLP_PARAM_DBL_DUALBOUND);
     p.setLonghelp(
       "The dual algorithm in Clp is a single phase algorithm as opposed to a two phase\
  algorithm where you first get feasible then optimal.  If a problem has both upper and\
@@ -2375,7 +2375,7 @@ a dense one, one designed for small problems or if enabled a long factorization.
   }
   {
     CbcOrClpParam p("fakeB!ound", "All bounds <= this value - DEBUG",
-      1.0, 1.0e15, CLP_PARAM_ACTION_FAKEBOUND, 0);
+      fd(1.0), fd(1.0e15), CLP_PARAM_ACTION_FAKEBOUND, 0);
     parameters.push_back(p);
   }
 #ifdef COIN_HAS_CBC
@@ -3347,7 +3347,7 @@ costs this much to be infeasible",
   }
   {
     CbcOrClpParam p("psi", "Two-dimension pricing factor for Positive Edge criterion",
-      -1.1, 1.1, CLP_PARAM_DBL_PSI);
+      fd(-1.1), fd(1.1), CLP_PARAM_DBL_PSI);
 
     p.setDoubleValue(-0.5);
     p.setLonghelp(
@@ -4113,7 +4113,7 @@ Being lazy I have used 10 to switch on a pool matrix (11 may come later)");
   {
     CbcOrClpParam p("zeroT!olerance", "Kill all coefficients \
 whose absolute value is less than this value",
-      1.0e-100, 1.0e-5, CLP_PARAM_DBL_ZEROTOLERANCE);
+      fd(1.0e-100), fd(1.0e-5), CLP_PARAM_DBL_ZEROTOLERANCE);
     p.setLonghelp(
       "This applies to reading mps files (and also lp files \
 if KILL_ZERO_READLP defined)");
@@ -4247,12 +4247,12 @@ void saveSolution(const ClpSimplex *lpSolver, std::string fileName)
         if (value > columnUpper[iColumn]) {
           if (value > columnUpper[iColumn] + 1.0e-6 && logLevel > 1)
             printf("%d value of %g - bounds %g %g\n",
-              iColumn, value, columnLower[iColumn], columnUpper[iColumn]);
+              iColumn, (double)value, (double)columnLower[iColumn], (double)columnUpper[iColumn]);
           value = columnUpper[iColumn];
         } else if (value < columnLower[iColumn]) {
           if (value < columnLower[iColumn] - 1.0e-6 && logLevel > 1)
             printf("%d value of %g - bounds %g %g\n",
-              iColumn, value, columnLower[iColumn], columnUpper[iColumn]);
+              iColumn, (double)value, (double)columnLower[iColumn], (double)columnUpper[iColumn]);
           value = columnLower[iColumn];
         }
         columnLower[iColumn] = value;

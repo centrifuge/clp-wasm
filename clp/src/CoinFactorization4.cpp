@@ -3003,8 +3003,8 @@ int CoinFactorization::replaceRow(int whichRow, int iNumberInRow,
         CoinFactorizationDouble oldValue = elementU[k];
         CoinFactorizationDouble newValue = elements[i] * pivotRegion[jColumn];
         if (CoinAbs(oldValue - newValue) > 1.0e-3)
-          printf("column %d, old value %g new %g (el %g, piv %g)\n", jColumn, oldValue,
-            newValue, elements[i], pivotRegion[jColumn]);
+          printf("column %d, old value %g new %g (el %g, piv %g)\n", jColumn, (double)oldValue,
+            (double)newValue, (double)elements[i], (double)pivotRegion[jColumn]);
       }
     }
     for (i = 0; i < numberNow; i++) {

@@ -435,7 +435,7 @@ int ClpMatrixBase::checkFeasible(ClpSimplex *model, FloatT &sum) const
     FloatT value2 = solution[iRow];
     if (logLevel > 3) {
       if (CoinAbs(value - value2) > 1.0e-8)
-        printf("Row %d stored %g, computed %g\n", iRow, value2, value);
+        printf("Row %d stored %g, computed %g\n", iRow, (double)value2, (double)value);
     }
     if (value < rowLower[iRow] - tolerance || value > rowUpper[iRow] + tolerance) {
       numberInfeasible++;

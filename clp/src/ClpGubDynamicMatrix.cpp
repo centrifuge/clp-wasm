@@ -1875,7 +1875,7 @@ int ClpGubDynamicMatrix::updatePivot(ClpSimplex *model, FloatT oldInValue, Float
     trueSequenceOut_ = trueOut;
   if (doPrinting && 0) {
     for (int i = 0; i < numberSets_; i++) {
-      printf("set %d key %d lower %g upper %g\n", i, keyVariable_[i], lower_[i], upper_[i]);
+      printf("set %d key %d lower %g upper %g\n", i, keyVariable_[i], (double)lower_[i], (double)upper_[i]);
       for (int j = fullStart_[i]; j < fullStart_[i + 1]; j++)
         if (getDynamicStatus(j) == atUpperBound) {
           bool print = true;
@@ -2071,7 +2071,7 @@ int ClpGubDynamicMatrix::checkFeasible(ClpSimplex * /*model*/, FloatT &sum) cons
   }
   for (iRow = 0; iRow < numberRows; iRow++) {
     if (CoinAbs(rhs[iRow]) > 1.0e-5)
-      printf("rhs mismatch %d %g\n", iRow, rhs[iRow]);
+      printf("rhs mismatch %d %g\n", iRow, (double)rhs[iRow]);
   }
   delete[] solution;
   delete[] rhs;

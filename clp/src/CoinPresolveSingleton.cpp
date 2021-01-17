@@ -775,7 +775,7 @@ slack_singleton_action::presolve(CoinPresolveMatrix *prob,
     int droppedRows = prob->countEmptyRows() - startEmptyRows;
     int droppedColumns = prob->countEmptyCols() - startEmptyColumns;
     printf("CoinPresolveSingleton(3) - %d rows, %d columns dropped in time %g, total %g\n",
-      droppedRows, droppedColumns, thisTime - startTime, thisTime - prob->startTime_);
+      droppedRows, droppedColumns, (double)(thisTime - startTime), (double)(thisTime - prob->startTime_));
   }
 
 #if PRESOLVE_DEBUG

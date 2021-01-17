@@ -4071,7 +4071,7 @@ ClpModel::createCoinModel() const
         FloatT constant = coinModel->getColumnObjective(i);
         char temp[100000];
         char temp2[30];
-        sprintf(temp, "%g", constant);
+        sprintf(temp, "%g", (double)constant);
         for (CoinBigIndex k = start; k < start + nels; k++) {
           int kColumn = row[k];
           FloatT value = element[k];
@@ -4087,9 +4087,9 @@ ClpModel::createCoinModel() const
           else if (value == -1.0)
             sprintf(temp2, "-%s", coinModel->getColumnName(kColumn));
           else if (value > 0.0)
-            sprintf(temp2, "+%g*%s", value, coinModel->getColumnName(kColumn));
+            sprintf(temp2, "+%g*%s", (double)value, coinModel->getColumnName(kColumn));
           else
-            sprintf(temp2, "%g*%s", value, coinModel->getColumnName(kColumn));
+            sprintf(temp2, "%g*%s", (double)value, coinModel->getColumnName(kColumn));
           strcat(temp, temp2);
           assert(strlen(temp) < 100000);
         }
@@ -4486,12 +4486,12 @@ void ClpModel::generateCpp(FILE *fp)
   dValue1 = this->primalTolerance();
   dValue2 = other->primalTolerance();
   fprintf(fp, "%d  FloatT save_primalTolerance = clpModel->primalTolerance();\n", dValue1 == dValue2 ? 2 : 1);
-  fprintf(fp, "%d  clpModel->setPrimalTolerance(%g);\n", dValue1 == dValue2 ? 4 : 3, dValue1);
+  fprintf(fp, "%d  clpModel->setPrimalTolerance(%g);\n", dValue1 == dValue2 ? 4 : 3, (double)dValue1);
   fprintf(fp, "%d  clpModel->setPrimalTolerance(save_primalTolerance);\n", dValue1 == dValue2 ? 7 : 6);
   dValue1 = this->dualTolerance();
   dValue2 = other->dualTolerance();
   fprintf(fp, "%d  FloatT save_dualTolerance = clpModel->dualTolerance();\n", dValue1 == dValue2 ? 2 : 1);
-  fprintf(fp, "%d  clpModel->setDualTolerance(%g);\n", dValue1 == dValue2 ? 4 : 3, dValue1);
+  fprintf(fp, "%d  clpModel->setDualTolerance(%g);\n", dValue1 == dValue2 ? 4 : 3, (double)dValue1);
   fprintf(fp, "%d  clpModel->setDualTolerance(save_dualTolerance);\n", dValue1 == dValue2 ? 7 : 6);
   iValue1 = this->numberIterations();
   iValue2 = other->numberIterations();
@@ -4501,22 +4501,22 @@ void ClpModel::generateCpp(FILE *fp)
   dValue1 = this->maximumSeconds();
   dValue2 = other->maximumSeconds();
   fprintf(fp, "%d  FloatT save_maximumSeconds = clpModel->maximumSeconds();\n", dValue1 == dValue2 ? 2 : 1);
-  fprintf(fp, "%d  clpModel->setMaximumSeconds(%g);\n", dValue1 == dValue2 ? 4 : 3, dValue1);
+  fprintf(fp, "%d  clpModel->setMaximumSeconds(%g);\n", dValue1 == dValue2 ? 4 : 3, (double)dValue1);
   fprintf(fp, "%d  clpModel->setMaximumSeconds(save_maximumSeconds);\n", dValue1 == dValue2 ? 7 : 6);
   dValue1 = this->optimizationDirection();
   dValue2 = other->optimizationDirection();
   fprintf(fp, "%d  FloatT save_optimizationDirection = clpModel->optimizationDirection();\n", dValue1 == dValue2 ? 2 : 1);
-  fprintf(fp, "%d  clpModel->setOptimizationDirection(%g);\n", dValue1 == dValue2 ? 4 : 3, dValue1);
+  fprintf(fp, "%d  clpModel->setOptimizationDirection(%g);\n", dValue1 == dValue2 ? 4 : 3, (double)dValue1);
   fprintf(fp, "%d  clpModel->setOptimizationDirection(save_optimizationDirection);\n", dValue1 == dValue2 ? 7 : 6);
   dValue1 = this->objectiveScale();
   dValue2 = other->objectiveScale();
   fprintf(fp, "%d  FloatT save_objectiveScale = clpModel->objectiveScale();\n", dValue1 == dValue2 ? 2 : 1);
-  fprintf(fp, "%d  clpModel->setObjectiveScale(%g);\n", dValue1 == dValue2 ? 4 : 3, dValue1);
+  fprintf(fp, "%d  clpModel->setObjectiveScale(%g);\n", dValue1 == dValue2 ? 4 : 3, (double)dValue1);
   fprintf(fp, "%d  clpModel->setObjectiveScale(save_objectiveScale);\n", dValue1 == dValue2 ? 7 : 6);
   dValue1 = this->rhsScale();
   dValue2 = other->rhsScale();
   fprintf(fp, "%d  FloatT save_rhsScale = clpModel->rhsScale();\n", dValue1 == dValue2 ? 2 : 1);
-  fprintf(fp, "%d  clpModel->setRhsScale(%g);\n", dValue1 == dValue2 ? 4 : 3, dValue1);
+  fprintf(fp, "%d  clpModel->setRhsScale(%g);\n", dValue1 == dValue2 ? 4 : 3, (double)dValue1);
   fprintf(fp, "%d  clpModel->setRhsScale(save_rhsScale);\n", dValue1 == dValue2 ? 7 : 6);
   iValue1 = this->scalingFlag();
   iValue2 = other->scalingFlag();
@@ -4526,7 +4526,7 @@ void ClpModel::generateCpp(FILE *fp)
   dValue1 = this->getSmallElementValue();
   dValue2 = other->getSmallElementValue();
   fprintf(fp, "%d  FloatT save_getSmallElementValue = clpModel->getSmallElementValue();\n", dValue1 == dValue2 ? 2 : 1);
-  fprintf(fp, "%d  clpModel->setSmallElementValue(%g);\n", dValue1 == dValue2 ? 4 : 3, dValue1);
+  fprintf(fp, "%d  clpModel->setSmallElementValue(%g);\n", dValue1 == dValue2 ? 4 : 3, (double)dValue1);
   fprintf(fp, "%d  clpModel->setSmallElementValue(save_getSmallElementValue);\n", dValue1 == dValue2 ? 7 : 6);
   iValue1 = this->logLevel();
   iValue2 = other->logLevel();

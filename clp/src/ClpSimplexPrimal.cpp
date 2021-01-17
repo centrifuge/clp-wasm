@@ -1263,7 +1263,7 @@ void ClpSimplexPrimal::statusOfProblemInPrimal(int &lastCleaned, int type,
     if (lastObj < thisObj - 1.0e-5 * CoinMax(CoinAbs(thisObj), CoinAbs(lastObj)) - 1.0e-7
       && firstFree_ < 0 && thisInf >= lastInf) {
       if (handler_->logLevel() == 63)
-        printf("lastobj %g this %g force %d\n", lastObj, thisObj, forceFactorization_);
+        printf("lastobj %g this %g force %d\n", (double)lastObj, (double)thisObj, forceFactorization_);
       int maxFactor = factorization_->maximumPivots();
       if (maxFactor > 10) {
         if (forceFactorization_ < 0)
@@ -1275,7 +1275,7 @@ void ClpSimplexPrimal::statusOfProblemInPrimal(int &lastCleaned, int type,
     } else if (lastObj3 < thisObj - 1.0e-5 * CoinMax(CoinAbs(thisObj), CoinAbs(lastObj3)) - 1.0e-7
       && firstFree_ < 0 && thisInf >= lastInf) {
       if (handler_->logLevel() == 63)
-        printf("lastobj3 %g this3 %g force %d\n", lastObj3, thisObj, forceFactorization_);
+        printf("lastobj3 %g this3 %g force %d\n", (double)lastObj3, (double)thisObj, forceFactorization_);
       int maxFactor = factorization_->maximumPivots();
       if (maxFactor > 10) {
         if (forceFactorization_ < 0)
@@ -1290,7 +1290,7 @@ void ClpSimplexPrimal::statusOfProblemInPrimal(int &lastCleaned, int type,
         // reset looping criterion
         progress->reset();
         if (handler_->logLevel() == 63)
-          printf("increasing weight to %g\n", infeasibilityCost_);
+          printf("increasing weight to %g\n", (double)infeasibilityCost_);
         gutsOfSolution(NULL, NULL, ifValuesPass != 0);
       }
     }
@@ -2748,7 +2748,7 @@ void ClpSimplexPrimal::perturb(int type)
           if (value) {
             if (printOut)
               printf("col %d lower from %g to %g, upper from %g to %g\n",
-                iSequence, lowerValue, lower_[iSequence], upperValue, upper_[iSequence]);
+                iSequence, (double)lowerValue, (double)lower_[iSequence], (double)upperValue, (double)upper_[iSequence]);
             if (solutionValue) {
               largest = CoinMax(largest, value);
               if (value > (CoinAbs(solutionValue) + 1.0) * largestPerCent)
@@ -2820,7 +2820,7 @@ void ClpSimplexPrimal::perturb(int type)
         }
         if (printOut)
           printf("col %d lower from %g to %g, upper from %g to %g\n",
-            i, lower_[i], lowerValue, upper_[i], upperValue);
+            i, (double)lower_[i], (double)lowerValue, (double)upper_[i], (double)upperValue);
       }
       lower_[i] = lowerValue;
       upper_[i] = upperValue;
@@ -2891,7 +2891,7 @@ void ClpSimplexPrimal::perturb(int type)
       }
       if (printOut)
         printf("row %d lower from %g to %g, upper from %g to %g\n",
-          i - numberColumns_, lower_[i], lowerValue, upper_[i], upperValue);
+          i - numberColumns_, (double)lower_[i], (double)lowerValue, (double)upper_[i], (double)upperValue);
       lower_[i] = lowerValue;
       upper_[i] = upperValue;
     }

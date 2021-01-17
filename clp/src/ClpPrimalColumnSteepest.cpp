@@ -30,7 +30,7 @@ extern CoinIndexedVector *altVector[3];
 static void debug1(int iSequence, FloatT value, FloatT weight)
 {
   printf("xx %d inf %.20g wt %.20g\n",
-    iSequence, value, weight);
+    iSequence, (double)value, (double)weight);
 }
 //#define CLP_DEBUG
 //#############################################################################
@@ -3949,18 +3949,18 @@ void ClpPrimalColumnSteepest::checkAccuracy(int sequence,
   rowArray1->setNumElements(0);
   if (CoinAbs(devex - oldDevex) > relativeTolerance * check) {
     //COIN_DETAIL_PRINT(printf("check %d old weight %g, new %g\n", sequence, oldDevex, devex));
-    printf("check %d old weight %g, new %g\n", sequence, oldDevex, devex);
+    printf("check %d old weight %g, new %g\n", sequence, (double)oldDevex, (double)devex);
     if (mode_ == 0) {
       rowArray1->setNumElements(0);
       model_->unpack(rowArray1, sequence);
       number = rowArray1->getNumElements();
       for (i = 0; i < number; i++)
-        printf("(%d,%g) ", which[i], work[which[i]]);
+        printf("(%d,%g) ", which[i], (double)work[which[i]]);
       printf("\n");
       model_->factorization()->updateColumn(rowArray2, rowArray1);
       number = rowArray1->getNumElements();
       for (i = 0; i < number; i++)
-        printf("(%d,%g) ", which[i], work[which[i]]);
+        printf("(%d,%g) ", which[i], (double)work[which[i]]);
       printf("\n");
       devex = 0.0;
       for (i = 0; i < number; i++) {

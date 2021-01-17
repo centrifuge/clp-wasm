@@ -360,7 +360,7 @@ void ClpSimplexNonlinear::statusOfProblemInPrimal(int &lastCleaned, int type,
       if (infeasibilityCost_ < 1.0e14) {
         infeasibilityCost_ *= 1.5;
         if (handler_->logLevel() == 63)
-          printf("increasing weight to %g\n", infeasibilityCost_);
+          printf("increasing weight to %g\n", (double)infeasibilityCost_);
         gutsOfSolution(NULL, NULL, true);
       }
     }
@@ -475,7 +475,7 @@ void ClpSimplexNonlinear::statusOfProblemInPrimal(int &lastCleaned, int type,
 #ifdef CLP_DEBUG
             if (handler_->logLevel() & 32)
               printf("%d times optimal, current %g best %g\n", numberTimesOptimal_,
-                current, bestObjectiveWhenFlagged);
+                (double)current, (double)bestObjectiveWhenFlagged);
 #endif
           } else {
             bestObjectiveWhenFlagged = current;
@@ -679,7 +679,7 @@ int ClpSimplexNonlinear::whileIterating(int &pivotMode)
         FloatT predictedObj;
         objective_->stepLength(this, solution_, solution_, 0.0,
           currentObj, thetaObj, predictedObj);
-        printf("obj %g after interior move\n", currentObj);
+        printf("obj %g after interior move\n", (double)currentObj);
       }
 #endif
       // just move and try again
@@ -920,7 +920,7 @@ void ClpSimplexNonlinear::directionVector(CoinIndexedVector *vectorArray,
       if (handler_->logLevel() & 32) {
         if (sequenceIn_ >= 0)
           printf("%d superBasic, chosen %d - dj %g\n", nSuper, sequenceIn_,
-            dj_[sequenceIn_]);
+            (double)dj_[sequenceIn_]);
         else
           printf("%d superBasic - none chosen\n", nSuper);
       }
@@ -942,8 +942,8 @@ void ClpSimplexNonlinear::directionVector(CoinIndexedVector *vectorArray,
 #ifdef CLP_DEBUG
             if (handler_->logLevel() & 32)
               printf("after pivot out %d values %g %g %g, dj %g\n",
-                sequenceOut_, lower_[sequenceOut_], solution_[sequenceOut_],
-                upper_[sequenceOut_], dj_[sequenceOut_]);
+                sequenceOut_, (double)lower_[sequenceOut_], (double)solution_[sequenceOut_],
+                (double)upper_[sequenceOut_], (double)dj_[sequenceOut_]);
 #endif
           }
           break;
@@ -952,8 +952,8 @@ void ClpSimplexNonlinear::directionVector(CoinIndexedVector *vectorArray,
 #ifdef CLP_DEBUG
             if (handler_->logLevel() & 32)
               printf("after pivot out %d values %g %g %g, dj %g\n",
-                sequenceOut_, lower_[sequenceOut_], solution_[sequenceOut_],
-                upper_[sequenceOut_], dj_[sequenceOut_]);
+                sequenceOut_, (double)lower_[sequenceOut_], (double)solution_[sequenceOut_],
+                (double)upper_[sequenceOut_], (double)dj_[sequenceOut_]);
 #endif
           }
           break;
@@ -963,15 +963,15 @@ void ClpSimplexNonlinear::directionVector(CoinIndexedVector *vectorArray,
 #ifdef CLP_DEBUG
             if (handler_->logLevel() & 32)
               printf("after pivot out %d values %g %g %g, dj %g\n",
-                sequenceOut_, lower_[sequenceOut_], solution_[sequenceOut_],
-                upper_[sequenceOut_], dj_[sequenceOut_]);
+                sequenceOut_, (double)lower_[sequenceOut_], (double)solution_[sequenceOut_],
+                (double)upper_[sequenceOut_], (double)dj_[sequenceOut_]);
 #endif
           } else if (dj_[sequenceOut_] < -dualTolerance_) {
 #ifdef CLP_DEBUG
             if (handler_->logLevel() & 32)
               printf("after pivot out %d values %g %g %g, dj %g\n",
-                sequenceOut_, lower_[sequenceOut_], solution_[sequenceOut_],
-                upper_[sequenceOut_], dj_[sequenceOut_]);
+                sequenceOut_, (double)lower_[sequenceOut_], (double)solution_[sequenceOut_],
+                (double)upper_[sequenceOut_], (double)dj_[sequenceOut_]);
 #endif
           }
           break;
@@ -1358,7 +1358,7 @@ int ClpSimplexNonlinear::pivotColumn(CoinIndexedVector *longArray,
         }
 #if CLP_DEBUG > 0
         if ((handler_->logLevel() & 32) && largest > 1.0e-8)
-          printf("largest rhs error %g on row %d\n", largest, iLargest);
+          printf("largest rhs error %g on row %d\n", (double)largest, iLargest);
 #endif
         if (solutionError < 0.0) {
           solutionError = largest;
@@ -1475,11 +1475,11 @@ int ClpSimplexNonlinear::pivotColumn(CoinIndexedVector *longArray,
               easyMove = true;
 #ifdef CLP_DEBUG
               if (handler_->logLevel() & 32)
-                printf("easy - obj drop %g, easy drop %g\n", objDrop, easyDrop);
+                printf("easy - obj drop %g, easy drop %g\n", (double)objDrop, (double)easyDrop);
 #endif
               if (easyDrop > objDrop) {
                 // debug
-                printf("****** th %g simple %g\n", th, simpleObjective);
+                printf("****** th %g simple %g\n", (double)th, (double)simpleObjective);
                 objective_->stepLength(this, solution_, work, 1.0e30,
                   currentObj, predictedObj, simpleObjective);
                 objective_->stepLength(this, solution_, work, largest,
@@ -1490,7 +1490,7 @@ int ClpSimplexNonlinear::pivotColumn(CoinIndexedVector *longArray,
           rowArray->clear();
 #ifdef CLP_DEBUG
           if (handler_->logLevel() & 32)
-            printf("largest %g piv %d\n", largest, kPivot);
+            printf("largest %g piv %d\n", (double)largest, kPivot);
 #endif
           if (easyMove) {
             valueIn_ = solution_[sequenceIn_];
@@ -1730,7 +1730,7 @@ int ClpSimplexNonlinear::pivotColumn(CoinIndexedVector *longArray,
       if (djNorm < eps * djNorm0 || (nPasses > 100 && djNorm < CoinMin(1.0e-1 * djNorm0, 1.0e-12))) {
 #ifdef CLP_DEBUG
         if (handler_->logLevel() & 32)
-          printf("dj norm reduced from %g to %g\n", djNorm0, djNorm);
+          printf("dj norm reduced from %g to %g\n", (double)djNorm0, (double)djNorm);
 #endif
         if (pivotMode < 10 || !numberNonBasic) {
           finished = true;
@@ -1747,8 +1747,8 @@ int ClpSimplexNonlinear::pivotColumn(CoinIndexedVector *longArray,
       if (nPasses > 100 && djNorm < 1.0e-2 * normFlagged && !startLocalMode) {
 #ifdef CLP_DEBUG
         if (handler_->logLevel() & 32)
-          printf("dj norm reduced from %g to %g - flagged norm %g - unflagging\n", djNorm0, djNorm,
-            normFlagged);
+          printf("dj norm reduced from %g to %g - flagged norm %g - unflagging\n", (double)djNorm0, (double)djNorm,
+            (double)normFlagged);
 #endif
         unflag();
         localPivotMode = 0;
@@ -1760,7 +1760,7 @@ int ClpSimplexNonlinear::pivotColumn(CoinIndexedVector *longArray,
         finished = true;
 #ifdef CLP_DEBUG
         if (handler_->logLevel() & 32)
-          printf("dj norm NOT reduced from %g to %g\n", djNorm0, djNorm);
+          printf("dj norm NOT reduced from %g to %g\n", (double)djNorm0, (double)djNorm);
 #endif
         djNorm = 1.2345e-20;
       }
@@ -1911,7 +1911,7 @@ int ClpSimplexNonlinear::pivotColumn(CoinIndexedVector *longArray,
         currentObj, predictedObj, thetaObj);
 #ifdef CLP_DEBUG
       if (handler_->logLevel() & 32)
-        printf("current obj %g thetaObj %g, predictedObj %g\n", currentObj, thetaObj, predictedObj);
+        printf("current obj %g thetaObj %g, predictedObj %g\n", (double)currentObj, (double)thetaObj, (double)predictedObj);
 #endif
       objTheta2 = CoinMin(objTheta2, 1.0e29);
 #if MINTYPE == 1
@@ -1940,7 +1940,7 @@ int ClpSimplexNonlinear::pivotColumn(CoinIndexedVector *longArray,
           objTheta = COIN_DBL_MAX;
 #ifndef NDEBUG
         if (product < -1.0e-8 && handler_->logLevel() > 1)
-          printf("bad product %g\n", product);
+          printf("bad product %g\n", (double)product);
 #endif
         product = CoinMax(product, 0.0);
       } else {
@@ -1977,31 +1977,31 @@ int ClpSimplexNonlinear::pivotColumn(CoinIndexedVector *longArray,
         if (sequenceIn_ >= 0)
           printf(" Sin %d,", sequenceIn_);
         if (basicTheta == theta_)
-          printf(" X(%d) basicTheta %g", bestBasicSequence, basicTheta);
+          printf(" X(%d) basicTheta %g", bestBasicSequence, (double)basicTheta);
         else
-          printf(" basicTheta %g", basicTheta);
+          printf(" basicTheta %g", (double)basicTheta);
         if (theta == theta_)
-          printf(" X(%d) non-basicTheta %g", bestSequence, theta);
+          printf(" X(%d) non-basicTheta %g", bestSequence, (double)theta);
         else
-          printf(" non-basicTheta %g", theta);
-        printf(" %s objTheta %g", objTheta == theta_ ? "X" : "", objTheta);
-        printf(" djNorm %g\n", djNorm);
+          printf(" non-basicTheta %g", (double)theta);
+        printf(" %s objTheta %g", objTheta == theta_ ? "X" : "", (double)objTheta);
+        printf(" djNorm %g\n", (double)djNorm);
       }
 #endif
       if (handler_->logLevel() > 3 && objTheta != theta_) {
-        printf("%d pass obj %g,", nPasses, currentObj);
+        printf("%d pass obj %g,", nPasses, (double)currentObj);
         if (sequenceIn_ >= 0)
           printf(" Sin %d,", sequenceIn_);
         if (basicTheta == theta_)
-          printf(" X(%d) basicTheta %g", bestBasicSequence, basicTheta);
+          printf(" X(%d) basicTheta %g", bestBasicSequence, (double)basicTheta);
         else
-          printf(" basicTheta %g", basicTheta);
+          printf(" basicTheta %g", (double)basicTheta);
         if (theta == theta_)
-          printf(" X(%d) non-basicTheta %g", bestSequence, theta);
+          printf(" X(%d) non-basicTheta %g", bestSequence, (double)theta);
         else
-          printf(" non-basicTheta %g", theta);
-        printf(" %s objTheta %g", objTheta == theta_ ? "X" : "", objTheta);
-        printf(" djNorm %g\n", djNorm);
+          printf(" non-basicTheta %g", (double)theta);
+        printf(" %s objTheta %g", objTheta == theta_ ? "X" : "", (double)objTheta);
+        printf(" djNorm %g\n", (double)djNorm);
       }
       if (objTheta != theta_) {
         //printf("hit boundary after %d passes\n",nPasses);
@@ -2061,7 +2061,7 @@ int ClpSimplexNonlinear::pivotColumn(CoinIndexedVector *longArray,
       if (handler_->logLevel() & 32) {
         objective_->stepLength(this, solution_, work, 0.0,
           currentObj, predictedObj, thetaObj);
-        printf("current obj %g after update - simple was %g\n", currentObj, simpleObjective);
+        printf("current obj %g after update - simple was %g\n", (double)currentObj, (double)simpleObjective);
       }
 #endif
       if (sequenceIn_ >= 0 && !finished && objTheta > 1.0e-4) {
@@ -2250,7 +2250,7 @@ int ClpSimplexNonlinear::pivotColumn(CoinIndexedVector *longArray,
           //ordinaryDj=true;
 #ifdef CLP_DEBUG
           if (handler_->logLevel() & 32) {
-            printf("no easy pivot - norm %g mode %d\n", djNorm, localPivotMode);
+            printf("no easy pivot - norm %g mode %d\n", (double)djNorm, localPivotMode);
             if (rowArray->getNumElements() + columnArray->getNumElements() < 12) {
               for (iSection = 0; iSection < 2; iSection++) {
 
@@ -2277,8 +2277,8 @@ int ClpSimplexNonlinear::pivotColumn(CoinIndexedVector *longArray,
                   } else {
                     printf("%c%d status %d sol %g %g %g alpha %g change %g\n",
                       section[iSection], which[i], status_[iSequence],
-                      lower_[iSequence], solution_[iSequence], upper_[iSequence],
-                      work2[i], work[iSequence]);
+                      (double)lower_[iSequence], (double)solution_[iSequence], (double)upper_[iSequence],
+                      (double)work2[i], (double)work[iSequence]);
                   }
                 }
               }
@@ -2295,7 +2295,7 @@ int ClpSimplexNonlinear::pivotColumn(CoinIndexedVector *longArray,
 #ifdef CLP_DEBUG
             if (handler_->logLevel() & 32)
               printf("no pivot - mode %d norms %g %g - unflagging\n",
-                localPivotMode, djNorm0, djNorm);
+                localPivotMode, (double)djNorm0, (double)djNorm);
 #endif
             unflag(); //unflagging
             returnCode = 1;
@@ -2328,7 +2328,7 @@ int ClpSimplexNonlinear::pivotColumn(CoinIndexedVector *longArray,
         if (djNorm == 1.2345e-20 && djNorm0 > 1.0e-4) {
 #ifdef CLP_DEBUG
           if (handler_->logLevel() & 32)
-            printf("slow convergence djNorm0 %g, %d passes, mode %d, result %d\n", djNorm0, nPasses,
+            printf("slow convergence djNorm0 %g, %d passes, mode %d, result %d\n", (double)djNorm0, nPasses,
               localPivotMode, returnCode);
 #endif
           //if (!localPivotMode)
@@ -2336,7 +2336,7 @@ int ClpSimplexNonlinear::pivotColumn(CoinIndexedVector *longArray,
         } else {
 #ifdef CLP_DEBUG
           if (handler_->logLevel() & 32)
-            printf("unflagging as djNorm %g %g, %d passes\n", djNorm, djNorm0, nPasses);
+            printf("unflagging as djNorm %g %g, %d passes\n", (double)djNorm, (double)djNorm0, nPasses);
 #endif
           if (pivotMode >= 10) {
             pivotMode--;
@@ -2360,7 +2360,7 @@ int ClpSimplexNonlinear::pivotColumn(CoinIndexedVector *longArray,
   if (djNorm0 < 1.0e-12 * normFlagged) {
 #ifdef CLP_DEBUG
     if (handler_->logLevel() & 32)
-      printf("unflagging as djNorm %g %g and flagged norm %g\n", djNorm, djNorm0, normFlagged);
+      printf("unflagging as djNorm %g %g and flagged norm %g\n", (double)djNorm, (double)djNorm0, (double)normFlagged);
 #endif
     unflag();
   }
@@ -2390,7 +2390,7 @@ int ClpSimplexNonlinear::pivotColumn(CoinIndexedVector *longArray,
     }
     if (handler_->logLevel() > 2)
       printf("possible optimal  %d %d %g %g\n",
-        nBigPasses, nTotalPasses, saveObj - currentObj, normFlagged);
+        nBigPasses, nTotalPasses, (double)(saveObj - currentObj), (double)normFlagged);
     if (normFlagged < 1.0e-5) {
       unflag();
       primalColumnPivot_->setLooksOptimal(true);
@@ -2728,7 +2728,7 @@ int ClpSimplexNonlinear::primalDualCuts(char *rowsIn, int startUp, int algorithm
       }
     }
     printf("Initial infeasibilities - %g (%d)\n",
-      sumPrimalInfeasibilities_, numberPrimalInfeasibilities_);
+      (double)sumPrimalInfeasibilities_, numberPrimalInfeasibilities_);
     // Just do this number of passes
     int maxPass = 50;
     // And take out slack rows until this pass
@@ -2889,7 +2889,7 @@ int ClpSimplexNonlinear::primalDualCuts(char *rowsIn, int startUp, int algorithm
         printf("%d rows binding, %d rows kept, %d rows dropped - new size %d rows, %d columns\n",
           numberBinding, numberKept, numberDropped, numberSort, numberSmallColumns);
         printf("%d rows are infeasible - sum is %g\n", numberPrimalInfeasibilities_,
-          sumPrimalInfeasibilities_);
+          (double)sumPrimalInfeasibilities_);
         if (!numberPrimalInfeasibilities_) {
           problemStatus_ = 0;
           printf("Exiting as looks optimal\n");
@@ -2904,7 +2904,7 @@ int ClpSimplexNonlinear::primalDualCuts(char *rowsIn, int startUp, int algorithm
           }
         }
         printf("in small model %d rows are infeasible - sum is %g\n", numberPrimalInfeasibilities_,
-          sumPrimalInfeasibilities_);
+          (double)sumPrimalInfeasibilities_);
       } else {
         // out of passes
         problemStatus_ = -1;
@@ -3119,7 +3119,7 @@ for (iPass = 0; iPass < numberPasses; iPass++) {
 #ifdef CLP_DEBUG
     if (handler_->logLevel() & 32)
       printf("theta %g, current %g, at maxtheta %g, predicted %g\n",
-        theta, objValue, thetaObj, predictedObj);
+        (double)theta, (double)objValue, (double)thetaObj, (double)predictedObj);
 #endif
     if (theta > 0.0 && theta <= 1.0) {
       // update solution
@@ -3254,7 +3254,7 @@ for (iPass = 0; iPass < numberPasses; iPass++) {
           cost_ = saveCost;
 #ifdef CLP_DEBUG
           if (handler_->logLevel() & 32)
-            printf("current obj %g thetaObj %g, predictedObj %g\n", currentObj, thetaObj, predictedObj);
+            printf("current obj %g thetaObj %g, predictedObj %g\n", (double)currentObj, (double)thetaObj, (double)predictedObj);
 #endif
           //printf("current obj %g thetaObj %g, predictedObj %g\n",currentObj,thetaObj,predictedObj);
           //printf("objTheta %g theta %g\n",objTheta,theta);
@@ -3513,7 +3513,7 @@ for (iPass = 0; iPass < numberPasses; iPass++) {
     lastObjective = objValue;
     if (targetDrop < CoinMax(1.0e-8, CoinMin(1.0e-6, 1.0e-6 * CoinAbs(objValue))) && goodMove && iPass > 3) {
       if (handler_->logLevel() > 1)
-        printf("Exiting on target drop %g\n", targetDrop);
+        printf("Exiting on target drop %g\n", (double)targetDrop);
       break;
     }
 #ifdef CLP_DEBUG
@@ -3523,9 +3523,9 @@ for (iPass = 0; iPass < numberPasses; iPass++) {
         iColumn = listNonLinearColumn[jNon];
         if (handler_->logLevel() & 32)
           printf("Trust %d %g - solution %d %g obj %g dj %g state %c - bounds %g %g\n",
-            jNon, trust[jNon], iColumn, solution[iColumn], objective[iColumn],
-            r[iColumn], statusCheck[iColumn], columnLower[iColumn],
-            columnUpper[iColumn]);
+            jNon, (double)trust[jNon], iColumn, (double)solution[iColumn], (double)objective[iColumn],
+            (double)r[iColumn], statusCheck[iColumn], (double)columnLower[iColumn],
+            (double)columnUpper[iColumn]);
       }
     }
 #endif
@@ -4028,7 +4028,7 @@ int ClpSimplexNonlinear::primalSLP(int numberConstraints, ClpConstraint **constr
       }
     }
     printf("%d artificial infeasibilities - summing to %g\n",
-      numberInfeas, sumInfeas);
+      numberInfeas, (double)sumInfeas);
     for (jNon = 0; jNon < KEEP_SUM - 1; jNon++)
       sumArt[jNon] = sumArt[jNon + 1];
     sumArt[KEEP_SUM - 1] = sumInfeas;
@@ -4062,7 +4062,7 @@ int ClpSimplexNonlinear::primalSLP(int numberConstraints, ClpConstraint **constr
       trueObjective->newXValues();
     if (trueObjective) {
       objValue = trueObjective->objectiveValue(this, solution);
-      printf("objective offset %g\n", offset);
+      printf("objective offset %g\n", (double)offset);
       objectiveOffset2 = objectiveOffset + offset; // ? sign
       newModel.setObjectiveOffset(objectiveOffset2);
     } else {
@@ -4089,9 +4089,9 @@ int ClpSimplexNonlinear::primalSLP(int numberConstraints, ClpConstraint **constr
       FloatT functionValue = constraint->functionValue(this, solution);
       FloatT dualValue = newModel.dualRowSolution()[iRow];
       if (numberConstraints < -50)
-        printf("For row %d current value is %g (row activity %g) , dual is %g\n", iRow, functionValue,
-          newModel.primalRowSolution()[iRow],
-          dualValue);
+        printf("For row %d current value is %g (row activity %g) , dual is %g\n", iRow, (double)functionValue,
+          (double)newModel.primalRowSolution()[iRow],
+          (double)dualValue);
       FloatT movement = newModel.primalRowSolution()[iRow] + constraint->offset();
       movement = CoinAbs((movement - functionValue) * dualValue);
       infPenalty2 += movement;
@@ -4161,12 +4161,12 @@ int ClpSimplexNonlinear::primalSLP(int numberConstraints, ClpConstraint **constr
     // adjust last objective value
     lastObjective += objectiveAdjustment;
     if (infValue)
-      printf("Sum infeasibilities %g - penalty %g ", infValue, infPenalty);
+      printf("Sum infeasibilities %g - penalty %g ", (double)infValue, (double)infPenalty);
     if (objectiveOffset2)
-      printf("offset2 %g ", objectiveOffset2);
+      printf("offset2 %g ", (double)objectiveOffset2);
     objValue -= objectiveOffset2;
-    printf("True objective %g or maybe %g (with penalty %g) -pen2 %g %g\n", objValue,
-      objValue + objectiveOffset2, objValue + objectiveOffset2 + infPenalty, infPenalty2, penalties[1]);
+    printf("True objective %g or maybe %g (with penalty %g) -pen2 %g %g\n", (double)objValue,
+      (double)(objValue + objectiveOffset2), (double)(objValue + objectiveOffset2 + infPenalty), (double)infPenalty2, (double)penalties[1]);
     FloatT useObjValue = objValue + objectiveOffset2 + infPenalty;
     objValue += infPenalty + infPenalty2;
     objValue = useObjValue;
@@ -4234,8 +4234,8 @@ int ClpSimplexNonlinear::primalSLP(int numberConstraints, ClpConstraint **constr
           smallestNonLinearGap = CoinMin(smallestNonLinearGap, gap);
           if (gap < 1.0e-7 && iPass == 1) {
             printf("Small gap %d %d %g %g %g\n",
-              jNon, iColumn, columnLower[iColumn], columnUpper[iColumn],
-              gap);
+              jNon, iColumn, (double)columnLower[iColumn], (double)columnUpper[iColumn],
+              (double)gap);
             //trueUpper[jNon]=trueLower[jNon];
             //columnUpper[iColumn]=columnLower[iColumn];
           }
@@ -4342,7 +4342,7 @@ int ClpSimplexNonlinear::primalSLP(int numberConstraints, ClpConstraint **constr
             && solution[iColumn] - trueLower[jNon] > 1.0e-2) {
             trust[jNon] *= 1.5;
             printf("Increasing trust on %d to %g\n",
-              iColumn, trust[jNon]);
+              iColumn, (double)trust[jNon]);
           }
         }
       }
@@ -4388,7 +4388,7 @@ int ClpSimplexNonlinear::primalSLP(int numberConstraints, ClpConstraint **constr
   if (bestSolution) {
     CoinMemcpyN(bestSolution, numberColumns2, solution);
     delete[] bestSolution;
-    printf("restoring objective of %g\n", lastGoodObjective);
+    printf("restoring objective of %g\n", (double)lastGoodObjective);
     objectiveValue_ = lastGoodObjective;
   }
   // Simplest way to get true row activity ?
@@ -4404,7 +4404,7 @@ int ClpSimplexNonlinear::primalSLP(int numberConstraints, ClpConstraint **constr
     if (difference) {
       if (numberRows < 50)
         printf("For row %d activity changes from %g to %g\n",
-          iRow, rowActivity[iRow], rowActivity[iRow] + difference);
+          iRow, (double)rowActivity[iRow], (double)(rowActivity[iRow] + difference));
       rowActivity[iRow] += difference;
     }
   }

@@ -4604,8 +4604,8 @@ ClpSimplexDual::dualColumn(CoinIndexedVector *rowArray,
     FloatT smallMove = CoinMax(CoinAbs(objectiveValue_), 1.0e-3);
     if (moveObjective > smallMove) {
       if (handler_->logLevel() > 1)
-        printf("would move objective by %g - original mod %g sol value %g\n", moveObjective,
-          modification, solution_[sequenceIn_]);
+        printf("would move objective by %g - original mod %g sol value %g\n", (double)moveObjective,
+          (double)modification, (double)solution_[sequenceIn_]);
       modification *= smallMove / moveObjective;
     }
 #endif
@@ -6064,7 +6064,7 @@ void ClpSimplexDual::statusOfProblemInDual(int &lastCleaned, int type,
 #if COIN_DEVELOP != 2
         if (handler_->logLevel() > 2)
 #endif
-          printf("bad dual - going to primal %d %g\n", looksBad, largestPrimalError_);
+          printf("bad dual - going to primal %d %g\n", looksBad, (double)largestPrimalError_);
         allSlackBasis(true);
         problemStatus_ = 10;
       }
@@ -6561,7 +6561,7 @@ int ClpSimplexDual::perturb()
           largestZero = CoinMax(largestZero, CoinAbs(value));
         }
         if (printOut)
-          printf("row %d cost %g change %g\n", iRow, rowObjectiveWork_[iRow], value);
+          printf("row %d cost %g change %g\n", iRow, (double)rowObjectiveWork_[iRow], (double)value);
         rowObjectiveWork_[iRow] += value;
       }
     }
@@ -6685,7 +6685,7 @@ int ClpSimplexDual::perturb()
         if (getStatus(iColumn) == atUpperBound)
           value = -value;
         if (printOut)
-          printf("col %d cost %g change %g\n", iColumn, objectiveWork_[iColumn], value);
+          printf("col %d cost %g change %g\n", iColumn, (double)objectiveWork_[iColumn], (double)value);
         objectiveWork_[iColumn] += value;
       }
     }

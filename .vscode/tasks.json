@@ -32,14 +32,20 @@
             "type": "shell",
             "command": "./build.sh debug x64",
             "group": "build",
-            "problemMatcher": []
+            "problemMatcher": {
+                "base": "$gcc",
+                "fileLocation": ["relative", "${workspaceRoot}/build_x64_debug"]
+            }
         },
         {
             "label": "Build x64 Release",
             "type": "shell",
             "command": "./build.sh release x64",
             "group": "build",
-            "problemMatcher": []
+            "problemMatcher": {
+                "base": "$gcc",
+                "fileLocation": ["relative", "${workspaceRoot}/build_x64_release"]
+            }
         },
         {
             "label": "Run Solver x64 Release",

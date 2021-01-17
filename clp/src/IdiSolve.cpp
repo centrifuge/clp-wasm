@@ -690,7 +690,7 @@ Idiot::IdiSolve(
                 value = CoinMax(value, CoinAbs(theta[k]));
               }
               if (value > 10.0 && ((logLevel_ & 4) != 0)) {
-                printf("theta %g %g %g\n", theta[0], theta[1], theta[2]);
+                printf("theta %g %g %g\n", (double)theta[0], (double)theta[1], (double)theta[2]);
               }
               value = 10.0 / value;
               for (k = 0; k < nsolve; k++) {
@@ -786,7 +786,7 @@ Idiot::IdiSolve(
             }
             if ((iter % 100 == 0) && (logLevel_ & 8) != 0) {
               if (theta < saveTheta) {
-                printf(" - modified theta %g\n", theta);
+                printf(" - modified theta %g\n", (double)theta);
               }
             }
             for (i = 0; i < ncols; i++) {
@@ -877,7 +877,7 @@ Idiot::IdiSolve(
         if (weightedObj > lastObj + 1.0e-4 && itry < MAXTRY) {
           if ((logLevel_ & 16) != 0 && doScale) {
             printf("Weighted objective from %g to %g **** bad move\n",
-              lastObj, weightedObj);
+              (double)lastObj, (double)weightedObj);
           }
           if (doScale) {
             good = 1;
@@ -886,7 +886,7 @@ Idiot::IdiSolve(
             good = 0;
             if (weightedObj > lastObj + djExit) {
               if ((logLevel_ & 16) != 0) {
-                printf("Weighted objective from %g to %g ?\n", lastObj, weightedObj);
+                printf("Weighted objective from %g to %g ?\n", (double)lastObj, (double)weightedObj);
               }
               CoinMemcpyN(history[0], ncols, colsol);
               CoinMemcpyN(history[0] + ncols, extraBlock, solExtra);
@@ -919,7 +919,7 @@ Idiot::IdiSolve(
         if (test - best < drop && (strategy & 8) == 0) {
           if ((logLevel_ & 8) != 0) {
             printf("Exiting as drop in %d its is %g after %d iterations\n",
-              DROP * checkFrequency_, test - best, iter);
+              DROP * checkFrequency_, (double)(test - best), iter);
           }
           goto RETURN;
         }
@@ -931,8 +931,8 @@ Idiot::IdiSolve(
         }
         if ((logLevel_ & 2) != 0) {
           printf("%d Infeas %g, obj %g - wtObj %g dual %g maxDj %g\n",
-            iter, sum1, objvalue * maxmin - useOffset, weightedObj - useOffset,
-            piSum * maxmin - useOffset, maxDj);
+            iter, (double)sum1, (double)(objvalue * maxmin - useOffset), (double)(weightedObj - useOffset),
+            (double)(piSum * maxmin - useOffset), (double)maxDj);
         }
       }
       CoinMemcpyN(statusSave, ncols, statusWork);

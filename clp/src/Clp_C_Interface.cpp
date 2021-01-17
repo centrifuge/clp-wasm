@@ -1217,22 +1217,22 @@ Clp_printModel(Clp_Simplex *model, const char *prefix)
     for (i = 0; i < numcols; i++) {
       for (CoinBigIndex j = start[i]; j < start[i] + length[i]; j++)
         printf("%s index[%i] = %i, value[%i] = %g\n",
-          prefix, j, index[j], j, value[j]);
+          prefix, j, index[j], j, (double)value[j]);
     }
   }
 
   printf("%s collb = %p, colub = %p, obj = %p, rowlb = %p, rowub = %p\n",
     prefix, reinterpret_cast< const void * >(collb), reinterpret_cast< const void * >(colub), reinterpret_cast< const void * >(obj), reinterpret_cast< const void * >(rowlb), reinterpret_cast< const void * >(rowub));
-  printf("%s optimization direction = %g\n", prefix, Clp_optimizationDirection(model));
+  printf("%s optimization direction = %g\n", prefix, (double)Clp_optimizationDirection(model));
   printf("  (1 - minimize, -1 - maximize, 0 - ignore)\n");
   {
     int i;
     for (i = 0; i < numcols; i++)
       printf("%s collb[%i] = %g, colub[%i] = %g, obj[%i] = %g\n",
-        prefix, i, collb[i], i, colub[i], i, obj[i]);
+        prefix, i, (double)collb[i], i, (double)colub[i], i, (double)obj[i]);
     for (i = 0; i < numrows; i++)
       printf("%s rowlb[%i] = %g, rowub[%i] = %g\n",
-        prefix, i, rowlb[i], i, rowub[i]);
+        prefix, i, (double)rowlb[i], i, (double)rowub[i]);
   }
 }
 

@@ -879,7 +879,7 @@ ClpQuadraticObjective::stepLength(ClpSimplex *model,
   predictedObj = currentObj + a * theta * theta + b * theta;
   if (b > 0.0) {
     if (model->messageHandler()->logLevel() & 32)
-      printf("a %g b %g c %g => %g\n", a, b, c, theta);
+      printf("a %g b %g c %g => %g\n", (double)a, (double)b, (double)c, (double)theta);
     b = 0.0;
   }
   return CoinMin(theta, maximumTheta);

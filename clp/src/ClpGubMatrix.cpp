@@ -778,7 +778,7 @@ void ClpGubMatrix::transposeTimes(const ClpSimplex *model, FloatT scalar,
         value = array[i];
       else
         value = array[j];
-      printf("Ti %d %d %g\n", i, j, value);
+      printf("Ti %d %d %g\n", i, j, (double)value);
     }
   }
 }
@@ -999,7 +999,7 @@ void ClpGubMatrix::fillBasis(ClpSimplex *model,
       if (k < numberColumns) {
         printf("key %d on set %d, %d elements\n", k, i, columnStart[k + 1] - columnStart[k]);
         for (int j = columnStart[k]; j < columnStart[k + 1]; j++)
-          printf("row %d el %g\n", row[j], elementByColumn[j]);
+          printf("row %d el %g\n", row[j], (double)elementByColumn[j]);
       } else {
         printf("slack key on set %d\n", i);
       }
@@ -1016,7 +1016,7 @@ void ClpGubMatrix::fillBasis(ClpSimplex *model,
         int k = iColumn;
         printf("column %d in set %d, %d elements\n", k, iSet, columnStart[k + 1] - columnStart[k]);
         for (int j = columnStart[k]; j < columnStart[k + 1]; j++)
-          printf("row %d el %g\n", row[j], elementByColumn[j]);
+          printf("row %d el %g\n", row[j], (double)elementByColumn[j]);
       }
       CoinBigIndex j;
       if (iSet < 0 || keyVariable_[iSet] >= numberColumns) {

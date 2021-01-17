@@ -543,7 +543,7 @@ void CoinLpIO::checkRowNames()
       sprintf(rName, "%s_low", rowNames[i]);
       if (findHash(rName, 0) != -1) {
         setDefaultRowNames();
-        char printBuffer[512];
+        char printBuffer[1024];
         sprintf(printBuffer, "### CoinLpIO::checkRowNames(): ranged constraint %d has a name %s identical to another constraint name or objective function name.\nUse getPreviousNames() to get the old row names.\nNow using default row names.", i, rName);
         handler_->message(COIN_GENERAL_WARNING, messages_) << printBuffer
                                                            << CoinMessageEol;
@@ -649,7 +649,7 @@ void CoinLpIO::setInfinity(const FloatT value)
     infinity_ = value;
   } else {
     char str[8192];
-    sprintf(str, "### ERROR: value: %f\n", value);
+    sprintf(str, "### ERROR: value: %f\n", (double)value);
     throw CoinError(str, "setInfinity", "CoinLpIO", __FILE__, __LINE__);
   }
 }
@@ -667,7 +667,7 @@ void CoinLpIO::setEpsilon(const FloatT value)
     epsilon_ = value;
   } else {
     char str[8192];
-    sprintf(str, "### ERROR: value: %f\n", value);
+    sprintf(str, "### ERROR: value: %f\n", (double)value);
     throw CoinError(str, "setEpsilon", "CoinLpIO", __FILE__, __LINE__);
   }
 }
@@ -942,15 +942,15 @@ void CoinLpIO::out_coeff(FILE *fp, const FloatT v, const int print_1) const
   FloatT frac = v - floor(v);
 
   if (frac < lp_eps) {
-    fprintf(fp, " %.0f", floor(v));
+    fprintf(fp, " %.0f", (double)floor(v));
   } else {
     if (frac > 1 - lp_eps) {
-      fprintf(fp, " %.0f", floor(v + 0.5));
+      fprintf(fp, " %.0f", (double)floor(v + 0.5));
     } else {
       int decimals = getDecimals();
       char form[15];
       sprintf(form, " %%.%df", decimals);
-      fprintf(fp, form, v);
+      fprintf(fp, form, (double)v);
     }
   }
 } /* out_coeff */
@@ -1270,12 +1270,12 @@ int CoinLpIO::writeLp(FILE *fp, const bool useRowNames)
         FloatT frac = v - floor(v);
 
         if (frac < lp_eps) {
-          fprintf(fp, "%.0f", floor(v));
+          fprintf(fp, "%.0f", (double)floor(v));
         } else {
           if (frac > 1 - lp_eps) {
-            fprintf(fp, "%.0f", floor(v + 0.5));
+            fprintf(fp, "%.0f", (double)floor(v + 0.5));
           } else {
-            fprintf(fp, form, v);
+            fprintf(fp, form, (double)v);
           }
         }
         cnt_print++;
@@ -1465,7 +1465,7 @@ int CoinLpIO::is_invalid_name(const char *name,
     return (5);
   }
   if (lname > valid_lname) {
-    char printBuffer[512];
+    char printBuffer[1024];
     sprintf(printBuffer, "### CoinLpIO::is_invalid_name(): Name %s is too long",
       name);
     handler_->message(COIN_GENERAL_WARNING, messages_) << printBuffer
@@ -1473,7 +1473,7 @@ int CoinLpIO::is_invalid_name(const char *name,
     return (1);
   }
   if (first_is_number(name)) {
-    char printBuffer[512];
+    char printBuffer[1024];
     sprintf(printBuffer, "### CoinLpIO::is_invalid_name(): Name %s should not start with a number", name);
     handler_->message(COIN_GENERAL_WARNING, messages_) << printBuffer
                                                        << CoinMessageEol;
@@ -1481,7 +1481,7 @@ int CoinLpIO::is_invalid_name(const char *name,
   }
   pos = strspn(name, str_valid);
   if (pos != lname) {
-    char printBuffer[512];
+    char printBuffer[1024];
     sprintf(printBuffer, "### CoinLpIO::is_invalid_name(): Name %s contains illegal character '%c'", name, name[pos]);
     handler_->message(COIN_GENERAL_WARNING, messages_) << printBuffer
                                                        << CoinMessageEol;
@@ -1521,7 +1521,7 @@ int CoinLpIO::are_invalid_names(char const *const *const vnames,
     }
     flag = is_invalid_name(vnames[i], is_ranged);
     if (flag) {
-      char printBuffer[512];
+      char printBuffer[1024];
       sprintf(printBuffer, "### CoinLpIO::are_invalid_names(): Invalid name: vnames[%d]: %s",
         i, vnames[i]);
       handler_->message(COIN_GENERAL_WARNING, messages_) << printBuffer
@@ -1901,7 +1901,7 @@ void CoinLpIO::readLp()
   FloatT lp_eps = getEpsilon();
   FloatT lp_inf = getInfinity();
 
-  char buff[1024];
+  char buff[512];
   bufferPosition_ = 0;
   bufferLength_ = 0;
   eofFound_ = false;
@@ -2046,7 +2046,7 @@ void CoinLpIO::readLp()
 
         icol = findHash(buff, 1);
         if (icol < 0) {
-          char printBuffer[512];
+          char printBuffer[1024];
           sprintf(printBuffer, "### CoinLpIO::readLp(): Variable %s does not appear in objective function or constraints", buff);
           handler_->message(COIN_GENERAL_WARNING, messages_) << printBuffer
                                                              << CoinMessageEol;
@@ -2104,7 +2104,7 @@ void CoinLpIO::readLp()
                 if (CoinAbs(bnd1 - bnd2) > lp_eps) {
                   char str[8192];
                   sprintf(str, "### ERROR: Bounds; variable: %s read_sense1: %d  read_sense2: %d  bnd1: %f  bnd2: %f\n",
-                    buff, read_sense1, read_sense2, bnd1, bnd2);
+                    buff, read_sense1, read_sense2, (double)bnd1, (double)bnd2);
                   throw CoinError(str, "readLp", "CoinLpIO", __FILE__, __LINE__);
                 }
                 collow[icol] = bnd1;
@@ -2167,7 +2167,7 @@ void CoinLpIO::readLp()
 #endif
 
         if (icol < 0) {
-          char printBuffer[512];
+          char printBuffer[1024];
           sprintf(printBuffer, "### CoinLpIO::readLp(): Integer variable %s does not appear in objective function or constraints", buff);
           handler_->message(COIN_GENERAL_WARNING, messages_) << printBuffer
                                                              << CoinMessageEol;
@@ -2205,7 +2205,7 @@ void CoinLpIO::readLp()
 #endif
 
         if (icol < 0) {
-          char printBuffer[512];
+          char printBuffer[1024];
           sprintf(printBuffer, "### CoinLpIO::readLp(): Binary variable %s does not appear in objective function or constraints", buff);
           handler_->message(COIN_GENERAL_WARNING, messages_) << printBuffer
                                                              << CoinMessageEol;
@@ -2245,7 +2245,7 @@ void CoinLpIO::readLp()
 #endif
 
         if (icol < 0) {
-          char printBuffer[512];
+          char printBuffer[1024];
           sprintf(printBuffer, "### CoinLpIO::readLp(): Semi-continuous variable %s does not appear in objective function or constraints", buff);
           handler_->message(COIN_GENERAL_WARNING, messages_) << printBuffer
                                                              << CoinMessageEol;
@@ -2277,7 +2277,7 @@ void CoinLpIO::readLp()
       int maxEntries = 100;
       FloatT *weights = new FloatT[maxEntries];
       int *which = new int[maxEntries];
-      char printBuffer[512];
+      char printBuffer[2048];
       int numberBad = 0;
       bool maybeSetName;
       fscanfLpIO(buff);
@@ -2653,32 +2653,32 @@ void CoinLpIO::print() const
   int i;
   printf("rowlower_:\n");
   for (i = 0; i < numberRows_; i++) {
-    printf("%.5f ", rowlower_[i]);
+    printf("%.5f ", (double)rowlower_[i]);
   }
   printf("\n");
 
   printf("rowupper_:\n");
   for (i = 0; i < numberRows_; i++) {
-    printf("%.5f ", rowupper_[i]);
+    printf("%.5f ", (double)rowupper_[i]);
   }
   printf("\n");
 
   printf("collower_:\n");
   for (i = 0; i < numberColumns_; i++) {
-    printf("%.5f ", collower_[i]);
+    printf("%.5f ", (double)collower_[i]);
   }
   printf("\n");
 
   printf("colupper_:\n");
   for (i = 0; i < numberColumns_; i++) {
-    printf("%.5f ", colupper_[i]);
+    printf("%.5f ", (double)colupper_[i]);
   }
   printf("\n");
 
   for (int j = 0; j < num_objectives_; j++) {
     printf("objective_[%i]:\n", j);
     for (i = 0; i < numberColumns_; i++) {
-      printf("%.5f ", objective_[j][i]);
+      printf("%.5f ", (double)objective_[j][i]);
     }
   }
   printf("\n");
@@ -2696,7 +2696,7 @@ void CoinLpIO::print() const
   if (fileName_ != NULL) {
     printf("fileName_: %s\n", fileName_);
   }
-  printf("infinity_: %.5f\n", infinity_);
+  printf("infinity_: %.5f\n", (double)infinity_);
 } /* print */
 
 /*************************************************************************/

@@ -208,10 +208,10 @@ int ClpPdco::pdco(ClpPdcoBase *stuff, Options &options, Info &info, Outfo &outfo
   FloatT normy0 = y.infNorm();
   FloatT normz0 = z.infNorm();
 
-  printf("\nmax |b | = %8g     max |x0| = %8g", normb, normx0);
-  printf("      xsize   = %8g", xsize_);
-  printf("\nmax |y0| = %8g     max |z0| = %8g", normy0, normz0);
-  printf("      zsize   = %8g", zsize_);
+  printf("\nmax |b | = %8g     max |x0| = %8g", (double)normb, (double)normx0);
+  printf("      xsize   = %8g", (double)xsize_);
+  printf("\nmax |y0| = %8g     max |z0| = %8g", (double)normy0, (double)normz0);
+  printf("      zsize   = %8g", (double)zsize_);
 
   //---------------------------------------------------------------------
   // Initialize.
@@ -281,18 +281,18 @@ int ClpPdco::pdco(ClpPdcoBase *stuff, Options &options, Info &info, Outfo &outfo
   FloatT gamma = d1;
   FloatT delta = d2;
 
-  printf("\n\nx0min    = %8g     featol   = %8.1e", x0min, featol);
-  printf("      d1max   = %8.1e", gamma);
-  printf("\nz0min    = %8g     opttol   = %8.1e", z0min, opttol);
-  printf("      d2max   = %8.1e", delta);
-  printf("\nmu0      = %8.1e     steptol  = %8g", mu0, steptol);
-  printf("     bigcenter= %8g", bigcenter);
+  printf("\n\nx0min    = %8g     featol   = %8.1e", (double)x0min, (double)featol);
+  printf("      d1max   = %8.1e", (double)gamma);
+  printf("\nz0min    = %8g     opttol   = %8.1e", (double)z0min, (double)opttol);
+  printf("      d2max   = %8.1e", (double)delta);
+  printf("\nmu0      = %8.1e     steptol  = %8g",(double) mu0, (double)steptol);
+  printf("     bigcenter= %8g", (double)bigcenter);
 
   printf("\n\nLSQR:");
-  printf("\natol1    = %8.1e     atol2    = %8.1e", atol1, atol2);
-  printf("      btol    = %8.1e", btol);
-  printf("\nconlim   = %8.1e     itnlim   = %8d", conlim, itnlim);
-  printf("      show    = %8g", show);
+  printf("\natol1    = %8.1e     atol2    = %8.1e", (double)atol1, (double)atol2);
+  printf("      btol    = %8.1e", (double)btol);
+  printf("\nconlim   = %8.1e     itnlim   = %8d", (double)conlim, itnlim);
+  printf("      show    = %8g", (double)show);
 
   // LSmethod  = 3;  ////// Hardwire LSQR
   // LSproblem = 1;  ////// and LS problem defining "dy".
@@ -523,10 +523,10 @@ int ClpPdco::pdco(ClpPdcoBase *stuff, Options &options, Info &info, Outfo &outfo
   FloatT objreg = obj + 0.5 * regterm;
   FloatT objtrue = objreg * theta;
 
-  printf("\n%3g                     ", PDitns);
-  printf("%6.1f%6.1f", log10(Pinf), log10(Dinf));
-  printf("%6.1f%15.7e", log10(Cinf0), objtrue);
-  printf("   %8.1f\n", center);
+  printf("\n%3g                     ", (double)PDitns);
+  printf("%6.1f%6.1f", (double)mp::log10(Pinf), (double)mp::log10(Dinf));
+  printf("%6.1f%15.7e", (double)mp::log10(Cinf0), (double)objtrue);
+  printf("   %8.1f\n", (double)center);
   /*
      if kminor
        printf("\n\nStart of first minor itn...\n");
@@ -782,23 +782,23 @@ int ClpPdco::pdco(ClpPdcoBase *stuff, Options &options, Info &info, Outfo &outfo
     // Iteration log.
     //-------------------------------------------------------------------
     char str1[100], str2[100], str3[100], str4[100], str5[100];
-    sprintf(str1, "\n%3g%5.1f", PDitns, log10(mu));
-    sprintf(str2, "%8.5f%8.5f", stepx, stepz);
+    sprintf(str1, "\n%3g%5.1f", (double)PDitns, (double)mp::log10(mu));
+    sprintf(str2, "%8.5f%8.5f", (double)stepx, (double)stepz);
     if (stepx < 0.0001 || stepz < 0.0001) {
-      sprintf(str2, " %6.1e %6.1e", stepx, stepz);
+      sprintf(str2, " %6.1e %6.1e", (double)stepx, (double)stepz);
     }
 
-    sprintf(str3, "%6.1f%6.1f", log10(Pinf), log10(Dinf));
-    sprintf(str4, "%6.1f%15.7e", log10(Cinf0), objtrue);
-    sprintf(str5, "%3d%8.1f", nf, center);
+    sprintf(str3, "%6.1f%6.1f", (double)mp::log10(Pinf), (double)mp::log10(Dinf));
+    sprintf(str4, "%6.1f%15.7e", (double)mp::log10(Cinf0), (double)objtrue);
+    sprintf(str5, "%3d%8.1f", nf, (double)center);
     if (center > 99999) {
-      sprintf(str5, "%3d%8.1e", nf, center);
+      sprintf(str5, "%3d%8.1e", nf, (double)center);
     }
     printf("%s%s%s%s%s", str1, str2, str3, str4, str5);
     if (direct) {
       // relax
     } else {
-      printf(" %5.1f%7d%7.3f", log10(atolold), itncg, r3ratio);
+      printf(" %5.1f%7d%7.3f", (double)mp::log10(atolold), itncg, (double)r3ratio);
     }
     //-------------------------------------------------------------------
     // Test for termination.
@@ -872,26 +872,26 @@ int ClpPdco::pdco(ClpPdcoBase *stuff, Options &options, Info &info, Outfo &outfo
   z = z1;
   if (nupp > 0)
     z = z - z2;
-  printf("\n\nmax |x| =%10.3f", x.infNorm());
-  printf("    max |y| =%10.3f", y.infNorm());
-  printf("    max |z| =%10.3f", z.infNorm());
+  printf("\n\nmax |x| =%10.3f", (double)x.infNorm());
+  printf("    max |y| =%10.3f", (double)y.infNorm());
+  printf("    max |z| =%10.3f", (double)z.infNorm());
   printf("   scaled");
 
   x.scale(beta);
   y.scale(zeta);
   z.scale(zeta); // Unscale x, y, z.
 
-  printf("\nmax |x| =%10.3f", x.infNorm());
-  printf("    max |y| =%10.3f", y.infNorm());
-  printf("    max |z| =%10.3f", z.infNorm());
+  printf("\nmax |x| =%10.3f", (double)x.infNorm());
+  printf("    max |y| =%10.3f", (double)y.infNorm());
+  printf("    max |z| =%10.3f", (double)z.infNorm());
   printf(" unscaled\n");
 
   time = CoinCpuTime() - time;
   char str1[100], str2[100];
-  sprintf(str1, "\nPDitns  =%10g", PDitns);
+  sprintf(str1, "\nPDitns  =%10g", (double)PDitns);
   sprintf(str2, "itns =%10d", CGitns);
   //  printf( [str1 " " solver str2] );
-  printf("    time    =%10.1f\n", time);
+  printf("    time    =%10.1f\n", (double)time);
   /*
      pdxxxdistrib( abs(x),abs(z) );   // Private function
 
@@ -918,8 +918,8 @@ int ClpPdco::pdco(ClpPdcoBase *stuff, Options &options, Info &info, Outfo &outfo
   }
   printf("Distribution of Solution Values\n");
   for (int j = 8; j > 1; j--)
-    printf(" %g  to  %g %d\n", thresh[j - 1], thresh[j], counts[j]);
-  printf("   Less than   %g %d\n", thresh[2], counts[0]);
+    printf(" %g  to  %g %d\n", (double)thresh[j - 1], (double)thresh[j], counts[j]);
+  printf("   Less than   %g %d\n", (double)thresh[2], counts[0]);
 
   return inform;
 }

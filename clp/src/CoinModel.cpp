@@ -386,12 +386,12 @@ CoinModel::CoinModel(const char *fileName, int allowStrings)
               FloatT value = element[j];
               // what about diagonal etc
               if (jColumn == iColumn) {
-                printf("diag %d %d %g\n", iColumn, jColumn, value);
+                printf("diag %d %d %g\n", iColumn, jColumn, (double)value);
                 setQuadraticElement(iColumn, jColumn, 0.5 * value);
               } else if (jColumn > iColumn) {
-                printf("above diag %d %d %g\n", iColumn, jColumn, value);
+                printf("above diag %d %d %g\n", iColumn, jColumn, (double)value);
               } else if (jColumn < iColumn) {
-                printf("below diag %d %d %g\n", iColumn, jColumn, value);
+                printf("below diag %d %d %g\n", iColumn, jColumn, (double)value);
                 setQuadraticElement(iColumn, jColumn, value);
               }
             }
@@ -406,7 +406,7 @@ CoinModel::CoinModel(const char *fileName, int allowStrings)
             bool ifFirst = true;
             FloatT value = getColumnObjective(iColumn);
             if (value && objRow < 0) {
-              sprintf(temp, "%g", value);
+              sprintf(temp, "%g", (double)value);
               ifFirst = false;
               /* static cast is safe, temp is at most 20000 chars */
               put = CoinStrlenAsInt(temp);
@@ -431,9 +431,9 @@ CoinModel::CoinModel(const char *fileName, int allowStrings)
                   sprintf(temp + put, "%s%s", ifFirst ? "" : "+", name);
                 } else {
                   if (ifFirst || value < 0.0)
-                    sprintf(temp + put, "%g*%s", value, name);
+                    sprintf(temp + put, "%g*%s", (double)value, name);
                   else
-                    sprintf(temp + put, "+%g*%s", value, name);
+                    sprintf(temp + put, "+%g*%s", (double)value, name);
                 }
                 put += CoinStrlenAsInt(temp + put);
                 assert(put < 20000);
@@ -3468,7 +3468,7 @@ void CoinModel::replaceQuadraticRow(int rowNumber, const FloatT *linearRow, cons
         char temp2[30];
         bool first = true;
         if (linearRow[i]) {
-          sprintf(temp, "%g", linearRow[i]);
+          sprintf(temp, "%g", (double)linearRow[i]);
           first = false;
           /* temp is at most 10000 long, so static_cast is safe */
           put = static_cast< int >(strlen(temp));
@@ -3477,9 +3477,9 @@ void CoinModel::replaceQuadraticRow(int rowNumber, const FloatT *linearRow, cons
           int jColumn = column[j];
           FloatT value = element[j];
           if (value < 0.0 || first)
-            sprintf(temp2, "%g*c%7.7d", value, jColumn);
+            sprintf(temp2, "%g*c%7.7d", (double)value, jColumn);
           else
-            sprintf(temp2, "+%g*c%7.7d", value, jColumn);
+            sprintf(temp2, "+%g*c%7.7d", (double)value, jColumn);
           int nextPut = put + static_cast< int >(strlen(temp2));
           assert(nextPut < 10000);
           strcpy(temp + put, temp2);
@@ -3516,7 +3516,7 @@ void CoinModel::replaceQuadraticRow(int rowNumber, const FloatT *linearRow, cons
         char temp2[30];
         bool first = true;
         if (linearRow[i]) {
-          sprintf(temp, "%g", linearRow[i]);
+          sprintf(temp, "%g", (double)linearRow[i]);
           first = false;
           /* temp is at most 10000 long, so static_cast is safe */
           put = static_cast< int >(strlen(temp));
@@ -3525,9 +3525,9 @@ void CoinModel::replaceQuadraticRow(int rowNumber, const FloatT *linearRow, cons
           int jColumn = column[j];
           FloatT value = element[j];
           if (value < 0.0 || first)
-            sprintf(temp2, "%g*c%7.7d", value, jColumn);
+            sprintf(temp2, "%g*c%7.7d", (double)value, jColumn);
           else
-            sprintf(temp2, "+%g*c%7.7d", value, jColumn);
+            sprintf(temp2, "+%g*c%7.7d", (double)value, jColumn);
           int nextPut = put + static_cast< int >(strlen(temp2));
           assert(nextPut < 10000);
           strcpy(temp + put, temp2);

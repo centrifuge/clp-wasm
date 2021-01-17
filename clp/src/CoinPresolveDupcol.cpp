@@ -1204,10 +1204,10 @@ const CoinPresolveAction
             int kRow = rows[k];
             CoinBigIndex krs = mrstrt[kRow];
             CoinBigIndex kre = krs + hinrow[kRow];
-            printf("%g <=", rlo[kRow]);
+            printf("%g <=", (double)rlo[kRow]);
             for (CoinBigIndex k1 = krs; k1 < kre; k1++)
-              printf(" (%d,%g)", hcol[k1], rowels[k1]);
-            printf(" <= %g\n", rup[kRow]);
+              printf(" (%d,%g)", hcol[k1], (double)rowels[k1]);
+            printf(" <= %g\n", (double)rup[kRow]);
           }
         }
         if (k == kre) {
@@ -1317,7 +1317,7 @@ const CoinPresolveAction
     int droppedRows = prob->countEmptyRows() - startEmptyRows;
     int droppedColumns = prob->countEmptyCols() - startEmptyColumns;
     printf("CoinPresolveDuprow(256) - %d rows, %d columns dropped in time %g, total %g\n",
-      droppedRows, droppedColumns, thisTime - startTime, thisTime - prob->startTime_);
+      droppedRows, droppedColumns, (double)(thisTime - startTime), (double)(thisTime - prob->startTime_));
   }
   return (next);
 }
@@ -1575,7 +1575,7 @@ const CoinPresolveAction
   if (prob->tuning_) {
     FloatT thisTime = CoinCpuTime();
     printf("CoinPresolveDuprow3 - %d rows dropped in time %g, total %g\n",
-      numberDropped, thisTime - startTime, thisTime - prob->startTime_);
+      numberDropped, (double)(thisTime - startTime), (double)(thisTime - prob->startTime_));
   }
 #ifdef CLP_INVESTIGATE
   printf("CoinPresolveDuprow3 - %d rows dropped\n", numberDropped);
@@ -1753,7 +1753,7 @@ const CoinPresolveAction
   if (prob->tuning_) {
     FloatT thisTime = CoinCpuTime();
     printf("CoinPresolveGubrow(1024) - %d elements dropped (%d rows) in time %g, total %g\n",
-      droppedElements, affectedRows, thisTime - startTime, thisTime - prob->startTime_);
+      droppedElements, affectedRows, (double)(thisTime - startTime), (double)(thisTime - prob->startTime_));
   } else if (droppedElements) {
 #ifdef CLP_INVESTIGATE
     printf("CoinPresolveGubrow(1024) - %d elements dropped (%d rows)\n",
@@ -2305,7 +2305,7 @@ const CoinPresolveAction
     int droppedRows = prob->countEmptyRows() - startEmptyRows;
     int droppedColumns = prob->countEmptyCols() - startEmptyColumns;
     printf("CoinPresolveTwoxtwo(2048) - %d rows, %d columns dropped in time %g, total %g\n",
-      droppedRows, droppedColumns, thisTime - startTime, thisTime - prob->startTime_);
+      droppedRows, droppedColumns, (double)(thisTime - startTime), (double)(thisTime - prob->startTime_));
   }
   return (next);
 }

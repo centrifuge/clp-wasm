@@ -2461,9 +2461,9 @@ int ClpDynamicMatrix::addColumn(CoinBigIndex numberEntries, const int *row, cons
           odd = true;
         if (odd) {
           printf("seems odd - same els but cost,lo,up are %g,%g,%g and %g,%g,%g\n",
-            cost, lower, upper, cost_[j],
-            columnLower_ ? columnLower_[j] : 0.0,
-            columnUpper_ ? columnUpper_[j] : 1.0e100);
+            (double)cost, (double)lower, (double)upper, (double)cost_[j],
+            columnLower_ ? (double)columnLower_[j] : 0.0,
+            columnUpper_ ? (double)columnUpper_[j] : 1.0e100);
         } else {
           setDynamicStatus(j, status);
           return j;

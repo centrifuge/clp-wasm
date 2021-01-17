@@ -625,7 +625,7 @@ void CoinFactorization::getAreas(int numberOfRows,
   }
   if (areaFactor_ != 1.0) {
     if ((messageLevel_ & 16) != 0)
-      printf("Increasing factorization areas by %g\n", areaFactor_);
+      printf("Increasing factorization areas by %g\n", (double)areaFactor_);
     // but keep reasonable
     if (areaFactor_ * lengthAreaU_ < COIN_INT_MAX)
       lengthAreaU_ = static_cast< int >(areaFactor_ * lengthAreaU_);

@@ -942,7 +942,7 @@ void ClpPackedMatrix::transposeTimes(const ClpSimplex *model, FloatT scalar,
         value = array[i];
       else
         value = array[j];
-      printf("Ti %d %d %g\n", i, j, value);
+      printf("Ti %d %d %g\n", i, j, (double)value);
     }
   }
 }
@@ -5002,7 +5002,7 @@ bool ClpPackedMatrix::allElementsInRange(ClpModel *model,
 #ifndef COIN_BIG_INDEX
           printf("Out of range %d %d %d %g\n", iColumn, j, row[j], elementByColumn[j]);
 #elif COIN_BIG_INDEX == 0
-          printf("Out of range %d %d %d %g\n", iColumn, j, row[j], elementByColumn[j]);
+          printf("Out of range %d %d %d %g\n", iColumn, j, row[j], (double)elementByColumn[j]);
 #elif COIN_BIG_INDEX == 1
           printf("Out of range %d %ld %d %g\n", iColumn, j, row[j], elementByColumn[j]);
 #else
@@ -5053,7 +5053,7 @@ bool ClpPackedMatrix::allElementsInRange(ClpModel *model,
 #ifndef COIN_BIG_INDEX
           printf("Out of range %d %d %d %g\n", iColumn, j, row[j], elementByColumn[j]);
 #elif COIN_BIG_INDEX == 0
-          printf("Out of range %d %d %d %g\n", iColumn, j, row[j], elementByColumn[j]);
+          printf("Out of range %d %d %d %g\n", iColumn, j, row[j], (double)elementByColumn[j]);
 #elif COIN_BIG_INDEX == 1
           printf("Out of range %d %ld %d %g\n", iColumn, j, row[j], elementByColumn[j]);
 #else

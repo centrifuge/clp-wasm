@@ -1012,8 +1012,9 @@ int CoinMpsCardReader::nextGmsField(int expectedType)
             strcpy(rowName_, position_);
             next = eol_;
           }
-          value_ = -1.0e100;
-          sscanf(rowName_, "%lg", &value_);
+          double val = -1.0e100;
+          sscanf(rowName_, "%lg", &val);
+          value_ = val;
           position_ = next;
         } else {
           returnCode = 1;
@@ -1063,8 +1064,9 @@ int CoinMpsCardReader::nextGmsField(int expectedType)
               assert(*next == '*');
               next++;
               rowName_[put] = '\0';
-              value_ = -1.0e100;
-              sscanf(rowName_, "%lg", &value_);
+              double val = -1.0e100;
+              sscanf(rowName_, "%lg", &val);
+              value_ = val;
               position_ = next;
             } else {
               returnCode = 1;
@@ -1080,8 +1082,9 @@ int CoinMpsCardReader::nextGmsField(int expectedType)
             int length = static_cast< int >(next - position_);
             strncpy(rowName_, position_, length);
             rowName_[length] = '\0';
-            value_ = -1.0e100;
-            sscanf(rowName_, "%lg", &value_);
+            double val = -1.0e100;
+            sscanf(rowName_, "%lg", &val);
+            value_ = val;
             position_ = next;
           }
         } else if ((nextChar >= 'a' && nextChar <= 'z') || (nextChar >= 'A' && nextChar <= 'Z')) {
@@ -2683,8 +2686,10 @@ int CoinMpsIO::readMps(int &numberSets, CoinSet **&sets)
       // old: fscanf ( fp, "%d %lg %lg\n", &j, &rowlower_[i], &rowupper_[i] );
       // new:
       cardReader_->fileInput()->gets(buffer, 1000);
-      sscanf(buffer, "%d %lg %lg\n", &j, &rowlower_[i], &rowupper_[i]);
-
+      double rl, ru;
+      sscanf(buffer, "%d %lg %lg\n", &j, &rl, &ru);
+      rowlower_[i] = rl;
+      rowupper_[i] = ru;
       assert(i == j);
     }
     collower_ = reinterpret_cast< FloatT * >(malloc(numberColumns_ * sizeof(FloatT)));
@@ -2707,8 +2712,11 @@ int CoinMpsIO::readMps(int &numberSets, CoinSet **&sets)
       */
       // new:
       cardReader_->fileInput()->gets(buffer, 1000);
-      sscanf(buffer, "%d %d %lg %lg %lg\n", &j, &n,
-        &collower_[i], &colupper_[i], &objective_[i]);
+      double cl, cu, ob;
+      sscanf(buffer, "%d %d %lg %lg %lg\n", &j, &n, &cl, &cu, &ob);
+        collower_[i] = cl;
+        colupper_[i] = cu;
+        objective_[i] = ob;
 
       assert(i == j);
       for (j = 0; j < n; j++) {
@@ -2717,9 +2725,10 @@ int CoinMpsIO::readMps(int &numberSets, CoinSet **&sets)
 		 &element[numberElements_] );
 	*/
         // new:
+        double elmt;
         cardReader_->fileInput()->gets(buffer, 1000);
-        sscanf(buffer, "       %d %lg\n", &row[numberElements_],
-          &element[numberElements_]);
+        sscanf(buffer, "       %d %lg\n", &row[numberElements_], &elmt);
+        element[numberElements_] = elmt;
 
         numberElements_++;
       }
@@ -3287,7 +3296,7 @@ int CoinMpsIO::readGms(int & /*numberSets*/, CoinSet **& /*sets*/)
           temp2[0] = '\0';
           FloatT value = cardReader_->value();
           if (value && value != 1.0)
-            sprintf(temp2, "%g*", value);
+            sprintf(temp2, "%g*", (double)value);
           if (allowStringElements_ == 1)
             strcat(temp2, ast + 1);
           else
@@ -3517,7 +3526,7 @@ int CoinMpsIO::readGms(int & /*numberSets*/, CoinSet **& /*sets*/)
                                                << CoinMessageEol;
   if ((numberTiny || numberLarge) && handler_->logLevel() > 3)
     printf("There were %d coefficients < %g and %d > %g\n",
-      numberTiny, smallElement_, numberLarge, largeElement);
+      numberTiny, (double)smallElement_, numberLarge, (double)largeElement);
   return numberErrors;
 }
 /* Read a basis in MPS format from the given filename.
@@ -3751,9 +3760,9 @@ void CoinConvertDouble(int section, int formatType, FloatT value, char outputVal
           decimal = CoinMin(10, 10 - power10);
           char format[8];
           sprintf(format, "%%12.%df", decimal);
-          sprintf(outputValue, format, value);
+          sprintf(outputValue, format, (double)value);
         } else {
-          sprintf(outputValue, "%13.7g", value);
+          sprintf(outputValue, "%13.7g", (double)value);
           stripZeros = false;
         }
       } else {
@@ -3762,9 +3771,9 @@ void CoinConvertDouble(int section, int formatType, FloatT value, char outputVal
           decimal = CoinMin(9, 9 - power10);
           char format[8];
           sprintf(format, "%%12.%df", decimal);
-          sprintf(outputValue, format, value);
+          sprintf(outputValue, format, (double)value);
         } else {
-          sprintf(outputValue, "%13.6g", value);
+          sprintf(outputValue, "%13.6g", (double)value);
           stripZeros = false;
         }
       }
@@ -3825,7 +3834,7 @@ void CoinConvertDouble(int section, int formatType, FloatT value, char outputVal
         outputValue[0] = '\0'; // needs no value
       } else {
         // probably error ... but ....
-        sprintf(outputValue, "%12.6g", value);
+        sprintf(outputValue, "%12.6g", (double)value);
       }
     }
     int i;
@@ -3840,7 +3849,7 @@ void CoinConvertDouble(int section, int formatType, FloatT value, char outputVal
   } else if (formatType == 1) {
     if (CoinAbs(value) < 1.0e40) {
       memset(outputValue, ' ', 24);
-      sprintf(outputValue, "%.16g", value);
+      sprintf(outputValue, "%.16g", (double)value);
       // take out blanks
       int i = 0;
       int j;
@@ -3854,7 +3863,7 @@ void CoinConvertDouble(int section, int formatType, FloatT value, char outputVal
         outputValue[0] = '\0'; // needs no value
       } else {
         // probably error ... but ....
-        sprintf(outputValue, "%12.6g", value);
+        sprintf(outputValue, "%12.6g", (double)value);
       }
     }
   } else {

@@ -714,7 +714,7 @@ void ClpNonLinearCost::checkInfeasibilities(FloatT oldTolerance)
 #ifndef NDEBUG
               if (value > 1.0e15)
                 printf("nonlincostb %d %g %g %g\n",
-                  iSequence, lowerValue, solution[iSequence], lower_[iRange + 2]);
+                  iSequence, (double)lowerValue, (double)solution[iSequence], (double)lower_[iRange + 2]);
 #endif
 #if PRINT_DETAIL7
               printf("**NL %d sol %g below %g\n",
@@ -735,7 +735,7 @@ void ClpNonLinearCost::checkInfeasibilities(FloatT oldTolerance)
 #ifndef NDEBUG
               if (value > 1.0e15)
                 printf("nonlincostu %d %g %g %g\n",
-                  iSequence, lower_[iRange - 1], solution[iSequence], upperValue);
+                  iSequence, (double)lower_[iRange - 1], (double)solution[iSequence], (double)upperValue);
 #endif
 #if PRINT_DETAIL7
               printf("**NL %d sol %g above %g\n",
@@ -793,7 +793,7 @@ void ClpNonLinearCost::checkInfeasibilities(FloatT oldTolerance)
           // With increasing tolerances - we may be at wrong place
           // below stops compiler error with gcc 3.2!!!
           if (iSequence == -119)
-            printf("ZZ %g %g %g %g\n", lowerValue, value, upperValue, oldTolerance);
+            printf("ZZ %g %g %g %g\n", (double)lowerValue, (double)value, (double)upperValue, (double)oldTolerance);
           if (CoinAbs(value - lowerValue) > oldTolerance * 1.0001) {
             if (CoinAbs(value - upperValue) <= oldTolerance * 1.0001) {
               if (CoinAbs(value - upperValue) > primalTolerance)

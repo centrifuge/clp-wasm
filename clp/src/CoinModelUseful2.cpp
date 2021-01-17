@@ -97,7 +97,7 @@ static void yyerror(char const *);
 
 #if !defined(YYSTYPE) && !defined(YYSTYPE_IS_DECLARED)
 typedef struct YYSTYPE {
-  FloatT val {}; /* For returning numbers.  */
+  double val {}; /* For returning numbers.  */
   symrec *tptr; /* For returning symbol-table pointers.  */
 } YYSTYPE;
 /* Line 191 of yacc.c.  */
@@ -824,7 +824,7 @@ yylex(symrec *&symtable, const char *line, int *position, char *&symbuf, int &le
         error = 3;
       }
       s = putsym(symtable, symbuf, VAR);
-      s->value.var = value;
+      s->value.var = (double)value;
     }
     yylval.tptr = s;
     *position = ipos;
@@ -1109,7 +1109,7 @@ yyreduce:
   } break;
 
   case 10: {
-    yyval.val = (*(yyvsp[-3].tptr->value.fnctptr))(yyvsp[-1].val);
+    yyval.val = (double)(*(yyvsp[-3].tptr->value.fnctptr))(yyvsp[-1].val);
     ;
   } break;
 
@@ -1376,10 +1376,10 @@ CoinModel::getDoubleFromString(CoinYacc &info, const char *string)
     // 3 string not found
     if (logLevel_ >= 1)
       printf("string %s returns value %g and error-code %d\n",
-        string, value, error);
+        string, (double)value, error);
     value = info.unsetValue;
   } else if (logLevel_ >= 2) {
-    printf("%s computes as %g\n", string, value);
+    printf("%s computes as %g\n", string, (double)value);
   }
   return value;
 }
@@ -1442,10 +1442,10 @@ getFunctionValueFromString(const char *string, const char *x, FloatT xValue)
     // 3 string not found
     if (logLevel_ >= 1)
       printf("string %s returns value %g and error-code %d\n",
-        string, value, error);
+        string, (double)value, error);
     value = unset;
   } else if (logLevel_ >= 2) {
-    printf("%s computes as %g\n", string, value);
+    printf("%s computes as %g\n", string, (double)value);
   }
   freesym(info.symtable);
   return value;

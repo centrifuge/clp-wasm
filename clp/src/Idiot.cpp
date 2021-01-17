@@ -653,7 +653,7 @@ void Idiot::solve2(CoinMessageHandler *handler, const CoinMessages *messages)
     ordEnd = ncols;
   }
   if (offset && logLevel > 2) {
-    printf("** Objective offset is %g\n", offset);
+    printf("** Objective offset is %g\n", (double)offset);
   }
   /* compute reasonable solution cost */
   for (i = 0; i < nrows; i++) {
@@ -834,7 +834,7 @@ void Idiot::solve2(CoinMessageHandler *handler, const CoinMessages *messages)
     if (!handler) {
 #endif
       printf("Iteration %d infeasibility %g, objective %g - mu %g, its %d, %d interior\n",
-        iteration, lastResult.infeas, lastResult.objval, mu, lastResult.iteration, n);
+        iteration, (double)lastResult.infeas, (double)lastResult.objval, (double)mu, lastResult.iteration, n);
 #ifndef OSI_IDIOT
     } else {
       handler->message(CLP_IDIOT_ITERATION, *messages)
@@ -906,7 +906,7 @@ void Idiot::solve2(CoinMessageHandler *handler, const CoinMessages *messages)
       if (!handler) {
 #endif
         printf("Iteration %d infeasibility %g, objective %g - mu %g, its %d, %d interior\n",
-          iteration, result.infeas, result.objval, mu, result.iteration, n);
+          iteration, (double)result.infeas, (double)result.objval, (double)mu, result.iteration, n);
 #ifndef OSI_IDIOT
       } else {
         handler->message(CLP_IDIOT_ITERATION, *messages)
@@ -1246,7 +1246,7 @@ void Idiot::solve2(CoinMessageHandler *handler, const CoinMessages *messages)
     if (iSol < 2)
       saveInfeas[iSol] = large;
     if (logLevel > 2)
-      printf("largest infeasibility is %g\n", large);
+      printf("largest infeasibility is %g\n", (double)large);
   }
   /* subtract out lambda */
   for (i = 0; i < nrows; i++) {
@@ -1524,7 +1524,7 @@ void Idiot::crossOver(int mode)
               }
             }
             printf("Before sum %g <= %g <= %g cost %.18g\n",
-              rowlower[i], sum, rowupper[i], x);
+              (double)rowlower[i], (double)sum, (double)rowupper[i], (double)x);
           }
           // set all to zero
           iCol = posSlack[i];
@@ -1632,7 +1632,7 @@ void Idiot::crossOver(int mode)
               }
             }
             printf("after sum %g <= %g <= %g cost %.18g (sum = %g)\n",
-              rowlower[i], sum2, rowupper[i], x, sum);
+              (double)rowlower[i], (double)sum2, (double)rowupper[i], (double)x, (double)sum);
           }
           rowsol[i] = sum;
           if (basic) {
@@ -1849,7 +1849,7 @@ void Idiot::crossOver(int mode)
           }
         }
         printf("%d < %g, %d < %g, %d <= %g\n",
-          nSmall, small, nMedium - nSmall, medium, nrows - nMedium, largest);
+          nSmall, (double)small, nMedium - nSmall, (double)medium, nrows - nMedium, (double)largest);
         memset(rhs, 0, nrows * sizeof(FloatT));
         int nFixed = 0;
         for (i = 0; i < ncols; i++) {
@@ -1915,7 +1915,7 @@ void Idiot::crossOver(int mode)
           }
         }
         sprintf(line, "sum of infeasibilities %g - %d fixed rows, %d fixed columns - might free %d rows",
-          sum, nFixedRows, nFixed, nFreed);
+          (double)sum, nFixedRows, nFixed, nFreed);
       } else {
         memset(rhs, 0, nrows * sizeof(FloatT));
         int nFixed = 0;
@@ -1943,7 +1943,7 @@ void Idiot::crossOver(int mode)
 
         FloatT averageInfeasibility = sum / nrows;
         sprintf(line, "sum of infeasibilities %g - average %g, %d fixed columns",
-          sum, averageInfeasibility, nFixed);
+          (double)sum, (double)averageInfeasibility, nFixed);
       }
       const CoinMessages *messages = model_->messagesPointer();
       model_->messageHandler()->message(CLP_GENERAL, *messages)

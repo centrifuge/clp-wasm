@@ -546,7 +546,7 @@ int ClpPEPrimalColumnSteepest::pivotColumn(CoinIndexedVector *updates,
   }
   if (bestSequence >= 0 && model_->getStatus(bestSequence) == ClpSimplex::isFree) {
     printf("Free in %d compat %c dj %g\n",
-      bestSequence, modelPE_->isCompatibleCol(bestSequence) ? 'y' : 'n', bestDj);
+      bestSequence, modelPE_->isCompatibleCol(bestSequence) ? 'y' : 'n', (double)bestDj);
     bestDjComp = 0.0;
   }
   // choose a compatible or an incompatible row depending on the

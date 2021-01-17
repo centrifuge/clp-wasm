@@ -1745,7 +1745,7 @@ void CoinIndexedVector::print() const
       printf("\n");
     int index = indices_[i];
     FloatT value = packedMode_ ? elements_[i] : elements_[index];
-    printf(" (%d,%g)", index, value);
+    printf(" (%d,%g)", index, (double)value);
   }
   printf("\n");
 }
@@ -2240,7 +2240,7 @@ void CoinPartitionedVector::print() const
         printf("\n");
       int index = indices[i];
       FloatT value = elements[i];
-      printf(" (%d,%g)", index, value);
+      printf(" (%d,%g)", index, (double)value);
     }
     printf("\n");
   }

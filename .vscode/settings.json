@@ -80,5 +80,14 @@
         "typeinfo": "cpp",
         "variant": "cpp"
     },
-    "cmake.generator": "Ninja"
+    "cmake.generator": "Ninja",
+    "cSpell.diagnosticLevel": "Hint",
+
+    "surround.custom": {
+        "toDouble": {
+          "label": "To double",
+          "description": "Convert value to double",
+          "snippet": "dbl($TM_SELECTED_TEXT)$0"
+        },
+      }
 }

@@ -230,11 +230,11 @@ static void printSol(ClpSimplex &model)
 
   int iRow;
   FloatT objValue = model.getObjValue();
-  printf("Objvalue %g Rows (%d)\n", objValue, numberRows);
+  printf("Objvalue %g Rows (%d)\n", (double)objValue, numberRows);
   for (iRow = 0; iRow < numberRows; iRow++) {
     printf("%d primal %g dual %g low %g up %g\n",
-      iRow, rowPrimal[iRow], rowDual[iRow],
-      rowLower[iRow], rowUpper[iRow]);
+      iRow, (double)rowPrimal[iRow], (double)rowDual[iRow],
+      (double)rowLower[iRow], (double)rowUpper[iRow]);
   }
   FloatT *columnPrimal = model.primalColumnSolution();
   FloatT *columnDual = model.dualColumnSolution();
@@ -246,17 +246,17 @@ static void printSol(ClpSimplex &model)
   const FloatT *gradient = model.objective(columnPrimal, offset);
   int iColumn;
   objValue = -offset - model.objectiveOffset();
-  printf("offset %g (%g)\n", offset, model.objectiveOffset());
+  printf("offset %g (%g)\n", (double)offset, (double)model.objectiveOffset());
   printf("Columns (%d)\n", numberColumns);
   for (iColumn = 0; iColumn < numberColumns; iColumn++) {
     printf("%d primal %g dual %g low %g up %g\n",
-      iColumn, columnPrimal[iColumn], columnDual[iColumn],
-      columnLower[iColumn], columnUpper[iColumn]);
+      iColumn, (double)columnPrimal[iColumn], (double)columnDual[iColumn],
+      (double)columnLower[iColumn], (double)columnUpper[iColumn]);
     objValue += columnPrimal[iColumn] * gradient[iColumn];
     if (CoinAbs(columnPrimal[iColumn] * gradient[iColumn]) > 1.0e-8)
-      printf("obj -> %g gradient %g\n", objValue, gradient[iColumn]);
+      printf("obj -> %g gradient %g\n", (double)objValue, (double)gradient[iColumn]);
   }
-  printf("Computed objective %g\n", objValue);
+  printf("Computed objective %g\n", (double)objValue);
 }
 
 void usage(const std::string &key)
@@ -1131,7 +1131,7 @@ int mainTest(int argc, const char *argv[], int algorithm,
             FloatT time2 = CoinCpuTime() - time1;
             testTime[iTest] = time2;
             printf("Finished %s Took %g seconds (%d iterations) - status %d\n",
-              mpsName[m].c_str(), time2, solution.problemStatus(), solution.numberIterations());
+              mpsName[m].c_str(), (double)time2, solution.problemStatus(), solution.numberIterations());
             if (solution.problemStatus())
               testTime[iTest] = TOO_BIG_FLOAT;
           } else {
@@ -1144,7 +1144,7 @@ int mainTest(int argc, const char *argv[], int algorithm,
         for (iTest = 0; iTest < NUMBER_ALGORITHMS; iTest++) {
           if (testTime[iTest] < 1.0e30) {
             printf(" %s %g",
-              alg[iTest].c_str(), testTime[iTest]);
+              alg[iTest].c_str(), (double)testTime[iTest]);
             if (testTime[iTest] < dBest) {
               dBest = testTime[iTest];
               iBest = iTest;
@@ -1154,7 +1154,7 @@ int mainTest(int argc, const char *argv[], int algorithm,
         printf("\n");
         if (iBest >= 0)
           printf("Best strategy for %s is %s (%d) which takes %g seconds\n",
-            fn.c_str(), alg[iBest].c_str(), iBest, testTime[iBest]);
+            fn.c_str(), alg[iBest].c_str(), iBest, (double)testTime[iBest]);
         else
           printf("No strategy finished in time limit\n");
         continue;
@@ -1335,7 +1335,7 @@ int mainTest(int argc, const char *argv[], int algorithm,
       solution.initialSolve(solveOptions);
       FloatT time2 = CoinCpuTime() - time1;
       timeTaken += time2;
-      printf("%s took %g seconds using algorithm %s\n", fn.c_str(), time2, nameAlgorithm.c_str());
+      printf("%s took %g seconds using algorithm %s\n", fn.c_str(), (double)time2, nameAlgorithm.c_str());
 #endif
       // Test objective solution value
       {
@@ -1352,7 +1352,7 @@ int mainTest(int argc, const char *argv[], int algorithm,
         }
       }
     }
-    printf("Total time %g seconds\n", timeTaken);
+    printf("Total time %g seconds\n", (double)timeTaken);
 #if FACTORIZATION_STATISTICS
     FloatT bestTime = 1.0e100;
     int iBestTime = -1;
@@ -1628,8 +1628,8 @@ void ClpSimplexUnitTest(const std::string &dirSample)
       int i;
       for (i = 0; i < 13; i++)
         printf("%d increase %g %d, decrease %g %d\n",
-          i, costIncrease[i], sequenceIncrease[i],
-          costDecrease[i], sequenceDecrease[i]);
+          i, (double)costIncrease[i], sequenceIncrease[i],
+          (double)costDecrease[i], sequenceDecrease[i]);
       assert(CoinAbs(costDecrease[3]) < 1.0e-4);
       assert(CoinAbs(costIncrease[7] - 1.0) < 1.0e-4);
       model.setOptimizationDirection(-1);
@@ -1661,8 +1661,8 @@ void ClpSimplexUnitTest(const std::string &dirSample)
             costDecrease, sequenceDecrease)) {
         for (i = 0; i < 8; i++) {
           printf("%d increase %g %d, decrease %g %d\n",
-            i, costIncrease[i], sequenceIncrease[i],
-            costDecrease[i], sequenceDecrease[i]);
+            i, (double)costIncrease[i], sequenceIncrease[i],
+            (double)costDecrease[i], sequenceDecrease[i]);
         }
       }
     } else {
@@ -1690,8 +1690,8 @@ void ClpSimplexUnitTest(const std::string &dirSample)
       int i;
       for (i = 0; i < 13; i++)
         printf("%d increase %g %d, decrease %g %d\n",
-          i, valueIncrease[i], sequenceIncrease[i],
-          valueDecrease[i], sequenceDecrease[i]);
+          i, (double)valueIncrease[i], sequenceIncrease[i],
+          (double)valueDecrease[i], sequenceDecrease[i]);
       assert(CoinAbs(valueIncrease[3] - 0.642857) < 1.0e-4);
       assert(CoinAbs(valueIncrease[8] - 2.95113) < 1.0e-4);
     } else {
@@ -1750,7 +1750,7 @@ void ClpSimplexUnitTest(const std::string &dirSample)
       model.getBInvARow(i, binvA, binvA + n_cols);
       printf("row: %d -> ", i);
       for (int j = 0; j < n_cols + n_rows; j++) {
-        printf("%g, ", binvA[j]);
+        printf("%g, ", (double)binvA[j]);
       }
       printf("\n");
     }
@@ -1762,7 +1762,7 @@ void ClpSimplexUnitTest(const std::string &dirSample)
       model.getBInvACol(i, binvA);
       printf("column: %d -> ", i);
       for (int j = 0; j < n_rows; j++) {
-        printf("%g, ", binvA[j]);
+        printf("%g, ", (double)binvA[j]);
       }
       printf("\n");
     }
@@ -1790,13 +1790,13 @@ void ClpSimplexUnitTest(const std::string &dirSample)
         // First columns
         for (j = 0; j < n_cols; j++) {
           if (binvA[j]) {
-            printf("(%d %g), ", j, binvA[j]);
+            printf("(%d %g), ", j, (double)binvA[j]);
           }
         }
         // now rows
         for (j = 0; j < n_rows; j++) {
           if (binvA[j + n_cols]) {
-            printf("(%d %g), ", j + n_cols, binvA[j + n_cols]);
+            printf("(%d %g), ", j + n_cols, (double)(binvA[j + n_cols]));
           }
         }
       }
@@ -1813,15 +1813,15 @@ void ClpSimplexUnitTest(const std::string &dirSample)
             if (pivot < n_cols) {
               // scaled coding is in just in case
               if (!columnScale) {
-                printf("(%d %g), ", j, binvA[j]);
+                printf("(%d %g), ", j, (double)binvA[j]);
               } else {
-                printf("(%d %g), ", j, binvA[j] * columnScale[pivot]);
+                printf("(%d %g), ", j, (double)(binvA[j] * columnScale[pivot]));
               }
             } else {
               if (!rowScale) {
-                printf("(%d %g), ", j, binvA[j]);
+                printf("(%d %g), ", j, (double)binvA[j]);
               } else {
-                printf("(%d %g), ", j, binvA[j] / rowScale[pivot - n_cols]);
+                printf("(%d %g), ", j, (double)(binvA[j] / rowScale[pivot - n_cols]));
               }
             }
           }
@@ -1835,7 +1835,7 @@ void ClpSimplexUnitTest(const std::string &dirSample)
         int j;
         for (j = 0; j < n_rows; j++) {
           if (binvA[j])
-            printf("(%d %g), ", j, binvA[j]);
+            printf("(%d %g), ", j, (double)binvA[j]);
         }
       }
       printf("\n");
@@ -1846,7 +1846,7 @@ void ClpSimplexUnitTest(const std::string &dirSample)
         int j;
         for (j = 0; j < n_rows; j++) {
           if (binvA[j])
-            printf("(%d %g), ", j, binvA[j]);
+            printf("(%d %g), ", j, (double)binvA[j]);
         }
       }
       printf("\n");

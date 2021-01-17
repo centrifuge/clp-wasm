@@ -196,7 +196,7 @@ ClpLinearObjective::stepLength(ClpSimplex *model,
   if (delta < 0.0) {
     return maximumTheta;
   } else {
-    printf("odd linear direction %g\n", delta);
+    printf("odd linear direction %g\n", (double)delta);
     return 0.0;
   }
 }

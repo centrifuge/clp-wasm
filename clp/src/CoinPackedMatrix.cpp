@@ -2834,7 +2834,7 @@ void CoinPackedMatrix::dumpMatrix(const char *fname) const
     for (int i = 0; i < major; ++i) {
       printf("vec %i has length %i with entries:\n", i, length_[i]);
       for (CoinBigIndex j = start_[i]; j < start_[i] + length_[i]; ++j) {
-        printf("        %15i  %40.25f\n", index_[j], element_[j]);
+        printf("        %15i  %40.25f\n", index_[j], (double)element_[j]);
       }
     }
     printf("\nFinished dumping matrix\n");
@@ -2848,7 +2848,7 @@ void CoinPackedMatrix::dumpMatrix(const char *fname) const
     for (int i = 0; i < major; ++i) {
       fprintf(out, "vec %i has length %i with entries:\n", i, length_[i]);
       for (CoinBigIndex j = start_[i]; j < start_[i] + length_[i]; ++j) {
-        fprintf(out, "        %15i  %40.25f\n", index_[j], element_[j]);
+        fprintf(out, "        %15i  %40.25f\n", index_[j], (double)element_[j]);
       }
     }
     fprintf(out, "\nFinished dumping matrix\n");

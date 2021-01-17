@@ -1264,7 +1264,7 @@ int ClpMain1(int argc, const char *argv[], AbcSimplex *models)
                     effectiveRhs[i] = rhsValue;
                     if (CoinAbs(effectiveRhs[i]) > 1.0e10 && printBad)
                       printf("Large rhs row %d %g\n",
-                        i, effectiveRhs[i]);
+                        i, (double)effectiveRhs[i]);
                   }
                   simplex->times(-1.0, bound, effectiveRhs);
                   FloatT bSum = 0.0;
@@ -1272,11 +1272,11 @@ int ClpMain1(int argc, const char *argv[], AbcSimplex *models)
                     bSum += effectiveRhs[i] * ray[i];
                     if (CoinAbs(effectiveRhs[i]) > 1.0e10 && printBad)
                       printf("Large rhs row %d %g after\n",
-                        i, effectiveRhs[i]);
+                        i, (double)effectiveRhs[i]);
                   }
                   if ((numberBad || bSum > 1.0e-6) && printBad) {
                     printf("Bad infeasibility ray %g  - %d bad\n",
-                      bSum, numberBad);
+                      (double)bSum, numberBad);
                   } else {
                     //printf("Good ray - infeasibility %g\n",
                     //     -bSum);
@@ -1314,7 +1314,7 @@ int ClpMain1(int argc, const char *argv[], AbcSimplex *models)
               char generalPrint[100];
 #endif
               sprintf(generalPrint, "After translating dual back to primal - objective value is %g",
-                thisModel->objectiveValue());
+                (double)thisModel->objectiveValue());
               generalMessageHandler->message(CLP_GENERAL, generalMessages)
                 << generalPrint
                 << CoinMessageEol;
@@ -2368,23 +2368,23 @@ clp watson.mps -\nscaling off\nprimalsimplex");
                 }
                 FloatT objValue = models[iModel].getObjValue()
                   * models[iModel].getObjSense();
-                fprintf(fp, "%d 2 %g\n", iStat2, objValue);
+                fprintf(fp, "%d 2 %g\n", iStat2, (double)objValue);
                 if (numberGlpkRows > numberRows) {
                   // objective as row
-                  fprintf(fp, "4 %g 1.0\n", objValue);
+                  fprintf(fp, "4 %g 1.0\n", (double)objValue);
                 }
                 int lookup[6] = { 4, 1, 3, 2, 4, 5 };
                 const FloatT *primalRowSolution = models[iModel].primalRowSolution();
                 const FloatT *dualRowSolution = models[iModel].dualRowSolution();
                 for (int i = 0; i < numberRows; i++) {
                   fprintf(fp, "%d %g %g\n", lookup[models[iModel].getRowStatus(i)],
-                    primalRowSolution[i], dualRowSolution[i]);
+                    (double)primalRowSolution[i], (double)dualRowSolution[i]);
                 }
                 const FloatT *primalColumnSolution = models[iModel].primalColumnSolution();
                 const FloatT *dualColumnSolution = models[iModel].dualColumnSolution();
                 for (int i = 0; i < numberColumns; i++) {
                   fprintf(fp, "%d %g %g\n", lookup[models[iModel].getColumnStatus(i)],
-                    primalColumnSolution[i], dualColumnSolution[i]);
+                    (double)primalColumnSolution[i], (double)dualColumnSolution[i]);
                 }
                 fclose(fp);
 #ifdef COIN_HAS_GLPK
@@ -2428,7 +2428,7 @@ clp watson.mps -\nscaling off\nprimalsimplex");
               char printFormat[50];
               sprintf(printFormat, " - objective value %s\n",
                 CLP_QUOTE(CLP_OUTPUT_FORMAT));
-              fprintf(fp, printFormat, objValue);
+              fprintf(fp, printFormat, (double)objValue);
               if (printMode == 9) {
                 // just statistics
                 int numberRows = models[iModel].numberRows();
@@ -2474,8 +2474,8 @@ clp watson.mps -\nscaling off\nprimalsimplex");
                 }
                 printf("For rows %d at lower, %d between, %d at upper - lowest %g, highest %g most away %g - highest dual %g lowest %g\n",
                   numberAtLower, numberBetween, numberAtUpper,
-                  lowestPrimal, highestPrimal, largestAway,
-                  lowestDual, highestDual);
+                  (double)lowestPrimal, (double)highestPrimal, (double)largestAway,
+                  (double)lowestDual, (double)highestDual);
                 int numberColumns = models[iModel].numberColumns();
                 FloatT *dualColumnSolution = models[iModel].dualColumnSolution();
                 FloatT *primalColumnSolution = models[iModel].primalColumnSolution();
@@ -2511,8 +2511,8 @@ clp watson.mps -\nscaling off\nprimalsimplex");
                 }
                 printf("For columns %d at lower, %d between, %d at upper - lowest %g, highest %g most away %g - highest dual %g lowest %g\n",
                   numberAtLower, numberBetween, numberAtUpper,
-                  lowestPrimal, highestPrimal, largestAway,
-                  lowestDual, highestDual);
+                  (double)lowestPrimal, (double)highestPrimal, (double)largestAway,
+                  (double)lowestDual, (double)highestDual);
                 break;
               }
               // make fancy later on
@@ -2716,7 +2716,7 @@ clp watson.mps -\nscaling off\nprimalsimplex");
                     fprintf(fp, "%s,", name);
                   }
                   if (valueIncrease[i] < 1.0e30) {
-                    fprintf(fp, "%.10g,", valueIncrease[i]);
+                    fprintf(fp, "%.10g,", (double)valueIncrease[i]);
                     int outSequence = sequenceIncrease[i];
                     if (outSequence < numberColumns) {
                       if (lengthName)
@@ -2734,7 +2734,7 @@ clp watson.mps -\nscaling off\nprimalsimplex");
                     fprintf(fp, "1.0e100,,");
                   }
                   if (valueDecrease[i] < 1.0e30) {
-                    fprintf(fp, "%.10g,", valueDecrease[i]);
+                    fprintf(fp, "%.10g,", (double)valueDecrease[i]);
                     int outSequence = sequenceDecrease[i];
                     if (outSequence < numberColumns) {
                       if (lengthName)
@@ -2795,8 +2795,8 @@ clp watson.mps -\nscaling off\nprimalsimplex");
                       for (; i < static_cast< size_t >(lengthPrint); i++)
                         fprintf(fp, " ");
                     }
-                    fprintf(fp, printFormat, primalRowSolution[iRow],
-                      dualRowSolution[iRow]);
+                    fprintf(fp, printFormat, (double)primalRowSolution[iRow],
+                      (double)dualRowSolution[iRow]);
                   }
                 }
               }
@@ -2830,8 +2830,8 @@ clp watson.mps -\nscaling off\nprimalsimplex");
                       fprintf(fp, " ");
                   }
                   fprintf(fp, printFormat,
-                    primalColumnSolution[iColumn],
-                    dualColumnSolution[iColumn]);
+                    (double)primalColumnSolution[iColumn],
+                    (double)dualColumnSolution[iColumn]);
                 }
               }
               if (fp != stdout)
@@ -2994,11 +2994,11 @@ static void breakdown(const char *name, CoinBigIndex numberLook, const FloatT *r
   printf("\n%s has %d entries\n", name, numberLook);
   for (i = 0; i < nRanges; i++) {
     if (number[i])
-      printf("%d between %g and %g", number[i], range[i - 1], range[i]);
+      printf("%d between %g and %g", number[i], (double)range[i - 1], (double)range[i]);
     if (numberExact[i]) {
       if (number[i])
         printf(", ");
-      printf("%d exactly at %g", numberExact[i], range[i]);
+      printf("%d exactly at %g", numberExact[i], (double)range[i]);
     }
     if (number[i] + numberExact[i])
       printf("\n");
@@ -3145,13 +3145,13 @@ static void statistics(ClpSimplex *originalModel, ClpSimplex *model)
           for (int jColumn = 1; jColumn < numberSort; jColumn++) {
             if (CoinAbs(obj[jColumn] - last) > 1.0e-12) {
               printf("%d variables have objective of %g\n",
-                jColumn - iLast, last);
+                jColumn - iLast, (double)last);
               iLast = jColumn;
               last = obj[jColumn];
             }
           }
           printf("%d variables have objective of %g\n",
-            numberSort - iLast, last);
+            numberSort - iLast, (double)last);
           if (saveModel) {
             int spaceNeeded = numberSort + numberDifferentObj;
             int *columnAdd = new int[spaceNeeded];
@@ -3471,10 +3471,10 @@ static void statistics(ClpSimplex *originalModel, ClpSimplex *model)
             iColumn = order[lColumn];
             CoinBigIndex start = columnStart[iColumn];
             if (model->logLevel() == 63) {
-              printf("column %d %g <= ", iColumn, columnLower[iColumn]);
+              printf("column %d %g <= ", iColumn, (double)columnLower[iColumn]);
               for (CoinBigIndex i = start; i < start + iRow; i++)
-                printf("( %d, %g) ", row[i], element[i]);
-              printf("<= %g\n", columnUpper[iColumn]);
+                printf("( %d, %g) ", row[i], (double)element[i]);
+              printf("<= %g\n", (double)columnUpper[iColumn]);
             }
           }
         }
@@ -3512,7 +3512,7 @@ static void statistics(ClpSimplex *originalModel, ClpSimplex *model)
       int length = columnLength[iColumn];
       if (columnLower[iColumn] < -1.0e30 && columnUpper[iColumn] > 1.0e30) {
         if (length == 1) {
-          printf("Singleton free %d - cost %g\n", iColumn, objective[iColumn]);
+          printf("Singleton free %d - cost %g\n", iColumn, (double)objective[iColumn]);
         } else if (length == 2) {
           int iRow0 = row[columnStart[iColumn]];
           int iRow1 = row[columnStart[iColumn] + 1];
@@ -3521,8 +3521,8 @@ static void statistics(ClpSimplex *originalModel, ClpSimplex *model)
           int n0 = rowLength[iRow0];
           int n1 = rowLength[iRow1];
           printf("Doubleton free %d - cost %g - %g in %srow with %d entries and %g in %srow with %d entries\n",
-            iColumn, objective[iColumn], element0, (rowLower[iRow0] == rowUpper[iRow0]) ? "==" : "", n0,
-            element1, (rowLower[iRow1] == rowUpper[iRow1]) ? "==" : "", n1);
+            iColumn, (double)objective[iColumn], (double)element0, (rowLower[iRow0] == rowUpper[iRow0]) ? "==" : "", n0,
+            (double)element1, (rowLower[iRow1] == rowUpper[iRow1]) ? "==" : "", n1);
         }
       }
       if (length == 1) {
@@ -3543,13 +3543,13 @@ static void statistics(ClpSimplex *originalModel, ClpSimplex *model)
         }
         if (!objective[iColumn]) {
           if (morePrint)
-            printf("Singleton %d with no objective in row with %d elements - rhs %g,%g\n", iColumn, rowLength[iRow], rowLower[iRow], rowUpper[iRow]);
+            printf("Singleton %d with no objective in row with %d elements - rhs %g,%g\n", iColumn, rowLength[iRow], (double)rowLower[iRow], (double)rowUpper[iRow]);
           nPossibleZeroCost++;
         } else if (value != -COIN_DBL_MAX) {
           if (morePrint)
             printf("Singleton %d (%s) with objective in row %d (%s) with %d equal elements - rhs %g,%g\n", iColumn, model->getColumnName(iColumn).c_str(),
               iRow, model->getRowName(iRow).c_str(),
-              rowLength[iRow], rowLower[iRow], rowUpper[iRow]);
+              rowLength[iRow], (double)rowLower[iRow], (double)rowUpper[iRow]);
           nPossibleNonzeroCost++;
         }
       }
@@ -3926,10 +3926,10 @@ static void statistics(ClpSimplex *originalModel, ClpSimplex *model)
             iRow = order[lRow];
             CoinBigIndex start = rowStart[iRow];
             if (morePrint) {
-              printf("row %d %g <= ", iRow, rowLower[iRow]);
+              printf("row %d %g <= ", iRow, (double)rowLower[iRow]);
               for (CoinBigIndex i = start; i < start + iColumn; i++)
-                printf("( %d, %g) ", column[i], element[i]);
-              printf("<= %g\n", rowUpper[iRow]);
+                printf("( %d, %g) ", column[i], (double)element[i]);
+              printf("<= %g\n", (double)rowUpper[iRow]);
             }
             int first = column[start];
             FloatT sum = 0.0;
@@ -4312,14 +4312,14 @@ static void statistics(ClpSimplex *originalModel, ClpSimplex *model)
                   if (nMapRow == 1) {
                     CoinBigIndex start = rowStart[kRow];
                     int length = rowLength[kRow];
-                    printf("%g <= ", rowLower[kRow]);
+                    printf("%g <= ", (double)rowLower[kRow]);
                     for (CoinBigIndex i = start; i < start + length; i++) {
                       int jColumn = column[i];
                       if (mapColumn[jColumn] != jColumn)
                         printf("* ");
-                      printf("%d,%g ", jColumn, element[i]);
+                      printf("%d,%g ", jColumn, (double)element[i]);
                     }
-                    printf("<= %g\n", rowUpper[kRow]);
+                    printf("<= %g\n", (double)rowUpper[kRow]);
                   }
                 }
                 // temp

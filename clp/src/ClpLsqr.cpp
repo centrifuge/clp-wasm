@@ -89,8 +89,8 @@ void ClpLsqr::do_lsqr(CoinDenseVector< FloatT > &b,
     printf(" %s%s\n", head1, head2);
     FloatT test1 = 1;
     FloatT test2 = alfa / beta;
-    sprintf(str1, "%6d %12.5e %10.3e", *itn, x[0], rnorm);
-    sprintf(str2, "  %8.1e  %8.1e", test1, test2);
+    sprintf(str1, "%6d %12.5e %10.3e", *itn, (double)x[0], (double)rnorm);
+    sprintf(str2, "  %8.1e  %8.1e", (double)test1, (double)test2);
     printf("%s%s\n", str1, str2);
   }
 
@@ -241,7 +241,7 @@ void ClpLsqr::do_lsqr(CoinDenseVector< FloatT > &b,
           if (show) {
             printf("\n                                ");
             printf("                                \n");
-            printf(" %5.1f%7d%7.3f", log10(atolold), *itn, r3ratio);
+            printf(" %5.1f%7d%7.3f", (double)mp::log10(atolold), *itn, (double)r3ratio);
           }
           atol = atol * 0.1;
           atolnew = atol;
@@ -276,9 +276,9 @@ void ClpLsqr::do_lsqr(CoinDenseVector< FloatT > &b,
 
       if (prnt == 1) {
         if (show) {
-          sprintf(str1, "   %6d %12.5e %10.3e", *itn, x[0], rnorm);
-          sprintf(str2, "  %8.1e %8.1e", test1, test2);
-          sprintf(str3, " %8.1e %8.1e", anorm, acond);
+          sprintf(str1, "   %6d %12.5e %10.3e", *itn, (double)x[0], (double)rnorm);
+          sprintf(str2, "  %8.1e %8.1e", (double)test1, (double)test2);
+          sprintf(str3, " %8.1e %8.1e", (double)anorm, (double)acond);
           printf("%s%s%s\n", str1, str2, str3);
         }
       }
@@ -295,9 +295,9 @@ void ClpLsqr::do_lsqr(CoinDenseVector< FloatT > &b,
     //    disp(' ')
     printf("%s\n", term_msg[*istop]);
     sprintf(str1, "istop  =%8d     itn    =%8d", *istop, *itn);
-    sprintf(str2, "anorm  =%8.1e   acond  =%8.1e", anorm, acond);
-    sprintf(str3, "rnorm  =%8.1e   arnorm =%8.1e", rnorm, arnorm);
-    sprintf(str4, "bnorm  =%8.1e   xnorm  =%8.1e", bnorm, xnorm);
+    sprintf(str2, "anorm  =%8.1e   acond  =%8.1e", (double)anorm, (double)acond);
+    sprintf(str3, "rnorm  =%8.1e   arnorm =%8.1e", (double)rnorm, (double)arnorm);
+    sprintf(str4, "bnorm  =%8.1e   xnorm  =%8.1e", (double)bnorm, (double)xnorm);
     printf("%s %s\n", str1, str2);
     printf("%s %s\n", str3, str4);
   }

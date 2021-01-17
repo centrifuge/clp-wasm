@@ -362,7 +362,7 @@ void ClpNetworkBasis::print()
   for (i = 0; i < numberRows_ + 1; i++)
     printf("%4d  %7d   %8d  %7d  %7d  %5g  %7d\n",
       i, parent_[i], descendant_[i], leftSibling_[i], rightSibling_[i],
-      sign_[i], depth_[i]);
+      (double)sign_[i], depth_[i]);
 }
 /* Replaces one Column to basis,
    returns 0=OK

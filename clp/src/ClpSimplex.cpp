@@ -824,8 +824,8 @@ int ClpSimplex::gutsOfSolution(FloatT *givenDuals,
   if (handler_->logLevel() == 63)
     printf("end getsolution algorithm %d status %d npinf %d sum,relaxed %g,%g ndinf %d sum,relaxed %g,%g\n",
       algorithm_, problemStatus_,
-      numberPrimalInfeasibilities_, sumPrimalInfeasibilities_, sumOfRelaxedPrimalInfeasibilities_,
-      numberDualInfeasibilities_, sumDualInfeasibilities_, sumOfRelaxedDualInfeasibilities_);
+      numberPrimalInfeasibilities_, (double)sumPrimalInfeasibilities_, (double)sumOfRelaxedPrimalInfeasibilities_,
+      numberDualInfeasibilities_, (double)sumDualInfeasibilities_, (double)sumOfRelaxedDualInfeasibilities_);
   if ((moreSpecialOptions_ & 8388608) != 0) {
     if (algorithm_ < 0) {
       bool doneFiddling = false;
@@ -839,7 +839,7 @@ int ClpSimplex::gutsOfSolution(FloatT *givenDuals,
           primalTolerance_ = CoinMax(0.25 * primalTolerance_,
             minimumPrimalTolerance_);
           printf("Resetting primal tolerance from %g to %g\n",
-            saveTolerance, primalTolerance_);
+            (double)saveTolerance, (double)primalTolerance_);
           dblParam_[ClpPrimalTolerance] = primalTolerance_;
           moreSpecialOptions_ &= ~8388608;
           // redo with switch off
@@ -874,7 +874,7 @@ int ClpSimplex::gutsOfSolution(FloatT *givenDuals,
           }
           if (primalTolerance_ != oldTolerance) {
             printf("Changing primal tolerance from %g to %g\n",
-              oldTolerance, primalTolerance_);
+              (double)oldTolerance, (double)primalTolerance_);
             moreSpecialOptions_ &= ~8388608;
             // redo with switch off
             returnCode = gutsOfSolution(givenDuals, givenPrimals, valuesPass);
@@ -5776,10 +5776,10 @@ int ClpSimplex::dualDebug(int ifValuesPass, int startFinishOptions)
     if (handler_->logLevel() == 63) {
       if (numberPrimalInfeasibilities_ || numberDualInfeasibilities_)
         printf("minor inaccuracy primal sum %g (%d) error %g, dual %g (%d) %g\n",
-          sumPrimalInfeasibilities_, numberPrimalInfeasibilities_,
-          largestPrimalError_,
-          sumDualInfeasibilities_, numberDualInfeasibilities_,
-          largestDualError_);
+          (double)sumPrimalInfeasibilities_, numberPrimalInfeasibilities_,
+          (double)largestPrimalError_,
+          (double)sumDualInfeasibilities_, numberDualInfeasibilities_,
+          (double)largestDualError_);
     }
     if (numberPrimalInfeasibilities_) {
       numberPrimalInfeasibilities_ = 0;
@@ -6056,10 +6056,10 @@ int ClpSimplex::primal(int ifValuesPass, int startFinishOptions)
     if (handler_->logLevel() == 63) {
       if (numberPrimalInfeasibilities_ || numberDualInfeasibilities_)
         printf("minor inaccuracy primal sum %g (%d) error %g, dual %g (%d) %g\n",
-          sumPrimalInfeasibilities_, numberPrimalInfeasibilities_,
-          largestPrimalError_,
-          sumDualInfeasibilities_, numberDualInfeasibilities_,
-          largestDualError_);
+          (double)sumPrimalInfeasibilities_, numberPrimalInfeasibilities_,
+          (double)largestPrimalError_,
+          (double)sumDualInfeasibilities_, numberDualInfeasibilities_,
+          (double)largestDualError_);
     }
     if (numberPrimalInfeasibilities_) {
       numberPrimalInfeasibilities_ = 0;
@@ -8039,7 +8039,7 @@ void ClpSimplex::checkUnscaledSolution()
     if (!numberPrimalInfeasibilities2) {
       sprintf(line, "%d unscaled row infeasibilities - summing to %g",
         numberPrimalInfeasibilities2,
-        sumPrimalInfeasibilities2);
+        (double)sumPrimalInfeasibilities2);
       handler_->message(CLP_GENERAL, messages_)
         << line
         << CoinMessageEol;
@@ -8050,7 +8050,7 @@ void ClpSimplex::checkUnscaledSolution()
     } else {
       sprintf(line, "%d relaxed row infeasibilities - summing to %g",
         numberPrimalInfeasibilities_,
-        sumPrimalInfeasibilities_);
+        (double)sumPrimalInfeasibilities_);
       handler_->message(CLP_GENERAL, messages_)
         << line
         << CoinMessageEol;
@@ -11237,7 +11237,7 @@ int ClpSimplex::fathom(void *stuff)
       if (printing)
         printf("after backtracking - applying node at depth %d - variable %d (%g,%g)\n",
           depth, iColumn,
-          columnLower_[iColumn], columnUpper_[iColumn]);
+          (double)columnLower_[iColumn], (double)columnUpper_[iColumn]);
       depth++;
     } else {
       // just bounds
@@ -11247,7 +11247,7 @@ int ClpSimplex::fathom(void *stuff)
         if (printing)
           printf("No backtracking - applying node at depth-m %d - variable %d (%g,%g)\n",
             depth - 1, iColumn,
-            columnLower_[iColumn], columnUpper_[iColumn]);
+            (double)columnLower_[iColumn], (double)columnUpper_[iColumn]);
       }
     }
     // solve
@@ -11857,7 +11857,7 @@ int ClpSimplex::fathomMany(void *stuff)
       if (printing)
         printf("after backtracking - applying node at depth %d - variable %d (%g,%g)\n",
           depth, iColumn,
-          columnLower_[iColumn], columnUpper_[iColumn]);
+          (double)columnLower_[iColumn], (double)columnUpper_[iColumn]);
       depth++;
       useDepth--;
     } else {
@@ -11870,7 +11870,7 @@ int ClpSimplex::fathomMany(void *stuff)
         if (printing)
           printf("No backtracking - applying node at depth-m %d - variable %d (%g,%g)\n",
             depth - 1, iColumn,
-            columnLower_[iColumn], columnUpper_[iColumn]);
+            (double)columnLower_[iColumn], (double)columnUpper_[iColumn]);
       }
     }
     // solve
@@ -11882,7 +11882,7 @@ int ClpSimplex::fathomMany(void *stuff)
     numberIterations += numberIterations_;
     if ((numberNodes % 1000) == 0 && printing)
       printf("After %d nodes (%d iterations) - best solution %g - current depth %d\n",
-        numberNodes, numberIterations, bestObjective, depth);
+        numberNodes, numberIterations, (double)bestObjective, depth);
     if (problemStatus_ == 1 || (problemStatus_ == 0 && objectiveValue() * optimizationDirection_ > bestObjective)) {
       backtrack = true;
       if (printing)
@@ -12028,7 +12028,7 @@ int ClpSimplex::fathomMany(void *stuff)
         FloatT objectiveValue = FloatTCheck();
         if (printing)
           printf("Solution of %g after %d nodes at depth %d\n",
-            objectiveValue, numberNodes, depth);
+            (double)objectiveValue, numberNodes, depth);
         if (objectiveValue < bestObjective && !problemStatus_) {
           // make sure node exists
           node = nodeInfo[goodNodes];
@@ -12614,12 +12614,12 @@ void ClpSimplex::generateCpp(FILE *fp, bool defaultFactor)
   dValue1 = this->dualBound();
   dValue2 = other->dualBound();
   fprintf(fp, "%d  FloatT save_dualBound = clpModel->dualBound();\n", dValue1 == dValue2 ? 2 : 1);
-  fprintf(fp, "%d  clpModel->setDualBound(%g);\n", dValue1 == dValue2 ? 4 : 3, dValue1);
+  fprintf(fp, "%d  clpModel->setDualBound(%g);\n", dValue1 == dValue2 ? 4 : 3, (double)dValue1);
   fprintf(fp, "%d  clpModel->setDualBound(save_dualBound);\n", dValue1 == dValue2 ? 7 : 6);
   dValue1 = this->infeasibilityCost();
   dValue2 = other->infeasibilityCost();
   fprintf(fp, "%d  FloatT save_infeasibilityCost = clpModel->infeasibilityCost();\n", dValue1 == dValue2 ? 2 : 1);
-  fprintf(fp, "%d  clpModel->setInfeasibilityCost(%g);\n", dValue1 == dValue2 ? 4 : 3, dValue1);
+  fprintf(fp, "%d  clpModel->setInfeasibilityCost(%g);\n", dValue1 == dValue2 ? 4 : 3, (double)dValue1);
   fprintf(fp, "%d  clpModel->setInfeasibilityCost(save_infeasibilityCost);\n", dValue1 == dValue2 ? 7 : 6);
   iValue1 = this->perturbation();
   iValue2 = other->perturbation();

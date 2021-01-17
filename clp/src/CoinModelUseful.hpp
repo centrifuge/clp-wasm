@@ -174,7 +174,7 @@ struct symrec {
   char *name; /* name of symbol */
   int type; /* type of symbol: either VAR or FNCT */
   union symrecu {
-    FloatT var; /* value of a VAR */
+    double var; /* value of a VAR */
     func_t fnctptr; /* value of a FNCT */
   } value;
   struct symrec *next; /* link field */

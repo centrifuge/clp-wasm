@@ -6,6 +6,7 @@
 #ifndef CoinMpsIO_H
 #define CoinMpsIO_H
 
+#include "floatdef.h"
 #if defined(_MSC_VER)
 // Turn off compiler warning about long names
 #pragma warning(disable : 4786)

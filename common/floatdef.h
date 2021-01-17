@@ -1,5 +1,4 @@
 #pragma once
-
 #pragma warning(disable : 4477)
 
 #include <boost/math/special_functions/round.hpp>
@@ -9,7 +8,6 @@ namespace mp = boost::multiprecision;
 namespace bm = boost::math;
 using bm::round;
 
-// using float_type = mp::number<mp::cpp_dec_float<100>>;
 // using FloatT = double;
 // using FloatT = mp::number<mp::cpp_bin_float<64>>;
 // using FloatT = mp::number<mp::cpp_bin_float<128>>;
@@ -37,7 +35,7 @@ struct common_type<T, int>
 };
 } // namespace std
 
-inline int floor(const FloatT x)
+inline int floor(const FloatT & x)
 {
     return static_cast<int>(x);
 }
@@ -47,3 +45,4 @@ FloatT fd(const T x)
 {
     return static_cast<FloatT>(x);
 }
+

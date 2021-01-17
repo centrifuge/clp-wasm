@@ -472,21 +472,21 @@ const CoinPresolveAction
 #endif
       }
     } else if (!positive && false) {
-      printf("all negative %g <= ", rlo[i]);
+      printf("all negative %g <= ", (double)rlo[i]);
       for (CoinBigIndex k = krs; k < kre; k++) {
         const FloatT coeff = rowels[k];
         const int icol = hcol[k];
-        printf("(%d,%g) ", icol, coeff);
+        printf("(%d,%g) ", icol, (double)coeff);
       }
-      printf("<= %g\n", rup[i]);
+      printf("<= %g\n", (double)rup[i]);
     } else if (!negative && false) {
-      printf("all positive %g <= ", rlo[i]);
+      printf("all positive %g <= ", (double)rlo[i]);
       for (CoinBigIndex k = krs; k < kre; k++) {
         const FloatT coeff = rowels[k];
         const int icol = hcol[k];
-        printf("(%d,%g) ", icol, coeff);
+        printf("(%d,%g) ", icol, (double)coeff);
       }
-      printf("<= %g\n", rup[i]);
+      printf("<= %g\n", (double)rup[i]);
     }
   }
   //printf("%d had only one bound - %d added\n",nOneBound,nFreed);
