@@ -13,7 +13,6 @@ if(MSVC)
     add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 endif()
 
-
 if(EMSCRIPTEN)
     set(EM_FLAGS "--bind -std=c++17 -s WASM=1 -s ASSERTIONS=2 -s ALLOW_MEMORY_GROWTH=1 -s DISABLE_EXCEPTION_CATCHING=0")
     if (${BUILD_CONFIG_LOWER} MATCHES "debug")
@@ -47,12 +46,6 @@ target_link_libraries(libclp ${Boost_LIBRARIES} )
 # CLP command line application
 add_executable(clp clp/app/ClpMain.cpp clp/app/ClpSolver.cpp clp/app/unitTest.cpp )
 target_link_libraries(clp ${Boost_LIBRARIES} libclp)
-
-# # CPPLEX library
-# include_directories(cpplex)
-# include_directories(cpplex/src)
-# file(GLOB CLP_CXX_FILES "cpplex/src/*.cc")
-# add_library(libcpplex ${CLP_CXX_FILES} )
 
 # Solver wrapper
 add_executable(solver
