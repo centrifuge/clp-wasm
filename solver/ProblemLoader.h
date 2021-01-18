@@ -1,11 +1,12 @@
 #pragma once
-#include "config.h"
+#include "floatdef.h"
 #include <string>
 #include <vector>
 
 class ClpSimplex;
-inline auto MinusInf = std::numeric_limits<double>::min();
-inline auto PlusInf = std::numeric_limits<double>::max();
+
+inline FloatT MinusInf = -std::numeric_limits<double>::max();
+inline FloatT PlusInf = std::numeric_limits<double>::max();
 
 using FloatVector = std::vector<FloatT>;
 using IntVector = std::vector<int>;
@@ -58,7 +59,7 @@ public:
 
     void reset();
 
-    static bool checkIsCpplexProblem(const std::string &problemContent);
+    static bool checkIsCpplexProblem(const std::string & problemContent);
 
 private:
     VariableDefinitionVector _variables;
