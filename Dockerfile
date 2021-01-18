@@ -7,4 +7,5 @@ ADD https://dl.bintray.com/boostorg/release/1.75.0/source/boost_1_75_0.tar.gz .
 RUN tar -zxf boost_1_75_0.tar.gz -C /opt && rm boost_1_75_0.tar.gz
 ENV BOOST_ROOT /opt/boost_1_75_0
 
+ENV CCACHE_DIR /app/.ccache
 WORKDIR /app
