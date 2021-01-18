@@ -35,7 +35,7 @@ if(EMSCRIPTEN)
         endif()
     endforeach()
 else()
-    message("Not using emscripten!")
+    message(STATUS "Compiling native C++")
 endif()
 message(STATUS CMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS})
 
@@ -58,7 +58,7 @@ target_link_libraries(clp ${Boost_LIBRARIES} libclp)
 add_executable(solver
     solver/bindings.cc
     solver/ClpWrapper.cc
-    solver/ProblemLoader.cc 
+    solver/ProblemLoader.cc
 )
 target_link_libraries(solver ${Boost_LIBRARIES} libclp) 
 

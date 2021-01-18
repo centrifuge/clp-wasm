@@ -7,7 +7,6 @@ class ProblemLoader;
 
 class ClpWrapper
 {
-
 public:
     ClpWrapper();
     std::string solveProblem(const std::string & problemFileOrContent);
