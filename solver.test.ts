@@ -1,6 +1,6 @@
 const importSolver = () => {
   return new Promise((resolve) => {
-    const m =require("./web/solver.js");
+    const m =require("./dist/solver.js");
     
     let x = m();
     x['print'] = (x) => {};
