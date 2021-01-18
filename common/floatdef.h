@@ -1,5 +1,6 @@
 #pragma once
 #pragma warning(disable : 4477)
+//#define printf(...) (void)0
 
 #include <boost/math/special_functions/round.hpp>
 #include <boost/multiprecision/cpp_bin_float.hpp>

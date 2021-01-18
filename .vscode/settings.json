@@ -16,6 +16,23 @@
         "--suggest-missing-includes",
         "--compile-commands-dir=build_x64_release"
     ],
+    "cmake.configureOnEdit": false,
+    "cmake.generator": "Ninja",
+    "cSpell.diagnosticLevel": "Hint",
+    "surround.custom": {
+        "toDouble": {
+            "label": "To double",
+            "description": "Convert value to double",
+            "snippet": "dbl($TM_SELECTED_TEXT)$0"
+        },
+    },
+    "cmake.configureOnOpen": false,
+    "windows": {
+        "buildSript": "build.bat"
+    },
+    "linux": {
+        "buildSript": "./build.sh"
+    },
     "files.associations": {
         "cctype": "cpp",
         "clocale": "cpp",
@@ -81,22 +98,5 @@
         "variant": "cpp",
         "*.log": "cpp",
         "csignal": "cpp"
-    },
-    "cmake.generator": "Ninja",
-    "cSpell.diagnosticLevel": "Hint",
-
-    "surround.custom": {
-        "toDouble": {
-          "label": "To double",
-          "description": "Convert value to double",
-          "snippet": "dbl($TM_SELECTED_TEXT)$0"
-        },
-    },
-    "cmake.configureOnOpen": false,
-    "windows": {
-        "buildSript": "build.bat"
-    },
-    "linux": {
-        "buildSript": "./build.sh"
     }
 }

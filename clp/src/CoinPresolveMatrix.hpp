@@ -952,11 +952,12 @@ public:
     const char *rowProhibited = NULL);
 
   /*! \brief Update the model held by a generic OSI */
+#if OsiSolverInterface!=ClpSimplex
   void update_model(OsiSolverInterface *si,
     int nrows0,
     int ncols0,
     CoinBigIndex nelems0);
-
+#endif
   /// Destructor
   ~CoinPresolveMatrix();
 
@@ -1583,6 +1584,7 @@ public:
 
     See OSI code for the definition.
   */
+#if OsiSolverInterface!=ClpSimplex
   CoinPostsolveMatrix(OsiSolverInterface *si,
 
     int ncols0,
@@ -1597,7 +1599,7 @@ public:
 
     unsigned char *colstat,
     unsigned char *rowstat);
-
+#endif
   /*! \brief Load an empty CoinPostsolveMatrix from a CoinPresolveMatrix
 
     This routine transfers the contents of the CoinPrePostsolveMatrix

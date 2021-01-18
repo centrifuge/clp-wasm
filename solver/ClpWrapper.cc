@@ -6,6 +6,10 @@
 #include "ProblemLoader.h"
 #include <fstream>
 #include <memory>
+#include <cstdio>
+
+FILE *CbcOrClpReadCommand = stdin;
+int CbcOrClpRead_mode = 1;
 
 ClpWrapper::ClpWrapper()
 : _model(std::make_shared<ClpSimplex>())

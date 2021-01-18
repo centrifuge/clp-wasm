@@ -5,3 +5,4 @@ build_*
 !.vs/launch.vs.json
 build/
 out/
+node_modules

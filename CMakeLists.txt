@@ -4,7 +4,7 @@ project(solver)
 
 string(TOLOWER ${CMAKE_BUILD_TYPE} BUILD_CONFIG_LOWER)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-# set(CMAKE_UNITY_BUILD ON)
+set(CMAKE_UNITY_BUILD ON)
 
 # file(RELATIVE_PATH CMAKE_NINJA_OUTPUT_PATH_PREFIX ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 # message(STATUS CMAKE_NINJA_OUTPUT_PATH_PREFIX=${CMAKE_NINJA_OUTPUT_PATH_PREFIX})
@@ -12,10 +12,15 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 if(MSVC)
     add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+else()
+    find_program(CCACHE_FOUND ccache)
+    if(CCACHE_FOUND)
+        set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
+    endif()
 endif()
 
 if(EMSCRIPTEN)
-    set(EM_FLAGS "--bind -std=c++17 -s WASM=1 -s ASSERTIONS=2 -s ALLOW_MEMORY_GROWTH=1 -s DISABLE_EXCEPTION_CATCHING=0")
+    set(EM_FLAGS "--bind -std=c++17 -s WASM=1 -s ASSERTIONS=2 -s ALLOW_MEMORY_GROWTH=1 -s DISABLE_EXCEPTION_CATCHING=0 -s MODULARIZE=1")
     if (${BUILD_CONFIG_LOWER} MATCHES "debug")
         message("Building in debug mode")
         set(EM_FLAGS "${EM_FLAGS} -g --source-map-base http://127.0.0.1:5501/web/")
@@ -45,14 +50,15 @@ add_library(libclp ${CLP_CXX_FILES} )
 target_link_libraries(libclp ${Boost_LIBRARIES} )
 
 # CLP command line application
-add_executable(clp clp/app/ClpMain.cpp clp/app/ClpSolver.cpp clp/app/unitTest.cpp )
+file(GLOB CLP_APP_FILES "clp/app/*.cpp")
+add_executable(clp ${CLP_APP_FILES})
 target_link_libraries(clp ${Boost_LIBRARIES} libclp)
 
 # Solver wrapper
 add_executable(solver
     solver/bindings.cc
     solver/ClpWrapper.cc
-    solver/ProblemLoader.cc
+    solver/ProblemLoader.cc 
 )
 target_link_libraries(solver ${Boost_LIBRARIES} libclp) 
 

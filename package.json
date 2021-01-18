@@ -1,38 +1,37 @@
 {
-    "name": "clp-wasm",
-    "version": "0.0.1",
-    "description": "A CLP wrapper for WASM",
-    "main": "dist/index.js",
-    "author": "Darien Pardinas",
-    "license": "ECLIPSE",
-    "repository": {
-      "type": "git",
-      "url": "https://github.com/dpar39/clp-wasm.git"
-    },
-    "devDependencies": {
-      "@types/jest": "^25.2.1",
-      "jest": "^26.0.1",
-      "prettier": "^2.0.5",
-      "ts-jest": "^25.5.1",
-      "typescript": "^3.8.3"
-    },
-    "files": [
-      "dist"
-    ],
-    "types": "dist/index.d.ts",
-    "scripts": {
-      "buildDocker": "docker build . -t clp-wasm-builder ",
-      "buildWasm": "docker run -u $(id -u):$(id -g) -v $PWD:/app clp-wasm-builder ./build.sh release wasm",
-      "watch": "tsc --watch",
-      "prepare": "rm -rf dist && npm run buildDocker && npm run buildWasm",
-      "start": "jest --config jestconfig.json --watchAll",
-      "check:style": "prettier --check \"./**/*[!.d].ts\" && cmake --build build/wasm --target check-format",
-      "fix:style": "prettier --check \"./**/**[!.d].ts\" --write && cmake --build build/wasm --target fix-format",
-      "test": "jest --config jestconfig.json"
-    },
-    "dependencies": {},
-    "peerDependencies": {
-      "typescript": ">= 3.8.3"
-    }
+  "name": "clp-wasm",
+  "version": "0.0.1",
+  "description": "A CLP wrapper for WASM",
+  "main": "dist/index.js",
+  "author": "Darien Pardinas",
+  "license": "ECLIPSE",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dpar39/clp-wasm.git"
+  },
+  "devDependencies": {
+    "@types/jest": "^25.2.1",
+    "jest": "^26.0.1",
+    "prettier": "^2.0.5",
+    "ts-jest": "^25.5.1",
+    "typescript": "^3.8.3"
+  },
+  "files": [
+    "dist"
+  ],
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "buildDocker": "docker build . -t clp-wasm-builder ",
+    "buildWasm": "docker run -u $(id -u):$(id -g) -v $PWD:/app clp-wasm-builder ./build.sh release wasm",
+    "watch": "tsc --watch",
+    "prepare": "rm -rf dist && npm run buildDocker && npm run buildWasm",
+    "start": "jest --config jestconfig.json --watchAll",
+    "check:style": "prettier --check \"./**/*[!.d].ts\" && cmake --build build/wasm --target check-format",
+    "fix:style": "prettier --check \"./**/**[!.d].ts\" --write && cmake --build build/wasm --target fix-format",
+    "test": "jest --config jestconfig.json"
+  },
+  "dependencies": {},
+  "peerDependencies": {
+    "typescript": ">= 3.8.3"
   }
-  
+}

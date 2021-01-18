@@ -32,5 +32,13 @@ jobs:
         run: npm install
 
       # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
+      - name: Build WASM
         run: npm run prepare
+  
+      - name: Publish
+        if: github.ref == 'refs/heads/master'
+        uses: mikeal/merge-release@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+
