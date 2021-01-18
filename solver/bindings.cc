@@ -1,4 +1,5 @@
 #include "ClpWrapper.h"
+#include "floatdef.h"
 
 std::string solveLinearProblem(std::string problem)
 {
@@ -10,14 +11,10 @@ std::string solveLinearProblem(std::string problem)
 #include <emscripten/bind.h>
 #include <sstream>
 
-namespace bm = boost::math;
 std::string bn_round(std::string number)
 {
-    std::stringstream ss;
-    ss << number;
-    float_type x;
-    ss >> x;
-    return bm::round(x).str();
+    FloatT x(number);
+    return round(x).str();
 }
 
 EMSCRIPTEN_BINDINGS(solver)
