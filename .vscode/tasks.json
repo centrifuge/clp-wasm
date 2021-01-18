@@ -16,18 +16,26 @@
     },
     "tasks": [
         {
+            "label": "Build Docker Container",
+            "type": "shell",
+            "command": "docker build . -t clp-wasm-builder",
+            "problemMatcher": []
+        },
+        {
             "label": "Build WASM Debug",
             "type": "shell",
-            "command": "docker run -v ${workspaceFolder}:/app tinlake-builder ./build.sh debug",
+            "command": "docker run -v ${workspaceFolder}:/app clp-wasm-builder ./build.sh debug",
             "group": "build",
-            "problemMatcher": []
+            "problemMatcher": [],
+            "dependsOn": ["Build Docker Container"]
         },
         {
             "label": "Build WASM Release",
             "type": "shell",
-            "command": "docker run -v ${workspaceFolder}:/app tinlake-builder ./build.sh release",
+            "command": "docker run -v ${workspaceFolder}:/app clp-wasm-builder ./build.sh release",
             "group": "build",
-            "problemMatcher": []
+            "problemMatcher": [],
+            "dependsOn": ["Build Docker Container"]
         },
         {
             "label": "WebServe",

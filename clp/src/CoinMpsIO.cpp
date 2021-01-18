@@ -3869,10 +3869,10 @@ void CoinConvertDouble(int section, int formatType, FloatT value, char outputVal
   } else {
     // IEEE
     // ieee - 3 bytes go to 2
-    assert(sizeof(FloatT) == 8 * sizeof(char));
+    assert(sizeof(double) == 8 * sizeof(char));
     assert(sizeof(unsigned short) == 2 * sizeof(char));
     unsigned short shortValue[4];
-    memcpy(shortValue, &value, sizeof(FloatT));
+    memcpy(shortValue, &value, sizeof(double));
     outputValue[12] = '\0';
     if (formatType == 2) {
       // INTEL

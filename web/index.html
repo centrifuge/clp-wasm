@@ -212,7 +212,6 @@
           -(1 - minTr) * td(state.netAssetValue) -
           (1 - minTr) * td(state.reserve) +
           td(state.seniorAsset);
-        console.log(tmp);
 
         const minTINRatioLb = maxDropRatio
           .neg()
@@ -260,8 +259,10 @@ maximize ${tinInvestWeight} ${dropInvestWeight} ${tinRedeemWeight} ${dropRedeemW
         return template;
       }
 
+      console.log('Initialized')
       Module.onRuntimeInitialized = async (_) => {
-        solveProblemFromFromLP();
+        console.log('Initialized')
+        //solveProblemFromFromLP();
       };
 
       function solveLpProblem(lpProblem) {
@@ -281,7 +282,7 @@ maximize ${tinInvestWeight} ${dropInvestWeight} ${tinRedeemWeight} ${dropRedeemW
 
       function solveProblemFromTestCase() {
         lpProblemElmt.value = prepareProblemFromTestCase();
-        solveProblemFromFromLP();
+        //solveProblemFromFromLP();
       }
     </script>
   </body>

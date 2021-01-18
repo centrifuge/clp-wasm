@@ -1,0 +1,13 @@
+# action.yml
+name: 'BuildCLPWasm'
+description: 'Builds CLP solver using Emscripten'
+inputs:
+  build-mode:
+    description: 'debug or release'
+    required: true
+    default: 'release'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  args:
+    - ${{ inputs.build-mode }}

@@ -28,7 +28,11 @@ std::string ClpWrapper::solveProblem(const std::string & problemFileOrContent)
     {
         problemContent = string { istreambuf_iterator<char>(file), istreambuf_iterator<char>() };
     }
-    
+    else
+    {
+        problemContent = problemFileOrContent;
+    }
+
     if (ProblemLoader::checkIsCpplexProblem(problemContent))
     {
         ProblemLoader loader;
@@ -37,6 +41,7 @@ std::string ClpWrapper::solveProblem(const std::string & problemFileOrContent)
     }
     else
     {
+        std::cout << "Parsing from LP format" << endl;
         Imemstream stream(reinterpret_cast<char *>(&problemContent[0]), problemContent.size());
         _model->readLp(stream);
     }

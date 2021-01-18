@@ -338,6 +338,7 @@ void ProblemLoader::reset()
 
 bool ProblemLoader::checkIsCpplexProblem(const std::string & problemContent)
 {
+    std::cout << problemContent << std::endl;
     const std::vector<std::string> keywords = { "[METADATA]", "[VARIABLES]", "[CONSTRAINTS]", "[OBJECTIVE]"};
     return std::all_of(keywords.begin(), keywords.end(), [&problemContent](const std::string & keyword){
         return problemContent.find(keyword) != std::string::npos;
