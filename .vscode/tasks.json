@@ -44,7 +44,16 @@
         {
             "label": "Build x64 Debug",
             "type": "shell",
-            "command": "build debug x64",
+            "windows": {
+                "command": "build.bat"
+            },
+            "linux": {
+                "command": "./build.sh"
+            },
+            "args": [
+                "debug",
+                "x64"
+            ],
             "group": "build",
             "problemMatcher": {
                 "base": "$gcc",
@@ -57,7 +66,16 @@
         {
             "label": "Build x64 Release",
             "type": "shell",
-            "command": "build release x64",
+            "windows": {
+                "command": "build.bat"
+            },
+            "linux": {
+                "command": "./build.sh"
+            },
+            "args": [
+                "release",
+                "x64"
+            ],
             "group": "build",
             "problemMatcher": {
                 "base": "$gcc",

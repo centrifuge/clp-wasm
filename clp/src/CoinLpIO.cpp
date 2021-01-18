@@ -1878,6 +1878,17 @@ void CoinLpIO::readLp(const char *filename)
   readLp();
 }
 
+void  CoinLpIO::readLp(std::istream & is, const FloatT epsilon) {
+  delete input_;
+  input_ = NULL;
+  if (!is.good()) {
+    char str[] = "### ERROR: Input stream is not readable";
+    throw CoinError(str, "readLp", "CoinLpIO", __FILE__, __LINE__);
+  }
+  input_ = new CoinPlainFileInput(&is);
+  readLp();
+}
+
 /*************************************************************************/
 void CoinLpIO::readLp(FILE *fp, const FloatT epsilon)
 {

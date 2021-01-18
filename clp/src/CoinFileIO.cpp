@@ -2,6 +2,7 @@
 // Copyright (C) 2005, COIN-OR.  All Rights Reserved.
 // This code is licensed under the terms of the Eclipse Public License (EPL).
 
+#include <ostream>
 #if defined(_MSC_VER)
 // Turn off compiler warning about long names
 #pragma warning(disable : 4786)
@@ -42,9 +43,8 @@ const char *CoinFileIOBase::getFileName() const
 #include <stdio.h>
 
 // This reads plain text files
-CoinPlainFileInput::CoinPlainFileInput(const std::string &fileName)
+CoinPlainFileInput::CoinPlainFileInput(const std::string & fileName)
   : CoinFileInput(fileName)
-  , f_(0)
 {
   readType_ = "plain";
   if (fileName != "stdin") {
@@ -65,6 +65,13 @@ CoinPlainFileInput::CoinPlainFileInput(FILE *fp)
   readType_ = "plain";
 }
 
+CoinPlainFileInput::CoinPlainFileInput(std::istream * is)
+  : CoinFileInput("")
+  , is_(is)
+{
+  readType_ = "plain";
+}
+
 CoinPlainFileInput::~CoinPlainFileInput()
 {
   if (f_ != 0)
@@ -73,12 +80,30 @@ CoinPlainFileInput::~CoinPlainFileInput()
 
 int CoinPlainFileInput::read(void *buffer, int size)
 {
-  return static_cast< int >(fread(buffer, 1, size, f_));
+  if (f_)
+  {
+    return static_cast< int >(fread(buffer, 1, size, f_));
+  }
+  else if (is_)
+  {
+    is_->read(reinterpret_cast<char *>(buffer), size);
+    return is_->gcount();
+  }
+  return 0;
 }
 
 char *CoinPlainFileInput::gets(char *buffer, int size)
 {
-  return fgets(buffer, size, f_);
+  if (f_)
+  {
+    return fgets(buffer, size, f_);
+  }
+  else if (is_)
+  {
+    is_->getline(buffer, size);
+    return is_->bad() ? nullptr : buffer;
+  }
+  return nullptr;
 }
 
 // ------ helper class supporting buffered gets -------
@@ -396,6 +421,12 @@ public:
     }
   }
 
+  CoinPlainFileOutput(std::ostream * os)
+    : CoinFileOutput("")
+    , os_(os)
+  {
+  }
+
   virtual ~CoinPlainFileOutput()
   {
     if (f_ != 0 && f_ != stdout)
@@ -404,7 +435,16 @@ public:
 
   virtual int write(const void *buffer, int size)
   {
-    return static_cast< int >(fwrite(buffer, 1, size, f_));
+    if (f_)
+    {
+      return static_cast< int >(fwrite(buffer, 1, size, f_));
+    }
+    else
+    {
+      os_->write(reinterpret_cast<const char *>(buffer), size);
+      return os_->good() ? size : 0;
+    }
+    
   }
 
   // we have something better than the default implementation
@@ -414,7 +454,8 @@ public:
   }
 
 private:
-  FILE *f_;
+  FILE *f_ { nullptr };
+  std::ostream * os_ { nullptr };
 };
 
 // ------- CoinGzipFileOutput ---------

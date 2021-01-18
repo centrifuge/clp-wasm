@@ -10,7 +10,9 @@
       "request": "launch",
       "program": "${workspaceFolder}/build_x64_debug/solver",
       "args": [
-        "problems/tinlake-real.problem"
+        "problems/tinlake-real.problem",
+        "problems/tinlake-test.lp"
+
       ],
       "preLaunchTask": "Build x64 Debug",
       "stopAtEntry": false,

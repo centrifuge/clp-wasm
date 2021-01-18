@@ -30,6 +30,7 @@ class OsiClpSolverInterface;
 class CoinWarmStartBasis;
 class ClpDisasterHandler;
 class ClpConstraint;
+class CoinLpIO;
 /*
   May want to use Clp defaults so that with ABC defined but not used
   it behaves as Clp (and ABC used will be different than if not defined)
@@ -272,6 +273,10 @@ public:
   /// Read file in LP format from file with name filename.
   /// See class CoinLpIO for description of this format.
   int readLp(const char *filename, const FloatT epsilon = 1e-5);
+  int readLp(std::istream & is, const FloatT epsilon = 1e-5);
+private:
+  int readLp(CoinLpIO & m);
+public:
   /** Write the problem into an Lp file of the given filename.
 	  If objSense is non zero then -1.0 forces the code to write a
 	  maximization objective and +1.0 to write a minimization one.

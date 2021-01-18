@@ -6,6 +6,7 @@
 #define CoinFileIO_H
 
 #include <string>
+#include <istream>
 
 /// Base class for FileIO classes.
 class CoinFileIOBase {
@@ -84,6 +85,8 @@ public:
   CoinPlainFileInput(const std::string &fileName);
   /// When already opened
   CoinPlainFileInput(FILE *fp);
+  CoinPlainFileInput(std::istream *is);
+
   virtual ~CoinPlainFileInput();
 
   virtual int read(void *buffer, int size);
@@ -91,7 +94,8 @@ public:
   virtual char *gets(char *buffer, int size);
 
 private:
-  FILE *f_;
+  FILE *f_ { nullptr };
+  std::istream *is_ { nullptr };
 };
 
 /// Abstract base class for file output classes.

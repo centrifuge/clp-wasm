@@ -1,8 +1,10 @@
 
 #include "ClpWrapper.h"
 #include "ClpSimplex.hpp"
+#include "memstream.h"
 
 #include "ProblemLoader.h"
+#include <fstream>
 #include <memory>
 
 ClpWrapper::ClpWrapper()
@@ -19,14 +21,29 @@ FloatVector toFloatVector(const FloatT * data, int len)
 
 std::string ClpWrapper::solveProblem(const std::string & problemFileOrContent)
 {
-    _problemLoader = std::make_shared<ProblemLoader>();
-
-    _problemLoader->loadProblem(problemFileOrContent);
-
-    _problemLoader->setProblemOnModel(*_model);
+    ProblemLoader loader;
+    loader.loadProblem(problemFileOrContent);
+    loader.setProblemOnModel(*_model);
 
     _model->createStatus();
+    _model->primal();
 
+    return prepareSolution();
+}
+
+std::string ClpWrapper::solveProblemLp(const std::string & problemFileOrContent)
+{
+    using namespace std;
+    ifstream file(problemFileOrContent.c_str());
+    string problem_content;
+    if (file.good())
+    {
+        problem_content = string { istreambuf_iterator<char>(file), istreambuf_iterator<char>() };
+    }
+    Imemstream stream(reinterpret_cast<char *>(&problem_content[0]), problem_content.size());
+
+    _model->readLp(stream);
+    _model->createStatus();
     _model->primal();
 
     return prepareSolution();
@@ -77,7 +94,6 @@ std::string asJsonObject(const std::vector<std::pair<std::string, std::string>> 
 
 std::string ClpWrapper::prepareSolution() const
 {
-
     const int precision = 2;
 
     using namespace std;
@@ -88,21 +104,13 @@ std::string ClpWrapper::prepareSolution() const
 
     std::vector<std::pair<std::string, std::string>> solutionObj;
 
-    std::vector<std::string> varNames;
-    for (const auto & var : _problemLoader->getVariableDefinitions())
-    {
-        varNames.push_back(var.name);
-    }
-
-    solutionObj.emplace_back("variables", asJsonArray(varNames));
+    auto varNames = _model->columnNames();
+    solutionObj.emplace_back("variables", asJsonArray(*varNames));
     solutionObj.emplace_back("solution", asJsonArray(solution, precision));
     solutionObj.emplace_back("unboundedRay", asJsonArray(unbounded, precision));
     solutionObj.emplace_back("infeasibilityRay", asJsonArray(infeasibility, precision));
 
     auto objectiveValue = _model->objectiveValue();
-    if (_problemLoader->getObjectiveDirection() == MAXIMIZE)
-        objectiveValue *= -1;
-
     solutionObj.emplace_back("objectiveValue", toString(objectiveValue, precision));
 
     auto solObjStr = asJsonObject(solutionObj);

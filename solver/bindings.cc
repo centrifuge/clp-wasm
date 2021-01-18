@@ -3,7 +3,10 @@
 std::string solveLinearProblem(std::string problem)
 {
     ClpWrapper clpWrapper;
-    return clpWrapper.solveProblem(problem);
+    if (problem.find(".lp") != std::string::npos)
+        return clpWrapper.solveProblemLp(problem);
+    else
+        return clpWrapper.solveProblem(problem);
 }
 
 #ifdef __EMSCRIPTEN__

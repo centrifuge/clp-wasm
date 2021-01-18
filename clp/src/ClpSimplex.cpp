@@ -7631,7 +7631,8 @@ int ClpSimplex::readLp(const char *filename, const FloatT epsilon)
   else
     fp = stdin;
 
-  if (!fp) {
+  if (!fp) 
+  {
     printf("### ERROR: ClpSimplex::readLp():  Unable to open file %s for reading\n",
       filename);
     return (1);
@@ -7640,7 +7641,18 @@ int ClpSimplex::readLp(const char *filename, const FloatT epsilon)
   m.setEpsilon(epsilon);
   fclose(fp);
   m.readLp(filename);
+  return readLp(m);
+}
 
+int ClpSimplex::readLp(std::istream & is, const FloatT epsilon)
+{
+  CoinLpIO m;
+  m.readLp(is, epsilon);
+  return readLp(m);
+}
+
+int ClpSimplex::readLp(CoinLpIO & m)
+{
   // set problem name
   setStrParam(ClpProbName, m.getProblemName());
   // set objective function offest

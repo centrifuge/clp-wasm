@@ -270,10 +270,11 @@ ObjectiveDirection ProblemLoader::getObjectiveDirection() const
 
 void ProblemLoader::setProblemOnModel(ClpSimplex & simplex)
 {
+    using namespace std;
     const auto dimension = _variables.size();
     FloatVector objective;
     objective.reserve(dimension);
-    const auto sign = _objDirection == MAXIMIZE ? -1 : 1;
+    const auto sign = _objDirection == MAXIMIZE ? 1 : 1;
     for (const auto & v : _objective)
         objective.push_back(sign * v);
 
@@ -286,10 +287,14 @@ void ProblemLoader::setProblemOnModel(ClpSimplex & simplex)
     rowlb.reserve(dimension);
     rowub.reserve(dimension);
 
+    std::vector<std::string> varNames;
+    varNames.reserve(dimension);
+
     for (const auto & var : _variables)
     {
         collb.push_back(var.lowerBound);
         colub.push_back(var.upperBound);
+        varNames.push_back(var.name);
     }
 
     IntVector rowIndices;
@@ -317,7 +322,9 @@ void ProblemLoader::setProblemOnModel(ClpSimplex & simplex)
 
     const auto numElements = static_cast<int>(matrixData.size());
     const CoinPackedMatrix matrix(true, rowIndices.data(), colIndices.data(), matrixData.data(), numElements);
+    simplex.setOptimizationDirection(_objDirection == MAXIMIZE ? -1.0 : 1.0);
     simplex.loadProblem(matrix, collb.data(), colub.data(), objective.data(), rowlb.data(), rowub.data());
+    simplex.copyColumnNames(varNames, 0, dimension);
 }
 
 void ProblemLoader::reset()

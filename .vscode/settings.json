@@ -79,7 +79,8 @@
         "typeindex": "cpp",
         "typeinfo": "cpp",
         "variant": "cpp",
-        "*.log": "cpp"
+        "*.log": "cpp",
+        "csignal": "cpp"
     },
     "cmake.generator": "Ninja",
     "cSpell.diagnosticLevel": "Hint",
@@ -90,5 +91,12 @@
           "description": "Convert value to double",
           "snippet": "dbl($TM_SELECTED_TEXT)$0"
         },
-      }
+    },
+    "cmake.configureOnOpen": false,
+    "windows": {
+        "buildSript": "build.bat"
+    },
+    "linux": {
+        "buildSript": "./build.sh"
+    }
 }
