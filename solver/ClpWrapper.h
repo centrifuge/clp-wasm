@@ -11,7 +11,6 @@ class ClpWrapper
 public:
     ClpWrapper();
     std::string solveProblem(const std::string & problemFileOrContent);
-    std::string solveProblemLp(const std::string & problemFileOrContent);
     std::string prepareSolution() const;
 
 private:

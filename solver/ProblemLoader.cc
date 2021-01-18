@@ -335,3 +335,11 @@ void ProblemLoader::reset()
     _constraints.clear();
     _problemName.clear();
 }
+
+bool ProblemLoader::checkIsCpplexProblem(const std::string & problemContent)
+{
+    const std::vector<std::string> keywords = { "[METADATA]", "[VARIABLES]", "[CONSTRAINTS]", "[OBJECTIVE]"};
+    return std::all_of(keywords.begin(), keywords.end(), [&problemContent](const std::string & keyword){
+        return problemContent.find(keyword) != std::string::npos;
+    });
+}

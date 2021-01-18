@@ -58,6 +58,8 @@ public:
 
     void reset();
 
+    static bool checkIsCpplexProblem(const std::string &problemContent);
+
 private:
     VariableDefinitionVector _variables;
     RowConstraintVector _constraints;

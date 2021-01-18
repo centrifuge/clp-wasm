@@ -21,28 +21,26 @@ FloatVector toFloatVector(const FloatT * data, int len)
 
 std::string ClpWrapper::solveProblem(const std::string & problemFileOrContent)
 {
-    ProblemLoader loader;
-    loader.loadProblem(problemFileOrContent);
-    loader.setProblemOnModel(*_model);
-
-    _model->createStatus();
-    _model->primal();
-
-    return prepareSolution();
-}
-
-std::string ClpWrapper::solveProblemLp(const std::string & problemFileOrContent)
-{
     using namespace std;
     ifstream file(problemFileOrContent.c_str());
-    string problem_content;
+    string problemContent;
     if (file.good())
     {
-        problem_content = string { istreambuf_iterator<char>(file), istreambuf_iterator<char>() };
+        problemContent = string { istreambuf_iterator<char>(file), istreambuf_iterator<char>() };
     }
-    Imemstream stream(reinterpret_cast<char *>(&problem_content[0]), problem_content.size());
+    
+    if (ProblemLoader::checkIsCpplexProblem(problemContent))
+    {
+        ProblemLoader loader;
+        loader.loadProblem(problemFileOrContent);
+        loader.setProblemOnModel(*_model);
+    }
+    else
+    {
+        Imemstream stream(reinterpret_cast<char *>(&problemContent[0]), problemContent.size());
+        _model->readLp(stream);
+    }
 
-    _model->readLp(stream);
     _model->createStatus();
     _model->primal();
 
