@@ -50,8 +50,6 @@ bool isCmpSign(const std::string & token)
 void ProblemLoader::loadProblem(const std::string & problemFileOrContent)
 {
     using namespace std;
-    // auto path = resolvePath(problem_name);
-
     auto problem_content = problemFileOrContent;
     ifstream file(problemFileOrContent.c_str());
     if (file.good())
