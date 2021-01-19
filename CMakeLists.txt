@@ -20,7 +20,7 @@ else()
 endif()
 
 if(EMSCRIPTEN)
-    set(EM_FLAGS "--bind -std=c++17 -s WASM=1 -s ASSERTIONS=2 -s ALLOW_MEMORY_GROWTH=1 -s DISABLE_EXCEPTION_CATCHING=0 -s MODULARIZE=1")
+    set(EM_FLAGS "--bind -std=c++17 -s WASM=1 -s ASSERTIONS=2 -s ALLOW_MEMORY_GROWTH=1 -s DISABLE_EXCEPTION_CATCHING=0")
     if (${BUILD_CONFIG_LOWER} MATCHES "debug")
         message("Building in debug mode")
         set(EM_FLAGS "${EM_FLAGS} -g --source-map-base http://127.0.0.1:5501/dist/")

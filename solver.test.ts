@@ -1,12 +1,11 @@
 const importSolver = () => {
   return new Promise((resolve) => {
-    const m =require("./dist/solver.js");
-    
-    let x = m();
-    x['print'] = (x) => {};
-    x.then((lib) => {
-      resolve(lib);
-    });
+    const m = require("./dist/solver.js");
+    m['onRuntimeInitialized'] = () => resolve(m);
+    // let x = m();
+    // x.then((lib) => {
+    //   resolve(lib);
+    // });
   });
 };
 
@@ -16,7 +15,6 @@ describe("CLP tests", () => {
     return new Promise((resolve) => {
       importSolver().then((l) => {
         solver = l; 
-        solver.print = (x) => {};
         resolve(l);
       });
     });

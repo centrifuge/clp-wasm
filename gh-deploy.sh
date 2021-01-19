@@ -1,2 +1,2 @@
 #!/bin/bash
-git subtree push --prefix web github gh-pages
+git subtree push --prefix dist origin gh-pages
