@@ -1,0 +1,187 @@
+{
+    "name": "LP",
+    "objective": {
+        "direction": 2,
+        "name": "obj",
+        "vars": [
+            {
+                "name": "dropRedeem",
+                "coef": 1000000
+            },
+            {
+                "name": "tinRedeem",
+                "coef": 100000
+            },
+            {
+                "name": "tinInvest",
+                "coef": 10000
+            },
+            {
+                "name": "dropInvest",
+                "coef": 1000
+            }
+        ]
+    },
+    "subjectTo": [
+        {
+            "name": "currencyAvailable",
+            "vars": [
+                {
+                    "name": "tinInvest",
+                    "coef": 1
+                },
+                {
+                    "name": "dropInvest",
+                    "coef": 1
+                },
+                {
+                    "name": "tinRedeem",
+                    "coef": -1
+                },
+                {
+                    "name": "dropRedeem",
+                    "coef": -1
+                }
+            ],
+            "bnds": {
+                "type": 2,
+                "ub": 0,
+                "lb": -200
+            }
+        },
+        {
+            "name": "dropRedeemOrder",
+            "vars": [
+                {
+                    "name": "dropRedeem",
+                    "coef": 1
+                }
+            ],
+            "bnds": {
+                "type": 3,
+                "ub": 300,
+                "lb": 0
+            }
+        },
+        {
+            "name": "tinRedeemOrder",
+            "vars": [
+                {
+                    "name": "tinRedeem",
+                    "coef": 1
+                }
+            ],
+            "bnds": {
+                "type": 3,
+                "ub": 100,
+                "lb": 0
+            }
+        },
+        {
+            "name": "dropInvestOrder",
+            "vars": [
+                {
+                    "name": "dropInvest",
+                    "coef": 1
+                }
+            ],
+            "bnds": {
+                "type": 3,
+                "ub": 400,
+                "lb": 0
+            }
+        },
+        {
+            "name": "tinInvestOrder",
+            "vars": [
+                {
+                    "name": "tinInvest",
+                    "coef": 1
+                }
+            ],
+            "bnds": {
+                "type": 3,
+                "ub": 200,
+                "lb": 0
+            }
+        },
+        {
+            "name": "maxReserve",
+            "vars": [
+                {
+                    "name": "tinRedeem",
+                    "coef": -1
+                },
+                {
+                    "name": "dropRedeem",
+                    "coef": -1
+                },
+                {
+                    "name": "tinInvest",
+                    "coef": 1
+                },
+                {
+                    "name": "dropInvest",
+                    "coef": 1
+                }
+            ],
+            "bnds": {
+                "type": 3,
+                "ub": 9800,
+                "lb": 0
+            }
+        },
+        {
+            "name": "minTINRatio",
+            "vars": [
+                {
+                    "name": "tinRedeem",
+                    "coef": -0.85
+                },
+                {
+                    "name": "dropRedeem",
+                    "coef": 0.15
+                },
+                {
+                    "name": "tinInvest",
+                    "coef": 0.85
+                },
+                {
+                    "name": "dropInvest",
+                    "coef": -0.15
+                }
+            ],
+            "bnds": {
+                "type": 2,
+                "ub": 0,
+                "lb": -50
+            }
+        },
+        {
+            "name": "maxTINRatio",
+            "vars": [
+                {
+                    "name": "tinInvest",
+                    "coef": -0.8
+                },
+                {
+                    "name": "dropInvest",
+                    "coef": 0.2
+                },
+                {
+                    "name": "tinRedeem",
+                    "coef": 0.8
+                },
+                {
+                    "name": "dropRedeem",
+                    "coef": -0.2
+                }
+            ],
+            "bnds": {
+                "type": 2,
+                "ub": 0,
+                "lb": 0
+            }
+        }
+    ]
+}
