@@ -1,14 +1,10 @@
 cmake_minimum_required(VERSION 3.16)
 set (CMAKE_CXX_STANDARD 17)
-project(solver)
+project(clp-wasm)
 
 string(TOLOWER ${CMAKE_BUILD_TYPE} BUILD_CONFIG_LOWER)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_UNITY_BUILD ON)
-
-# file(RELATIVE_PATH CMAKE_NINJA_OUTPUT_PATH_PREFIX ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
-# message(STATUS CMAKE_NINJA_OUTPUT_PATH_PREFIX=${CMAKE_NINJA_OUTPUT_PATH_PREFIX})
-# set(CMAKE_NINJA_OUTPUT_PATH_PREFIX ${CMAKE_CURRENT_BINARY_DIR})
 
 if(MSVC)
     add_definitions(-D_CRT_SECURE_NO_WARNINGS)
@@ -20,7 +16,8 @@ else()
 endif()
 
 if(EMSCRIPTEN)
-    set(EM_FLAGS "--bind -std=c++17 -s WASM=1 -s ASSERTIONS=2 -s ALLOW_MEMORY_GROWTH=1 -s DISABLE_EXCEPTION_CATCHING=0")
+    set(PRE_POST "--pre-js ${CMAKE_CURRENT_SOURCE_DIR}/common/pre.js --post-js ${CMAKE_CURRENT_SOURCE_DIR}/common/post.js")
+    set(EM_FLAGS "${PRE_POST} --bind -std=c++17 -s ASSERTIONS=2 -s ALLOW_MEMORY_GROWTH=1 -s TOTAL_MEMORY=33554432 -s DISABLE_EXCEPTION_CATCHING=0")
     if (${BUILD_CONFIG_LOWER} MATCHES "debug")
         message("Building in debug mode")
         set(EM_FLAGS "${EM_FLAGS} -g --source-map-base http://127.0.0.1:5501/dist/")
@@ -49,16 +46,14 @@ file(GLOB CLP_CXX_FILES "clp/src/*.cpp")
 add_library(libclp ${CLP_CXX_FILES} )
 target_link_libraries(libclp ${Boost_LIBRARIES} )
 
-# CLP command line application
-file(GLOB CLP_APP_FILES "clp/app/*.cpp")
-add_executable(clp ${CLP_APP_FILES})
-target_link_libraries(clp ${Boost_LIBRARIES} libclp)
+if(NOT EMSCRIPTEN)
+    # CLP command line application
+    file(GLOB CLP_APP_FILES "clp/app/*.cpp")
+    add_executable(clp ${CLP_APP_FILES})
+    target_link_libraries(clp ${Boost_LIBRARIES} libclp)
+endif()
 
-# Solver wrapper
-add_executable(solver
-    solver/bindings.cc
-    solver/ClpWrapper.cc
-    solver/ProblemLoader.cc
-)
-target_link_libraries(solver ${Boost_LIBRARIES} libclp) 
-
+# CLP wrapper
+file(GLOB SOLVER_CXX_FILES "solver/*.cc")
+add_executable(clp-wasm ${SOLVER_CXX_FILES})
+target_link_libraries(clp-wasm ${Boost_LIBRARIES} libclp) 

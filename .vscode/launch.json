@@ -18,7 +18,7 @@
       "request": "launch",
       "program": "${workspaceFolder}/build_x64_debug/solver",
       "args": [
-        "problems/tinlake-real.problem",
+        "problems/tinlake-real.lp",
         "problems/tinlake-test.lp"
 
       ],

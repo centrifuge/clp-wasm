@@ -101,5 +101,11 @@
             "problemMatcher": [],
             "dependsOn": "Build x64 Release"
         },
+        {
+            "label": "Run clp-wasm tests",
+            "type": "shell",
+            "command": "npm run test",
+            "problemMatcher": [],
+        }
     ],
 }

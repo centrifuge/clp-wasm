@@ -4,16 +4,52 @@
 #include "memstream.h"
 
 #include "ProblemLoader.h"
+#include <cstdio>
 #include <fstream>
 #include <memory>
-#include <cstdio>
 
-FILE *CbcOrClpReadCommand = stdin;
+FILE * CbcOrClpReadCommand = stdin;
 int CbcOrClpRead_mode = 1;
+
+std::string readContent(const std::string & problemFileOrContent)
+{
+    using namespace std;
+    ifstream file(problemFileOrContent.c_str());
+    string problemContent;
+    if (file.good())
+    {
+        return string { istreambuf_iterator<char>(file), istreambuf_iterator<char>() };
+    }
+    return problemFileOrContent;
+}
 
 ClpWrapper::ClpWrapper()
 : _model(std::make_shared<ClpSimplex>())
 {
+}
+
+std::string ClpWrapper::solveProblem(const std::string & problemFileOrContent)
+{
+    if (!readLp(problemFileOrContent))
+    {
+        return {};
+    }
+
+    primal();
+
+    return getSolution(9);
+}
+
+void ClpWrapper::primal()
+{
+    _model->createStatus();
+    _model->primal();
+}
+
+void ClpWrapper::dual()
+{
+    _model->createStatus();
+    _model->dual();
 }
 
 FloatVector toFloatVector(const FloatT * data, int len)
@@ -23,36 +59,42 @@ FloatVector toFloatVector(const FloatT * data, int len)
     return FloatVector(data, data + len);
 }
 
-std::string ClpWrapper::solveProblem(const std::string & problemFileOrContent)
+bool ClpWrapper::readMps(const std::string & problemFileOrContent)
 {
-    using namespace std;
-    ifstream file(problemFileOrContent.c_str());
-    string problemContent;
-    if (file.good())
-    {
-        problemContent = string { istreambuf_iterator<char>(file), istreambuf_iterator<char>() };
-    }
-    else
-    {
-        problemContent = problemFileOrContent;
-    }
+    return readInput(problemFileOrContent, ProblemFormat::LP);
+}
 
-    if (ProblemLoader::checkIsCpplexProblem(problemContent))
-    {
-        ProblemLoader loader;
-        loader.loadProblem(problemFileOrContent);
-        loader.setProblemOnModel(*_model);
-    }
-    else
-    {
-        Imemstream stream(reinterpret_cast<char *>(&problemContent[0]), problemContent.size());
-        _model->readLp(stream);
-    }
+bool ClpWrapper::readLp(const std::string & problemFileOrContent)
+{
+    return readInput(problemFileOrContent, ProblemFormat::LP);
+}
 
-    _model->createStatus();
-    _model->primal();
-
-    return prepareSolution();
+bool ClpWrapper::readInput(const std::string & problemFileOrContent, ProblemFormat format) 
+{
+    try
+    {
+        auto problemContent = readContent(problemFileOrContent);
+        if (ProblemLoader::checkIsCpplexProblem(problemContent))
+        {
+            ProblemLoader loader;
+            loader.loadProblem(problemFileOrContent);
+            loader.setProblemOnModel(*_model);
+        }
+        else
+        {
+            Imemstream stream(reinterpret_cast<char *>(&problemContent[0]), problemContent.size());
+            if (format == ProblemFormat::LP)
+                _model->readLp(stream);
+            else if (format == ProblemFormat::MPS)
+                // _model->readMps(stream);
+                throw std::runtime_error("MPS format not supported just yet");
+        }
+        return true;
+    }
+    catch (const std::exception & e)
+    {
+        return false;
+    }
 }
 
 std::string toString(const FloatT & v, int precision)
@@ -98,10 +140,8 @@ std::string asJsonObject(const std::vector<std::pair<std::string, std::string>> 
     return ss.str();
 }
 
-std::string ClpWrapper::prepareSolution() const
+std::string ClpWrapper::getSolution(const int precision) const
 {
-    const int precision = 2;
-
     using namespace std;
     const auto dim = _model->getNumCols();
     const auto solution = toFloatVector(_model->getColSolution(), dim);

@@ -10,10 +10,16 @@ You can try the solver [here](https://dpar39.github.io/clp-wasm/)
 
 ## Building from source
 
+You'll need docker
 Simply run
+```
+npm install
+npm run build
+npm run test # Optionally run the test suite
+```
 
-   npm run build
-   
 ## Usage
 
-See `solver.test.ts` for a simple example.
+For a browser-based example, please look a the live demo.
+
+For node.js usage see `test/test.js` for a simple example.

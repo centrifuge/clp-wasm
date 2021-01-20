@@ -12,6 +12,9 @@ fi
 
 BUILD_DIR=build_${BUILD_PLATFORM}_${BUILD_CONFIG}
 
+# Clean-up
+rm -f $BUILD_DIR/clp-wasm.js*
+
 if [ $BUILD_PLATFORM == "wasm" ]; then
     echo 'Running wasm build ... '
     source /emsdk/emsdk_env.sh
@@ -29,7 +32,9 @@ fi
 cd $BUILD_DIR && ninja && cd ..
 
 if [ $BUILD_PLATFORM == "wasm" ]; then
-    cp $BUILD_DIR/solver.wasm* dist/
-    cp $BUILD_DIR/solver.js* dist/
+    cp $BUILD_DIR/clp-wasm.wasm* .
+    cp $BUILD_DIR/clp-wasm.js* .
+    cp $BUILD_DIR/clp-wasm.wasm* example/
+    cp $BUILD_DIR/clp-wasm.js* example/
 fi
 

@@ -4,6 +4,10 @@ build_*
 .vs/*
 !.vs/launch.vs.json
 build/
-out/
+clp-wasm.wasm
+clp-wasm.js
+clp-wasm.js.map
 node_modules
 .ccache
+.trash
+example/clp-wasm*

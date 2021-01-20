@@ -26,10 +26,10 @@
   </head>
   <body onload="init()">
     <script src="bn.js" type="text/javascript"></script>
-    <script src="solver.js" type="text/javascript"></script>
+    <script src="clp-wasm.js" type="text/javascript"></script>
     <div class="container-fluid">
       <div class="row">
-        <div class="col">
+        <div class="col-3">
           <h5>Test case</h5>
           <div
             class="btn btn-primary my-1"
@@ -39,7 +39,7 @@
           </div>
           <textarea id="testCase" rows="40"></textarea>
         </div>
-        <div class="col">
+        <div class="col-9">
           <div class="container-fluid" style="height: 100%">
             <div class="row h-50">
               <div class="col">
@@ -146,8 +146,8 @@
       function objToNum(jsonNumber) {
         if (typeof jsonNumber == "string") return new BN(jsonNumber);
         const add = jsonNumber.add ? jsonNumber.add : 0;
-        return (new BN(jsonNumber.value * 10000)
-          .mul(new BN(10).pow(new BN(jsonNumber.base - 5))))
+        return new BN(jsonNumber.value * 10000)
+          .mul(new BN(10).pow(new BN(jsonNumber.base - 5)))
           .add(new BN(add));
       }
 
@@ -155,30 +155,18 @@
         return objToNum(jsonNumber).toString();
       }
 
-      function prepareProblemFromTestCase() {
-        const weights = {
-          seniorRedeem: 1000000,
-          juniorRedeem: 100000,
-          juniorSupply: 10000,
-          seniorSupply: 1000,
-        };
-
+      function calculateOptimalSolution(state, orderState, weights) {
         const tinInvestWeight = weights.juniorSupply;
         const tinRedeemWeight = weights.juniorRedeem;
         const dropInvestWeight = weights.seniorSupply;
         const dropRedeemWeight = weights.seniorRedeem;
 
-        const testCase = JSON.parse(testCaseElmt.value);
-
-        const state = testCase.state;
-        const orders = testCase.orders;
-
         const e27 = objToNum({ value: 1, base: 27 });
 
-        const tinInvestOrders = objToNum(orders.supplyJunior);
-        const tinRedeemOrders = objToNum(orders.redeemJunior);
-        const dropInvestOrders = objToNum(orders.supplySenior);
-        const dropRedeemOrders = objToNum(orders.redeemSenior);
+        const tinInvestOrders = objToNum(orderState.supplyJunior);
+        const tinRedeemOrders = objToNum(orderState.redeemJunior);
+        const dropInvestOrders = objToNum(orderState.supplySenior);
+        const dropRedeemOrders = objToNum(orderState.redeemSenior);
 
         const minDropRatio = objToNum(state.minSeniorRatio);
         const maxDropRatio = objToNum(state.maxSeniorRatio);
@@ -191,13 +179,6 @@
         const maxReserve = objToNum(state.maxReserve);
 
         td = (obj) => obj.value * Math.pow(10, obj.base);
-
-        minTr = state.maxSeniorRatio.value;
-        let tmp =
-          -(1 - minTr) * td(state.netAssetValue) -
-          (1 - minTr) * td(state.reserve) +
-          td(state.seniorAsset);
-
         const minTINRatioLb = maxDropRatio
           .neg()
           .mul(netAssetValue)
@@ -209,23 +190,90 @@
           .add(minDropRatio.mul(reserve))
           .sub(seniorAsset.mul(e27));
 
-        const template = `[METADATA]
-name Tinlake Solver (WIP)
-vars 4
-[VARIABLES]
-0       tinInvest       ${tinInvestOrders}
-0       dropInvest      ${dropInvestOrders}
-0       tinRedeem       ${tinRedeemOrders}
-0       dropRedeem      ${dropRedeemOrders}
-[CONSTRAINTS]
-1 1 -1 -1 < ${reserve}
-1 1 -1 -1 > ${reserve.sub(maxReserve)}
-${maxDropRatio} ${minTinRatio.neg()} ${maxDropRatio.neg()} ${minTinRatio} > ${minTINRatioLb}
-${minDropRatio.neg()} ${maxTinRatio} ${minDropRatio} ${maxTinRatio.neg()} > ${maxTINRatioLb}
-[OBJECTIVE]
-maximize ${tinInvestWeight} ${dropInvestWeight} ${tinRedeemWeight} ${dropRedeemWeight}
+        function nameValToStr(name, coef, first) {
+          var str = "";
+          coef = coef.toString();
+          var coefnum = Number(coef);
+          if (first && coefnum == 1) return name;
+          if (coefnum === 1) {
+            str += "+";
+          } else if (coefnum == -1) {
+            str += "-";
+          } else if (!(coef.startsWith("-") || coef.startsWith("+") || first)) {
+            str += "+" + coef;
+          } else {
+            str += coef;
+          }
+          str += " " + name;
+          return str;
+        }
+
+        function linearExpression(coefs) {
+          const varNames = [
+            "tinInvest",
+            "dropInvest",
+            "tinRedeem",
+            "dropRedeem",
+          ];
+          let str = "";
+          var first = true;
+          const n = varNames.length;
+          for (let i = 0; i < n; ++i) {
+            str += nameValToStr(varNames[i], coefs[i], first) + " ";
+            first = false;
+          }
+          return str;
+        }
+
+        const varWeights = [
+          tinInvestWeight,
+          dropInvestWeight,
+          tinRedeemWeight,
+          dropRedeemWeight,
+        ];
+        const minTINRatioLbCoeffs = [
+          maxDropRatio,
+          minTinRatio.neg(),
+          maxDropRatio.neg(),
+          minTinRatio,
+        ];
+        const maxTINRatioLbCoeffs = [
+          minDropRatio.neg(),
+          maxTinRatio,
+          minDropRatio,
+          maxTinRatio.neg(),
+        ];
+
+        const template = `Maximize
+ ${linearExpression(varWeights)}
+Subject To
+reserve: ${linearExpression([1, 1, -1, -1])} <= ${reserve}
+maxReserve: ${linearExpression([1, 1, -1, -1])} >= ${reserve.sub(maxReserve)}
+minTINRatioLb: ${linearExpression(minTINRatioLbCoeffs)} >= ${minTINRatioLb}
+maxTINRatioLb: ${linearExpression(maxTINRatioLbCoeffs)} >= ${maxTINRatioLb}
+Bounds
+0 <= tinInvest  <= ${tinInvestOrders}
+0 <= dropInvest <= ${dropInvestOrders}
+0 <= tinRedeem  <= ${tinRedeemOrders}
+0 <= dropRedeem <= ${dropRedeemOrders}
+End
 `;
         return template;
+      }
+
+      function prepareProblemFromTestCase() {
+        const testCase = JSON.parse(testCaseElmt.value);
+        const weights = {
+          seniorRedeem: 1000000,
+          juniorRedeem: 100000,
+          juniorSupply: 10000,
+          seniorSupply: 1000,
+        };
+
+        const state = testCase.state;
+        const orders = testCase.orders;
+
+        return calculateOptimalSolution(state, orders, weights);
       }
 
       Module.onRuntimeInitialized = async (_) => {

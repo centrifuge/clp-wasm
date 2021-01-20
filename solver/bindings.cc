@@ -17,14 +17,26 @@ std::string bn_round(std::string number)
     return round(x).str();
 }
 
+std::string getClpVersion()
+{
+    return std::string(CLP_VERSION);
+}
+
 EMSCRIPTEN_BINDINGS(solver)
 {
     using namespace emscripten;
 
     function("bn_round", &bn_round);
     function("solveLinearProblem", &solveLinearProblem);
-
-    class_<ClpWrapper>("ClpWrapper").constructor<>().function("solveProblem", &ClpWrapper::solveProblem);
+    function("getClpVersion", &getClpVersion);
+    class_<ClpWrapper>("ClpWrapper")
+        .constructor<>()
+        .function("solveProblem", &ClpWrapper::solveProblem)
+        .function("readLp", &ClpWrapper::readLp)
+        .function("readMps", &ClpWrapper::readMps)
+        .function("primal", &ClpWrapper::primal)
+        .function("dual", &ClpWrapper::dual)
+        .function("prepareSolution", &ClpWrapper::getSolution);
 }
 
 #else

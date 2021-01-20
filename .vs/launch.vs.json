@@ -5,8 +5,8 @@
     {
       "type": "default",
       "project": "CMakeLists.txt",
-      "projectTarget": "solver.exe",
-      "name": "solver.exe",
+      "projectTarget": "clp-wasm.exe",
+      "name": "clp-wasm.exe",
       "currentDir": "${projectDir}",
       "args": [ "problems/infeasible.problem" ]
     },
