@@ -557,7 +557,7 @@ FloatT getDoubleField(int argc, const char *argv[], int *valid)
   FloatT value = 0.0;
   errno = 0;
   if (field != "EOL") {
-    value = atof(field.c_str());
+    value = FloatT(field);
   }
 
   if (valid != 0) {

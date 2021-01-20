@@ -2590,7 +2590,7 @@ int CoinMpsIO::readMps(int &numberSets, CoinSet **&sets)
           //integerType_[icolumn]=2;
           FloatT value = cardReader_->value();
           if (value == -1.0e100)
-            value = atof(cardReader_->rowName()); // try from row name
+            value = FloatT(cardReader_->rowName()); // try from row name
           which[numberInSet] = icolumn;
           weights[numberInSet++] = value;
         } else {
@@ -3349,7 +3349,7 @@ int CoinMpsIO::readGms(int & /*numberSets*/, CoinSet **& /*sets*/)
         // bound
         char *next = strchr(dot + 1, '=');
         assert(next);
-        FloatT value = atof(next + 1);
+        FloatT value = FloatT(next + 1);
         if (!strncmp(dot + 1, "fx", 2)) {
           collower_[iColumn] = value;
           colupper_[iColumn] = value;
@@ -3373,7 +3373,7 @@ int CoinMpsIO::readGms(int & /*numberSets*/, CoinSet **& /*sets*/)
         // bound
         next = strchr(dot + 1, '=');
         assert(next);
-        FloatT value = atof(next + 1);
+        FloatT value = FloatT(next + 1);
         if (!strncmp(dot + 1, "fx", 2)) {
           collower_[iColumn] = value;
           abort();

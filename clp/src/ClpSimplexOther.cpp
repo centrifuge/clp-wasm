@@ -2322,7 +2322,7 @@ int ClpSimplexOther::parametrics(const char *dataFile)
     if (!comma)
       break;
     *comma = '\0';
-    startTheta = atof(pos);
+    startTheta = FloatT(pos);
     *comma = ',';
     pos = comma + 1;
     // check upper theta
@@ -2330,14 +2330,14 @@ int ClpSimplexOther::parametrics(const char *dataFile)
     good = true;
     if (comma)
       *comma = '\0';
-    endTheta = atof(pos);
+    endTheta = FloatT(pos);
     if (comma) {
       *comma = ',';
       pos = comma + 1;
       comma = strchr(pos, ',');
       if (comma)
         *comma = '\0';
-      intervalTheta = atof(pos);
+      intervalTheta = FloatT(pos);
       if (comma) {
         *comma = ',';
         pos = comma + 1;
@@ -2497,15 +2497,15 @@ int ClpSimplexOther::parametrics(const char *dataFile)
             break;
             // lower
           case 2:
-            upper = atof(pos);
+            upper = FloatT(pos);
             break;
             // upper
           case 3:
-            lower = atof(pos);
+            lower = FloatT(pos);
             break;
             // rhs
           case 4:
-            lower = atof(pos);
+            lower = FloatT(pos);
             upper = lower;
             break;
           }
@@ -2670,15 +2670,15 @@ int ClpSimplexOther::parametrics(const char *dataFile)
               break;
               // lower
             case 2:
-              upper = atof(pos);
+              upper = FloatT(pos);
               break;
               // upper
             case 3:
-              lower = atof(pos);
+              lower = FloatT(pos);
               break;
               // objective
             case 4:
-              obj = atof(pos);
+              obj = FloatT(pos);
               upper = lower;
               break;
             }

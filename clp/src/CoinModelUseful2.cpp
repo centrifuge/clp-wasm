@@ -97,7 +97,7 @@ static void yyerror(char const *);
 
 #if !defined(YYSTYPE) && !defined(YYSTYPE_IS_DECLARED)
 typedef struct YYSTYPE {
-  double val {}; /* For returning numbers.  */
+  FloatT val {}; /* For returning numbers.  */
   symrec *tptr; /* For returning symbol-table pointers.  */
 } YYSTYPE;
 /* Line 191 of yacc.c.  */
@@ -757,7 +757,9 @@ yylex(symrec *&symtable, const char *line, int *position, char *&symbuf, int &le
 
   /* Char starts a number => parse the number.         */
   if (c == '.' || isdigit(c)) {
-    sscanf(line + ipos, "%lf", &yylval.val);
+    double v;
+    sscanf(line + ipos, "%lf", &v);
+    yylval.val = v;
     /* Get first white or other character.  */
     int nE = 0;
     int nDot = 0;

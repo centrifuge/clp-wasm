@@ -3215,7 +3215,7 @@ int CoinModel::decodeBit(char *phrase, char *&nextPhrase, FloatT &coefficient, b
     }
     char saved = *pos2;
     *pos2 = '\0';
-    value = atof(pos);
+    value = FloatT(pos);
     *pos2 = saved;
     // and down to next
     pos2++;
@@ -3251,7 +3251,7 @@ int CoinModel::decodeBit(char *phrase, char *&nextPhrase, FloatT &coefficient, b
       }
       assert(*pos2 == '\0');
       // keep possible -
-      value = value * atof(pos);
+      value = value * FloatT(pos);
       jColumn = -2;
     } else {
       // bad

@@ -1604,7 +1604,7 @@ int CoinLpIO::read_monom_obj(FloatT *coeff, char **name, int *cnt,
   }
 
   if (first_is_number(start)) {
-    coeff[*cnt] = atof(start);
+    coeff[*cnt] = FloatT(start);
     sprintf(loc_name, "aa");
     fscanfLpIO(loc_name);
   } else {
@@ -1679,7 +1679,7 @@ int CoinLpIO::read_monom_row(char *start_str,
   }
 
   if (first_is_number(start)) {
-    coeff[cnt_coeff] = atof(start);
+    coeff[cnt_coeff] = FloatT(start);
     fscanfLpIO(loc_name);
   } else {
     coeff[cnt_coeff] = 1;
@@ -1783,7 +1783,7 @@ void CoinLpIO::read_row(char *buff,
   }
   (*cnt_coeff)--;
 
-  rhs[*cnt_row] = atof(start_str);
+  rhs[*cnt_row] = FloatT(start_str);
 
   switch (read_sense) {
   case 0:
@@ -2036,7 +2036,7 @@ void CoinLpIO::readLp()
 
         int scan_sense = 0;
         if (first_is_number(start_str)) {
-          bnd1 = mult * atof(start_str);
+          bnd1 = mult * FloatT(start_str);
           scan_sense = 1;
         } else {
           if (is_inf(start_str)) {
@@ -2089,7 +2089,7 @@ void CoinLpIO::readLp()
               }
             }
             if (first_is_number(start_str)) {
-              bnd2 = mult * atof(start_str);
+              bnd2 = mult * FloatT(start_str);
               fscanfLpIO(buff);
             } else {
               if (is_inf(start_str)) {
@@ -2379,7 +2379,7 @@ void CoinLpIO::readLp()
                       next = buff - 1;
                     }
                   }
-                  FloatT value = atof(next + 1);
+                  FloatT value = FloatT(next + 1);
                   if (numberEntries == maxEntries) {
                     maxEntries = 2 * maxEntries;
                     FloatT *tempD = new FloatT[maxEntries];
