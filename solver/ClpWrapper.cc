@@ -1,15 +1,30 @@
 
 #include "ClpWrapper.h"
 #include "ClpSimplex.hpp"
-#include "memstream.h"
 
-#include "ProblemLoader.h"
-#include <cstdio>
+
 #include <fstream>
-#include <memory>
 
 FILE * CbcOrClpReadCommand = stdin;
 int CbcOrClpRead_mode = 1;
+
+struct Membuf : std::streambuf
+{
+    Membuf(char const * base, const size_t size)
+    {
+        char * p(const_cast<char *>(base));
+        this->setg(p, p, p + size);
+    }
+    ~Membuf() override = default;
+};
+struct Imemstream : virtual Membuf, std::istream
+{
+    Imemstream(char const * base, const size_t size)
+    : Membuf(base, size)
+    , std::istream(static_cast<std::streambuf *>(this))
+    {
+    }
+};
 
 std::string readContent(const std::string & problemFileOrContent)
 {
@@ -52,11 +67,11 @@ void ClpWrapper::dual()
     _model->dual();
 }
 
-FloatVector toFloatVector(const FloatT * data, int len)
+std::vector<FloatT> toFloatVector(const FloatT * data, int len)
 {
     if (!data)
         return {};
-    return FloatVector(data, data + len);
+    return std::vector<FloatT>(data, data + len);
 }
 
 bool ClpWrapper::readMps(const std::string & problemFileOrContent)
@@ -69,26 +84,17 @@ bool ClpWrapper::readLp(const std::string & problemFileOrContent)
     return readInput(problemFileOrContent, ProblemFormat::LP);
 }
 
-bool ClpWrapper::readInput(const std::string & problemFileOrContent, ProblemFormat format) 
+bool ClpWrapper::readInput(const std::string & problemFileOrContent, ProblemFormat format)
 {
     try
     {
         auto problemContent = readContent(problemFileOrContent);
-        if (ProblemLoader::checkIsCpplexProblem(problemContent))
-        {
-            ProblemLoader loader;
-            loader.loadProblem(problemFileOrContent);
-            loader.setProblemOnModel(*_model);
-        }
-        else
-        {
-            Imemstream stream(reinterpret_cast<char *>(&problemContent[0]), problemContent.size());
-            if (format == ProblemFormat::LP)
-                _model->readLp(stream);
-            else if (format == ProblemFormat::MPS)
-                // _model->readMps(stream);
-                throw std::runtime_error("MPS format not supported just yet");
-        }
+        Imemstream stream(reinterpret_cast<char *>(&problemContent[0]), problemContent.size());
+        if (format == ProblemFormat::LP)
+            _model->readLp(stream);
+        else if (format == ProblemFormat::MPS)
+            // _model->readMps(stream);
+            throw std::runtime_error("MPS format not supported just yet");
         return true;
     }
     catch (const std::exception & e)

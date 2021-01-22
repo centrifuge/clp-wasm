@@ -164,7 +164,7 @@ var clpPromise = new Promise(function (resolve) {
     this["clp"] = (function () {
       var methods = {
         version: function () {
-          return "TODO";
+          return m.getClpVersion()
         },
         solve: function (lpProblem) {
           try {
@@ -176,6 +176,7 @@ var clpPromise = new Promise(function (resolve) {
           }
         },
         toLpFormat: toLpFormat,
+        ClpWrapper: m.ClpWrapper
       };
 
       var pub = {};

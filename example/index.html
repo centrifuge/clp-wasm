@@ -247,7 +247,7 @@
         const template = `Maximize
  ${linearExpression(varWeights)}
 Subject To
-reserve: ${linearExpression([1, 1, -1, -1])} <= ${reserve}
+reserve: ${linearExpression([1, 1, -1, -1])} >= ${reserve.neg()}
 maxReserve: ${linearExpression([1, 1, -1, -1])} >= ${reserve.sub(maxReserve)}
 minTINRatioLb: ${linearExpression(minTINRatioLbCoeffs)} >= ${minTINRatioLb}
 maxTINRatioLb: ${linearExpression(maxTINRatioLbCoeffs)} >= ${maxTINRatioLb}

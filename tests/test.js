@@ -65,5 +65,25 @@ describe("clp-wasm test suite", () => {
       }
     }
   });
+
+  test("get CLP version", () => {
+    const version = solver.version();
+    expect(version).toBe("1.17.3");
+  });
+
+  test("ClpWrapper object api", () => {
+    const lpContent = fs.readFileSync(`${__dirname}/data/lp.lp`, "utf8");
+    const lpBench = fs.readFileSync(`${__dirname}/bench/lp.json`, "utf8");
+
+    const clp = new solver.ClpWrapper();
+    clp.readLp(lpContent);
+    clp.primal();
+    const solution = clp.getSolution(9);
+    const result = JSON.parse(solution);
+    const expected = JSON.parse(lpBench);
+    expect(expected).toMatchObject(result);
+    clp.delete();
+
+  });
 });
 

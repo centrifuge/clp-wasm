@@ -11,7 +11,7 @@ std::string solveLinearProblem(std::string problem)
 #include <emscripten/bind.h>
 #include <sstream>
 
-std::string bn_round(std::string number)
+std::string bnRound(std::string number)
 {
     FloatT x(number);
     return round(x).str();
@@ -26,7 +26,7 @@ EMSCRIPTEN_BINDINGS(solver)
 {
     using namespace emscripten;
 
-    function("bn_round", &bn_round);
+    function("bnRound", &bnRound);
     function("solveLinearProblem", &solveLinearProblem);
     function("getClpVersion", &getClpVersion);
     class_<ClpWrapper>("ClpWrapper")
@@ -36,7 +36,7 @@ EMSCRIPTEN_BINDINGS(solver)
         .function("readMps", &ClpWrapper::readMps)
         .function("primal", &ClpWrapper::primal)
         .function("dual", &ClpWrapper::dual)
-        .function("prepareSolution", &ClpWrapper::getSolution);
+        .function("getSolution", &ClpWrapper::getSolution);
 }
 
 #else
