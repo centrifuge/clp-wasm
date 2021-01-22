@@ -227,18 +227,18 @@ ClpPESimplex::~ClpPESimplex()
         << generalPrint << CoinMessageEol;
     }
     if (numberPivots - coCompatiblePivots()) {
-      sprintf(generalPrint, "(coDegeneratePivots()-coDegenerateCompatiblePivots())/( (numberPivots-coCompatiblePivots()) %g", (static_cast<double>(coDegeneratePivots() - coDegenerateCompatiblePivots())) / (static_cast<double>(numberPivots - coCompatiblePivots())));
+      sprintf(generalPrint, "(coDegeneratePivots()-coDegenerateCompatiblePivots())/( (numberPivots-coCompatiblePivots()) %g", (static_cast< double >(coDegeneratePivots() - coDegenerateCompatiblePivots())) / (static_cast< double >(numberPivots - coCompatiblePivots())));
       model_->messageHandler()->message(CLP_GENERAL,
         *model_->messagesPointer())
         << generalPrint << CoinMessageEol;
     }
     if (coCompatiblePivots()) {
-      sprintf(generalPrint, "coDegenerateCompatiblePivots()/coCompatiblePivots() %g", static_cast<double>(coDegenerateCompatiblePivots()) / static_cast<double>(coCompatiblePivots()));
+      sprintf(generalPrint, "coDegenerateCompatiblePivots()/coCompatiblePivots() %g", static_cast< double >(coDegenerateCompatiblePivots()) / static_cast< double >(coCompatiblePivots()));
       model_->messageHandler()->message(CLP_GENERAL,
         *model_->messagesPointer())
         << generalPrint << CoinMessageEol;
     }
-    sprintf(generalPrint, "coDegeneratePivots()/ numberPivots %g", static_cast<double>(coDegeneratePivots()) / static_cast<double>(numberPivots));
+    sprintf(generalPrint, "coDegeneratePivots()/ numberPivots %g", static_cast< double >(coDegeneratePivots()) / static_cast< double >(numberPivots));
     model_->messageHandler()->message(CLP_GENERAL,
       *model_->messagesPointer())
       << generalPrint << CoinMessageEol;

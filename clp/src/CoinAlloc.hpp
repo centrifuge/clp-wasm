@@ -164,11 +164,11 @@ extern CoinAlloc CoinAllocator;
 #if defined(COINUTILS_MEMPOOL_OVERRIDE_NEW) && (COINUTILS_MEMPOOL_OVERRIDE_NEW == 1)
 void *operator new(std::size_t size) throw(std::bad_alloc);
 void *operator new[](std::size_t) throw(std::bad_alloc);
-void operator delete(void *)throw();
+void operator delete(void *) throw();
 void operator delete[](void *) throw();
 void *operator new(std::size_t, const std::nothrow_t &) throw();
 void *operator new[](std::size_t, const std::nothrow_t &) throw();
-void operator delete(void *, const std::nothrow_t &)throw();
+void operator delete(void *, const std::nothrow_t &) throw();
 void operator delete[](void *, const std::nothrow_t &) throw();
 #endif
 

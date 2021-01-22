@@ -161,7 +161,7 @@ void *operator new[](std::size_t sz, const std::nothrow_t &) throw()
   return p;
 }
 
-void operator delete(void *p, const std::nothrow_t &)throw()
+void operator delete(void *p, const std::nothrow_t &) throw()
 {
   CoinAllocator.dealloc(p);
 }

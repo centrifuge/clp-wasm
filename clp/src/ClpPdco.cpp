@@ -285,7 +285,7 @@ int ClpPdco::pdco(ClpPdcoBase *stuff, Options &options, Info &info, Outfo &outfo
   printf("      d1max   = %8.1e", (double)gamma);
   printf("\nz0min    = %8g     opttol   = %8.1e", (double)z0min, (double)opttol);
   printf("      d2max   = %8.1e", (double)delta);
-  printf("\nmu0      = %8.1e     steptol  = %8g",(double) mu0, (double)steptol);
+  printf("\nmu0      = %8.1e     steptol  = %8g", (double)mu0, (double)steptol);
   printf("     bigcenter= %8g", (double)bigcenter);
 
   printf("\n\nLSQR:");

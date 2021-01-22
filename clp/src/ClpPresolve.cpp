@@ -2005,7 +2005,7 @@ CoinPostsolveMatrix::CoinPostsolveMatrix(ClpSimplex *si,
   unsigned char *colstat_in,
   unsigned char *rowstat_in)
   : CoinPrePostsolveMatrix(si,
-      ncols0_in, nrows0_in, nelems0, 2.0)
+    ncols0_in, nrows0_in, nelems0, 2.0)
   ,
 
   free_list_(0)

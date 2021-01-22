@@ -6,7 +6,6 @@
 #ifndef CoinFloatEqual_H
 #define CoinFloatEqual_H
 
-
 #include "CoinHelperFunctions.hpp"
 #include "CoinFinite.hpp"
 

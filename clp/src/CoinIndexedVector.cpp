@@ -222,7 +222,7 @@ void CoinIndexedVector::setFull(int size, const FloatT *elems)
 
 /** Access the i'th element of the full storage vector.  */
 FloatT &
-  CoinIndexedVector::operator[](int index) const
+CoinIndexedVector::operator[](int index) const
 {
   assert(!packedMode_);
 #ifndef COIN_FAST_CODE
@@ -809,8 +809,8 @@ CoinIndexedVector::operator-(
 
 /// Return the element-wise product of two indexed vectors
 CoinIndexedVector
-  CoinIndexedVector::operator*(
-    const CoinIndexedVector &op2)
+CoinIndexedVector::operator*(
+  const CoinIndexedVector &op2)
 {
   assert(!packedMode_);
   int i;

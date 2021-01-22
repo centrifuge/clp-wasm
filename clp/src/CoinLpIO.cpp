@@ -1878,7 +1878,8 @@ void CoinLpIO::readLp(const char *filename)
   readLp();
 }
 
-void  CoinLpIO::readLp(std::istream & is, const FloatT epsilon) {
+void CoinLpIO::readLp(std::istream &is, const FloatT epsilon)
+{
   delete input_;
   input_ = NULL;
   if (!is.good()) {
@@ -2508,9 +2509,9 @@ void CoinLpIO::readLp()
 
   FloatT *obj[MAX_OBJECTIVES];
   // Check for duplicates - first in objectives
-  int * whichColumn = new int [numberColumns_];
-  char * inRow = new char[numberColumns_];
-  memset(inRow,0,numberColumns_);
+  int *whichColumn = new int[numberColumns_];
+  char *inRow = new char[numberColumns_];
+  memset(inRow, 0, numberColumns_);
   int numberDuplicates = 0;
 
   for (int j = 0; j < num_objectives; j++) {
@@ -2525,17 +2526,17 @@ void CoinLpIO::readLp()
         throw CoinError(str, "readLp", "CoinLpIO", __FILE__, __LINE__);
       }
       if (!inRow[icol])
-	inRow[icol]=1;
+        inRow[icol] = 1;
       else
-	numberDuplicates++;
+        numberDuplicates++;
       obj[j][icol] += objsense * coeff[i];
     }
-    memset(inRow,0,numberColumns_);
+    memset(inRow, 0, numberColumns_);
   }
   if (numberDuplicates) {
     char str[8192];
     sprintf(str, "### ERROR: %d duplicates in objective\n",
-	    numberDuplicates);
+      numberDuplicates);
     handler_->message(COIN_GENERAL_INFO, messages_) << str
                                                     << CoinMessageEol;
   }
@@ -2549,32 +2550,31 @@ void CoinLpIO::readLp()
     wasMaximization_ = true;
   }
 
-  
   for (i = 0; i < cnt_row + 1; i++) {
     start[i] -= cnt_obj;
   }
   // Check for duplicates
-  for (int iRow = 0;iRow<numberRows_;iRow++) {
-    CoinBigIndex startRow = start[iRow]+cnt_obj;
-    CoinBigIndex endRow = start[iRow+1]+cnt_obj;
-    for (CoinBigIndex j=startRow;j<endRow;j++) {
+  for (int iRow = 0; iRow < numberRows_; iRow++) {
+    CoinBigIndex startRow = start[iRow] + cnt_obj;
+    CoinBigIndex endRow = start[iRow + 1] + cnt_obj;
+    for (CoinBigIndex j = startRow; j < endRow; j++) {
       int iColumn = ind[j];
       if (!inRow[iColumn])
-	inRow[iColumn]=1;
+        inRow[iColumn] = 1;
       else
-	numberDuplicates ++;
+        numberDuplicates++;
     }
-    for (CoinBigIndex j=startRow;j<endRow;j++) {
+    for (CoinBigIndex j = startRow; j < endRow; j++) {
       int iColumn = ind[j];
       inRow[iColumn] = 0;
     }
   }
-  delete [] inRow;
-  delete [] whichColumn;
+  delete[] inRow;
+  delete[] whichColumn;
   if (numberDuplicates) {
     char str[8192];
     sprintf(str, "### ERROR: %d duplicates in objective and matrix\n",
-	    numberDuplicates);
+      numberDuplicates);
     handler_->message(COIN_GENERAL_INFO, messages_) << str
                                                     << CoinMessageEol;
     throw CoinError(str, "readLp", "CoinLpIO", __FILE__, __LINE__);
@@ -3013,17 +3013,17 @@ int CoinLpIO::newCardLpIO() const
       return 0;
     int length = strlen(inputBuffer_);
     // take off blanks or below
-    if (length  && length < 1023) {
+    if (length && length < 1023) {
       length--;
-      while(length>=0) {
-	if (inputBuffer_[length]<=' ')
-	  length--;
-	else
-	  break;
+      while (length >= 0) {
+        if (inputBuffer_[length] <= ' ')
+          length--;
+        else
+          break;
       }
       // but put back something
-      inputBuffer_[length+1]='\n';  
-      inputBuffer_[length+2]='\0';
+      inputBuffer_[length + 1] = '\n';
+      inputBuffer_[length + 2] = '\0';
     }
     // go to single blanks and remove all blanks before :: or :
     char *colons = strstr(inputBuffer_, "::");

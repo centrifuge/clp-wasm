@@ -1174,11 +1174,11 @@ const int mmult_for_hash[] = {
 int ClpHashValue::hash(FloatT value) const
 {
 
-  union v1{
+  union v1 {
     FloatT d {};
     char c[sizeof(FloatT)];
-    v1(){};
-    ~v1(){};
+    v1() {};
+    ~v1() {};
   } v1;
   //assert(sizeof(FloatT) == 8);
   v1.d = value;

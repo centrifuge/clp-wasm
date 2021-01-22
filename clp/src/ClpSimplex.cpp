@@ -161,7 +161,7 @@ ClpSimplex::ClpSimplex(const ClpModel *rhs,
   int numberColumns, const int *whichColumn,
   bool dropNames, bool dropIntegers, bool fixOthers)
   : ClpModel(rhs, numberRows, whichRow,
-      numberColumns, whichColumn, dropNames, dropIntegers)
+    numberColumns, whichColumn, dropNames, dropIntegers)
   , bestPossibleImprovement_(0.0)
   , zeroTolerance_(1.0e-13)
   , columnPrimalSequence_(-2)
@@ -315,7 +315,7 @@ ClpSimplex::ClpSimplex(const ClpSimplex *rhs,
   int numberColumns, const int *whichColumn,
   bool dropNames, bool dropIntegers, bool fixOthers)
   : ClpModel(rhs, numberRows, whichRow,
-      numberColumns, whichColumn, dropNames, dropIntegers)
+    numberColumns, whichColumn, dropNames, dropIntegers)
   , bestPossibleImprovement_(0.0)
   , zeroTolerance_(1.0e-13)
   , columnPrimalSequence_(-2)
@@ -622,7 +622,7 @@ int ClpSimplex::gutsOfSolution(FloatT *givenDuals,
         //printf("going to all slack\n");
         allSlackBasis(true);
         CoinIotaN(pivotVariable_, numberRows_, numberColumns_);
-	delete [] save;
+        delete[] save;
         return 1;
       }
       //printf("Original largest infeas %g, now %g, primalError %g\n",
@@ -689,7 +689,7 @@ int ClpSimplex::gutsOfSolution(FloatT *givenDuals,
     if (numberOut)
       return numberOut;
   }
-  delete [] save;
+  delete[] save;
   if ((moreSpecialOptions_ & 128) != 0 && !numberIterations_) {
     //printf("trying feas pump\n");
     const char *integerType = integerInformation();
@@ -7631,8 +7631,7 @@ int ClpSimplex::readLp(const char *filename, const FloatT epsilon)
   else
     fp = stdin;
 
-  if (!fp) 
-  {
+  if (!fp) {
     printf("### ERROR: ClpSimplex::readLp():  Unable to open file %s for reading\n",
       filename);
     return (1);
@@ -7644,14 +7643,14 @@ int ClpSimplex::readLp(const char *filename, const FloatT epsilon)
   return readLp(m);
 }
 
-int ClpSimplex::readLp(std::istream & is, const FloatT epsilon)
+int ClpSimplex::readLp(std::istream &is, const FloatT epsilon)
 {
   CoinLpIO m;
   m.readLp(is, epsilon);
   return readLp(m);
 }
 
-int ClpSimplex::readLp(CoinLpIO & m)
+int ClpSimplex::readLp(CoinLpIO &m)
 {
   // set problem name
   setStrParam(ClpProbName, m.getProblemName());
@@ -7662,23 +7661,23 @@ int ClpSimplex::readLp(CoinLpIO & m)
 #define SWITCH_BACK_TO_MAXIMIZATION 1
 #endif
 #if SWITCH_BACK_TO_MAXIMIZATION
-  FloatT * originalObj = NULL;
+  FloatT *originalObj = NULL;
   if (m.wasMaximization()) {
     // switch back
     setDblParam(ClpObjOffset, -m.objectiveOffset());
     int numberColumns = m.getNumCols();
-    originalObj = CoinCopyOfArray(m.getObjCoefficients(),numberColumns);
-    for (int i=0;i < numberColumns;i++)
-      originalObj[i] = - originalObj[i];
+    originalObj = CoinCopyOfArray(m.getObjCoefficients(), numberColumns);
+    for (int i = 0; i < numberColumns; i++)
+      originalObj[i] = -originalObj[i];
     setOptimizationDirection(-1.0);
     handler_->message(CLP_GENERAL, messages_)
       << "Switching back to maximization to get correct duals etc"
       << CoinMessageEol;
   }
   loadProblem(*m.getMatrixByRow(), m.getColLower(), m.getColUpper(),
-	      !originalObj ? m.getObjCoefficients() : originalObj,
-	      m.getRowLower(), m.getRowUpper());
-  delete [] originalObj;
+    !originalObj ? m.getObjCoefficients() : originalObj,
+    m.getRowLower(), m.getRowUpper());
+  delete[] originalObj;
 #else
   loadProblem(*m.getMatrixByRow(), m.getColLower(), m.getColUpper(),
     m.getObjCoefficients(), m.getRowLower(), m.getRowUpper());
@@ -9297,7 +9296,7 @@ void ClpSimplex::returnModel(ClpSimplex &otherModel)
   if (perturbationArray_ != otherModel.perturbationArray_)
     delete[] perturbationArray_;
   perturbationArray_ = NULL;
-  assert (otherModel.eventHandler()->simplex()==&otherModel);
+  assert(otherModel.eventHandler()->simplex() == &otherModel);
 }
 /* Constructs a non linear cost from list of non-linearities (columns only)
    First lower of each column is taken as real lower

@@ -491,7 +491,7 @@ public:
   /// a maximization problem, the objective function is immediadtly
   /// flipped to get a minimization problem.
   void readLp(FILE *fp, const FloatT epsilon);
-  void readLp(std::istream & is, const FloatT epsilon);
+  void readLp(std::istream &is, const FloatT epsilon);
 
   /// Read the data in Lp format from the file stream.
   /// If the original problem is

@@ -73,7 +73,7 @@ ClpDynamicExampleMatrix::ClpDynamicExampleMatrix(ClpSimplex *model, int numberSe
   const unsigned char *dynamicStatus,
   int numberIds, const int *ids)
   : ClpDynamicMatrix(model, numberSets, 0, NULL, lower, upper, NULL, NULL, NULL, NULL, NULL, NULL,
-      NULL, NULL)
+    NULL, NULL)
 {
   setType(25);
   numberColumns_ = numberGubColumns;

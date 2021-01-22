@@ -2059,7 +2059,7 @@ void ClpSimplexPrimal::primalRow(CoinIndexedVector *rowArray,
           } else if (alpha < acceptablePivot
 #ifdef CLP_USER_DRIVEN1
             || !userChoiceValid1(this, pivotVariable_[index[iIndex]],
-                 oldValue, upperTheta, alpha, 0.0)
+              oldValue, upperTheta, alpha, 0.0)
 #endif
           ) {
             if (value < -primalTolerance_)
@@ -3212,7 +3212,7 @@ int ClpSimplexPrimal::pivotResult(int ifValuesPass)
               << CoinMessageEol;
             setFlagged(sequenceIn_);
 #if 1 //def FEB_TRY
-  // could do conditional reset of weights to get larger djs
+            // could do conditional reset of weights to get larger djs
             primalColumnPivot_->saveWeights(this, 6);
             // Make safer?
             FloatT oldTolerance = factorization_->pivotTolerance();

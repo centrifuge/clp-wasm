@@ -4275,11 +4275,11 @@ int ClpPrimalColumnSteepest::partialPricing(CoinIndexedVector *updates,
   // This probably should be fixed
   int startR[4];
   int numberRows = model_->numberRows();
-  startR[1] = numberColumns+numberRows;
+  startR[1] = numberColumns + numberRows;
   startR[2] = numberColumns;
   FloatT randomR = model_->randomNumberGenerator()->randomDouble();
-  FloatT dstart = static_cast<FloatT> (numberRows) * randomR;
-  startR[0] = numberColumns + static_cast<int> (dstart);
+  FloatT dstart = static_cast< FloatT >(numberRows) * randomR;
+  startR[0] = numberColumns + static_cast< int >(dstart);
   startR[3] = startR[0];
   FloatT startC[4];
   startC[1] = 1.0;
@@ -4314,7 +4314,7 @@ int ClpPrimalColumnSteepest::partialPricing(CoinIndexedVector *updates,
       int end = CoinMin(startR[iPassR + 1], start + chunk / 2);
       int iSequence;
       for (iSequence = start; iSequence < end; iSequence++) {
-	assert (iSequence>=numberColumns);
+        assert(iSequence >= numberColumns);
         if (iSequence != sequenceOut) {
           FloatT value;
           ClpSimplex::Status status = model_->getStatus(iSequence);

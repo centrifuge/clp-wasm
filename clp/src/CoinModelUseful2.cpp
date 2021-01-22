@@ -146,7 +146,7 @@ typedef struct YYSTYPE {
 
 #if (!defined(yyoverflow)   \
   && (!defined(__cplusplus) \
-       || (defined(YYSTYPE_IS_TRIVIAL) && YYSTYPE_IS_TRIVIAL)))
+    || (defined(YYSTYPE_IS_TRIVIAL) && YYSTYPE_IS_TRIVIAL)))
 
 /* A type that is properly aligned for any stack member.  */
 union yyalloc {
@@ -649,7 +649,6 @@ YYSTYPE *yyvaluep;
 {
   /* Pacify ``unused variable'' warnings.  */
   (void)yyvaluep;
-
 }
 
 static symrec *

@@ -378,7 +378,7 @@ int ClpPredictorCorrector::solve()
           CoinWorkDouble scaledRHSError = maximumRHSError_ / (solutionNorm_ + 10.0);
           if ((maximumBoundInfeasibility_ > 1.0e-1 || scaledRHSError > 1.0e-1 || maximumDualError_ > objectiveNorm_ * 1.0e-1)
             && (numberIterations_ > 50
-                 && complementarityGap_ > 0.9 * historyInfeasibility_[0])) {
+              && complementarityGap_ > 0.9 * historyInfeasibility_[0])) {
             handler_->message(CLP_BARRIER_EXIT2, messages_)
               << saveIteration
               << CoinMessageEol;

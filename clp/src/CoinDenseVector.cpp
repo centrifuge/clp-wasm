@@ -201,8 +201,7 @@ void CoinDenseVector< T >::gutsOfSetConstant(int size, T value)
 //#############################################################################
 /** Access the i'th element of the dense vector.  */
 template < typename T >
-T &
-  CoinDenseVector< T >::operator[](int index) const
+T &CoinDenseVector< T >::operator[](int index) const
 {
   assert(index >= 0 && index < nElements_);
   T *where = elements_ + index;

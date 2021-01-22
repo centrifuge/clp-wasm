@@ -2712,9 +2712,9 @@ int CoinMpsIO::readMps(int &numberSets, CoinSet **&sets)
       cardReader_->fileInput()->gets(buffer, 1000);
       double cl, cu, ob;
       sscanf(buffer, "%d %d %lg %lg %lg\n", &j, &n, &cl, &cu, &ob);
-        collower_[i] = cl;
-        colupper_[i] = cu;
-        objective_[i] = ob;
+      collower_[i] = cl;
+      colupper_[i] = cu;
+      objective_[i] = ob;
 
       assert(i == j);
       for (j = 0; j < n; j++) {

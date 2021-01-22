@@ -1412,7 +1412,7 @@ int ClpSimplexDual::whileIterating(FloatT *&givenDuals, int ifValuesPass)
 #endif
               //#define FEB_TRY
 #if 1
-	      // Make safer?
+              // Make safer?
               factorization_->saferTolerances(-0.99, -1.03);
 #endif
               setFlagged(sequenceOut_);
@@ -1942,8 +1942,7 @@ int ClpSimplexDual::whileIterating(FloatT *&givenDuals, int ifValuesPass)
                     (specialOptions_ & 16384) != 0 ? 1 : 0);
 #endif
                   // Get rid of objective
-                  if ((specialOptions_ & 16384) == 0 &&
-		      (moreSpecialOptions_ & 256) == 0)
+                  if ((specialOptions_ & 16384) == 0 && (moreSpecialOptions_ & 256) == 0)
                     objective_ = new ClpLinearObjective(NULL, numberColumns_);
                 }
               }
@@ -1962,8 +1961,7 @@ int ClpSimplexDual::whileIterating(FloatT *&givenDuals, int ifValuesPass)
                   printf("returning at %d\n", __LINE__);
 #endif
                   // Get rid of objective
-                  if ((specialOptions_ & 16384) == 0 &&
-		      (moreSpecialOptions_ & 256) == 0)
+                  if ((specialOptions_ & 16384) == 0 && (moreSpecialOptions_ & 256) == 0)
                     objective_ = new ClpLinearObjective(NULL, numberColumns_);
                 }
               }
@@ -2383,7 +2381,7 @@ int ClpSimplexDual::updateDualsInDual(CoinIndexedVector *rowArray,
     work = rowArray->denseVector();
     number = rowArray->getNumElements();
     which = rowArray->getIndices();
-    FloatT multiplier[] = {0.0, 0.0, -1.0, 1.0 };
+    FloatT multiplier[] = { 0.0, 0.0, -1.0, 1.0 };
     for (i = 0; i < number; i++) {
       int iSequence = which[i];
       FloatT alphaI = work[i];

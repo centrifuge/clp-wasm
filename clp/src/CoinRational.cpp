@@ -75,7 +75,7 @@ bool CoinRational::nearestRational_(FloatT val, FloatT maxdelta, long maxdnom)
     assert(inaccuracy <= maxdelta);
   }
 #endif
-  numerator_ += (long)( CoinAbs(intpart) * fd(denominator_));
+  numerator_ += (long)(CoinAbs(intpart) * fd(denominator_));
   if (val < 0)
     numerator_ *= -1;
 #if DEBUG_X > 1

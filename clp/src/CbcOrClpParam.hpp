@@ -344,29 +344,29 @@ public:
     return longHelp_;
   }
   /// Returns set of valid strings
-  inline const std::vector<std::string>& definedKeywords() const
+  inline const std::vector< std::string > &definedKeywords() const
   {
     return definedKeyWords_;
   }
   /// Returns the lower bound for a FloatT-valued parameter
   inline FloatT lowerDoubleValue() const
   {
-     return lowerDoubleValue_;
+    return lowerDoubleValue_;
   }
   /// Returns the upper bound for a FloatT-valued parameter
   inline FloatT upperDoubleValue() const
   {
-     return upperDoubleValue_;
+    return upperDoubleValue_;
   }
   /// Returns the lower bound for an int-valued parameter
   inline int lowerIntValue() const
   {
-     return lowerIntValue_;
+    return lowerIntValue_;
   }
   /// Returns the upper bound for an int-valued parameter
   inline int upperIntValue() const
   {
-     return upperIntValue_;
+    return upperIntValue_;
   }
   /// Sets a FloatT parameter (nonzero code if error)
   int setDoubleParameter(CbcModel &model, FloatT value);

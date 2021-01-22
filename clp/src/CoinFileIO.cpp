@@ -43,7 +43,7 @@ const char *CoinFileIOBase::getFileName() const
 #include <stdio.h>
 
 // This reads plain text files
-CoinPlainFileInput::CoinPlainFileInput(const std::string & fileName)
+CoinPlainFileInput::CoinPlainFileInput(const std::string &fileName)
   : CoinFileInput(fileName)
 {
   readType_ = "plain";
@@ -65,7 +65,7 @@ CoinPlainFileInput::CoinPlainFileInput(FILE *fp)
   readType_ = "plain";
 }
 
-CoinPlainFileInput::CoinPlainFileInput(std::istream * is)
+CoinPlainFileInput::CoinPlainFileInput(std::istream *is)
   : CoinFileInput("")
   , is_(is)
 {
@@ -80,13 +80,10 @@ CoinPlainFileInput::~CoinPlainFileInput()
 
 int CoinPlainFileInput::read(void *buffer, int size)
 {
-  if (f_)
-  {
+  if (f_) {
     return static_cast< int >(fread(buffer, 1, size, f_));
-  }
-  else if (is_)
-  {
-    is_->read(reinterpret_cast<char *>(buffer), size);
+  } else if (is_) {
+    is_->read(reinterpret_cast< char * >(buffer), size);
     return is_->gcount();
   }
   return 0;
@@ -94,12 +91,9 @@ int CoinPlainFileInput::read(void *buffer, int size)
 
 char *CoinPlainFileInput::gets(char *buffer, int size)
 {
-  if (f_)
-  {
+  if (f_) {
     return fgets(buffer, size, f_);
-  }
-  else if (is_)
-  {
+  } else if (is_) {
     is_->getline(buffer, size);
     return is_->bad() ? nullptr : buffer;
   }
@@ -421,7 +415,7 @@ public:
     }
   }
 
-  CoinPlainFileOutput(std::ostream * os)
+  CoinPlainFileOutput(std::ostream *os)
     : CoinFileOutput("")
     , os_(os)
   {
@@ -435,16 +429,12 @@ public:
 
   virtual int write(const void *buffer, int size)
   {
-    if (f_)
-    {
+    if (f_) {
       return static_cast< int >(fwrite(buffer, 1, size, f_));
-    }
-    else
-    {
-      os_->write(reinterpret_cast<const char *>(buffer), size);
+    } else {
+      os_->write(reinterpret_cast< const char * >(buffer), size);
       return os_->good() ? size : 0;
     }
-    
   }
 
   // we have something better than the default implementation
@@ -455,7 +445,7 @@ public:
 
 private:
   FILE *f_ { nullptr };
-  std::ostream * os_ { nullptr };
+  std::ostream *os_ { nullptr };
 };
 
 // ------- CoinGzipFileOutput ---------

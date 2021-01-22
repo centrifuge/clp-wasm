@@ -56,7 +56,7 @@ ClpEventHandler::clone() const
 int ClpEventHandler::event(Event whichEvent)
 {
 
-  assert (!model_||model_->eventHandler()==this);
+  assert(!model_ || model_->eventHandler() == this);
   if (whichEvent != theta)
     return -1; // do nothing
   else

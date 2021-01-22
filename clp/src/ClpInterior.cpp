@@ -117,7 +117,7 @@ ClpInterior::ClpInterior(const ClpModel *rhs,
   int numberColumns, const int *whichColumn,
   bool dropNames, bool dropIntegers)
   : ClpModel(rhs, numberRows, whichRow,
-      numberColumns, whichColumn, dropNames, dropIntegers)
+    numberColumns, whichColumn, dropNames, dropIntegers)
   , largestPrimalError_(0.0)
   , largestDualError_(0.0)
   , sumDualInfeasibilities_(0.0)

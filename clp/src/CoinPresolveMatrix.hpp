@@ -952,7 +952,7 @@ public:
     const char *rowProhibited = NULL);
 
   /*! \brief Update the model held by a generic OSI */
-#if OsiSolverInterface!=ClpSimplex
+#if OsiSolverInterface != ClpSimplex
   void update_model(OsiSolverInterface *si,
     int nrows0,
     int ncols0,
@@ -1584,7 +1584,7 @@ public:
 
     See OSI code for the definition.
   */
-#if OsiSolverInterface!=ClpSimplex
+#if OsiSolverInterface != ClpSimplex
   CoinPostsolveMatrix(OsiSolverInterface *si,
 
     int ncols0,

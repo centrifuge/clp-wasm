@@ -43,8 +43,7 @@
     handled correctly. */
 
 template < class T >
-void
-CoinCopyN(const T *from, const CoinBigIndex size, T *to)
+void CoinCopyN(const T *from, const CoinBigIndex size, T *to)
 {
   if (size == 0 || from == to)
     return;
@@ -120,8 +119,7 @@ CoinCopyN(const T *from, const CoinBigIndex size, T *to)
     the difference down to int.  -- lh, 100823 --
 */
 template < class T >
-void
-CoinCopy(const T *first, const T *last, T *to)
+void CoinCopy(const T *first, const T *last, T *to)
 {
   CoinCopyN(first, static_cast< CoinBigIndex >(last - first), to);
 }
@@ -136,8 +134,7 @@ CoinCopy(const T *first, const T *last, T *to)
     Note JJF - the speed claim seems to be false on IA32 so I have added 
     CoinMemcpyN which can be used for atomic data */
 template < class T >
-void
-CoinDisjointCopyN(const T *from, const CoinBigIndex size, T *to)
+void CoinDisjointCopyN(const T *from, const CoinBigIndex size, T *to)
 {
 #ifndef _MSC_VER
   if (size == 0 || from == to)
@@ -198,8 +195,7 @@ CoinDisjointCopyN(const T *from, const CoinBigIndex size, T *to)
     are copied at a time. The source array is given by its first and "after
     last" entry; the target array is given by its first entry. */
 template < class T >
-void
-CoinDisjointCopy(const T *first, const T *last,
+void CoinDisjointCopy(const T *first, const T *last,
   T *to)
 {
   CoinDisjointCopyN(first, static_cast< CoinBigIndex >(last - first), to);
@@ -212,8 +208,7 @@ CoinDisjointCopy(const T *first, const T *last,
 */
 
 template < class T >
-T *
-CoinCopyOfArray(const T *array, const CoinBigIndex size)
+T *CoinCopyOfArray(const T *array, const CoinBigIndex size)
 {
   if (array) {
     T *arrayNew = new T[size];
@@ -229,8 +224,7 @@ CoinCopyOfArray(const T *array, const CoinBigIndex size)
 */
 
 template < class T >
-T *
-CoinCopyOfArrayPartial(const T *array, const CoinBigIndex size, const CoinBigIndex copySize)
+T *CoinCopyOfArrayPartial(const T *array, const CoinBigIndex size, const CoinBigIndex copySize)
 {
   if (array || size) {
     T *arrayNew = new T[size];
@@ -247,8 +241,7 @@ CoinCopyOfArrayPartial(const T *array, const CoinBigIndex size, const CoinBigInd
 */
 
 template < class T, class U >
-T *
-CoinCopyOfArray(const T *array, const CoinBigIndex size, U value)
+T *CoinCopyOfArray(const T *array, const CoinBigIndex size, U value)
 {
   T *arrayNew = new T[size];
   if (array) {
@@ -266,8 +259,7 @@ CoinCopyOfArray(const T *array, const CoinBigIndex size, U value)
 */
 
 template < class T >
-T *
-CoinCopyOfArrayOrZero(const T *array, const CoinBigIndex size)
+T *CoinCopyOfArrayOrZero(const T *array, const CoinBigIndex size)
 {
   T *arrayNew = new T[size];
   if (array) {
@@ -289,8 +281,7 @@ CoinCopyOfArrayOrZero(const T *array, const CoinBigIndex size)
     alternative coding if USE_MEMCPY defined*/
 #ifndef COIN_USE_RESTRICT
 template < class T >
-void
-CoinMemcpyN(const T *from, const CoinBigIndex size, T *to)
+void CoinMemcpyN(const T *from, const CoinBigIndex size, T *to)
 {
 #ifndef _MSC_VER
 #ifdef USE_MEMCPY
@@ -386,8 +377,7 @@ CoinMemcpyN(const T *COIN_RESTRICT from, CoinBigIndex size, T *COIN_RESTRICT to)
     are copied at a time. The source array is given by its first and "after
     last" entry; the target array is given by its first entry. */
 template < class T >
-void
-CoinMemcpy(const T *first, const T *last,
+void CoinMemcpy(const T *first, const T *last,
   T *to)
 {
   CoinMemcpyN(first, static_cast< CoinBigIndex >(last - first), to);
@@ -402,8 +392,7 @@ CoinMemcpy(const T *first, const T *last,
     Note JJF - the speed claim seems to be false on IA32 so I have added 
     CoinZero to allow for memset. */
 template < class T, class U >
-void
-CoinFillN(T *to, const CoinBigIndex size, const U value)
+void CoinFillN(T *to, const CoinBigIndex size, const U value)
 {
   if (size == 0)
     return;
@@ -475,8 +464,7 @@ CoinFillN(T *to, const CoinBigIndex size, const U value)
     entries are filled at a time. The array is given by its first and "after
     last" entry. */
 template < class T >
-void
-CoinFill(T *first, T *last, const T value)
+void CoinFill(T *first, T *last, const T value)
 {
   CoinFillN(first, last - first, value);
 }
@@ -490,8 +478,7 @@ CoinFill(T *first, T *last, const T value)
     Note JJF - the speed claim seems to be false on IA32 so I have allowed 
     for memset as an alternative */
 template < class T >
-void
-CoinZeroN(T *to, const CoinBigIndex size)
+void CoinZeroN(T *to, const CoinBigIndex size)
 {
 #ifdef USE_MEMCPY
   // Use memset - seems faster on Intel with gcc
@@ -603,8 +590,7 @@ CoinCheckIntZero(int *to, const CoinBigIndex size)
     entries are filled at a time. The array is given by its first and "after
     last" entry. */
 template < class T >
-void
-CoinZero(T *first, T *last)
+void CoinZero(T *first, T *last)
 {
   CoinZeroN(first, last - first);
 }
@@ -630,7 +616,7 @@ inline char *CoinStrdup(const char *name)
     This function was introduced because for some reason compiler tend to
     handle the <code>max()</code> function differently. */
 template < class T, class U >
-typename std::common_type<T,U>::type
+typename std::common_type< T, U >::type
 CoinMax(const T x1, const U x2)
 {
   return (x1 > x2) ? x1 : x2;
@@ -647,8 +633,8 @@ CoinMax(const T x1, const U x2)
 /** Return the smaller (according to <code>operator<()</code> of the arguments.
     This function was introduced because for some reason compiler tend to
     handle the min() function differently. */
-template < class T , class U>
-typename std::common_type<T,U>::type
+template < class T, class U >
+typename std::common_type< T, U >::type
 CoinMin(const T x1, const U x2)
 {
   return (x1 < x2) ? x1 : x2;
@@ -665,10 +651,9 @@ CoinAbs(const int value)
   return value < 0 ? -value : value;
 }
 
-
-inline FloatT CoinAbs(const FloatT & value)
+inline FloatT CoinAbs(const FloatT &value)
 {
-return mp::abs(value);
+  return mp::abs(value);
 }
 
 //#############################################################################
@@ -677,8 +662,7 @@ return mp::abs(value);
     according to operator<. The array is given by a pointer to its first entry
     and by its size. */
 template < class T >
-bool
-CoinIsSorted(const T *first, const CoinBigIndex size)
+bool CoinIsSorted(const T *first, const CoinBigIndex size)
 {
   if (size == 0)
     return true;
@@ -750,8 +734,7 @@ CoinIsSorted(const T *first, const CoinBigIndex size)
     according to operator<. The array is given by its first and "after
     last" entry. */
 template < class T >
-bool
-CoinIsSorted(const T *first, const T *last)
+bool CoinIsSorted(const T *first, const T *last)
 {
   return CoinIsSorted(first, static_cast< CoinBigIndex >(last - first));
 }
@@ -762,8 +745,7 @@ CoinIsSorted(const T *first, const T *last)
     etc. For speed 8 entries are filled at a time. The array is given by a
     pointer to its first entry and its size. */
 template < class T >
-void
-CoinIotaN(T *first, const CoinBigIndex size, T init)
+void CoinIotaN(T *first, const CoinBigIndex size, T init)
 {
   if (size == 0)
     return;
@@ -835,8 +817,7 @@ CoinIotaN(T *first, const CoinBigIndex size, T init)
     etc. For speed 8 entries are filled at a time. The array is given by its
     first and "after last" entry. */
 template < class T >
-void
-CoinIota(T *first, const T *last, T init)
+void CoinIota(T *first, const T *last, T init)
 {
   CoinIotaN(first, last - first, init);
 }
@@ -849,8 +830,7 @@ CoinIota(T *first, const T *last, T init)
     integer array specified by the last two arguments (again, first and "after
     last" entry). */
 template < class T >
-T *
-CoinDeleteEntriesFromArray(T *arrayFirst, T *arrayLast,
+T *CoinDeleteEntriesFromArray(T *arrayFirst, T *arrayLast,
   const int *firstDelPos, const int *lastDelPos)
 {
   CoinBigIndex delNum = static_cast< CoinBigIndex >(lastDelPos - firstDelPos);
@@ -1014,8 +994,7 @@ void CoinSwap(T &x, T &y)
 */
 
 template < class T >
-int
-CoinToFile(const T *array, CoinBigIndex size, FILE *fp)
+int CoinToFile(const T *array, CoinBigIndex size, FILE *fp)
 {
   CoinBigIndex numberWritten;
   if (array && size) {
@@ -1043,8 +1022,7 @@ CoinToFile(const T *array, CoinBigIndex size, FILE *fp)
 */
 
 template < class T >
-int
-CoinFromFile(T *&array, CoinBigIndex size, FILE *fp, CoinBigIndex &newSize)
+int CoinFromFile(T *&array, CoinBigIndex size, FILE *fp, CoinBigIndex &newSize)
 {
   CoinBigIndex numberRead;
   numberRead = static_cast< CoinBigIndex >(fread(&newSize, sizeof(int), 1, fp));

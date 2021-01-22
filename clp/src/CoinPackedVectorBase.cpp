@@ -32,7 +32,7 @@ CoinPackedVectorBase::denseVector(int denseSize) const
 //-----------------------------------------------------------------------------
 
 FloatT
-  CoinPackedVectorBase::operator[](int i) const
+CoinPackedVectorBase::operator[](int i) const
 {
   if (!testedDuplicateIndex_)
     duplicateIndex("operator[]", "CoinPackedVectorBase");

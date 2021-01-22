@@ -7,7 +7,6 @@
 
 #include "floatdef.h"
 
-
 //Small class for rational numbers
 class CoinRational {
 
