@@ -176,7 +176,8 @@ var clpPromise = new Promise(function (resolve) {
           }
         },
         toLpFormat: toLpFormat,
-        ClpWrapper: m.ClpWrapper
+        ClpWrapper: m.ClpWrapper,
+        bnRound: m.bnRound
       };
 
       var pub = {};

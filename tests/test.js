@@ -83,7 +83,11 @@ describe("clp-wasm test suite", () => {
     const expected = JSON.parse(lpBench);
     expect(expected).toMatchObject(result);
     clp.delete();
+  });
 
+  test("big number string rounding", () => {
+    expect(solver.bnRound("1999.9999999999999999")).toBe("2000");
+    expect(solver.bnRound("1999.4999999999999999")).toBe("1999");
   });
 });
 
