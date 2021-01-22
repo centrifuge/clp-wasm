@@ -63,6 +63,8 @@ interface CLP {
     createLp(lp: LP): string;
 
     solve(lp: string): Result
+
+    bnRound(bn: string): string; /* rounds a big number from a string */
 }
 
 export {
