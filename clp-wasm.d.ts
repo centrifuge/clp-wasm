@@ -1,6 +1,7 @@
 interface Result {
   objectiveValue: string;
   variables: string[];
+  solution: string[];
   unboundedRay: string[];
   infeasibilityRay: string[];
 }

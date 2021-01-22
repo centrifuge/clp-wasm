@@ -13,10 +13,10 @@
       "internalConsoleOptions": "neverOpen"
   },
     {
-      "name": "Debug solver",
+      "name": "Debug C++ clp-wasm",
       "type": "cppdbg",
       "request": "launch",
-      "program": "${workspaceFolder}/build_x64_debug/solver",
+      "program": "${workspaceFolder}/build_x64_debug/clp-wasm",
       "args": [
         "problems/tinlake-real.lp",
         "problems/tinlake-test.lp"
