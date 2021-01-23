@@ -150,7 +150,7 @@ var clpPromise = new Promise(function (resolve) {
           col.name,
           col.bnds.lb,
           col.bnds.ub,
-          cols.bnds.type
+          col.bnds.type
         );
       }
       str += "Bounds\n" + var_bounds_str + "\n";
