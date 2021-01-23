@@ -247,7 +247,7 @@
         const template = `Maximize
  ${linearExpression(varWeights)}
 Subject To
-reserve: ${linearExpression([1, 1, -1, -1])} <= ${reserve}
+reserve: ${linearExpression([1, 1, -1, -1])} >= ${reserve.neg()}
 maxReserve: ${linearExpression([1, 1, -1, -1])} >= ${reserve.sub(maxReserve)}
 minTINRatioLb: ${linearExpression(minTINRatioLbCoeffs)} >= ${minTINRatioLb}
 maxTINRatioLb: ${linearExpression(maxTINRatioLbCoeffs)} >= ${maxTINRatioLb}
@@ -290,7 +290,7 @@ End
         const solObj = JSON.parse(solution);
         for (let i in solObj)
           if (typeof solObj[i] == "string" && solObj[i].length > 25) {
-            solObj[i] = Module.bn_round(solObj[i]);
+            solObj[i] = Module.bnRound(solObj[i]);
           }
         solutionElmt.value = JSON.stringify(solObj, null, 4);
       }
