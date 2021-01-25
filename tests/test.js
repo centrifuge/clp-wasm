@@ -17,7 +17,7 @@ let solver = null;
 describe("clp-wasm test suite", () => {
 
   beforeAll(async () => {
-    solver = await require("../clp-wasm.js");
+    solver = await require("../clp-wasm.all.js");
   });
 
   test("test CPLEX LP format", () => {

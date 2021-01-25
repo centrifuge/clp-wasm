@@ -8,6 +8,12 @@
     "type": "git",
     "url": "https://github.com/dpar39/clp-wasm.git"
   },
+  "keywords": [
+    "LP",
+    "solver",
+    "linear programming",
+    "linear optimization"
+  ],
   "devDependencies": {
     "@types/jest": "^25.2.1",
     "jest": "^26.0.1"
@@ -19,7 +25,8 @@
   "scripts": {
     "build-docker": "docker build . -t clp-wasm-builder",
     "build-wasm": "docker run -u $(id -u):$(id -g) -v $PWD:/app clp-wasm-builder ./build.sh release wasm",
-    "build": "npm run build-docker && npm run build-wasm",
+    "build-bundle": "node bundle-with-wasm.js",
+    "build": "npm run build-docker && npm run build-wasm && node bundle-with-wasm.js",
     "start": "jest --watchAll",
     "test": "jest"
   },

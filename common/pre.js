@@ -1,4 +1,11 @@
 var clpPromise = new Promise(function (resolve) {
+  var wasmBlobStr = null;
+  if (wasmBlobStr) {
+    if (typeof atob === "function")
+      Module['wasmBinary'] = Uint8Array.from(atob(wasmBlobStr), c => c.charCodeAt(0));
+    else
+      Module['wasmBinary'] = Buffer.from(wasmBlobStr, 'base64');
+  }
   Module["preInit"] = [
     function () {
       FS.mkdir("/out");
