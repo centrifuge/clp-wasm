@@ -2,7 +2,7 @@
 *.d
 build_*
 .vs/*
-!.vs/launch.vs.json
+.vscode/*
 build/
 clp-wasm.js
 clp-wasm.wasm
