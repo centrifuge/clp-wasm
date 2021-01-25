@@ -1,14 +1,10 @@
 #pragma once
 #pragma warning(disable : 4477)
 
-#include <boost/math/special_functions/round.hpp>
-#include <boost/multiprecision/cpp_bin_float.hpp>
+//#include <boost/multiprecision/cpp_bin_float.hpp>
 #include <boost/multiprecision/cpp_dec_float.hpp>
 namespace mp = boost::multiprecision;
-namespace bm = boost::math;
-using bm::round;
 
-// using FloatT = double;
 // using FloatT = mp::number<mp::cpp_bin_float<64>>;
 // using FloatT = mp::number<mp::cpp_bin_float<128>>;
 using FloatT = mp::number<mp::cpp_dec_float<100>, mp::et_off>;

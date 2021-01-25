@@ -1,6 +1,8 @@
 #include "ClpWrapper.h"
 #include "floatdef.h"
 
+#include <boost/multiprecision/number.hpp>
+
 std::string solve(std::string problem, int precision)
 {
     ClpWrapper clpWrapper;
@@ -11,12 +13,18 @@ std::string solve(std::string problem, int precision)
 #include <emscripten/bind.h>
 #include <sstream>
 
-std::string bnRound(std::string number)
+std::string bnRound(const std::string x)
 {
-    FloatT x(number);
-    return round(x).str();
+    return mp::round(FloatT(x)).str();
 }
-
+std::string bnCeil(const std::string & x)
+{
+    return mp::ceil(FloatT(x)).str();
+}
+std::string bnFloor(const std::string & x)
+{
+    return mp::floor(FloatT(x)).str();
+}
 std::string version()
 {
     return std::string(CLP_VERSION);
@@ -26,9 +34,12 @@ EMSCRIPTEN_BINDINGS(solver)
 {
     using namespace emscripten;
 
+    function("bnCeil", &bnCeil);
     function("bnRound", &bnRound);
+    function("bnFloor", &bnFloor);
     function("solve", &solve);
     function("version", &version);
+
     class_<ClpWrapper>("ClpWrapper")
         .constructor<>()
         .function("solve", &ClpWrapper::solve)

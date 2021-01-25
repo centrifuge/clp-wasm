@@ -185,7 +185,9 @@ var clpPromise = new Promise(function (resolve) {
         toLpFormat: toLpFormat,
         version: m.version,
         ClpWrapper: m.ClpWrapper,
-        bnRound: m.bnRound
+        bnCeil: m.bnCeil,
+        bnFloor: m.bnFloor,
+        bnRound: m.bnRound,
       };
       var pub = {};
       Object.assign(pub, constants, methods);
