@@ -65,6 +65,8 @@ interface CLP {
     solve(lp: string): Result
 
     bnRound(bn: string): string; /* rounds a big number from a string */
+    bnCeil(bn: string): string; /* ceil of a big number from a string */
+    bnFloor(bn: string): string; /* floor of a big number from a string */
 }
 
 export {
