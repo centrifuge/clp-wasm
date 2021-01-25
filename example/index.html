@@ -25,13 +25,11 @@
     </style>
   </head>
   <body onload="init()">
-    <script src="bn.js" type="text/javascript"></script>
     <script src="clp-wasm.js" type="text/javascript"></script>
     <div class="container-fluid">
       <div class="row h-50">
         <div class="col">
-          <h5>Problem</h5>
-          
+          <h5>Problem in CPLEX LP format</h5>
           <textarea id="lpProblem" rows="18"></textarea>
         </div>
       </div>
@@ -71,7 +69,7 @@ End`;
       };
 
       function solveLpProblem(lpProblem) {
-        const solution = Module.solveLinearProblem(lpProblem);
+        const solution = Module.solve(lpProblem, 9);
         return solution;
       }
       function solveProblemFromFromLP() {

@@ -1,10 +1,10 @@
 #include "ClpWrapper.h"
 #include "floatdef.h"
 
-std::string solveLinearProblem(std::string problem)
+std::string solve(std::string problem, int precision)
 {
     ClpWrapper clpWrapper;
-    return clpWrapper.solveProblem(problem);
+    return clpWrapper.solve(problem, precision);
 }
 
 #ifdef __EMSCRIPTEN__
@@ -17,7 +17,7 @@ std::string bnRound(std::string number)
     return round(x).str();
 }
 
-std::string getClpVersion()
+std::string version()
 {
     return std::string(CLP_VERSION);
 }
@@ -27,11 +27,11 @@ EMSCRIPTEN_BINDINGS(solver)
     using namespace emscripten;
 
     function("bnRound", &bnRound);
-    function("solveLinearProblem", &solveLinearProblem);
-    function("getClpVersion", &getClpVersion);
+    function("solve", &solve);
+    function("version", &version);
     class_<ClpWrapper>("ClpWrapper")
         .constructor<>()
-        .function("solveProblem", &ClpWrapper::solveProblem)
+        .function("solve", &ClpWrapper::solve)
         .function("readLp", &ClpWrapper::readLp)
         .function("readMps", &ClpWrapper::readMps)
         .function("primal", &ClpWrapper::primal)
@@ -46,7 +46,7 @@ int main(int argc, char * argv[])
     for (int k = 1; k < argc; ++k)
     {
         const auto problemFile = std::string(argv[k]);
-        auto solution = solveLinearProblem(problemFile);
+        auto solution = solve(problemFile, 9);
         std::cout << "Problem: " << problemFile << std::endl;
         std::cout << "Solution: " << solution << std::endl;
     }

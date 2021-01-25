@@ -14,8 +14,9 @@ class ClpWrapper
 {
 public:
     ClpWrapper();
-    std::string solveProblem(const std::string & problemFileOrContent);
-    
+
+    std::string solve(const std::string & problemFileOrContent, int precision);
+   
 public:
     bool readLp(const std::string & problemFileOrContent);
 

@@ -43,7 +43,7 @@ ClpWrapper::ClpWrapper()
 {
 }
 
-std::string ClpWrapper::solveProblem(const std::string & problemFileOrContent)
+std::string ClpWrapper::solve(const std::string & problemFileOrContent, int precision)
 {
     if (!readLp(problemFileOrContent))
     {
@@ -52,7 +52,7 @@ std::string ClpWrapper::solveProblem(const std::string & problemFileOrContent)
 
     primal();
 
-    return getSolution(9);
+    return getSolution(precision);
 }
 
 void ClpWrapper::primal()

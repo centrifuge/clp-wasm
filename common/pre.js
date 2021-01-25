@@ -170,12 +170,12 @@ var clpPromise = new Promise(function (resolve) {
     var m = this;
     this["clp"] = (function () {
       var methods = {
-        version: function () {
-          return m.getClpVersion()
-        },
-        solve: function (lpProblem) {
+        solve: function (lpProblem, precision) {
+          if (typeof precision === "undefined") { 
+            precision = 9; 
+          }
           try {
-            var solutionStr = m.solveLinearProblem(lpProblem);
+            var solutionStr = m.solve(lpProblem, precision);
             var solObj = JSON.parse(solutionStr);
             return solObj
           } catch {
@@ -183,10 +183,10 @@ var clpPromise = new Promise(function (resolve) {
           }
         },
         toLpFormat: toLpFormat,
+        version: m.version,
         ClpWrapper: m.ClpWrapper,
         bnRound: m.bnRound
       };
-
       var pub = {};
       Object.assign(pub, constants, methods);
       return Object.freeze(pub);
