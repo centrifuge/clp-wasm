@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>CLP Solver TestBed</title>
+    <title>CLP Solver Demo</title>
     <meta content="" />
     <link
       rel="stylesheet"
@@ -28,252 +28,42 @@
     <script src="bn.js" type="text/javascript"></script>
     <script src="clp-wasm.js" type="text/javascript"></script>
     <div class="container-fluid">
+      <div class="row h-50">
+        <div class="col">
+          <h5>Problem</h5>
+          
+          <textarea id="lpProblem" rows="18"></textarea>
+        </div>
+      </div>
       <div class="row">
-        <div class="col-3">
-          <h5>Test case</h5>
+        <div class="col">
           <div
             class="btn btn-primary my-1"
-            onclick="solveProblemFromTestCase()"
+            onclick="solveProblemFromFromLP()"
           >
-            Solve
-          </div>
-          <textarea id="testCase" rows="40"></textarea>
-        </div>
-        <div class="col-9">
-          <div class="container-fluid" style="height: 100%">
-            <div class="row h-50">
-              <div class="col">
-                <h5>Problem</h5>
-                <div
-                  class="btn btn-primary my-1"
-                  onclick="solveProblemFromFromLP()"
-                >
-                  Solve Linear Problem
-                </div>
-                <textarea id="lpProblem" rows="18"></textarea>
-              </div>
-            </div>
-            <div class="row h-50">
-              <div class="col">
-                <h5>Solution</h5>
-                <textarea id="solution" rows="18"></textarea>
-              </div>
-            </div>
+            Solve Linear Problem
           </div>
         </div>
       </div>
+      <div class="row h-50">
+        <div class="col">
+          <h5>Solution</h5>
+          <textarea id="solution" rows="18"></textarea>
+        </div>
+      </div>
     </div>
-
     <script>
-      const testCase = {
-        state: {
-          netAssetValue: {
-            base: 18,
-            value: 800,
-          },
-          reserve: {
-            base: 18,
-            value: 200,
-          },
-          seniorAsset: {
-            base: 18,
-            value: 800,
-          },
-          maxSeniorRatio: {
-            base: 27,
-            value: 0.85,
-          },
-          minSeniorRatio: {
-            base: 27,
-            value: 0.8,
-          },
-          maxReserve: {
-            base: 18,
-            value: 10000,
-          },
-        },
-        orders: {
-          supplySenior: {
-            base: 18,
-            value: 400,
-          },
-          redeemSenior: {
-            base: 18,
-            value: 300,
-          },
-          supplyJunior: {
-            base: 18,
-            value: 200,
-          },
-          redeemJunior: {
-            base: 18,
-            value: 100,
-          },
-        },
-        solution: {
-          supplySenior: {
-            base: 18,
-            value: 400,
-          },
-          redeemSenior: {
-            base: 18,
-            value: 300,
-          },
-          supplyJunior: {
-            base: 18,
-            value: 125,
-          },
-          redeemJunior: {
-            base: 18,
-            value: 100,
-          },
-        },
-      };
-
-      let testCaseElmt = null;
       let lpProblemElmt = null;
       let solutionElmt = null;
-
       function init() {
-        testCaseElmt = document.getElementById("testCase");
         lpProblemElmt = document.getElementById("lpProblem");
         solutionElmt = document.getElementById("solution");
-        testCaseElmt.value = JSON.stringify(testCase, null, 4);
-
-        lpProblemElmt.value = prepareProblemFromTestCase();
-      }
-
-      function objToNum(jsonNumber) {
-        if (typeof jsonNumber == "string") return new BN(jsonNumber);
-        const add = jsonNumber.add ? jsonNumber.add : 0;
-        return new BN(jsonNumber.value * 10000)
-          .mul(new BN(10).pow(new BN(jsonNumber.base - 5)))
-          .add(new BN(add));
-      }
-
-      function objToNumStr(jsonNumber) {
-        return objToNum(jsonNumber).toString();
-      }
-
-      function calculateOptimalSolution(state, orderState, weights) {
-        const tinInvestWeight = weights.juniorSupply;
-        const tinRedeemWeight = weights.juniorRedeem;
-        const dropInvestWeight = weights.seniorSupply;
-        const dropRedeemWeight = weights.seniorRedeem;
-
-        const e27 = objToNum({ value: 1, base: 27 });
-
-        const tinInvestOrders = objToNum(orderState.supplyJunior);
-        const tinRedeemOrders = objToNum(orderState.redeemJunior);
-        const dropInvestOrders = objToNum(orderState.supplySenior);
-        const dropRedeemOrders = objToNum(orderState.redeemSenior);
-
-        const minDropRatio = objToNum(state.minSeniorRatio);
-        const maxDropRatio = objToNum(state.maxSeniorRatio);
-        const maxTinRatio = e27.sub(minDropRatio);
-        const minTinRatio = e27.sub(maxDropRatio);
-
-        const netAssetValue = objToNum(state.netAssetValue);
-        const seniorAsset = objToNum(state.seniorAsset);
-        const reserve = objToNum(state.reserve);
-        const maxReserve = objToNum(state.maxReserve);
-
-        td = (obj) => obj.value * Math.pow(10, obj.base);
-        const minTINRatioLb = maxDropRatio
-          .neg()
-          .mul(netAssetValue)
-          .sub(maxDropRatio.mul(reserve))
-          .add(seniorAsset.mul(e27));
-
-        const maxTINRatioLb = minDropRatio
-          .mul(netAssetValue)
-          .add(minDropRatio.mul(reserve))
-          .sub(seniorAsset.mul(e27));
-
-        function nameValToStr(name, coef, first) {
-          var str = "";
-          coef = coef.toString();
-          var coefnum = Number(coef);
-          if (first && coefnum == 1) return name;
-          if (coefnum === 1) {
-            str += "+";
-          } else if (coefnum == -1) {
-            str += "-";
-          } else if (!(coef.startsWith("-") || coef.startsWith("+") || first)) {
-            str += "+" + coef;
-          } else {
-            str += coef;
-          }
-          str += " " + name;
-          return str;
-        }
-
-        function linearExpression(coefs) {
-          const varNames = [
-            "tinInvest",
-            "dropInvest",
-            "tinRedeem",
-            "dropRedeem",
-          ];
-          let str = "";
-          var first = true;
-          const n = varNames.length;
-          for (let i = 0; i < n; ++i) {
-            str += nameValToStr(varNames[i], coefs[i], first) + " ";
-            first = false;
-          }
-          return str;
-        }
-
-        const varWeights = [
-          tinInvestWeight,
-          dropInvestWeight,
-          tinRedeemWeight,
-          dropRedeemWeight,
-        ];
-        const minTINRatioLbCoeffs = [
-          maxDropRatio,
-          minTinRatio.neg(),
-          maxDropRatio.neg(),
-          minTinRatio,
-        ];
-        const maxTINRatioLbCoeffs = [
-          minDropRatio.neg(),
-          maxTinRatio,
-          minDropRatio,
-          maxTinRatio.neg(),
-        ];
-
-        const template = `Maximize
- ${linearExpression(varWeights)}
+        lpProblemElmt.value = `Maximize
+  obj: + 0.6 x1 + 0.5 x2
 Subject To
-reserve: ${linearExpression([1, 1, -1, -1])} >= ${reserve.neg()}
-maxReserve: ${linearExpression([1, 1, -1, -1])} >= ${reserve.sub(maxReserve)}
-minTINRatioLb: ${linearExpression(minTINRatioLbCoeffs)} >= ${minTINRatioLb}
-maxTINRatioLb: ${linearExpression(maxTINRatioLbCoeffs)} >= ${maxTINRatioLb}
-Bounds
-0 <= tinInvest  <= ${tinInvestOrders}
-0 <= dropInvest <= ${dropInvestOrders}
-0 <= tinRedeem  <= ${tinRedeemOrders}
-0 <= dropRedeem <= ${dropRedeemOrders}
-End
-`;
-        return template;
-      }
-
-      function prepareProblemFromTestCase() {
-        const testCase = JSON.parse(testCaseElmt.value);
-        const weights = {
-          seniorRedeem: 1000000,
-          juniorRedeem: 100000,
-          juniorSupply: 10000,
-          seniorSupply: 1000,
-        };
-
-        const state = testCase.state;
-        const orders = testCase.orders;
-
-        return calculateOptimalSolution(state, orders, weights);
+  cons1: + x1 + 2 x2 <= 1
+  cons2: + 3 x1 + x2 <= 2
+End`;
       }
 
       Module.onRuntimeInitialized = async (_) => {
@@ -284,7 +74,6 @@ End
         const solution = Module.solveLinearProblem(lpProblem);
         return solution;
       }
-
       function solveProblemFromFromLP() {
         const solution = solveLpProblem(lpProblemElmt.value);
         const solObj = JSON.parse(solution);
@@ -293,11 +82,6 @@ End
             solObj[i] = Module.bnRound(solObj[i]);
           }
         solutionElmt.value = JSON.stringify(solObj, null, 4);
-      }
-
-      function solveProblemFromTestCase() {
-        lpProblemElmt.value = prepareProblemFromTestCase();
-        solveProblemFromFromLP();
       }
     </script>
   </body>
