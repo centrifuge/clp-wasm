@@ -2,9 +2,8 @@
 #include "ClpWrapper.h"
 #include "ClpSimplex.hpp"
 
-
 #include <fstream>
-
+ 
 FILE * CbcOrClpReadCommand = stdin;
 int CbcOrClpRead_mode = 1;
 
@@ -106,7 +105,9 @@ bool ClpWrapper::readInput(const std::string & problemFileOrContent, ProblemForm
 std::string toString(const FloatT & v, int precision)
 {
     std::stringstream ss;
-    ss << std::fixed << std::setprecision(precision);
+    ss << std::fixed;
+    if (precision >= 0)
+        ss << std::setprecision(std::max(1, precision));
     ss << v;
     return ss.str();
 }
@@ -118,7 +119,9 @@ std::string asJsonArray(const std::vector<T> & vec, int precision = 0)
         return "[]";
     using namespace std;
     std::stringstream ss;
-    ss << std::fixed << std::setprecision(precision);
+    ss << std::fixed;
+    if (precision >= 0)
+        ss << std::setprecision(std::max(1, precision));
     ss << "[";
     auto i = 0;
     for (const auto & v : vec)
@@ -140,27 +143,93 @@ std::string asJsonObject(const std::vector<std::pair<std::string, std::string>> 
     for (const auto & [k, v] : keyValues)
     {
         const auto isLast = ++i == keyValues.size();
-        const string valWrapper = v.front() == '[' || v.front() == '{' ? "" : "\"";
+        string valWrapper = v.front() == '[' || v.front() == '{' ? "" : "\"";
+        if (v == "true" || v == "false")
+            valWrapper = "";
         ss << '"' << k << "\":" << valWrapper << v << valWrapper << (!isLast ? ',' : '}');
     }
     return ss.str();
+}
+
+bool findBestFloorCeilSolution(ClpSimplex * model)
+{
+    const auto dim = model->getNumCols();
+    const auto originalSolution = toFloatVector(model->getColSolution(), dim);
+
+    auto solution = originalSolution;
+    auto ceilValues = solution;
+    std::transform(ceilValues.begin(), ceilValues.end(), ceilValues.begin(), [](const FloatT & v) {
+        const auto r = mp::round(v);
+        if (mp::abs(r - v) > 1E-30)
+            return mp::ceil(v);
+        return r;
+    });
+    auto floorValues = solution;
+    std::transform(floorValues.begin(), floorValues.end(), floorValues.begin(), [](const FloatT & v) {
+        const auto r = mp::round(v);
+        if (mp::abs(r - v) > 1E-30)
+            return mp::floor(v);
+        return r;
+    });
+
+    std::vector<FloatT> result {};
+    FloatT best = 0;
+    const auto N = 1 << dim;
+    for (int n = 0; n < N; ++n)
+    {
+        for (int i = 0; i < dim; ++i)
+        {
+            solution[i] = (n & (1 << i)) ? ceilValues[i] : floorValues[i];
+        }
+
+        model->setColSolution(solution.data());
+        model->checkSolution();
+        if (model->numberPrimalInfeasibilities() == 0)
+        {
+            const auto objVal = model->objectiveValue() * model->optimizationDirection();
+            if (result.empty() || objVal < best)
+            {
+                result = solution;
+                best = objVal;
+            }
+        }
+    }
+    if (!result.empty())
+    {
+        model->setColSolution(result.data());
+        model->checkSolution();
+        return true;
+    }
+    else
+    {
+        model->setColSolution(originalSolution.data());
+        model->checkSolution();
+        return false;
+    }
 }
 
 std::string ClpWrapper::getSolution(const int precision) const
 {
     using namespace std;
     const auto dim = _model->getNumCols();
-    const auto solution = toFloatVector(_model->getColSolution(), dim);
-    const auto unbounded = toFloatVector(_model->unboundedRay(), dim);
-    const auto infeasibility = toFloatVector(_model->infeasibilityRay(), dim);
+
+    bool integerSolution = false;
+    if (precision <= 0 && dim <= 8)
+    {
+        integerSolution = findBestFloorCeilSolution(_model.get());
+    }
 
     std::vector<std::pair<std::string, std::string>> solutionObj;
 
     auto varNames = _model->columnNames();
+    const auto solution = toFloatVector(_model->getColSolution(), dim);
+    const auto unbounded = toFloatVector(_model->unboundedRay(), dim);
+    const auto infeasibility = toFloatVector(_model->infeasibilityRay(), dim);
     solutionObj.emplace_back("variables", asJsonArray(*varNames));
     solutionObj.emplace_back("solution", asJsonArray(solution, precision));
     solutionObj.emplace_back("unboundedRay", asJsonArray(unbounded, precision));
     solutionObj.emplace_back("infeasibilityRay", asJsonArray(infeasibility, precision));
+    solutionObj.emplace_back("integerSolution", integerSolution ? "true" : "false");
 
     auto objectiveValue = _model->objectiveValue();
     solutionObj.emplace_back("objectiveValue", toString(objectiveValue, precision));

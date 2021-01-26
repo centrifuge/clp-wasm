@@ -1,1 +1,1 @@
-{"variables":["tinInvest","dropInvest","tinRedeem","dropRedeem"],"solution":["125.000000000","400.000000000","100.000000000","300.000000000"],"unboundedRay":[],"infeasibilityRay":[],"objectiveValue":"311650000.000000000"}
+{"variables":["tinInvest","dropInvest","tinRedeem","dropRedeem"],"solution":["125.000000000","400.000000000","100.000000000","300.000000000"],"unboundedRay":[],"infeasibilityRay":[],"integerSolution":false,"objectiveValue":"311650000.000000000"}

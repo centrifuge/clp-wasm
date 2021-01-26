@@ -57,7 +57,7 @@ int main(int argc, char * argv[])
     for (int k = 1; k < argc; ++k)
     {
         const auto problemFile = std::string(argv[k]);
-        auto solution = solve(problemFile, 9);
+        auto solution = solve(problemFile, 0);
         std::cout << "Problem: " << problemFile << std::endl;
         std::cout << "Solution: " << solution << std::endl;
     }

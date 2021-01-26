@@ -66,6 +66,28 @@ describe("clp-wasm test suite", () => {
     }
   });
 
+  test("test best integer floor ceiling search", () => {
+    const lpProblemFiles = ['lp', 'tinlake'];
+    for (const fileName of lpProblemFiles) {
+
+      const lpFile = `${__dirname}/data/${fileName}.lp`;
+      const lpBench = `${__dirname}/bench/${fileName}_integer.json`;
+      const lpContent = fs.readFileSync(lpFile, "utf8");
+
+      const result = solver.solve(lpContent, 0);
+
+      if (fs.existsSync(lpBench) && !rebench) {
+        const expected = JSON.parse(fs.readFileSync(lpBench, "utf8"));
+        expect(expected).toMatchObject(result);
+      }
+      else {
+        console.log(`Rebencing problem ${lpProblemFiles}`)
+        const benchcontent = JSON.stringify(result);
+        fs.writeFileSync(lpBench, benchcontent, "utf8");
+      }
+    }
+  });
+
   test("get CLP version", () => {
     const version = solver.version();
     expect(version).toBe("1.17.3");
