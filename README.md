@@ -6,7 +6,7 @@ The interface at the moment only supports a single method `solve(problem: string
 
 ## Live demo
 
-You can try the solver [here](https://dpar39.github.io/clp-wasm/)
+You can try the solver [here](https://centrifuge.github.io/clp-wasm/)
 
 ## Building from source
 
