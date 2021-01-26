@@ -4,6 +4,7 @@ interface Result {
   solution: string[];
   unboundedRay: string[];
   infeasibilityRay: string[];
+  integerSolution: boolean;
 }
 
 type NumericType = number | string;
