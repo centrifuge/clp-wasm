@@ -1,8 +1,8 @@
 
 # CLP Linear Programming solver ported to WebAssembly
 
-This project brings linear programming library CLP to the browser and node.js via WebAssembly.
-The interface at the moment only supports a single method `solve(problem: string): string`, where `problem` is a string specifyign the linear programming input in [LP format](https://www.ibm.com/support/knowledgecenter/SSSA5P_12.7.1/ilog.odms.cplex.help/CPLEX/FileFormats/topics/LP.html).
+This project brings linear programming library CLP to the browser and node.js via WebAssembly. Given the limited precision of standard double arithmetics when dealing with values over `2^53`, the library is compiled with custom floating point precision mapped to `boost::multiprecision::number<mp::cpp_dec_float<100>, mp::et_off>` (i.e. floating point with 100 decimal values).
+The interface at the moment only supports a single method `solve(problem: string, precision?: number): string`, where `problem` is a string specifyign the linear programming input in [LP format](https://www.ibm.com/support/knowledgecenter/SSSA5P_12.7.1/ilog.odms.cplex.help/CPLEX/FileFormats/topics/LP.html) and `precision` is just the numeric precision of the values printed as strings when returning the result object.
 
 ## Live demo
 
@@ -10,8 +10,7 @@ You can try the solver [here](https://centrifuge.github.io/clp-wasm/)
 
 ## Building from source
 
-You'll need docker
-Simply run
+You'll need docker installed in your system. Simply run:
 
 ```bash
 npm install
@@ -44,3 +43,5 @@ require("clp-wasm/clp-wasm").then(clp => {
    console.log(clp.solve(lp));
 });
 ```
+
+If you don't want to deal with the `clp-wasm.wasm` asset contet and don't mind the extra size and Base64 conversion, `clp-wasm.all.js` includes the wasm blob as a Base64 string can be used without any extra dependencies. 
