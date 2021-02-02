@@ -9992,7 +9992,7 @@ void ClpSimplex::setRowLower(int elementIndex, FloatT elementValue)
     indexError(elementIndex, "setRowLower");
   }
 #endif
-  if (elementValue < -1.0e27)
+  if (elementValue < -OneE27)
     elementValue = -COIN_DBL_MAX;
   if (rowLower_[elementIndex] != elementValue) {
     rowLower_[elementIndex] = elementValue;
@@ -10021,7 +10021,7 @@ void ClpSimplex::setRowUpper(int elementIndex, FloatT elementValue)
     indexError(elementIndex, "setRowUpper");
   }
 #endif
-  if (elementValue > 1.0e27)
+  if (elementValue > OneE27)
     elementValue = COIN_DBL_MAX;
   if (rowUpper_[elementIndex] != elementValue) {
     rowUpper_[elementIndex] = elementValue;
@@ -10050,9 +10050,9 @@ void ClpSimplex::setRowBounds(int elementIndex,
     indexError(elementIndex, "setRowBounds");
   }
 #endif
-  if (lowerValue < -1.0e27)
+  if (lowerValue < -OneE27)
     lowerValue = -COIN_DBL_MAX;
-  if (upperValue > 1.0e27)
+  if (upperValue > OneE27)
     upperValue = COIN_DBL_MAX;
   //CoinAssert (upperValue>=lowerValue);
   if (rowLower_[elementIndex] != lowerValue) {
@@ -10104,9 +10104,9 @@ void ClpSimplex::setRowSetBounds(const int *indexFirst,
 #endif
     FloatT lowerValue = *boundList++;
     FloatT upperValue = *boundList++;
-    if (lowerValue < -1.0e27)
+    if (lowerValue < -OneE27)
       lowerValue = -COIN_DBL_MAX;
-    if (upperValue > 1.0e27)
+    if (upperValue > OneE27)
       upperValue = COIN_DBL_MAX;
     //CoinAssert (upperValue>=lowerValue);
     if (rowLower_[iRow] != lowerValue) {
@@ -10154,7 +10154,7 @@ void ClpSimplex::setColumnLower(int elementIndex, FloatT elementValue)
     indexError(elementIndex, "setColumnLower");
   }
 #endif
-  if (elementValue < -1.0e27)
+  if (elementValue < -OneE27)
     elementValue = -COIN_DBL_MAX;
   if (columnLower_[elementIndex] != elementValue) {
     columnLower_[elementIndex] = elementValue;
@@ -10187,7 +10187,7 @@ void ClpSimplex::setColumnUpper(int elementIndex, FloatT elementValue)
     indexError(elementIndex, "setColumnUpper");
   }
 #endif
-  if (elementValue > 1.0e27)
+  if (elementValue > OneE27)
     elementValue = COIN_DBL_MAX;
   if (columnUpper_[elementIndex] != elementValue) {
     columnUpper_[elementIndex] = elementValue;
@@ -10221,7 +10221,7 @@ void ClpSimplex::setColumnBounds(int elementIndex,
     indexError(elementIndex, "setColumnBounds");
   }
 #endif
-  if (lowerValue < -1.0e27)
+  if (lowerValue < -OneE27)
     lowerValue = -COIN_DBL_MAX;
   if (columnLower_[elementIndex] != lowerValue) {
     columnLower_[elementIndex] = lowerValue;
@@ -10238,7 +10238,7 @@ void ClpSimplex::setColumnBounds(int elementIndex,
       }
     }
   }
-  if (upperValue > 1.0e27)
+  if (upperValue > OneE27)
     upperValue = COIN_DBL_MAX;
   //CoinAssert (upperValue>=lowerValue);
   if (columnUpper_[elementIndex] != upperValue) {
@@ -10275,9 +10275,9 @@ void ClpSimplex::setColumnSetBounds(const int *indexFirst,
 #endif
     FloatT lowerValue = *boundList++;
     FloatT upperValue = *boundList++;
-    if (lowerValue < -1.0e27)
+    if (lowerValue < -OneE27)
       lowerValue = -COIN_DBL_MAX;
-    if (upperValue > 1.0e27)
+    if (upperValue > OneE27)
       upperValue = COIN_DBL_MAX;
     //CoinAssert (upperValue>=lowerValue);
     if (columnLower_[iColumn] != lowerValue) {

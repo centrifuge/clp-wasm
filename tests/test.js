@@ -21,7 +21,7 @@ describe("clp-wasm test suite", () => {
   });
 
   test("test CPLEX LP format", () => {
-    const lpProblemFiles = ['diet_large', 'lp', 'tinlake'];
+    const lpProblemFiles = ['diet_large', 'lp', 'tinlake', 'big_numbers'];
     for (const fileName of lpProblemFiles) {
 
       const lpFile = `${__dirname}/data/${fileName}.lp`;

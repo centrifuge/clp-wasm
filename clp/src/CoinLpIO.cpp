@@ -1622,7 +1622,7 @@ int CoinLpIO::read_monom_obj(FloatT *coeff, char **name, int *cnt,
     setObjectiveOffset(mult * coeff[*cnt]);
 
 #ifdef LPIO_DEBUG
-    printf("read_monom_obj: objectiveOffset: %f\n", objectiveOffset_);
+    printf("read_monom_obj: objectiveOffset: %f\n", (double)objectiveOffset_[0]);
 #endif
 
     return (read_st);
@@ -1632,7 +1632,7 @@ int CoinLpIO::read_monom_obj(FloatT *coeff, char **name, int *cnt,
   name[*cnt] = CoinStrdup(loc_name);
 
 #ifdef LPIO_DEBUG
-  printf("read_monom_obj: (%f)  (%s)\n", coeff[*cnt], name[*cnt]);
+  printf("read_monom_obj: (%f)  (%s)\n", (double)coeff[*cnt], name[*cnt]);
 #endif
 
   (*cnt)++;
@@ -1698,7 +1698,7 @@ int CoinLpIO::read_monom_row(char *start_str,
 
 #ifdef LPIO_DEBUG
   printf("CoinLpIO: read_monom_row: (%f)  (%s)\n",
-    coeff[cnt_coeff], name[cnt_coeff]);
+    (double) coeff[cnt_coeff], name[cnt_coeff]);
 #endif
   return (read_sense);
 } /* read_monom_row */
@@ -2312,7 +2312,7 @@ void CoinLpIO::readLp()
                   if (buff[length - 1] == ':') {
                     goodLine = 1;
                     // merge to get rid of space
-                    char temp[200];
+                    char temp[512];
                     strcpy(temp, buff);
                     fscanfLpIO(buff); // try again
                     strcat(temp, buff);

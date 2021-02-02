@@ -70,7 +70,7 @@ ClpModel::ClpModel(bool emptyMessages)
 
   optimizationDirection_(1)
   , objectiveValue_(0.0)
-  , smallElement_(1.0e-20)
+  , smallElement_(1.0e-50)
   , objectiveScale_(1.0)
   , rhsScale_(1.0)
   , numberRows_(0)
@@ -291,9 +291,9 @@ void ClpModel::gutsOfLoadModel(int numberRows, int numberColumns,
     } else {
       rowActivity_[iRow] = 0.0;
     }
-    if (rowLower_[iRow] < -1.0e27)
+    if (rowLower_[iRow] < -OneE27)
       rowLower_[iRow] = -COIN_DBL_MAX;
-    if (rowUpper_[iRow] > 1.0e27)
+    if (rowUpper_[iRow] > OneE27)
       rowUpper_[iRow] = COIN_DBL_MAX;
   }
   for (iColumn = 0; iColumn < numberColumns_; iColumn++) {
@@ -304,9 +304,9 @@ void ClpModel::gutsOfLoadModel(int numberRows, int numberColumns,
     } else {
       columnActivity_[iColumn] = 0.0;
     }
-    if (columnLower_[iColumn] < -1.0e27)
+    if (columnLower_[iColumn] < -OneE27)
       columnLower_[iColumn] = -COIN_DBL_MAX;
-    if (columnUpper_[iColumn] > 1.0e27)
+    if (columnUpper_[iColumn] > OneE27)
       columnUpper_[iColumn] = COIN_DBL_MAX;
   }
 }
@@ -531,7 +531,7 @@ void ClpModel::setObjectiveCoefficient(int elementIndex, FloatT elementValue)
    Use -DBL_MAX for -infinity. */
 void ClpModel::setRowLower(int elementIndex, FloatT elementValue)
 {
-  if (elementValue < -1.0e27)
+  if (elementValue < -OneE27)
     elementValue = -COIN_DBL_MAX;
   rowLower_[elementIndex] = elementValue;
   whatsChanged_ = 0; // Can't be sure (use ClpSimplex to keep)
@@ -541,7 +541,7 @@ void ClpModel::setRowLower(int elementIndex, FloatT elementValue)
    Use DBL_MAX for infinity. */
 void ClpModel::setRowUpper(int elementIndex, FloatT elementValue)
 {
-  if (elementValue > 1.0e27)
+  if (elementValue > OneE27)
     elementValue = COIN_DBL_MAX;
   rowUpper_[elementIndex] = elementValue;
   whatsChanged_ = 0; // Can't be sure (use ClpSimplex to keep)
@@ -551,9 +551,9 @@ void ClpModel::setRowUpper(int elementIndex, FloatT elementValue)
 void ClpModel::setRowBounds(int elementIndex,
   FloatT lower, FloatT upper)
 {
-  if (lower < -1.0e27)
+  if (lower < -OneE27)
     lower = -COIN_DBL_MAX;
-  if (upper > 1.0e27)
+  if (upper > OneE27)
     upper = COIN_DBL_MAX;
   CoinAssert(upper >= lower);
   rowLower_[elementIndex] = lower;
@@ -579,9 +579,9 @@ void ClpModel::setRowSetBounds(const int *indexFirst,
 #endif
     lower[iRow] = *boundList++;
     upper[iRow] = *boundList++;
-    if (lower[iRow] < -1.0e27)
+    if (lower[iRow] < -OneE27)
       lower[iRow] = -COIN_DBL_MAX;
-    if (upper[iRow] > 1.0e27)
+    if (upper[iRow] > OneE27)
       upper[iRow] = COIN_DBL_MAX;
     CoinAssert(upper[iRow] >= lower[iRow]);
   }
@@ -597,7 +597,7 @@ void ClpModel::setColumnLower(int elementIndex, FloatT elementValue)
     indexError(elementIndex, "setColumnLower");
   }
 #endif
-  if (elementValue < -1.0e27)
+  if (elementValue < -OneE27)
     elementValue = -COIN_DBL_MAX;
   columnLower_[elementIndex] = elementValue;
   whatsChanged_ = 0; // Can't be sure (use ClpSimplex to keep)
@@ -613,7 +613,7 @@ void ClpModel::setColumnUpper(int elementIndex, FloatT elementValue)
     indexError(elementIndex, "setColumnUpper");
   }
 #endif
-  if (elementValue > 1.0e27)
+  if (elementValue > OneE27)
     elementValue = COIN_DBL_MAX;
   columnUpper_[elementIndex] = elementValue;
   whatsChanged_ = 0; // Can't be sure (use ClpSimplex to keep)
@@ -629,9 +629,9 @@ void ClpModel::setColumnBounds(int elementIndex,
     indexError(elementIndex, "setColumnBounds");
   }
 #endif
-  if (lower < -1.0e27)
+  if (lower < -OneE27)
     lower = -COIN_DBL_MAX;
-  if (upper > 1.0e27)
+  if (upper > OneE27)
     upper = COIN_DBL_MAX;
   columnLower_[elementIndex] = lower;
   columnUpper_[elementIndex] = upper;
@@ -658,9 +658,9 @@ void ClpModel::setColumnSetBounds(const int *indexFirst,
     lower[iColumn] = *boundList++;
     upper[iColumn] = *boundList++;
     CoinAssert(upper[iColumn] >= lower[iColumn]);
-    if (lower[iColumn] < -1.0e27)
+    if (lower[iColumn] < -OneE27)
       lower[iColumn] = -COIN_DBL_MAX;
-    if (upper[iColumn] > 1.0e27)
+    if (upper[iColumn] > OneE27)
       upper[iColumn] = COIN_DBL_MAX;
   }
 }

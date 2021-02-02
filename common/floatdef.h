@@ -9,8 +9,10 @@ namespace mp = boost::multiprecision;
 // using FloatT = mp::number<mp::cpp_bin_float<128>>;
 using FloatT = mp::number<mp::cpp_dec_float<100>, mp::et_off>;
 
-#define TOO_SMALL_FLOAT (FloatT(-1.0E50))
-#define TOO_BIG_FLOAT (FloatT(1.0E50))
+#define TOO_SMALL_FLOAT (FloatT("-1.0E100"))
+#define TOO_BIG_FLOAT (FloatT("+1.0E100"))
+
+#define OneE27 (FloatT("1E90"))
 
 namespace std
 {
