@@ -1,6 +1,6 @@
 {
   "name": "clp-wasm",
-  "version": "0.0.1",
+  "version": "0.0.16",
   "description": "A CLP wrapper for WASM",
   "author": "Darien Pardinas",
   "license": "EPL",
